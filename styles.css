@@ -389,3 +389,35 @@ footer{background:#103026;color:#AFC2B8}
   .start-here-note{flex-direction:column;gap:5px}
   .start-here-note span{font-size:14px}
 }
+
+
+/* Phase B trust + purchase confidence */
+.proof-cta{margin-top:28px;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px 20px;border-radius:18px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12)}
+.proof-cta>div{display:flex;flex-direction:column;gap:4px}
+.proof-cta b{font-size:15px;color:white}
+.proof-cta span{font-size:12px;color:#C9D7D0}
+.proof-cta .button{width:auto;min-width:310px}
+.credibility-note{margin-top:18px;padding:16px;border-radius:14px;background:rgba(248,244,236,.075);border:1px solid rgba(255,255,255,.12)}
+.credibility-note b{display:block;font-size:11px;letter-spacing:.06em;color:#F0D8DD;margin-bottom:6px}
+.credibility-note span{display:block;font-size:13px;line-height:1.5;color:#D3DFD9}
+.buying-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:60px;align-items:start}
+.buying-copy{position:sticky;top:44px}
+.purchase-reassurance{display:grid;gap:8px;margin-top:24px}
+.purchase-reassurance>div{padding:14px 15px;border-radius:14px;background:#FBF7F0;border:1px solid var(--line)}
+.purchase-reassurance small{display:block;font-size:9px;letter-spacing:.11em;font-weight:900;color:var(--burgundy);margin-bottom:5px}
+.purchase-reassurance b{font-size:13px;color:var(--ink)}
+.purchase-step:last-child{padding-bottom:0}
+.faq-list details{transition:border-color .18s ease,background .18s ease}
+.faq-list details[open]{border-color:#D7C6BA;background:#FFFDF9}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid rgba(122,46,62,.32);outline-offset:3px;border-radius:8px}
+
+@media(max-width:900px){
+  .buying-grid{grid-template-columns:1fr;gap:30px}
+  .buying-copy{position:static}
+}
+@media(max-width:640px){
+  .proof-cta{flex-direction:column;align-items:stretch;padding:16px}
+  .proof-cta .button{min-width:0;width:100%;font-size:14px}
+  .credibility-note span{font-size:14px}
+  .purchase-reassurance b{font-size:14px}
+}
