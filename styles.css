@@ -564,3 +564,27 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid rgb
   .purchase-detail{padding:14px}
   .purchase-detail .purchase-step{padding-bottom:20px}
 }
+
+/* QA fictional expert review cards */
+.expert-review-intro{max-width:760px}
+.qa-review-card{display:flex;flex-direction:column;gap:16px;min-width:0}
+.reviewer-identity{min-width:0}
+.reviewer-role-am,.reviewer-role-en,.reviewer-date{margin:0}
+.reviewer-role-am{font-family:"Noto Sans Ethiopic",Inter,ui-sans-serif,system-ui,sans-serif;font-size:13px!important;color:var(--ink)!important;line-height:1.5!important}
+.reviewer-role-en{font-size:11px!important;color:var(--muted)!important;margin-top:2px!important}
+.reviewer-date{font-family:"Noto Sans Ethiopic",Inter,ui-sans-serif,system-ui,sans-serif;font-size:11px!important;color:var(--burgundy)!important;margin-top:5px!important;font-weight:700}
+.reviewer-quote{margin:0;padding:16px 0 0;border-top:1px solid #E8DED4;font-family:"Noto Sans Ethiopic",Inter,ui-sans-serif,system-ui,sans-serif;font-size:14px;line-height:1.8;color:#33403A}
+.reviewer-disclaimer{margin-top:auto;padding:11px 12px;border-radius:12px;background:#F7ECEE;border:1px solid #E6C9CF;color:#6E2A38;font-family:"Noto Sans Ethiopic",Inter,ui-sans-serif,system-ui,sans-serif;font-size:11px;line-height:1.55;font-weight:800}
+.review-production-gate{margin-top:12px;padding:12px 14px;border-radius:12px;background:#F4EEE5;border:1px solid #E4D9CD;color:#5D665F;font-size:11px;line-height:1.5}
+.review-production-gate b{color:var(--green)}
+.qa-review-card .reviewer-avatar{font-family:"Noto Sans Ethiopic",Inter,ui-sans-serif,system-ui,sans-serif;letter-spacing:0;font-size:12px}
+@media(min-width:641px){
+  .qa-review-card{min-height:360px}
+}
+@media(max-width:640px){
+  .reviewer-grid{gap:10px}
+  .qa-review-card{gap:13px}
+  .reviewer-quote{font-size:14px;line-height:1.75;padding-top:13px}
+  .reviewer-disclaimer{font-size:11px;line-height:1.6}
+  .review-production-gate{font-size:11px}
+}
