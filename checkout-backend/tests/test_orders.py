@@ -178,3 +178,46 @@ def test_qa_mode_rejects_payments_activation(api, monkeypatch):
     monkeypatch.setenv('PAYMENTS_ENABLED', 'true')
     with pytest.raises(RuntimeError, match='payment collection is disabled'):
         importlib.reload(main)
+
+def test_qa_global_quota_unaffected_by_spoofed_forwarded_headers(api, monkeypatch):
+    client, path, main = api
+    monkeypatch.setenv('CREATE_RATE_LIMIT', '3')
+    versions = [
+        {},
+        {'X-Forwarded-For': '198.51.100.11'},
+        {'X-Forwarded-For': '192.0.2.1, 203.0.113.8', 'CF-Connecting-IP': '192.0.2.44'},
+        {'Forwarded': 'for=198.51.100.55'},
+        {'X-Forwarded-For': '10.0.0.1'},
+    ]
+    codes = [
+        client.post('/api/v1/orders',
+                    headers={'Idempotency-Key':issue_idempotency_key(), **h},
+                    json={'customer_name':'QA Test Parent','mobile':'0912345678','payment_method':'telebirr'}).status_code
+        for h in versions
+    ]
+    assert codes == [201, 201, 201, 429, 429], codes
+
+
+def test_idempotent_retry_survives_exhausted_qa_quota(api, monkeypatch):
+    client, _, main = api
+    monkeypatch.setenv('CREATE_RATE_LIMIT', '2')
+    key = issue_idempotency_key()
+    first = create(client, key=key)
+    second = create(client)
+    blocked = create(client)
+    retry = create(client, key=key)
+    assert [first.status_code, second.status_code, blocked.status_code, retry.status_code] == [201, 201, 429, 201]
+    assert first.json() == retry.json()
+
+
+def test_concurrent_distinct_new_orders_respect_qa_global_limit(api, monkeypatch):
+    from concurrent.futures import ThreadPoolExecutor
+    client, _, main = api
+    monkeypatch.setenv('CREATE_RATE_LIMIT', '3')
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        results = list(pool.map(lambda _: create(client), range(8)))
+    codes = [r.status_code for r in results]
+    assert codes.count(201) == 3, codes
+    assert codes.count(429) == 5, codes
+    with main.SessionLocal() as db:
+        assert db.scalar(select(text('count(*)')).select_from(main.Order)) == 3
