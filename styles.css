@@ -466,3 +466,38 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid rgb
 .guarantee-mark{width:48px;height:48px;font-size:18px}
 .guarantee-inner h3{font-size:21px}
 }
+
+/* Mobile conversion refinement */
+@media(max-width:640px){
+.hero{padding-top:94px}
+.nav-shell{height:64px}
+.logo-link{width:94px;height:40px}
+.logo-link img{width:94px}
+.nav-cta{padding:8px 10px;font-size:10px}
+.hero h1{font-size:44px;line-height:.96;margin:18px 0 14px}
+.hero-lead{font-size:15px;line-height:1.5;margin-bottom:12px}
+.hero-product-summary{display:none}
+.hero-trust{margin:12px 0 14px;gap:8px;font-size:11px}
+.hero-offer{margin-top:14px}
+.offer-top{padding-bottom:11px}
+.offer-top strong{font-size:25px}
+.age-chip{font-size:10px;padding:6px 9px}
+.hero-offer p{font-size:11px}
+.real-product-hero{height:300px;margin-top:-2px}
+.hero-page-main{width:178px;top:10px}
+.hero-page-secondary{width:138px;top:74px}
+.hero-system-note{bottom:14px;width:154px;padding:10px}
+.hero-system-note small{font-size:8px}
+.hero-system-note strong{font-size:13px}
+.hero-system-note span{display:none}
+.product-row{grid-template-columns:38px 1fr;align-items:start}
+.product-row .rail-real-page,.product-row .product-proof-tag{grid-column:2;width:min(100%,210px);height:auto;min-height:118px;margin-top:8px}
+.product-row .rail-real-page{aspect-ratio:.71}
+.product-row .rail-real-page img{object-fit:cover}
+.product-row.featured{padding:16px 12px}
+}
+@media(max-width:390px){
+.hero h1{font-size:42px}
+.section h2,.final-cta h2{font-size:32px}
+.credibility-body h3{font-size:22px}
+}
