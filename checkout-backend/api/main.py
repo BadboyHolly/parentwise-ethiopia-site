@@ -77,12 +77,12 @@ def fingerprint(item: CreateOrder) -> str:
     return hash_value(json.dumps(item.model_dump(), sort_keys=True, separators=(',', ':')))
 
 
-def apply_rate_limit(db, req: Request):
+def apply_rate_limit(db, req: Request, *, atomic_with_order=False):
     # QA-only conservative global rate limit. Render proxy IPs may rotate and
     # unsanitized forwarded headers are potentially spoofable; no request
     # headers or socket addresses participate in this quota's identity.
     reserve_attempt(db, bucket=bucket_for_qa(SECRET),
-                    limit=int(os.getenv('CREATE_RATE_LIMIT', '12')))
+                    limit=int(os.getenv('CREATE_RATE_LIMIT', '12')), commit=not atomic_with_order)
 
 
 @app.on_event('startup')
@@ -120,20 +120,21 @@ def create_order(item: CreateOrder, request: Request, idempotency_key: str = Hea
     digest = fingerprint(item)
     try:
         with SessionLocal() as db:
-            # Successful retries are read-only and must keep working even
-            # after the quota for new QA orders has been exhausted.
+            if db.bind.dialect.name == 'postgresql':
+                # Serialize identical idempotency keys *before* the initial lookup.
+                # The transaction-scoped advisory lock survives through the
+                # rate reservation and order INSERT; released by final COMMIT.
+                advisory_key = int.from_bytes(bytes.fromhex(key_hash)[:8], 'big', signed=True)
+                db.execute(text('SELECT pg_advisory_xact_lock(:key)'), {'key': advisory_key})
             existing = db.execute(select(Order).where(Order.idempotency_hash == key_hash)).scalar_one_or_none()
             if existing:
                 if existing.request_fingerprint != digest:
                     raise HTTPException(409, 'Idempotency key already used for a different order')
                 return {'order': public_summary(existing), 'access_token': token}
-            apply_rate_limit(db, request)
-            # A concurrent worker may have committed the same key meanwhile.
-            existing = db.execute(select(Order).where(Order.idempotency_hash == key_hash)).scalar_one_or_none()
-            if existing:
-                if existing.request_fingerprint != digest:
-                    raise HTTPException(409, 'Idempotency key already used for a different order')
-                return {'order': public_summary(existing), 'access_token': token}
+            # PostgreSQL commits quota and order in one transaction. Thus
+            # failed creations do not permanently consume quota and retries
+            # cannot interleave between an initial lookup and reservation.
+            apply_rate_limit(db, request, atomic_with_order=db.bind.dialect.name == 'postgresql')
             order = Order(id=order_id(), order_code=order_code(), customer_name=item.customer_name,
                           mobile_e164=item.mobile, payment_method=item.payment_method,
                           amount_etb=1500, currency='ETB', status='PENDING_PAYMENT',
@@ -145,7 +146,7 @@ def create_order(item: CreateOrder, request: Request, idempotency_key: str = Hea
                 db.refresh(order)
             except IntegrityError:
                 db.rollback()
-                # Concurrent identical requests: return committed original, not a second order.
+                # Collision handling without leaking SQL details.
                 existing = db.execute(select(Order).where(Order.idempotency_hash == key_hash)).scalar_one_or_none()
                 if existing:
                     if existing.request_fingerprint != digest:
