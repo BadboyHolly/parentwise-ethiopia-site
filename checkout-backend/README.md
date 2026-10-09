@@ -39,3 +39,45 @@ Run `pytest -q` with a disposable SQLite file (FastAPI/SQLAlchemy integration; *
 ## Before connecting real customers
 
 Deploy a QA API with protected PostgreSQL `DATABASE_URL`; set a durable secret; configure rate limit per worker/proxy topology; add monitoring/backup/retention policy. Only change the existing QA checkout from its mock form after successful remote tests. Production payment methods and recipient accounts remain disabled and unspecified.
+
+## October 2026 QA rate-limit security fix (not production ready)
+
+Render places Cloudflare and load balancers in front of the API. The previous
+`request.client.host`-based bucket sometimes represented a proxy address,
+which could vary between requests; simply trusting user-supplied
+`X-Forwarded-For` or `CF-Connecting-IP` without a verified boundary would
+introduce header-spoofing risk.
+
+**QA-only mitigation:** All *new* test-order creations share one PostgreSQL
+bucket (`qa-global-order-create:v2`, salted/hashed with `ORDER_TOKEN_KEY`).
+`CREATE_RATE_LIMIT=12` therefore means **12 new QA test orders per 10 minutes
+across all testers**. A request that sees 429 will not be followed by a 201
+for another new order in the same window, even if requests traverse different
+proxy addresses or include forged forwarding headers. Successfully created
+orders remain retrievable with their access token; idempotent retries check
+the existing record first, do not create extra orders and do not consume the
+creation quota. PostgreSQL UPSERT keeps counters atomic under concurrency.
+
+**Tradeoff:** One user can exhaust the global 12-order allowance and block
+other QA testers. This is acceptable only during controlled QA; replace it
+with a verified trusted-proxy/client-identity strategy and multi-layer
+per-client/abuse limits before enabling production. Do not reduce the global
+limit without coordinating tests.
+
+**PostgreSQL-only regressions:** `tests/test_rate_postgres.py` includes
+sequential over-limit, concurrent atomic UPSERT, reset-after-expiry and
+proxy-header-independence assertions. These tests **skip without explicit
+opt-in**: `QA_PG_TESTS=1 APP_MODE=qa PAYMENTS_ENABLED=false` plus
+`DATABASE_URL` pointing to the QA PostgreSQL database. They create only
+temporary hashed rate keys and clean up their own rows. Do not use a
+production database.
+
+**On-service PostgreSQL self-check:** Temporarily set
+`QA_RATE_SELFTEST=true` on the isolated QA service before a restart.
+The startup hook tests actual PostgreSQL sequential and concurrent rate
+windows with unique temporary rows, logs only pass/fail counts, and removes
+those rows. This is a DB-level check, **not a substitute for external HTTP
+spoof-header or fully deployed request-flow testing**. Disable this option
+after verification to avoid unnecessary startup work.
+
+The order page and actual payments remain disabled and unchanged.
