@@ -20,10 +20,10 @@ WINDOW = timedelta(minutes=10)
 
 
 def bucket_for_qa(secret: str) -> str:
-    return sha256((secret + ':qa-global-order-create:v2').encode()).hexdigest()
+    return sha256((secret + ':qa-global-order-create:v3').encode()).hexdigest()
 
 
-def reserve_attempt(db, *, bucket: str, limit: int, now=None):
+def reserve_attempt(db, *, bucket: str, limit: int, now=None, commit=True):
     """Atomically consume a 10-minute quota slot in SQL."""
     if not (1 <= limit <= 10000):
         raise RuntimeError('Invalid QA creation limit')
@@ -47,7 +47,8 @@ def reserve_attempt(db, *, bucket: str, limit: int, now=None):
     if count > limit:
         db.rollback()
         raise HTTPException(429, 'Too many QA test orders in this 10-minute window. Try again later.')
-    db.commit()
+    if commit:
+        db.commit()
     return count
 
 
