@@ -1,96 +1,121 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>ParentWise — Secure Checkout Preparation (QA)</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<title>QA Checkout — ParentWise Ethiopia</title>
 <link rel="stylesheet" href="styles.css">
 <style>
-body{background:#F8F4EC}.qa-checkout{width:min(100% - 28px,650px);margin:auto;padding:26px 0 78px}
+body{background:#F8F4EC}
+.qa-checkout{width:min(100% - 28px,650px);margin:auto;padding:26px 0 78px}
 .qa-header{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:23px}
 .qa-header a{font-size:13px;color:#1F4D3A;font-weight:750}
 .qa-brand{font-size:18px;font-weight:900;color:#1F4D3A}
 .qa-panel{background:#FFFDF8;border:1px solid #E4DCCF;border-radius:22px;padding:26px;box-shadow:0 16px 45px rgba(31,77,58,.07)}
 .qa-panel h1{font-size:clamp(28px,5vw,38px);line-height:1.1;margin:7px 0 11px}
 .qa-panel p{font-size:14px;line-height:1.55;color:#5A6760}
-.qa-warning{background:#F8EAE7;border:1px solid #DDBBB9;color:#642E3A;border-radius:13px;padding:13px 15px;margin:14px 0 22px;font-size:13px;line-height:1.5}
+.qa-warning{background:#F8EAE7;border:1px solid #DDBBB9;color:#642E3A;border-radius:13px;padding:13px 15px;margin:14px 0 22px;font-size:13px;line-height:1.55}
 .qa-warning strong{display:block;letter-spacing:.09em;font-size:10px;margin-bottom:3px}
 .qa-details{display:grid;grid-template-columns:1fr auto;gap:9px;border-block:1px solid #E4DCCF;padding:16px 0;margin:17px 0}
-.qa-details div{font-size:13px;color:#5A6760}
-.qa-details strong{font-size:18px;color:#1F4D3A}
+.qa-details div{font-size:13px;color:#5A6760}.qa-details strong{font-size:18px;color:#1F4D3A}
 .qa-panel label{display:block;font-weight:800;font-size:12px;margin:17px 0 7px}
 .qa-panel input,.qa-panel select{font:inherit;font-size:16px;width:100%;border:1px solid #CCC6BA;background:white;color:#202928;border-radius:12px;height:51px;padding:0 12px}
-.qa-panel input:focus-visible,.qa-panel select:focus-visible,.qa-panel button:focus-visible,.qa-panel a:focus-visible{outline:3px solid #7A2E3E;outline-offset:2px}
-.qa-panel button.primary{width:100%;border:none;border-radius:13px;background:#1F4D3A;color:white;min-height:52px;font:800 14px Inter,system-ui;cursor:pointer;margin-top:19px}
-.qa-panel button.primary:disabled{background:#899C90;cursor:not-allowed}
-.qa-panel .smallprint{font-size:11px;color:#6D746F;margin:12px 0 0}
-.qa-method{display:flex;flex-direction:column;gap:3px;font-size:12px;margin:5px 0 15px;color:#5A6760}
+.qa-panel input:focus-visible,.qa-panel select:focus-visible,.qa-panel button:focus-visible,.qa-panel a:focus-visible,.qa-panel summary:focus-visible{outline:3px solid #7A2E3E;outline-offset:2px}
+.qa-panel button.primary{width:100%;border:0;border-radius:13px;background:#1F4D3A;color:white;min-height:52px;font:800 14px Inter,system-ui;cursor:pointer;margin-top:19px}
+.qa-panel button.primary:disabled,.qa-panel button:disabled{opacity:.65;cursor:wait}
+.qa-panel .smallprint{font-size:12px;color:#6D746F;margin:12px 0 0}
 .qa-stepbar{display:flex;gap:6px;font-size:11px;font-weight:800;margin:0 0 15px;flex-wrap:wrap;color:#6D746F}
 .qa-stepbar span{padding:5px 8px;border-radius:99px;border:1px solid #DDD3C6}
 .qa-stepbar .active{background:#1F4D3A;color:white;border-color:#1F4D3A}
 .qa-instructions{background:#F6F0E7;border-radius:13px;padding:15px 17px;margin:18px 0}
-.qa-instructions h2{font-size:17px;margin-bottom:10px}
-.qa-instructions p{margin:7px 0}
+.qa-instructions h2{font-size:17px;margin:0 0 9px}.qa-instructions p{margin:7px 0}
 .qa-instructions a{color:#1F4D3A;text-decoration:underline;font-weight:800}
-.qa-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.qa-actions a{border-radius:11px;border:1px solid #B9C9BE;padding:12px;text-align:center;text-decoration:none;color:#1F4D3A;font-weight:800;font-size:12px}
 .qa-muted{color:#7A2E3E;font-weight:800;font-size:12px}
+.checkout-feedback{padding:13px 15px;margin:13px 0;border:1px solid #DCD6CA;border-radius:12px;color:#1F4D3A;background:#EFF3ED;font-size:13px;line-height:1.55;overflow-wrap:anywhere}
+.checkout-feedback[data-kind=error]{color:#792E3D;border-color:#E0B7C0;background:#F9EEF0}
+.checkout-feedback[data-kind=success]{color:#1F4D3A;border-color:#B8D2BD;background:#EAF3EA}
+.qa-result-grid{display:grid;grid-template-columns:128px minmax(0,1fr);gap:10px 14px;font-size:13px;line-height:1.5}
+.qa-result-grid dt{color:#616F68}.qa-result-grid dd{margin:0;color:#202928;font-weight:800;overflow-wrap:anywhere}
+.qa-result-grid dd code{font-size:15px;color:#1F4D3A;font-weight:800;user-select:all;word-break:break-all}
+.qa-actions{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
+.qa-actions button,.qa-secondary{display:inline-flex;align-items:center;justify-content:center;min-height:42px;border-radius:10px;border:1px solid #ABC3B2;background:#FFFDF8;color:#1F4D3A;cursor:pointer;font-size:12px;line-height:1.35;font-weight:800;padding:9px 13px;text-decoration:none}
+.qa-actions button:hover,.qa-secondary:hover{background:#F0F3ED}
+.qa-quiet{font-size:12px!important;line-height:1.6!important}
+.qa-recovery-block{margin-top:20px;padding-top:18px;border-top:1px solid #E4DCCF}
+.qa-recovery-block h2{font-size:17px;line-height:1.3;margin:0 0 7px}
+.qa-recovery-block label{margin-top:12px}
+.qa-recovery-block .qa-secondary{margin:12px 0 0}
+.qa-private-warning{font-size:12px!important;color:#7A2E3E!important;font-weight:650}
+.qa-privacy-details{margin-top:20px;font-size:13px;line-height:1.55}
+.qa-privacy-details summary{cursor:pointer;font-weight:800;color:#1F4D3A}
+.qa-private-tag{font-size:11px;font-weight:800;letter-spacing:.07em;color:#7A2E3E}
 [hidden]{display:none!important}
-@media(max-width:480px){.qa-panel{padding:18px}.qa-actions{grid-template-columns:1fr}.qa-checkout{padding-top:16px}}
+@media(max-width:480px){.qa-panel{padding:18px}.qa-checkout{padding-top:16px}.qa-result-grid{grid-template-columns:1fr;gap:3px}.qa-result-grid dd{margin-bottom:10px}.qa-actions{flex-direction:column}.qa-actions button{width:100%}}
 </style>
+<script src="checkout-qa.js" defer></script>
 </head>
 <body>
 <main class="qa-checkout">
   <header class="qa-header"><span class="qa-brand">ParentWise Ethiopia</span><a href="index.html">← Return to sales page</a></header>
-  <section class="qa-panel">
-    <div class="qa-stepbar"><span class="active">1 · Details</span><span>2 · Instructions</span><span>3 · Verification</span></div>
-    <div class="section-kicker">QA CHECKOUT PREVIEW</div>
-    <h1>Order the complete ParentWise system.</h1>
+  <section class="qa-panel" aria-labelledby="checkout-title">
+    <div class="qa-stepbar" aria-label="QA checkout steps"><span class="active">1 · Details</span><span>2 · Saved test order</span><span>3 · Verification (not active)</span></div>
+    <div class="section-kicker">QA CHECKOUT · LIVE TEST ORDER STORAGE</div>
+    <h1 id="checkout-title">Order the complete ParentWise system.</h1>
     <p>Child Behavior &amp; Discipline System · Ages 2–12</p>
-    <div class="qa-warning" role="alert"><strong>TEST MODE — PAYMENTS DISABLED</strong>No real orders are created or stored on this page. Do not send money, submit actual personal details, or upload payment evidence. This interface is for checkout usability testing only.</div>
+    <div class="qa-warning" role="note"><strong>TEST MODE — NO REAL PAYMENTS</strong>This test creates an order in the QA database only. Do not send money or payment proof. Enter fictional customer details only. Telebirr and bank choices are demonstrations, not active payment options.</div>
     <p><b>Included:</b> START HERE · Core Guide · Action Workbook · Quick Help &amp; Parent Scripts · 30-Day Practice Program.</p>
     <div class="qa-details"><div>One-time payment · No subscription</div><strong>1,500 ETB</strong></div>
+    <p class="checkout-feedback" id="checkout-feedback" role="status" aria-live="polite" hidden></p>
+    <p id="session-storage-notice" class="qa-warning" hidden>Browser session storage is unavailable. Refresh recovery may not work. After creating your QA order, copy and securely save its private recovery code.</p>
     <form id="qaOrder" novalidate>
-      <label for="name">Name (test data only)</label><input id="name" name="name" maxlength="100" minlength="2" autocomplete="off" placeholder="Enter a fictional test name" required>
-      <label for="mobile">Ethiopian mobile (test data only)</label><input id="mobile" name="mobile" inputmode="tel" autocomplete="off" placeholder="09XXXXXXXX" maxlength="13" required>
-      <label for="payment-method">Preferred payment method</label>
-      <select id="payment-method" name="payment-method" required><option value="">Choose a method</option><option value="telebirr">Telebirr</option><option value="bank">Ethiopian bank transfer</option></select>
-      <button class="primary" type="submit">Preview payment steps — NO PAYMENT</button>
-      <p class="smallprint">This QA form does not transmit or save the entered data. Orders will require a dedicated secure server and database.</p>
+      <label for="name">Full name (fictional test data only)</label><input id="name" name="name" maxlength="100" minlength="2" autocomplete="off" placeholder="Fictional test name" required>
+      <label for="mobile">Ethiopian mobile (fictional test data only)</label><input id="mobile" name="mobile" inputmode="tel" autocomplete="off" placeholder="09XXXXXXXX" maxlength="13" required>
+      <label for="payment-method">Choose test payment method</label>
+      <select id="payment-method" name="payment-method" required><option value="">Choose a simulated method</option><option value="telebirr">Telebirr · TEST ONLY</option><option value="bank">Ethiopian bank transfer · TEST ONLY</option></select>
+      <button class="primary" id="order-submit" type="submit">Create TEST order — no payment</button>
+      <p class="smallprint">This creates a persistent QA record at the secure API. Only the test name, mobile number, payment method and order metadata are sent. Do not use actual personal information.</p>
     </form>
-    <section id="testPreview" hidden aria-live="polite" tabindex="-1">
-      <div class="qa-warning"><strong>NO REAL ORDER ID</strong>This is a visual walkthrough, not an order confirmation. Do not send funds to any account.</div>
+    <section id="testPreview" hidden aria-live="polite" tabindex="-1" aria-label="Your saved QA order">
       <div class="qa-instructions">
-        <h2 id="previewMethod">Payment process</h2>
-        <p><b>Recipient:</b> Not configured — owner approval required.</p>
-        <p><b>Amount:</b> 1,500 ETB — informational only. Payments are disabled.</p>
-        <p><b>Order ID:</b> Not generated in test mode. A real order ID must come from the persistent server.</p>
-        <p><b>After payment activation:</b> Customers will send their Order ID and payment proof to the official <a href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">ParentWise Telegram support</a>. Screenshots alone do not verify payment.</p>
+        <div class="qa-private-tag">SAVED TEST ORDER · PAYMENT NOT RECEIVED</div>
+        <h2>Your QA Order ID</h2>
+        <dl class="qa-result-grid">
+          <dt>Order ID</dt><dd><code id="order-id"></code></dd>
+          <dt>Product</dt><dd id="order-product"></dd>
+          <dt>Amount</dt><dd id="order-price">1,500 ETB</dd>
+          <dt>Method</dt><dd id="order-method"></dd>
+          <dt>Status</dt><dd id="order-status">PENDING_PAYMENT</dd>
+        </dl>
       </div>
-      <div class="qa-actions"><a href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Official Telegram support ↗</a><a href="mailto:parentwise@example.invalid" id="supportFallback" hidden>Fallback email (not configured)</a></div>
-      <p class="qa-muted">Support hours and verification timeframe are not yet confirmed. No delivery is initiated.</p>
+      <div class="qa-warning"><strong>DO NOT PAY</strong>The recipient is not configured. The Order ID is not proof of payment, and no payment confirmation or digital product delivery occurs in QA.</div>
+      <div class="qa-actions"><button type="button" id="copy-order-id">Copy Order ID</button><button type="button" id="copy-recovery">Copy PRIVATE recovery code</button></div>
+      <p class="qa-private-warning">The private recovery code includes a secret access token. Keep it in a password manager or secure personal note. Do not share it in public chats, screenshots or URLs.</p>
+      <p class="qa-quiet">Refreshing this tab retrieves the saved order automatically. To recover after closing your browser or on a different device, save the private recovery code first. Without that code, automatic recovery after the browser session ends is not guaranteed.</p>
+      <button type="button" class="qa-secondary" id="start-new-order">Start a new test order</button>
     </section>
-    <details class="qa-instructions"><summary>Privacy, refunds and delivery</summary>
-      <p><b>Privacy:</b> Test inputs remain on this page and are not submitted to a server. Future orders will require name, phone, payment method and order status for manual verification and delivery.</p>
-      <p><b>Refunds:</b> A 30-day practical-use guarantee is advertised on the sales page. Written, operational terms and refund handling must be approved before real payments are enabled.</p>
-      <p><b>Delivery:</b> Only a manually verified payment will qualify for private delivery. No paid download links are published here.</p>
+    <div class="qa-recovery-block">
+      <h2>Already have a QA order?</h2>
+      <p class="qa-quiet">You can recover it using the Order ID and its <b>private access token</b>. The Order ID by itself is not enough.</p>
+      <button type="button" class="qa-secondary" id="recover-toggle" aria-controls="recovery-panel">Recover an existing QA order</button>
+      <div id="recovery-panel" hidden>
+        <form id="recover-form" novalidate>
+          <label for="recover-order-id">QA Order ID</label><input id="recover-order-id" autocomplete="off" autocapitalize="characters" placeholder="PW-QA-…" required>
+          <label for="recover-token">Private access token</label><input id="recover-token" autocomplete="off" autocorrect="off" spellcheck="false" type="password" placeholder="Your 43-character private token" required>
+          <button class="primary" type="submit" id="recover-submit">Recover QA order</button>
+        </form>
+        <p class="qa-private-warning">Your private token is sent only in an HTTPS authorization header. Never paste it into a URL.</p>
+      </div>
+    </div>
+    <details class="qa-instructions qa-privacy-details">
+      <summary>Privacy, testing limits, refunds and delivery</summary>
+      <p><b>Privacy:</b> Use only fictional data. Test customer fields and order status are stored in the separate QA PostgreSQL database. Your current tab stores the retry key and (after creation) private access token in session storage to survive refresh; we do not store them in localStorage or URLs. Session data may disappear when the browser session closes.</p>
+      <p><b>Testing limits:</b> This shared free-tier QA environment permits at most 12 new test orders per 10-minute window across all testers. An existing order's retry or lookup does not create a new order. Free hosting may take time to wake.</p>
+      <p><b>Payments:</b> No recipient numbers, transfer instructions, paid status changes or payment endpoints are available. <a href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Official support: t.me/ParentWiseEthiopia</a>. Do not send payment evidence during QA.</p>
+      <p><b>Refunds and delivery:</b> A 30-day guarantee appears on the sales page, but its operational terms await approval. No refund processing or paid PDF delivery is enabled in QA.</p>
     </details>
   </section>
 </main>
-<script>
-document.getElementById('qaOrder').addEventListener('submit',function(e){
- e.preventDefault();
- const name=document.getElementById('name').value.trim();
- const phone=document.getElementById('mobile').value.trim();
- const method=document.getElementById('payment-method').value;
- if(name.length<2||name.length>100){document.getElementById('name').setCustomValidity('Enter a test name, 2–100 characters');document.getElementById('name').reportValidity();return}
- document.getElementById('name').setCustomValidity('');
- if(!/^(09\d{8}|\+2519\d{8})$/.test(phone)){document.getElementById('mobile').setCustomValidity('Use 09XXXXXXXX or +2519XXXXXXXX');document.getElementById('mobile').reportValidity();return}
- document.getElementById('mobile').setCustomValidity('');
- if(!method){document.getElementById('payment-method').reportValidity();return}
- document.getElementById('previewMethod').textContent=method==='telebirr'?'Telebirr — payment walkthrough':'Bank transfer — payment walkthrough';
- const section=document.getElementById('testPreview');section.hidden=false;section.focus();
-});
-document.getElementById('mobile').addEventListener('input',function(){this.setCustomValidity('')});
-</script>
-</body></html>
+</body>
+</html>
