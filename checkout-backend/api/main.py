@@ -94,9 +94,18 @@ def optional_qa_postgres_rate_selfcheck():
         logging.getLogger('uvicorn.error').info('QA PostgreSQL rate-limit checks: %s', result)
 
 
+@app.on_event('startup')
+def launch_optional_public_acceptance():
+    # Runs only when explicitly enabled on the isolated QA Render service.
+    # The test harness calls this service through its PUBLIC HTTPS hostname.
+    from .public_acceptance import launch_public_qa_acceptance
+    launch_public_qa_acceptance()
+
+
+
 @app.get('/healthz')
 def health():
-    return {'service': 'parentwise-qa-orders', 'mode': 'test', 'payments_enabled': False}
+    return {'service': 'parentwise-qa-orders', 'mode': 'test', 'payments_enabled': False, 'rate_policy': 'global-v3-atomic'}
 
 
 @app.get('/readyz')
