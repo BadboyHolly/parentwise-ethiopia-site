@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="referrer" content="no-referrer">
+<title>ParentWise Ethiopia · Founder QA Console</title>
+<link rel="stylesheet" href="/admin/ui.css">
+<script src="/admin/ui.js" defer></script>
+</head>
+<body>
+<div class="console-shell">
+<header class="topbar"><a href="/admin" class="brand" aria-label="ParentWise founder QA home"><span class="brand-mark">P</span><span>ParentWise <em>Ethiopia</em></span></a><span class="qa-pill">TEST MODE · NO PAYMENTS</span></header>
+<main>
+<section id="signin" class="signin-card" hidden aria-labelledby="loginTitle">
+<div class="eyebrow">FOUNDER ACCESS</div><h1 id="loginTitle">Private QA dashboard</h1>
+<p>Enter your founder password and the six-digit code from your authenticator app. There is no public registration.</p>
+<form id="signinForm" autocomplete="on">
+<label for="username">Founder username</label><input id="username" name="username" autocomplete="username" required maxlength="100">
+<label for="password">Password</label><input type="password" id="password" name="password" autocomplete="current-password" required maxlength="512">
+<label for="otp">Authenticator code</label><input type="text" id="otp" name="otp" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required>
+<button type="submit" id="loginButton">Secure sign-in</button>
+</form><p id="loginError" class="alert" role="alert" hidden></p><small>Secure session expires after inactivity. Sign-ins are rate-limited. Never share codes or recovery secrets.</small>
+</section>
+<section id="dashboard" hidden aria-labelledby="dashboardTitle">
+<div class="dashboard-head"><div><div class="eyebrow">FOUNDER · READ-ONLY QA</div><h1 id="dashboardTitle">Order console</h1><p>View fictitious QA order records. Payment approvals and delivery are disabled.</p></div><button id="logout" type="button" class="secondary">Sign out</button></div>
+<p id="dashError" role="alert" class="alert" hidden></p>
+<section class="stats" aria-label="QA order totals">
+<div class="stat"><span>Total orders</span><strong id="total">—</strong></div><div class="stat"><span>Pending</span><strong id="pending">—</strong></div><div class="stat"><span>Telebirr selected</span><strong id="telebirr">—</strong></div><div class="stat"><span>Bank selected</span><strong id="bank">—</strong></div>
+</section>
+<section class="list-panel" aria-labelledby="ordersTitle"><div class="section-head"><h2 id="ordersTitle">QA orders</h2><span class="read-only">VIEW ONLY</span></div>
+<form id="filterForm" class="filters">
+<div><label for="search">Order ID or prefix</label><input type="search" id="search" placeholder="PW-QA-…" maxlength="30"></div>
+<div><label for="method">Method</label><select id="method"><option value="">All methods</option><option value="telebirr">Telebirr</option><option value="bank">Bank</option></select></div>
+<div><label for="status">Status</label><select id="status"><option value="">All statuses</option><option value="PENDING_PAYMENT">Pending payment</option><option value="PROOF_SUBMITTED">Proof submitted</option><option value="VERIFYING">Verifying</option><option value="VERIFIED_PAID">Verified paid</option><option value="DELIVERED">Delivered</option><option value="CANCELLED">Cancelled</option><option value="EXPIRED">Expired</option><option value="REFUNDED">Refunded</option></select></div>
+<div><label for="fromDate">From</label><input type="date" id="fromDate"></div>
+<div><label for="toDate">To</label><input type="date" id="toDate"></div>
+<button type="submit" class="filter-submit">Apply filters</button></form>
+<div class="table-scroll"><table><thead><tr><th>Created (UTC)</th><th>Order ID</th><th>Method</th><th>Total</th><th>Status</th><th>View</th></tr></thead><tbody id="orderRows"><tr><td colspan="6">Loading QA orders…</td></tr></tbody></table></div>
+<div class="pagination"><span id="pageInfo"></span><div><button id="prev" class="secondary" type="button">Previous</button><button id="next" class="secondary" type="button">Next</button></div></div>
+</section>
+<section id="detail" hidden class="detail-panel" aria-labelledby="detailTitle"><div class="section-head"><h2 id="detailTitle">Order details</h2><button type="button" id="closeDetail" class="secondary">Close</button></div><dl id="detailItems"></dl><h3>Timeline</h3><ol id="timeline"></ol><p class="muted">No payment or business status can be changed from this dashboard.</p></section>
+</section>
+<div id="loading" class="loading" role="status">Checking founder session…</div>
+</main><footer>ParentWise Ethiopia · Internal QA access only · Fictitious data</footer>
+</div></body></html>

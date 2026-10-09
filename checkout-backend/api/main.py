@@ -187,3 +187,8 @@ def retrieve_order(order_code: str, authorization: str = Header(default='')):
         raise
     except SQLAlchemyError:
         raise HTTPException(503, 'Order storage is temporarily unavailable') from None
+
+# Founder-only, same-origin read-only QA admin routes. All endpoints
+# independently require server-side authentication before returning order data.
+from .admin import mount_admin
+mount_admin(app, SessionLocal)
