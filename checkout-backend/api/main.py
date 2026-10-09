@@ -1,8 +1,8 @@
 """Portable test-mode order API. No real payments, operator mutations or file delivery."""
 import json
 import os
-from datetime import datetime, timedelta, timezone
 from typing import Literal
+import logging
 
 from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -11,7 +11,8 @@ from sqlalchemy import select, text
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from .db import get_database_url, make_sessionmaker
-from .models import Order, RateWindow
+from .models import Order
+from .rate_limit import reserve_attempt, bucket_for_qa, run_postgres_qa_selfcheck
 from .security import equal_hash, hash_value, keyed_token, order_code, order_id, validate_idempotency_key
 
 APP_MODE = os.getenv('APP_MODE', 'qa')
@@ -77,33 +78,20 @@ def fingerprint(item: CreateOrder) -> str:
 
 
 def apply_rate_limit(db, req: Request):
-    # Atomic DB-backed limiter across multiple workers; no plaintext IP persisted.
-    # Trust forwarding headers only after reverse-proxy infrastructure has been configured.
-    from sqlalchemy import case
-    from sqlalchemy.dialects.postgresql import insert as pg_insert
-    from sqlalchemy.dialects.sqlite import insert as sqlite_insert
-    ip = req.client.host if req.client else 'unknown'
-    key = hash_value(SECRET + ':rate:' + ip)
-    now = datetime.now(timezone.utc)
-    expires = now + timedelta(minutes=10)
-    limit = int(os.getenv('CREATE_RATE_LIMIT', '12'))
-    dialect = db.bind.dialect.name
-    if dialect == 'postgresql':
-        stmt = pg_insert(RateWindow).values(key=key, count=1, expires_at=expires)
-    elif dialect == 'sqlite':  # test database only
-        stmt = sqlite_insert(RateWindow).values(key=key, count=1, expires_at=expires)
-    else:
-        raise RuntimeError('Unsupported rate limiter database')
-    stmt = stmt.on_conflict_do_update(
-        index_elements=[RateWindow.key],
-        set_={'count': case((RateWindow.expires_at <= now, 1), else_=RateWindow.count + 1),
-              'expires_at': case((RateWindow.expires_at <= now, expires), else_=RateWindow.expires_at)}
-    ).returning(RateWindow.count)
-    count = db.execute(stmt).scalar_one()
-    if count > limit:
-        db.rollback()
-        raise HTTPException(429, 'Too many test order attempts. Please try again later.')
-    db.commit()
+    # QA-only conservative global rate limit. Render proxy IPs may rotate and
+    # unsanitized forwarded headers are potentially spoofable; no request
+    # headers or socket addresses participate in this quota's identity.
+    reserve_attempt(db, bucket=bucket_for_qa(SECRET),
+                    limit=int(os.getenv('CREATE_RATE_LIMIT', '12')))
+
+
+@app.on_event('startup')
+def optional_qa_postgres_rate_selfcheck():
+    # Opt-in diagnostic on the existing QA database. Uses unique temporary
+    # rate-limit records, never creates orders, and cleans up on completion.
+    if os.getenv('QA_RATE_SELFTEST', 'false').lower() == 'true':
+        result = run_postgres_qa_selfcheck(SessionLocal)
+        logging.getLogger('uvicorn.error').info('QA PostgreSQL rate-limit checks: %s', result)
 
 
 @app.get('/healthz')
@@ -132,7 +120,15 @@ def create_order(item: CreateOrder, request: Request, idempotency_key: str = Hea
     digest = fingerprint(item)
     try:
         with SessionLocal() as db:
+            # Successful retries are read-only and must keep working even
+            # after the quota for new QA orders has been exhausted.
+            existing = db.execute(select(Order).where(Order.idempotency_hash == key_hash)).scalar_one_or_none()
+            if existing:
+                if existing.request_fingerprint != digest:
+                    raise HTTPException(409, 'Idempotency key already used for a different order')
+                return {'order': public_summary(existing), 'access_token': token}
             apply_rate_limit(db, request)
+            # A concurrent worker may have committed the same key meanwhile.
             existing = db.execute(select(Order).where(Order.idempotency_hash == key_hash)).scalar_one_or_none()
             if existing:
                 if existing.request_fingerprint != digest:
