@@ -626,3 +626,33 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid rgb
  .product-preview-dialog{width:100vw;max-height:100dvh;border-radius:0}
  .product-dialog-inner{height:100dvh}
 }
+
+/* Task 04 — research clarity; scoped to the existing credibility section */
+#evidence .primary-foundations{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:19px}
+#evidence .foundation-item{display:flex;flex-direction:column;align-items:flex-start;min-width:0;padding:17px 15px 15px;border:1px solid #E4D8CB;border-radius:16px;background:#FFFDF9}
+#evidence .foundation-item h4{margin:0 0 7px;font-size:16px;line-height:1;color:var(--green);letter-spacing:.035em}
+#evidence .foundation-item strong{font-size:12px;line-height:1.45;font-weight:850;color:var(--ink)}
+#evidence .foundation-item p{font-size:12px;line-height:1.55;color:var(--muted);margin:8px 0 14px}
+#evidence .foundation-item a{margin-top:auto;font-size:11px;line-height:1.35;font-weight:800;color:var(--green);text-decoration:underline;text-underline-offset:3px}
+#evidence .foundation-item a span{padding-left:3px}
+#evidence .reference-list a:hover{border-color:#CDB9AD}
+#evidence .reference-list a:focus-visible,
+#evidence .foundation-item a:focus-visible{outline:2px solid var(--burgundy);outline-offset:3px}
+#evidence .research-endorsement-note{font-size:11px;line-height:1.6;color:#58635D;margin:16px 0 0}
+#evidence .research-endorsement-note b{font-weight:800;color:var(--green)}
+#evidence .localization-status{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin:17px 0 0}
+#evidence .localization-status>div{border-left:2px solid #C5B0A2;padding:5px 11px;background:#FFFCF7}
+#evidence .localization-status>div:first-child{border-left-color:var(--green)}
+#evidence .localization-status b{font-size:12px;display:block;color:var(--ink);margin-bottom:4px}
+#evidence .localization-status span{font-size:12px;line-height:1.5;color:var(--muted);display:block}
+@media(max-width:760px){
+ #evidence .primary-foundations{grid-template-columns:1fr;gap:0;border:1px solid #E4D8CB;border-radius:16px;overflow:hidden;background:#FFFDF9}
+ #evidence .foundation-item{display:grid;grid-template-columns:54px minmax(0,1fr);column-gap:10px;row-gap:3px;border:0;border-radius:0;border-bottom:1px solid #E6DCD1;padding:14px}
+ #evidence .foundation-item:last-child{border-bottom:0}
+ #evidence .foundation-item h4{grid-row:1/4;align-self:start;margin-top:4px;font-size:14px}
+ #evidence .foundation-item strong{font-size:12px}
+ #evidence .foundation-item p{font-size:12px;line-height:1.5;margin:2px 0 6px}
+ #evidence .foundation-item a{font-size:11px}
+ #evidence .localization-status{grid-template-columns:1fr;gap:10px}
+ #evidence .reference-list a{grid-template-columns:1fr;gap:5px}
+}
