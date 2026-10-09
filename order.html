@@ -1,58 +1,96 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Order — ParentWise Ethiopia</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ParentWise — Secure Checkout Preparation (QA)</title>
+<meta name="robots" content="noindex,nofollow">
 <link rel="stylesheet" href="styles.css">
 <style>
-body{background:#F8F4EC}
-.order-wrap{width:min(calc(100% - 28px),560px);margin:0 auto;padding:28px 0 70px}
-.order-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
-.order-head img{width:118px}
-.back{font-size:13px;color:#66716B}
-.order-card{background:#FFFDF8;border:1px solid #E4DCCF;border-radius:24px;padding:24px;box-shadow:0 20px 60px rgba(24,55,44,.08)}
-.order-card h1{font-size:38px;line-height:1.02;letter-spacing:-.045em;margin:12px 0}
-.order-card p{color:#6D746F}
-.label{font-size:12px;font-weight:800;display:block;margin:18px 0 7px}
-.order-card input{width:100%;height:52px;border:1px solid #D8CFC4;border-radius:13px;background:white;padding:0 14px;font:inherit}
-.order-total{display:flex;justify-content:space-between;border-top:1px solid #E4DCCF;margin-top:20px;padding:18px 0 14px}
-.order-total strong{font-size:20px}
-.pay-preview{margin-top:18px;padding:16px;border-radius:14px;background:#F2ECE3;border:1px solid #E4DCCF;font-size:13px;color:#5F6964}
-.order-button{width:100%;border:0;background:#1F4D3A;color:white;min-height:54px;border-radius:14px;font-weight:800;font-size:15px;cursor:pointer}
-.order-note{font-size:12px;text-align:center;margin-top:10px;color:#7A817D}
-@media(max-width:480px){.order-card{padding:20px}.order-card h1{font-size:34px}}
+body{background:#F8F4EC}.qa-checkout{width:min(100% - 28px,650px);margin:auto;padding:26px 0 78px}
+.qa-header{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:23px}
+.qa-header a{font-size:13px;color:#1F4D3A;font-weight:750}
+.qa-brand{font-size:18px;font-weight:900;color:#1F4D3A}
+.qa-panel{background:#FFFDF8;border:1px solid #E4DCCF;border-radius:22px;padding:26px;box-shadow:0 16px 45px rgba(31,77,58,.07)}
+.qa-panel h1{font-size:clamp(28px,5vw,38px);line-height:1.1;margin:7px 0 11px}
+.qa-panel p{font-size:14px;line-height:1.55;color:#5A6760}
+.qa-warning{background:#F8EAE7;border:1px solid #DDBBB9;color:#642E3A;border-radius:13px;padding:13px 15px;margin:14px 0 22px;font-size:13px;line-height:1.5}
+.qa-warning strong{display:block;letter-spacing:.09em;font-size:10px;margin-bottom:3px}
+.qa-details{display:grid;grid-template-columns:1fr auto;gap:9px;border-block:1px solid #E4DCCF;padding:16px 0;margin:17px 0}
+.qa-details div{font-size:13px;color:#5A6760}
+.qa-details strong{font-size:18px;color:#1F4D3A}
+.qa-panel label{display:block;font-weight:800;font-size:12px;margin:17px 0 7px}
+.qa-panel input,.qa-panel select{font:inherit;font-size:16px;width:100%;border:1px solid #CCC6BA;background:white;color:#202928;border-radius:12px;height:51px;padding:0 12px}
+.qa-panel input:focus-visible,.qa-panel select:focus-visible,.qa-panel button:focus-visible,.qa-panel a:focus-visible{outline:3px solid #7A2E3E;outline-offset:2px}
+.qa-panel button.primary{width:100%;border:none;border-radius:13px;background:#1F4D3A;color:white;min-height:52px;font:800 14px Inter,system-ui;cursor:pointer;margin-top:19px}
+.qa-panel button.primary:disabled{background:#899C90;cursor:not-allowed}
+.qa-panel .smallprint{font-size:11px;color:#6D746F;margin:12px 0 0}
+.qa-method{display:flex;flex-direction:column;gap:3px;font-size:12px;margin:5px 0 15px;color:#5A6760}
+.qa-stepbar{display:flex;gap:6px;font-size:11px;font-weight:800;margin:0 0 15px;flex-wrap:wrap;color:#6D746F}
+.qa-stepbar span{padding:5px 8px;border-radius:99px;border:1px solid #DDD3C6}
+.qa-stepbar .active{background:#1F4D3A;color:white;border-color:#1F4D3A}
+.qa-instructions{background:#F6F0E7;border-radius:13px;padding:15px 17px;margin:18px 0}
+.qa-instructions h2{font-size:17px;margin-bottom:10px}
+.qa-instructions p{margin:7px 0}
+.qa-instructions a{color:#1F4D3A;text-decoration:underline;font-weight:800}
+.qa-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.qa-actions a{border-radius:11px;border:1px solid #B9C9BE;padding:12px;text-align:center;text-decoration:none;color:#1F4D3A;font-weight:800;font-size:12px}
+.qa-muted{color:#7A2E3E;font-weight:800;font-size:12px}
+[hidden]{display:none!important}
+@media(max-width:480px){.qa-panel{padding:18px}.qa-actions{grid-template-columns:1fr}.qa-checkout{padding-top:16px}}
 </style>
 </head>
 <body>
-<div class="order-wrap">
-  <div class="order-head">
-    <a href="index.html"><img src="assets/logo-reversed.webp" alt="ParentWise Ethiopia"></a>
-    <a class="back" href="index.html">← Back</a>
-  </div>
-  <div class="order-card">
-    <div class="section-kicker">STEP 1 OF 2</div>
-    <h1>Start your ParentWise order.</h1>
-    <p>Child Behavior & Discipline System · Ages 2–12</p>
-    <form id="qaOrder">
-      <label class="label" for="name">Full name</label>
-      <input id="name" autocomplete="name" required placeholder="Your full name">
-      <label class="label" for="mobile">Mobile number</label>
-      <input id="mobile" autocomplete="tel" inputmode="tel" required placeholder="09…">
-      <div class="order-total"><span>Total</span><strong>1,500 ETB</strong></div>
-      <button class="order-button" type="submit">Continue to payment</button>
+<main class="qa-checkout">
+  <header class="qa-header"><span class="qa-brand">ParentWise Ethiopia</span><a href="index.html">← Return to sales page</a></header>
+  <section class="qa-panel">
+    <div class="qa-stepbar"><span class="active">1 · Details</span><span>2 · Instructions</span><span>3 · Verification</span></div>
+    <div class="section-kicker">QA CHECKOUT PREVIEW</div>
+    <h1>Order the complete ParentWise system.</h1>
+    <p>Child Behavior &amp; Discipline System · Ages 2–12</p>
+    <div class="qa-warning" role="alert"><strong>TEST MODE — PAYMENTS DISABLED</strong>No real orders are created or stored on this page. Do not send money, submit actual personal details, or upload payment evidence. This interface is for checkout usability testing only.</div>
+    <p><b>Included:</b> START HERE · Core Guide · Action Workbook · Quick Help &amp; Parent Scripts · 30-Day Practice Program.</p>
+    <div class="qa-details"><div>One-time payment · No subscription</div><strong>1,500 ETB</strong></div>
+    <form id="qaOrder" novalidate>
+      <label for="name">Name (test data only)</label><input id="name" name="name" maxlength="100" minlength="2" autocomplete="off" placeholder="Enter a fictional test name" required>
+      <label for="mobile">Ethiopian mobile (test data only)</label><input id="mobile" name="mobile" inputmode="tel" autocomplete="off" placeholder="09XXXXXXXX" maxlength="13" required>
+      <label for="payment-method">Preferred payment method</label>
+      <select id="payment-method" name="payment-method" required><option value="">Choose a method</option><option value="telebirr">Telebirr</option><option value="bank">Ethiopian bank transfer</option></select>
+      <button class="primary" type="submit">Preview payment steps — NO PAYMENT</button>
+      <p class="smallprint">This QA form does not transmit or save the entered data. Orders will require a dedicated secure server and database.</p>
     </form>
-    <div class="pay-preview" id="preview" hidden>
-      <strong>QA preview only</strong><br>
-      The final flow will show Telebirr / Ethiopian bank details, generate your Order ID, then direct you to send payment proof through Telegram.
-    </div>
-    <div class="order-note">No subscription · No long registration · Final payment credentials will be added before launch.</div>
-  </div>
-</div>
+    <section id="testPreview" hidden aria-live="polite" tabindex="-1">
+      <div class="qa-warning"><strong>NO REAL ORDER ID</strong>This is a visual walkthrough, not an order confirmation. Do not send funds to any account.</div>
+      <div class="qa-instructions">
+        <h2 id="previewMethod">Payment process</h2>
+        <p><b>Recipient:</b> Not configured — owner approval required.</p>
+        <p><b>Amount:</b> 1,500 ETB — informational only. Payments are disabled.</p>
+        <p><b>Order ID:</b> Not generated in test mode. A real order ID must come from the persistent server.</p>
+        <p><b>After payment activation:</b> Customers will send their Order ID and payment proof to the official <a href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">ParentWise Telegram support</a>. Screenshots alone do not verify payment.</p>
+      </div>
+      <div class="qa-actions"><a href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Official Telegram support ↗</a><a href="mailto:parentwise@example.invalid" id="supportFallback" hidden>Fallback email (not configured)</a></div>
+      <p class="qa-muted">Support hours and verification timeframe are not yet confirmed. No delivery is initiated.</p>
+    </section>
+    <details class="qa-instructions"><summary>Privacy, refunds and delivery</summary>
+      <p><b>Privacy:</b> Test inputs remain on this page and are not submitted to a server. Future orders will require name, phone, payment method and order status for manual verification and delivery.</p>
+      <p><b>Refunds:</b> A 30-day practical-use guarantee is advertised on the sales page. Written, operational terms and refund handling must be approved before real payments are enabled.</p>
+      <p><b>Delivery:</b> Only a manually verified payment will qualify for private delivery. No paid download links are published here.</p>
+    </details>
+  </section>
+</main>
 <script>
-document.getElementById("qaOrder").addEventListener("submit",function(e){
- e.preventDefault();document.getElementById("preview").hidden=false;
+document.getElementById('qaOrder').addEventListener('submit',function(e){
+ e.preventDefault();
+ const name=document.getElementById('name').value.trim();
+ const phone=document.getElementById('mobile').value.trim();
+ const method=document.getElementById('payment-method').value;
+ if(name.length<2||name.length>100){document.getElementById('name').setCustomValidity('Enter a test name, 2–100 characters');document.getElementById('name').reportValidity();return}
+ document.getElementById('name').setCustomValidity('');
+ if(!/^(09\d{8}|\+2519\d{8})$/.test(phone)){document.getElementById('mobile').setCustomValidity('Use 09XXXXXXXX or +2519XXXXXXXX');document.getElementById('mobile').reportValidity();return}
+ document.getElementById('mobile').setCustomValidity('');
+ if(!method){document.getElementById('payment-method').reportValidity();return}
+ document.getElementById('previewMethod').textContent=method==='telebirr'?'Telebirr — payment walkthrough':'Bank transfer — payment walkthrough';
+ const section=document.getElementById('testPreview');section.hidden=false;section.focus();
 });
+document.getElementById('mobile').addEventListener('input',function(){this.setCustomValidity('')});
 </script>
-</body>
-</html>
+</body></html>
