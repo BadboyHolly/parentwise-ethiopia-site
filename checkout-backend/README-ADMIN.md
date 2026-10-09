@@ -1,6 +1,6 @@
 # ParentWise Ethiopia · Phase 3 Founder-only QA console
 
-**Code-stage only: the founder account must be privately provisioned and tested before deployment.** Existing payments remain disabled; no operator state changes exist. The dashboard is on the FastAPI service's own HTTPS origin (`https://parentwise-orders-api-qa.onrender.com/admin`), not the sales page origin.
+**Code-stage only: the founder account must be privately provisioned and tested before deployment.** An explicit `FOUNDER_ADMIN_ENABLED=true` release gate is required; it defaults to `false` and every admin endpoint returns HTTP 503 while disabled. Existing payments remain disabled; no operator state changes exist. The dashboard is on the FastAPI service's own HTTPS origin (`https://parentwise-orders-api-qa.onrender.com/admin`), not the sales page origin.
 
 ## Security design
 
@@ -25,7 +25,7 @@
    print('FOUNDER_PASSWORD_HASH:', PasswordHasher(time_cost=3,memory_cost=65536,parallelism=2).hash(password))
    print('FOUNDER_TOTP_SECRET:', __import__('base64').b32encode(secrets.token_bytes(20)).decode().rstrip('='))
    ```
-3. In the **Render Dashboard → `parentwise-orders-api-qa` → Environment**, add `FOUNDER_USERNAME` (your privately chosen login name), `FOUNDER_PASSWORD_HASH` (the hash from step 2), and `FOUNDER_TOTP_SECRET` (Base32 string). Set `ADMIN_ORIGIN=https://parentwise-orders-api-qa.onrender.com`. **Keep** `DATABASE_URL`, `ORDER_TOKEN_KEY`, `APP_MODE=qa`, `PAYMENTS_ENABLED=false`, and `CREATE_RATE_LIMIT=12` unchanged. Do not log or share values. The TOTP secret must be added manually to your authenticator app using its “Enter setup key” option, SHA1 / six-digit / 30 second. Keep offline backup recovery material secured.
+3. In the **Render Dashboard → `parentwise-orders-api-qa` → Environment**, add `FOUNDER_USERNAME` (your privately chosen login name), `FOUNDER_PASSWORD_HASH` (the hash from step 2), and `FOUNDER_TOTP_SECRET` (Base32 string). Set `ADMIN_ORIGIN=https://parentwise-orders-api-qa.onrender.com` and `FOUNDER_ADMIN_ENABLED=false` while credentials are being provisioned. The operator console must only be enabled for controlled authenticated QA tests (`FOUNDER_ADMIN_ENABLED=true`) after migrations have been verified. **Keep** `DATABASE_URL`, `ORDER_TOKEN_KEY`, `APP_MODE=qa`, `PAYMENTS_ENABLED=false`, and `CREATE_RATE_LIMIT=12` unchanged. Do not log or share values. The TOTP secret must be added manually to your authenticator app using its “Enter setup key” option, SHA1 / six-digit / 30 second. Keep offline backup recovery material secured.
 4. Apply migration to QA PostgreSQL using the existing service's startup `alembic upgrade head`. Test access only after checking server-side authorization, login, logout, TOTP replay protection, CSRF/cookie behavior, and order listing against live QA PostgreSQL. Do not make the console publicly accessible for use until tests pass.
 5. To recover from loss of an authenticator, use authenticated Render account access to rotate both `FOUNDER_PASSWORD_HASH` and `FOUNDER_TOTP_SECRET` after verifying your identity out of band. All existing sessions are automatically rejected because the credential version changes. There is deliberately no public reset-password route or bypass code.
 

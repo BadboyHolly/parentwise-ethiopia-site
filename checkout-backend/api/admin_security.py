@@ -31,6 +31,9 @@ class FounderSettings:
 
 
 def config() -> FounderSettings:
+    # Founder explicitly enables access only after credentials and DB tests.
+    if os.getenv('FOUNDER_ADMIN_ENABLED', 'false').lower() != 'true':
+        raise HTTPException(503, 'Founder console not enabled')
     username = os.getenv('FOUNDER_USERNAME', '').strip()
     password_hash = os.getenv('FOUNDER_PASSWORD_HASH', '').strip()
     secret = os.getenv('FOUNDER_TOTP_SECRET', '').strip().replace(' ', '')
