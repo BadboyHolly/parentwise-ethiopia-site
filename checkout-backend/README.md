@@ -1,48 +1,41 @@
-# ParentWise Ethiopia QA — checkout backend and launch gate
+# ParentWise Ethiopia — portable QA order API (Phase 1)
 
-Status: NOT OPERATIONAL. This directory currently documents the future server-side schema. The static `order.html` is a **test-mode walkthrough**, not a payment or order-processing service.
+This backend **creates and retrieves test orders only**. It does not accept real payments, verify receipts, provide any operator endpoints, or deliver product files. `APP_MODE` must be `qa` and `PAYMENTS_ENABLED` must be `false` or startup fails.
 
-## Verified infrastructure (9 October 2026)
-- Existing Render QA service: **static_site**. A static page cannot persist orders, verify payments, manage operator authorization or deliver restricted PDF files.
-- Separate Render QA PostgreSQL free-tier instance provisioned: `parentwise-qa-orders`. Not yet connected to an API. Free-tier database expires **2026-11-08** unless retained through a supported plan.
-- No previously deployed web API or persistent order system found.
-- Real Telebirr and bank recipient details, support hours, operator identity, secure distribution method and written refund terms are **not approved**.
+## Runtime and hosting
 
-## Required production architecture
-1. A separate Render web service providing HTTPS API endpoints, with secrets only in Render environment variables. Origin restriction is not authentication.
-2. QA PostgreSQL for structured orders, a transaction reconciliation ledger, and immutable operator audit records. Use migrations and unique constraints from `schema.sql`.
-3. POST `/api/orders`: validate name, Ethiopian mobile and method; create cryptographically random UUID + non-sequential public order code; enforce an idempotency key for re-submission/refresh; persist `PENDING_PAYMENT`. Return public code; do not accept price from browser.
-4. POST `/api/orders/{code}/proof-notice`: accept a minimal non-sensitive proof-received notification and change status to `PROOF_SUBMITTED`, never verified/paid. Actual screenshots should be submitted through the official Telegram conversation, not public APIs/URLs.
-5. Authenticated operator interface (SSO or MFA preferred). Do not treat knowing the order code as authorization. Fetch and review pending orders through authenticated server endpoints.
-6. Operator checks actual Telebirr or bank transaction against the screenshot, verifies payer/amount/reference/recipient, and creates an atomic reconciliation record with unique `(payment_method, provider_reference)`. Only then can an order become `VERIFIED_PAID`.
-7. Actual delivery must be an authorized action after verification, e.g. an expiring one-time signed private file link recorded against the order with recipient/delivery audit. Do not use publicly accessible paid PDF links or treat clicking a button as delivery.
-8. Controlled `DELIVERED`, `REFUNDED`, `CANCELLED` and `EXPIRED` transitions, with operator identity, reason and timestamps. Refund action must be corroborated against the real refund transaction.
-9. HTTP-only secure session cookies, CSRF protection, role-based authorization, parameterized SQL, request rate limits, HTTP 4xx validation, protected secret configuration, no PII in logs/URLs, backups, and retention controls.
-10. PageView/BuyClick/FormStart/OrderCreated/ProofReceived/PaymentVerified/ProductDelivered events should be attributable to campaigns without sending raw names, numbers, or payment proof to analytics.
+- Python 3.11+ and PostgreSQL 14+ (SQLAlchemy 2, psycopg 3, FastAPI).
+- Any provider running Python + PostgreSQL is suitable; no Render-specific SDK or services.
+- Environment: `DATABASE_URL`, `ORDER_TOKEN_KEY` (random >=32 chars; persist across restarts), `APP_MODE=qa`, `PAYMENTS_ENABLED=false`, `ALLOWED_ORIGINS` (explicit browser origin), `CREATE_RATE_LIMIT` (optional).
+- Create PostgreSQL database separately. Never put secrets into GitHub.
+- From this directory: `pip install -r requirements.txt`; `alembic upgrade head`; then `uvicorn api.main:app --host 0.0.0.0 --port "$PORT" --no-access-log` (or use a provider-specific PORT default).
+- Use `GET /healthz` for process health, `GET /readyz` for database health.
+- Do not allow traffic before migrations are applied. Migrations must run as a controlled release job, not automatically on every worker startup.
+- Configure TLS and database credentials with provider secret environment settings. Turn off HTTP access logs containing sensitive query/body data; these endpoints never accept secrets in URLs.
 
-## Required owner approvals before activation
-- Legal payee/recipient name and **confirmed** Telebirr identifier.
-- Legal payee/recipient name, bank name and **confirmed** account number.
-- Real support hours and realistic verification SLA based on staffed coverage.
-- Operator account(s), access policy, access recovery and who actually reconciles payments.
-- Private product delivery location/workflow and product version.
-- Written 30-day guarantee/refund policy, eligibility, process, support contact and owner approval.
-- Customer privacy notice, retention periods, consent and applicable legal/compliance review.
-- Paid Render database/web-service plan and monitoring once QA is validated.
+## HTTP API
 
-## Required end-to-end QA tests
-- Valid/invalid Ethiopian numbers; form requirements; exact 1,500 ETB server enforced.
-- Concurrent order requests, repeated taps and refreshes: only one order per idempotency key.
-- Cryptographic public-code collision handling; persistent order records after server restarts.
-- Both payment methods with TEST-only, nonpayable account details.
-- Copy controls, Telegram URI, fallback support if app does not open.
-- Non-owner proof notice cannot mark verified/paid.
-- Unauthenticated status changes return 401/403 and are audited when appropriate.
-- Duplicate transaction references refused across orders.
-- Incorrect recipient/amount/reference refused; only independent provider verification allows paid.
-- No delivery before verified paid, private file access only to authorized recipients, delivery audit.
-- Cancellation, expiration, and refunds follow controlled transitions.
-- Mobile 360–430 px and desktop browser tests; recovery after network errors.
+**POST /api/v1/orders**
+- `Content-Type: application/json`, `Idempotency-Key: <43-character CSPRNG 256-bit base64url token>`.
+- Request: `{"customer_name":"QA Test Parent","mobile":"0912345678","payment_method":"telebirr"}` (use fictitious test identities only).
+- Response 201: `{"order":{"order_id":"PW-QA-...","product":"...","amount_etb":1500,"currency":"ETB","payment_method":"telebirr","status":"PENDING_PAYMENT","test_mode":true,"created_at":"..."},"access_token":"..."}`.
+- Access token derived from HMAC secret + idempotency key; **never stored in plaintext**. Treat both the key and access token as private secrets. Store the key only in temporary browser session state, not URLs, logs or analytics; persist the returned access token in encrypted secure server storage or offer it as a user-held recovery code if necessary. Never include PII or tokens in URLs.
+- Retry the *same* body with the same key: same order and token. Reusing the key with different data returns 409. A different key creates a new order.
 
-## QA-only safety rule
-Until the secure API and the owner-approved production configuration are in place, **no real payments may be accepted on this QA site**. The checkout preview must never manufacture an order ID, show a potentially payable recipient or pretend proof submission has verified funds.
+**GET /api/v1/orders/{order_id}**
+- `Authorization: Bearer <access_token>`; returns only the non-PII order summary.
+- Missing, invalid or another customer's access token returns the same 404 response. Order ID alone confers no access.
+
+**GET /healthz**, **GET /readyz** are non-sensitive. No order listing, payment approval, operator status changes or file delivery routes exist.
+
+## Model and migrations
+
+Alembic migration `migrations/versions/20261009_01_qa_orders.py` creates `orders` and DB-backed `api_rate_windows`. Order code and idempotency hash have uniqueness constraints; amount, currency, payment method and QA-only status have database-level CHECK constraints. Old `schema.sql` was a draft for a future operator workflow and is **not** used by this Phase 1 deployment; keep Phase 1 separate from any payment reconciliation schema.
+
+## Tests
+
+Run `pytest -q` with a disposable SQLite file (FastAPI/SQLAlchemy integration; **not** PostgreSQL integration). The tests exercise real HTTP requests through TestClient, SQL persistence and migration, retries, input validation, failed DB, and unauthorized access. A local PostgreSQL container or a credentialed disposable PostgreSQL instance is required to confirm PostgreSQL-specific behavior. Do not call Phase 1 complete without full **deployed API + PostgreSQL** integration tests, restart persistence and idempotency under concurrency.
+
+## Before connecting real customers
+
+Deploy a QA API with protected PostgreSQL `DATABASE_URL`; set a durable secret; configure rate limit per worker/proxy topology; add monitoring/backup/retention policy. Only change the existing QA checkout from its mock form after successful remote tests. Production payment methods and recipient accounts remain disabled and unspecified.
