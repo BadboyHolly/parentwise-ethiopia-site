@@ -81,3 +81,32 @@ spoof-header or fully deployed request-flow testing**. Disable this option
 after verification to avoid unnecessary startup work.
 
 The order page and actual payments remain disabled and unchanged.
+
+
+## Final external acceptance (October 2026)
+
+Phase 1 includes a **disabled-by-default** public HTTPS acceptance runner:
+`api/public_acceptance.py`, enabled only with `QA_EXTERNAL_ACCEPTANCE=true`
+on the isolated QA API service. It waits for the expected `global-v3-atomic`
+revision and `/readyz`, then sends controlled fictional test orders through
+`https://parentwise-orders-api-qa.onrender.com` (not a local TestClient).
+It verifies 12 new orders, consistent 429 after exhaustion, forged
+`X-Forwarded-For`, `X-Real-IP`, and `Forwarded` headers, concurrent
+first-use retries at 10/12, 201 idempotent retries after the limit, 200
+authorized retrieval, 404 unauthorized retrieval, 422 price manipulation,
+and absence of payment verification routes. It logs **HTTP codes only**, not
+access tokens, phone numbers, customer identities, or Order IDs. Disable
+the toggle immediately after one pass to prevent duplicate QA data on
+subsequent deployments.
+
+The v3 quota is still **global QA-only**, 12 created orders per ten-minute
+window. PostgreSQL holds a transaction-scoped advisory lock keyed by the
+idempotency hash before checking for an existing order, then commits its
+quota reservation and new order atomically in one transaction. A denied
+quota rolls back the reservation. The advisory lock is released on commit
+or rollback. The earlier version committed quota separately, which could
+yield a transient 429 on a concurrent retry while the first order was
+still in flight near exhaustion.
+
+Never enable this test against production or expose real payment methods.
+The existing checkout remains unchanged until acceptance is verified.
