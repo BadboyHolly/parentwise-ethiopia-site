@@ -25,7 +25,7 @@ All 15 required QA gates passed. Final accepted code/test revision: `21f06fab5b2
 
 Continue this repository and existing services. Keep APP_MODE=qa and PAYMENTS_ENABLED=false. Preserve accepted founder evidence and do not ask the founder to repeat it.
 
-1. Completed: built a disposable disposable PostgreSQL end-to-end acceptance journey from the actual sales page and checkout files. Use synthetic founder factors and customer data; preserve the private token only inside the test session.
+1. Completed: built a disposable PostgreSQL end-to-end acceptance journey from the actual sales page and checkout files. Use synthetic founder factors and customer data; preserve the private token only inside the test session.
 2. Completed: covered order creation at 1,500 ETB, interruption/recovery, mismatched and matching synthetic ledger credit, explicit verification, enrollment, dummy dispatch, receipt, failure and retry. Check backend, founder dashboard and customer status consistency at each stage.
 3. Completed: asserted no public response includes customer personal data, founder notes, financial reference or internal audit entries; prove cross-order token denial and no founder privileges from customer tokens.
 4. Completed: exercised session revocation, idle/absolute expiry, CSRF and origin checks. Test PostgreSQL duplicate actions and migration constraints, including attempts to UPDATE/DELETE an audit event in an isolated fully migrated schema.
