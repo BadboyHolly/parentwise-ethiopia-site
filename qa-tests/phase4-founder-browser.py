@@ -57,7 +57,8 @@ with sync_playwright() as p:
     page.locator("#otp").fill(otp())
     page.locator("#loginButton").click()
     page.locator("#dashboard").wait_for(state="visible", timeout=30000)
-    assert_ok(page.locator("#total").inner_text().strip() == "2", "real synthetic login and dashboard")
+    page.wait_for_function("document.getElementById('total').textContent.trim() === '2'", timeout=20000)
+    assert_ok(True, "real synthetic login and dashboard")
     # First row is newest (Telebirr). Demonstrate complete positive check.
     page.locator("#orderRows button").first.click()
     page.locator("#qaPaymentReview").wait_for(state="visible")
