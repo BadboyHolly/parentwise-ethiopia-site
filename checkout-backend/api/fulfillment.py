@@ -64,9 +64,16 @@ def event(db, f, action, before, after, *, note=None, ack=None):
         note=note, qa_ack_reference=ack, happened_at=stamp()))
     f.updated_at = stamp()
 
-def enroll_qa_verified(db, order, review):
-    # Called in the same transaction as Phase 4 credit; never authorizes real files.
-    if not verified_dummy_credit(db, order, review.id):
+def enroll_qa_verified(db, order, review, fixture):
+    # Called in the SAME locked transaction as Phase 4 confirmation.
+    # Validate those exact ORM rows before the transaction flush/commit.
+    if not (order.status == 'VERIFIED_PAID' and order.amount_etb == 1500 and order.currency == 'ETB'
+            and review.order_id == order.id and review.state == 'VERIFIED_PAID'
+            and review.independent_check == 'MATCHED' and review.reported_amount_etb == 1500
+            and review.currency == 'ETB' and fixture.credited_order_id == order.id
+            and fixture.test_reference == review.test_reference
+            and fixture.payment_method == review.payment_method
+            and fixture.amount_etb == 1500 and fixture.currency == 'ETB'):
         raise HTTPException(409, 'Matched fictional ledger entry required')
     if db.scalar(select(QaFulfillment.id).where(QaFulfillment.order_id == order.id)):
         raise HTTPException(409, 'QA fulfillment already registered')
