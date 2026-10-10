@@ -192,3 +192,5 @@ def retrieve_order(order_code: str, authorization: str = Header(default='')):
 # independently require server-side authentication before returning order data.
 from .admin import mount_admin
 mount_admin(app, SessionLocal)
+from .payment_review import mount_payment_review
+mount_payment_review(app, SessionLocal)
