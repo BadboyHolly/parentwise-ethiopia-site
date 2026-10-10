@@ -58,6 +58,16 @@ with sync_playwright() as p:
         require(result.headers.get("cache-control") == "no-store",
                 "LIVE mutation denial not cacheable " + route.split("/")[-1])
 
+    # No customer data or new test orders: confirm refreshed static QA checkout
+    # contains the Phase 4 status recovery compatibility change.
+    checkout_script = req.get("https://parentwise-ethiopia-qa.onrender.com/checkout-qa.js")
+    require(checkout_script.status == 200, "LIVE checkout integration JavaScript HTTP 200")
+    script = checkout_script.text()
+    for state in ("PROOF_SUBMITTED", "VERIFYING", "VERIFIED_PAID", "CANCELLED"):
+        require(state in script, "LIVE customer accepts simulated QA state " + state)
+    require("No real payment has been requested, received, or verified" in script,
+            "LIVE customer screen disclaims all real payments")
+
     browser = p.chromium.launch(headless=True)
     for label, size in (("desktop", {"width": 1280, "height": 900}),
                         ("mobile", {"width": 390, "height": 844})):
