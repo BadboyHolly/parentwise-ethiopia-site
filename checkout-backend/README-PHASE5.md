@@ -100,7 +100,7 @@ real founder login, collect real payment evidence, or burn the shared
 12-new-order QA rate limit unnecessarily.
 
 The founder's required live dummy walkthrough is complete, with original
-records preserved. Phase 5 is accepted for QA; Phase 6 remains pending.
+records preserved. Phases 5 and 6 are accepted for QA; see [Phase 6 evidence](README-PHASE6.md).
 Production is separately blocked
 by independently verified real payment controls, secure buyer-binding,
 versioned private product storage, Telegram operations, refunds/terms,
