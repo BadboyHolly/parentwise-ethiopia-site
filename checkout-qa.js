@@ -13,6 +13,8 @@
     submit: $('order-submit'), feedback: $('checkout-feedback'),
     result: $('testPreview'), orderId: $('order-id'), orderProduct: $('order-product'),
     orderPrice: $('order-price'), orderMethod: $('order-method'), orderStatus: $('order-status'),
+    deliveryLabel: $('qa-delivery-label'), deliveryStatus: $('qa-delivery-status'),
+    deliveryNotice: $('qa-fulfillment-notice'),
     copyId: $('copy-order-id'), copyRecovery: $('copy-recovery'),
     newOrder: $('start-new-order'), recoveryPanel: $('recovery-panel'),
     recoverToggle: $('recover-toggle'), recoverForm: $('recover-form'),
