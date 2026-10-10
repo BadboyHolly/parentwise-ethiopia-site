@@ -40,7 +40,29 @@
 <div class="table-scroll"><table><thead><tr><th>Created (UTC)</th><th>Order ID</th><th>Method</th><th>Total</th><th>Status</th><th>View</th></tr></thead><tbody id="orderRows"><tr><td colspan="6">Loading QA orders…</td></tr></tbody></table></div>
 <div class="pagination"><span id="pageInfo"></span><div><button id="prev" class="secondary" type="button">Previous</button><button id="next" class="secondary" type="button">Next</button></div></div>
 </section>
-<section id="detail" hidden class="detail-panel" aria-labelledby="detailTitle"><div class="section-head"><h2 id="detailTitle">Order details</h2><button type="button" id="closeDetail" class="secondary">Close</button></div><dl id="detailItems"></dl><h3>Timeline</h3><ol id="timeline"></ol><p class="muted">No payment or business status can be changed from this dashboard.</p></section>
+<section id="detail" hidden class="detail-panel" aria-labelledby="detailTitle"><div class="section-head"><h2 id="detailTitle">Order details</h2><button type="button" id="closeDetail" class="secondary">Close</button></div><dl id="detailItems"></dl><h3>Timeline</h3><ol id="timeline"></ol><section id="qaPaymentReview" aria-labelledby="qaReviewTitle" class="qa-review-panel">
+<h3 id="qaReviewTitle">Simulated payment reconciliation · QA only</h3>
+<p class="muted"><strong>NO REAL FUNDS.</strong> This ledger is generated inside ParentWise test infrastructure. It is not a Telebirr or bank statement and cannot validate real payments. Only synthetic transaction references beginning with QA- are allowed.</p>
+<div class="qa-workflow">
+<div><h4>A · Generate fictional ledger credit</h4><label for="qaFixtureAmount">Synthetic amount</label>
+<select id="qaFixtureAmount"><option value="1500">1,500 ETB (matching)</option><option value="1400">1,400 ETB (mismatch test)</option></select>
+<button id="qaGenerateFixture" type="button">Create fictional ledger entry</button><p id="qaFixtureResult" class="muted" aria-live="polite"></p></div>
+<div><h4>B · Record fictional proof</h4>
+<label for="qaClaimRef">QA transaction reference</label><input id="qaClaimRef" maxlength="22" placeholder="QA-TB-... / QA-BK-..." autocomplete="off">
+<label for="qaClaimAmount">Reported test amount (ETB)</label><input id="qaClaimAmount" type="number" min="1" max="100000" value="1500">
+<button id="qaRecordProof" type="button">Record simulated proof</button></div>
+<div><h4>C · Compare test ledger</h4><p class="muted">A separate server-side check compares the synthetic fixture with the reported reference, method, amount and currency.</p>
+<button id="qaCheckLedger" type="button">Check fictional ledger independently</button></div>
+<div><h4>D · Decide explicitly</h4>
+<button id="qaVerify" type="button">Confirm SIMULATED payment match</button>
+<label for="qaReason">Rejection / cancellation reason</label><input id="qaReason" maxlength="300" placeholder="Explain discrepancy or cancellation">
+<div class="qa-reject-actions"><button id="qaReject" type="button" class="secondary">Reject simulated claim</button><button id="qaCancel" type="button" class="secondary">Cancel test order</button></div></div>
+</div>
+<p id="qaReviewMessage" class="alert" role="status" aria-live="polite" hidden></p>
+<h4>Simulated claim history</h4><ol id="qaReviewHistory" class="qa-history"></ol>
+<h4>Immutable reconciliation events</h4><ol id="qaEventHistory" class="qa-history"></ol>
+<p class="muted">Only the founder can access these controls. No receipts, banking data, approvals of real money, refunds or file delivery are performed.</p>
+</section></section>
 </section>
 <div id="loading" class="loading" role="status">Checking founder session…</div>
 </main><footer>ParentWise Ethiopia · Internal QA access only · Fictitious data</footer>
