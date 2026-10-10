@@ -35,8 +35,8 @@ jobs:
           python -m pip install -r checkout-backend/requirements.txt pytest httpx
           cd checkout-backend
           alembic upgrade head
-          pytest -q tests/test_admin.py
-          pytest -q tests/test_orders.py
+          PYTHONPATH=. pytest -q tests/test_admin.py
+          PYTHONPATH=. pytest -q tests/test_orders.py
   public-admin:
     runs-on: ubuntu-latest
     steps:
