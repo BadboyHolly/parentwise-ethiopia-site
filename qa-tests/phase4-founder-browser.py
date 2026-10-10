@@ -10,7 +10,8 @@ import os
 import secrets
 import struct
 import time
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright, expect
+import re
 
 BASE = "https://localhost:8443"
 PASS = "SyntheticCIOnlyFounderPasswordLong!2026"
@@ -57,21 +58,21 @@ with sync_playwright() as p:
     page.locator("#otp").fill(otp())
     page.locator("#loginButton").click()
     page.locator("#dashboard").wait_for(state="visible", timeout=30000)
-    page.wait_for_function("document.getElementById('total').textContent.trim() === '2'", timeout=20000)
+    expect(page.locator("#total")).to_have_text("2", timeout=20000)
     assert_ok(True, "real synthetic login and dashboard")
     # First row is newest (Telebirr). Demonstrate complete positive check.
     page.locator("#orderRows button").first.click()
     page.locator("#qaPaymentReview").wait_for(state="visible")
     assert_ok(page.locator("#qaReviewTitle").is_visible(), "desktop fictional review controls")
     page.locator("#qaGenerateFixture").click()
-    page.wait_for_function("document.getElementById('qaClaimRef').value.startsWith('QA-TB-')")
+    expect(page.locator("#qaClaimRef")).to_have_value(re.compile(r"QA-TB-.*"))
     page.locator("#qaRecordProof").click()
-    page.wait_for_function("document.getElementById('qaCheckLedger').disabled === false")
+    expect(page.locator("#qaCheckLedger")).to_be_enabled()
     page.locator("#qaCheckLedger").click()
-    page.wait_for_function("document.getElementById('qaVerify').disabled === false")
+    expect(page.locator("#qaVerify")).to_be_enabled()
     page.once("dialog", lambda d: d.accept())
     page.locator("#qaVerify").click()
-    page.wait_for_function("document.getElementById('qaReviewHistory').textContent.includes('VERIFIED_PAID')")
+    expect(page.locator("#qaReviewHistory")).to_contain_text("VERIFIED_PAID")
     assert_ok(page.locator("#qaVerify").is_disabled(), "desktop matched ledger confirmed only once")
     original = synthetic_orders[1]
     recovered = http.get(BASE + "/api/v1/orders/" + original["order"]["order_id"],
@@ -85,20 +86,20 @@ with sync_playwright() as p:
     page.locator("#orderRows button").nth(1).click()
     page.locator("#qaFixtureAmount").select_option("1400")
     page.locator("#qaGenerateFixture").click()
-    page.wait_for_function("document.getElementById('qaClaimRef').value.startsWith('QA-BK-')")
+    expect(page.locator("#qaClaimRef")).to_have_value(re.compile(r"QA-BK-.*"))
     page.locator("#qaRecordProof").click()
-    page.wait_for_function("document.getElementById('qaCheckLedger').disabled === false")
+    expect(page.locator("#qaCheckLedger")).to_be_enabled()
     page.locator("#qaCheckLedger").click()
-    page.wait_for_function("document.getElementById('qaReviewHistory').textContent.includes('DISCREPANCY')")
+    expect(page.locator("#qaReviewHistory")).to_contain_text("DISCREPANCY")
     assert_ok(page.locator("#qaVerify").is_disabled(), "mobile ledger discrepancy blocks verification")
     page.locator("#qaReason").fill("CI simulated amount mismatch")
     page.locator("#qaReject").click()
-    page.wait_for_function("document.getElementById('qaEventHistory').textContent.includes('qa_claim_rejected')")
+    expect(page.locator("#qaEventHistory")).to_contain_text("qa_claim_rejected")
     assert_ok(page.locator("#qaRecordProof").is_enabled(), "mobile rejection supports new claim")
     page.locator("#qaReason").fill("CI final fictional cancellation")
     page.once("dialog", lambda d: d.accept())
     page.locator("#qaCancel").click()
-    page.wait_for_function("document.getElementById('qaEventHistory').textContent.includes('qa_order_cancelled')")
+    expect(page.locator("#qaEventHistory")).to_contain_text("qa_order_cancelled")
     second = synthetic_orders[0]
     recovered = http.get(BASE + "/api/v1/orders/" + second["order"]["order_id"],
                          headers={"Authorization":"Bearer " + second["access_token"]})
