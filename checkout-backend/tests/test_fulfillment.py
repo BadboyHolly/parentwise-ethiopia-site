@@ -150,6 +150,11 @@ def test_customer_token_recovery_contains_only_simulated_status(env,monkeypatch)
         order=db.scalar(select(Order).where(Order.order_code==code(0)))
         order.access_token_hash=hash_value(token)
     monkeypatch.setattr(main,'SessionLocal',maker)
+    # Importing the full app also mounts admin and replaces its global session
+    # maker. Restore this test's isolated founder fixture before mutations.
+    from api import admin as admin_module
+    monkeypatch.setattr(admin_module,'_SESSION_MAKER',maker)
+    monkeypatch.setattr(fulfillment,'_MAKER',maker)
     with TestClient(main.app) as public:
         def get():
             return public.get('/api/v1/orders/'+code(0),headers={'Authorization':'Bearer '+token})
