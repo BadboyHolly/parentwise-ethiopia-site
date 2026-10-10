@@ -87,8 +87,11 @@
   }
   let mutating=false;
   async function qaMutation(path, payload, success) {
-    if(mutating || !state.activeOrder)return;
-    mutating=true;qaMessage('Updating fictional QA review…');
+    if (mutating) { qaMessage('The previous QA action is still processing. Wait until it finishes.'); return; }
+    if (!state.activeOrder) return;
+    mutating=true;
+    $('qaPaymentReview').setAttribute('aria-busy','true');
+    qaMessage('Updating fictional QA review…');
     try{
       const r=await api(path,{method:'POST',headers:{
         'Content-Type':'application/json','X-CSRF-Token':state.csrf
@@ -98,7 +101,7 @@
       await load();
       return r;
     }catch(e){qaMessage(e.message);throw e;}
-    finally{mutating=false;}
+    finally{mutating=false;$('qaPaymentReview').setAttribute('aria-busy','false');}
   }
   $('qaGenerateFixture').addEventListener('click',async()=>{
     try{
