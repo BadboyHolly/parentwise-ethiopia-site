@@ -143,6 +143,7 @@ def test_customer_token_recovery_contains_only_simulated_status(env,monkeypatch)
     eligible(env)
     client,maker,_=env
     from api.security import hash_value
+    monkeypatch.setenv('ORDER_TOKEN_KEY','CI-dummy-token-key-only-never-production-123456789')
     from api import main
     token='x'*43
     with maker.begin() as db:
