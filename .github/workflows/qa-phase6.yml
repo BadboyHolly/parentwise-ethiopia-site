@@ -1,0 +1,133 @@
+name: ParentWise QA Phase 6 End-to-End Acceptance
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/qa-phase6.yml'
+      - 'qa-tests/phase6-*.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+
+jobs:
+  simulated-postgres:
+    name: Full Phase 1–5 regression and PostgreSQL concurrency
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_USER: qa_ci
+          POSTGRES_DB: pw_qa_disposable
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U qa_ci -d pw_qa_disposable"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      DATABASE_URL: postgresql+psycopg://qa_ci@localhost:5432/pw_qa_disposable
+      QA_PG_TESTS: '1'
+      PW_TEST_POSTGRES_URL: postgresql+psycopg://qa_ci@localhost:5432/pw_qa_disposable
+      APP_MODE: qa
+      PAYMENTS_ENABLED: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: python -m pip install -r checkout-backend/requirements.txt pytest httpx
+      - name: Run real PostgreSQL migrations
+        working-directory: checkout-backend
+        run: alembic upgrade head
+      - name: Run simulated reconciliation tests
+        working-directory: checkout-backend
+        run: PYTHONPATH=. pytest -q tests/test_payment_review.py
+      - name: Run fulfillment authorization and concurrency on PostgreSQL
+        working-directory: checkout-backend
+        run: PYTHONPATH=. pytest -q tests/test_fulfillment.py
+      - name: Preserve existing founder and checkout API behavior
+        working-directory: checkout-backend
+        run: |
+          PYTHONPATH=. pytest -q tests/test_admin.py
+          PYTHONPATH=. pytest -q tests/test_orders.py
+          PYTHONPATH=. pytest -q tests/test_rate_postgres.py
+
+  public-regressions:
+    name: Live public QA security and customer browser
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Chromium
+        run: |
+          python -m pip install 'playwright==1.56.0'
+          python -m playwright install --with-deps chromium
+      - name: Live anonymous admin security
+        run: python qa-tests/admin-public-safety.py
+      - name: Live order creation deliberately excluded
+        run: echo 'No live QA orders created. Complete checkout tested against disposable PostgreSQL.'
+
+  synthetic-founder-browser:
+    name: Complete synthetic customer and founder journey, backup and recovery
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_USER: qa_ci
+          POSTGRES_DB: pw_qa_disposable
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U qa_ci -d pw_qa_disposable"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      DATABASE_URL: postgresql+psycopg://qa_ci@localhost:5432/pw_qa_disposable
+      ORDER_TOKEN_KEY: CI-fixture-key-only-not-deployed-1234567890
+      APP_MODE: qa
+      PAYMENTS_ENABLED: 'false'
+      CREATE_RATE_LIMIT: '100'
+      ADMIN_ORIGIN: https://localhost:8443
+      FOUNDER_ADMIN_ENABLED: 'true'
+      FOUNDER_USERNAME: CI_FICTIONAL_FOUNDER
+      PG_CONTAINER: ${{ job.services.postgres.id }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install backend, PostgreSQL client and browser
+        run: |
+          python -m pip install -r checkout-backend/requirements.txt 'playwright==1.56.0'
+          python -m playwright install --with-deps chromium
+      - name: Create ephemeral synthetic founder factors
+        run: |
+          python - <<'PY'
+          import os,base64,secrets
+          from argon2 import PasswordHasher
+          with open(os.environ['GITHUB_ENV'],'a') as f:
+              f.write('FOUNDER_PASSWORD_HASH='+PasswordHasher().hash('SyntheticCIOnlyFounderPasswordLong!2026')+'\n')
+              f.write('FOUNDER_TOTP_SECRET='+base64.b32encode(secrets.token_bytes(20)).decode()+'\n')
+          PY
+      - name: Run disposable migrations and temporary localhost HTTPS API
+        run: |
+          cd checkout-backend
+          alembic upgrade head
+          openssl req -x509 -newkey rsa:2048 -nodes -keyout /tmp/pw-qa-key.pem -out /tmp/pw-qa-cert.pem -days 1 -subj '/CN=localhost' >/dev/null 2>&1
+          uvicorn api.main:app --host 127.0.0.1 --port 8443 --no-access-log --ssl-keyfile /tmp/pw-qa-key.pem --ssl-certfile /tmp/pw-qa-cert.pem >/tmp/pw-qa-test-api.log 2>&1 &
+          sleep 5
+          python ../qa-tests/phase6-e2e-browser.py
+          PYTHONPATH=. python ../qa-tests/phase6-database.py
+
+      - name: Save Phase 6 sanitized evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase6-acceptance-evidence
+          path: qa-test-evidence/
+          retention-days: 30
