@@ -13,7 +13,7 @@ class Order(Base):
         CheckConstraint('amount_etb = 1500', name='ck_order_price'),
         CheckConstraint("currency = 'ETB'", name='ck_order_currency'),
         CheckConstraint("payment_method IN ('telebirr','bank')", name='ck_payment_method'),
-        CheckConstraint("status = 'PENDING_PAYMENT'", name='ck_qa_pending_only'),
+        CheckConstraint("status IN ('PENDING_PAYMENT','PROOF_SUBMITTED','VERIFYING','VERIFIED_PAID','CANCELLED')", name='ck_qa_order_state'),
     )
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
     order_code: Mapped[str] = mapped_column(String(40), unique=True, nullable=False)
