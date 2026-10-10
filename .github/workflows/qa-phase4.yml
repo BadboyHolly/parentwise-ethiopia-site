@@ -1,0 +1,67 @@
+name: ParentWise QA Phase 4 Reconciliation
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/qa-phase4.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+
+jobs:
+  simulated-postgres:
+    name: PostgreSQL 18 reconciliation and existing API/auth regressions
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_USER: qa_ci
+          POSTGRES_DB: pw_qa_disposable
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U qa_ci -d pw_qa_disposable"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      DATABASE_URL: postgresql+psycopg://qa_ci@localhost:5432/pw_qa_disposable
+      PW_TEST_POSTGRES_URL: postgresql+psycopg://qa_ci@localhost:5432/pw_qa_disposable
+      APP_MODE: qa
+      PAYMENTS_ENABLED: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: python -m pip install -r checkout-backend/requirements.txt pytest httpx
+      - name: Run real PostgreSQL migrations
+        working-directory: checkout-backend
+        run: alembic upgrade head
+      - name: Run simulated reconciliation tests
+        working-directory: checkout-backend
+        run: PYTHONPATH=. pytest -q tests/test_payment_review.py
+      - name: Preserve existing founder and checkout API behavior
+        working-directory: checkout-backend
+        run: |
+          PYTHONPATH=. pytest -q tests/test_admin.py
+          PYTHONPATH=. pytest -q tests/test_orders.py
+
+  public-regressions:
+    name: Live public QA security and customer browser
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Chromium
+        run: |
+          python -m pip install 'playwright==1.56.0'
+          python -m playwright install --with-deps chromium
+      - name: Live anonymous admin security
+        run: python qa-tests/admin-public-safety.py
+      - name: Live customer checkout regression
+        run: python qa-tests/checkout-live-e2e.py
