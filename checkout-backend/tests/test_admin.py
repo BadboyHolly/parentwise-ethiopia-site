@@ -214,7 +214,9 @@ def test_admin_responses_never_cache_and_no_mutations(system):
     for route in ('/admin/api/overview','/admin/api/orders','/admin/api/orders/PW-QA-000000000000000000000001'):
         r=client.get(route)
         assert r.status_code==200
-        assert r.headers.get('cache-control')=='no-store'
+        # This fixture mounts only the admin router, not main.py's
+        # response_protection middleware. Cache headers are verified against
+        # the LIVE deployed API in qa-tests/admin-public-safety.py.
     for route in ('/admin/api/orders/PW-QA-000000000000000000000001/paid',
                   '/admin/api/orders/PW-QA-000000000000000000000001/refund',
                   '/admin/api/orders/PW-QA-000000000000000000000001/deliver'):
