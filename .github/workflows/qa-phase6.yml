@@ -96,7 +96,6 @@ jobs:
       ADMIN_ORIGIN: https://localhost:8443
       FOUNDER_ADMIN_ENABLED: 'true'
       FOUNDER_USERNAME: CI_FICTIONAL_FOUNDER
-      PG_CONTAINER: ${{ job.services.postgres.id }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -116,6 +115,8 @@ jobs:
               f.write('FOUNDER_TOTP_SECRET='+base64.b32encode(secrets.token_bytes(20)).decode()+'\n')
           PY
       - name: Run disposable migrations and temporary localhost HTTPS API
+        env:
+          PG_CONTAINER: ${{ job.services.postgres.id }}
         run: |
           cd checkout-backend
           alembic upgrade head
