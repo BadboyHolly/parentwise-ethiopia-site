@@ -92,6 +92,9 @@ with sync_playwright() as p:
     page.locator("#qaCheckLedger").click()
     expect(page.locator("#qaReviewHistory")).to_contain_text("DISCREPANCY")
     assert_ok(page.locator("#qaVerify").is_disabled(), "mobile ledger discrepancy blocks verification")
+    # The Phase 5 queue refresh adds work to the preceding mutation; wait for
+    # its completion before activating a different status transition.
+    expect(page.locator("#qaPaymentReview")).to_have_attribute("aria-busy", "false")
     page.locator("#qaReason").fill("CI simulated amount mismatch")
     page.locator("#qaReject").click()
     expect(page.locator("#qaEventHistory")).to_contain_text("qa_claim_rejected")
