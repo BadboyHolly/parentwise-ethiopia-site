@@ -128,3 +128,43 @@ class PaymentEvent(Base):
 
 
 Index('ix_qa_events_order', PaymentEvent.order_id, PaymentEvent.occurred_at)
+
+class QaFulfillment(Base):
+    __tablename__ = 'qa_fulfillments'
+    __table_args__ = (
+        CheckConstraint("state IN ('PENDING_FULFILLMENT','PREPARING','SENT','DELIVERED','DELIVERY_FAILED')",name='ck_qa_fulfillment_state'),
+        CheckConstraint("package_version = 'QA-DEMO-2026.10-v1'",name='ck_qa_dummy_version'),
+        CheckConstraint("delivery_channel = 'TELEGRAM_FOUNDER_ASSISTED_QA_SIMULATION'",name='ck_qa_dummy_channel'),
+        CheckConstraint('attempt_count >= 0',name='ck_qa_attempt_positive'),
+    )
+    id: Mapped[str] = mapped_column(String(36),primary_key=True)
+    order_id: Mapped[str] = mapped_column(String(36),ForeignKey('orders.id'),nullable=False,unique=True)
+    qa_review_id: Mapped[str] = mapped_column(String(36),ForeignKey('qa_payment_reviews.id'),nullable=False,unique=True)
+    package_version: Mapped[str] = mapped_column(String(40),nullable=False)
+    delivery_channel: Mapped[str] = mapped_column(String(50),nullable=False)
+    state: Mapped[str] = mapped_column(String(24),nullable=False)
+    attempt_count: Mapped[int] = mapped_column(Integer,nullable=False,default=0)
+    qa_ack_reference: Mapped[str | None] = mapped_column(String(23),unique=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True),nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True),nullable=False)
+    sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    delivered_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    failure_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+Index('ix_qa_fulfillments_state_created',QaFulfillment.state,QaFulfillment.created_at)
+
+
+class QaFulfillmentEvent(Base):
+    __tablename__ = 'qa_fulfillment_events'
+    id: Mapped[str] = mapped_column(String(36),primary_key=True)
+    fulfillment_id: Mapped[str] = mapped_column(String(36),ForeignKey('qa_fulfillments.id'),nullable=False)
+    order_id: Mapped[str] = mapped_column(String(36),ForeignKey('orders.id'),nullable=False)
+    action: Mapped[str] = mapped_column(String(60),nullable=False)
+    from_state: Mapped[str] = mapped_column(String(24),nullable=False)
+    to_state: Mapped[str] = mapped_column(String(24),nullable=False)
+    actor: Mapped[str] = mapped_column(String(24),nullable=False)
+    note: Mapped[str | None] = mapped_column(String(300))
+    qa_ack_reference: Mapped[str | None] = mapped_column(String(23))
+    happened_at: Mapped[datetime] = mapped_column(DateTime(timezone=True),nullable=False)
+
+Index('ix_qa_fulfillment_events_fulfillment',QaFulfillmentEvent.fulfillment_id,QaFulfillmentEvent.happened_at)
