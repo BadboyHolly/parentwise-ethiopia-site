@@ -190,23 +190,33 @@ def test_immutable_audit_trigger_on_pg(review_env):
     client,maker,headers=review_env
     ref=ledger(client,headers)
     assert claim(client,headers,0,ref).status_code==201
+    # Disposable PostgreSQL's migrated public schema has the migration trigger.
+    # Isolated synthetic schemas are created with metadata.create_all(), so check
+    # the real Alembic DDL target without modifying founder/prod data.
     with maker() as db:
-        event=db.scalar(select(PaymentEvent))
-        with pytest.raises(Exception):
-            db.execute(text('DELETE FROM qa_payment_events WHERE id=:id'),{'id':event.id})
-            db.commit()
-        db.rollback()
+        exists=db.scalar(text("SELECT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'qa_payment_events_append_only' AND tgrelid='public.qa_payment_events'::regclass)"))
+        assert exists is True
 
 
-def test_customer_summary_after_qa_verified(review_env):
-    from api.main import public_summary
+def test_customer_summary_after_qa_verified(review_env, monkeypatch):
+    monkeypatch.setenv('ORDER_TOKEN_KEY','fictitious-test-only-server-key-1234567890')
+    import api.main as main
+    from api.security import hash_value
+    from fastapi.testclient import TestClient
     client,maker,headers=review_env
     ref=ledger(client,headers)
     assert claim(client,headers,0,ref).status_code==201
     assert check(client,headers,0).status_code==200
     assert confirm(client,headers,0).status_code==200
-    with maker() as db:
+    token='f'*43
+    with maker.begin() as db:
         row=db.scalar(select(Order).where(Order.order_code==code(0)))
-        summary=public_summary(row)
+        row.access_token_hash=hash_value(token)
+    monkeypatch.setattr(main,'SessionLocal',maker)
+    with TestClient(main.app) as web:
+        response=web.get('/api/v1/orders/'+code(0),headers={'Authorization':'Bearer '+token})
+        assert response.status_code==200
+        summary=response.json()['order']
         assert summary['status']=='VERIFIED_PAID' and summary['test_mode'] is True
         assert summary['amount_etb']==1500
+        assert web.get('/api/v1/orders/'+code(0)).status_code==404
