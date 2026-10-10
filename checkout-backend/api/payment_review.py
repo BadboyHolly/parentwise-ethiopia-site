@@ -123,6 +123,7 @@ def submit_proof(code: str, payload: ReportedProof, request: Request):
                                currency='ETB', state='PROOF_SUBMITTED', independent_check='NOT_CHECKED',
                                evidence_received_at=stamp())
         db.add(review)
+        db.flush()  # Persist reviewed claim before append-only event FK is inserted.
         prior = order.status
         order.status = 'PROOF_SUBMITTED'
         push_event(db, order, 'fictional_proof_recorded', prior, order.status, review_id=review.id)
