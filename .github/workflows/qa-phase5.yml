@@ -5,6 +5,10 @@ on:
     paths:
       - '.github/workflows/qa-phase5.yml'
       - 'checkout-backend/api/payment_review.py'
+      - 'checkout-backend/api/admin-ui.js'
+      - 'checkout-qa.js'
+      - 'qa-tests/admin-public-safety.py'
+      - 'checkout-backend/api/main.py'
       - 'checkout-backend/api/fulfillment.py'
       - 'checkout-backend/tests/test_fulfillment.py'
       - 'checkout-backend/migrations/versions/20261010_04_qa_fulfillment.py'
