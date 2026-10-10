@@ -114,7 +114,7 @@ jobs:
                    'FOUNDER_TOTP_SECRET':base64.b32encode(secrets.token_bytes(20)).decode()}
           for value in factors.values(): print('::add-mask::'+value)
           with open(os.environ['GITHUB_ENV'],'a') as f:
-              for key,value in factors.items(): f.write(key+'='+value+'\\n')
+              for key,value in factors.items(): f.write(key+'='+value+'\n')
           PY
       - name: Run disposable migrations and temporary localhost HTTPS API
         env:
