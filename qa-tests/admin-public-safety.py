@@ -39,6 +39,25 @@ with sync_playwright() as p:
         require(req.post(BASE + path, data={}).status == 404,
                 "LIVE no order mutation action " + action)
 
+    # Phase 4: all simulated payment mutations must reject anonymous clients.
+    # Requests use only fictional references; no founder login, cookies, money,
+    # payment evidence, or customer details are submitted.
+    fictional_order = "PW-QA-" + "0" * 24
+    guarded = [
+        ("/admin/api/qa-ledger", {"method": "bank", "amount_etb": 1500}),
+        ("/admin/api/orders/" + fictional_order + "/proof",
+         {"test_reference": "QA-BK-" + "0" * 16, "reported_amount_etb": 1500, "currency": "ETB"}),
+        ("/admin/api/orders/" + fictional_order + "/check", {}),
+        ("/admin/api/orders/" + fictional_order + "/confirm", {"confirm_simulated_match": True}),
+        ("/admin/api/orders/" + fictional_order + "/reject", {"reason": "Fictional rejection test"}),
+        ("/admin/api/orders/" + fictional_order + "/cancel", {"reason": "Fictional cancellation test"}),
+    ]
+    for route, body in guarded:
+        result = req.post(BASE + route, data=body, headers={"Origin": BASE})
+        require(result.status == 401, "LIVE anonymous mutation blocked " + route.split("/")[-1])
+        require(result.headers.get("cache-control") == "no-store",
+                "LIVE mutation denial not cacheable " + route.split("/")[-1])
+
     browser = p.chromium.launch(headless=True)
     for label, size in (("desktop", {"width": 1280, "height": 900}),
                         ("mobile", {"width": 390, "height": 844})):
