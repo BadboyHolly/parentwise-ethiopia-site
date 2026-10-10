@@ -68,6 +68,33 @@ with sync_playwright() as p:
     require("No real payment has been requested, received, or verified" in script,
             "LIVE customer screen disclaims all real payments")
 
+    # Phase 5: anonymous users cannot inspect or act on delivery records.
+    for route in ("/admin/api/fulfillment/queue",
+                  "/admin/api/fulfillment/dummy-document",
+                  "/admin/api/orders/" + fictional_order + "/fulfillment"):
+        reply = req.get(BASE + route)
+        require(reply.status == 401, "LIVE anonymous dummy fulfillment GET blocked " + route.split("/")[-1])
+        require(reply.headers.get("cache-control") == "no-store",
+                "LIVE anonymous fulfillment response not publicly cached")
+    qa_actions = [
+        ("prepare", {"confirm_qa_action": True}),
+        ("dispatch", {"confirm_qa_action": True, "dummy_document_checked": True}),
+        ("receipt", {"confirm_qa_action": True,
+                     "source": "QA_SIMULATED_CUSTOMER_ACK",
+                     "qa_ack_reference": "QA-ACK-0123456789ABCDEF"}),
+        ("failure", {"reason": "Synthetic founder retry test"}),
+        ("retry", {"reason": "Synthetic founder retry test"})
+    ]
+    for action, body in qa_actions:
+        uri = "/admin/api/orders/" + fictional_order + "/fulfillment/" + action
+        reply = req.post(BASE + uri, data=body, headers={"Origin": BASE})
+        require(reply.status == 401, "LIVE anonymous simulated fulfillment " + action + " blocked")
+    customer_js = req.get("https://parentwise-ethiopia-qa.onrender.com/checkout-qa.js")
+    require(customer_js.status == 200 and "qa-delivery-status" in customer_js.text(),
+            "LIVE checkout publishes QA status without file links")
+    customer_html = req.get("https://parentwise-ethiopia-qa.onrender.com/order.html")
+    require(customer_html.status == 200 and 'id="qa-delivery-status"' in customer_html.text(),
+            "LIVE customer checkout contains QA dummy fulfillment status")
     browser = p.chromium.launch(headless=True)
     for label, size in (("desktop", {"width": 1280, "height": 900}),
                         ("mobile", {"width": 390, "height": 844})):
