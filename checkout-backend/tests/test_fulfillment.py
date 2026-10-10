@@ -167,6 +167,11 @@ def test_customer_token_recovery_contains_only_simulated_status(env,monkeypatch)
         assert next_result.status_code==200
         f=next_result.json()['order']['fulfillment']
         assert f['status']=='SENT' and f['real_files_sent'] is False
+        assert f['package_version']=='QA-DEMO-2026.10-v1'
+        assert set(f)=={'status','package_version','channel','simulated_only',
+                        'real_files_sent','support','message'}
+        assert set(next_result.json()['order'])=={'order_id','product','amount_etb',
+            'currency','payment_method','status','test_mode','created_at','fulfillment'}
         assert 'qa_ack_reference' not in str(next_result.json())
         assert 'customer_name' not in str(next_result.json())
         assert public.get('/api/v1/orders/'+code(0)).status_code==404

@@ -15,6 +15,7 @@
     orderPrice: $('order-price'), orderMethod: $('order-method'), orderStatus: $('order-status'),
     deliveryLabel: $('qa-delivery-label'), deliveryStatus: $('qa-delivery-status'),
     deliveryNotice: $('qa-fulfillment-notice'),
+    deliveryVersionLabel: $('qa-delivery-version-label'), deliveryVersion: $('qa-delivery-version'),
     copyId: $('copy-order-id'), copyRecovery: $('copy-recovery'),
     newOrder: $('start-new-order'), recoveryPanel: $('recovery-panel'),
     recoverToggle: $('recover-toggle'), recoverForm: $('recover-form'),
@@ -137,8 +138,11 @@
     elements.deliveryLabel.hidden = !visible;
     elements.deliveryStatus.hidden = !visible;
     elements.deliveryNotice.hidden = !visible;
+    elements.deliveryVersionLabel.hidden = !visible;
+    elements.deliveryVersion.hidden = !visible;
     if (visible) {
       elements.deliveryStatus.textContent = simulated.status + ' · SIMULATION ONLY';
+      elements.deliveryVersion.textContent = simulated.package_version || 'Unavailable';
       elements.deliveryNotice.textContent =
         'QA DUMMY FULFILLMENT ONLY. No actual Telegram message or paid ParentWise document was sent. ' +
         'Production fulfillment will be founder-assisted through official Telegram after independently confirmed real payment. ' +
