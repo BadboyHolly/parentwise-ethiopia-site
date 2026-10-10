@@ -12,9 +12,12 @@ depends_on = None
 
 
 def upgrade():
-    op.drop_constraint('ck_qa_pending_only', 'orders', type_='check')
-    op.create_check_constraint('ck_qa_order_state', 'orders',
-         "status IN ('PENDING_PAYMENT','PROOF_SUBMITTED','VERIFYING','VERIFIED_PAID','CANCELLED')")
+    # SQLite requires copy-and-move ALTER for CHECK constraints; PostgreSQL
+    # uses native ALTER without recreating the orders table.
+    with op.batch_alter_table('orders') as batch:
+        batch.drop_constraint('ck_qa_pending_only', type_='check')
+        batch.create_check_constraint('ck_qa_order_state',
+            "status IN ('PENDING_PAYMENT','PROOF_SUBMITTED','VERIFYING','VERIFIED_PAID','CANCELLED')")
     op.create_table('qa_simulated_ledger',
       sa.Column('id',sa.String(36),primary_key=True),
       sa.Column('test_reference',sa.String(22),nullable=False),
@@ -72,5 +75,6 @@ def downgrade():
     op.drop_index('ix_qa_reviews_order',table_name='qa_payment_reviews')
     op.drop_table('qa_payment_reviews')
     op.drop_table('qa_simulated_ledger')
-    op.drop_constraint('ck_qa_order_state','orders',type_='check')
-    op.create_check_constraint('ck_qa_pending_only','orders',"status = 'PENDING_PAYMENT'")
+    with op.batch_alter_table('orders') as batch:
+        batch.drop_constraint('ck_qa_order_state',type_='check')
+        batch.create_check_constraint('ck_qa_pending_only',"status = 'PENDING_PAYMENT'")
