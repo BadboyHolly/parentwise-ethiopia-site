@@ -200,7 +200,6 @@ def test_immutable_audit_trigger_on_pg(review_env):
 
 def test_customer_summary_after_qa_verified(review_env, monkeypatch):
     monkeypatch.setenv('ORDER_TOKEN_KEY','fictitious-test-only-server-key-1234567890')
-    import api.main as main
     from api.security import hash_value
     from fastapi.testclient import TestClient
     client,maker,headers=review_env
@@ -212,6 +211,9 @@ def test_customer_summary_after_qa_verified(review_env, monkeypatch):
     with maker.begin() as db:
         row=db.scalar(select(Order).where(Order.order_code==code(0)))
         row.access_token_hash=hash_value(token)
+    import api.main as main
+    # Import only after authenticated mutation, because main registers its own
+    # admin-session maker at module-import time in the same test interpreter.
     monkeypatch.setattr(main,'SessionLocal',maker)
     with TestClient(main.app) as web:
         response=web.get('/api/v1/orders/'+code(0),headers={'Authorization':'Bearer '+token})
