@@ -194,7 +194,7 @@ def confirm_match(code: str, payload: FounderDecision, request: Request):
         order.status = 'VERIFIED_PAID'
         push_event(db, order, 'qa_payment_verified', prior, order.status, review_id=review.id)
         from .fulfillment import enroll_qa_verified
-        enroll_qa_verified(db, order, review)
+        enroll_qa_verified(db, order, review, fixture)
         db.commit()
         return {'test_mode': True, 'simulated_only': True, 'status': 'VERIFIED_PAID'}
 
