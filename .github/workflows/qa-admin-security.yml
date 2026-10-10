@@ -4,6 +4,8 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/qa-admin-security.yml'
+      - 'checkout-backend/tests/test_admin.py'
+      - 'qa-tests/admin-public-safety.py'
   workflow_dispatch:
 permissions:
   contents: read
