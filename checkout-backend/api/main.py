@@ -66,11 +66,17 @@ class CreateOrder(BaseModel):
         raise ValueError('Use a valid Ethiopian mobile number: 09..., 07..., or +251...')
 
 
-def public_summary(order: Order):
+def public_summary(order: Order, db=None):
     return {'order_id': order.order_code, 'product': 'ParentWise Child Behavior & Discipline System',
             'amount_etb': order.amount_etb, 'currency': order.currency,
             'payment_method': order.payment_method, 'status': order.status,
-            'test_mode': True, 'created_at': order.created_at.isoformat() if order.created_at else None}
+            'test_mode': True, 'created_at': order.created_at.isoformat() if order.created_at else None,
+            'fulfillment': _public_fulfillment(db, order) if db is not None else None}
+
+
+def _public_fulfillment(db, order):
+    from .fulfillment import public_delivery
+    return public_delivery(db, order)
 
 
 def fingerprint(item: CreateOrder) -> str:
@@ -139,7 +145,7 @@ def create_order(item: CreateOrder, request: Request, idempotency_key: str = Hea
             if existing:
                 if existing.request_fingerprint != digest:
                     raise HTTPException(409, 'Idempotency key already used for a different order')
-                return {'order': public_summary(existing), 'access_token': token}
+                return {'order': public_summary(existing, db), 'access_token': token}
             # PostgreSQL commits quota and order in one transaction. Thus
             # failed creations do not permanently consume quota and retries
             # cannot interleave between an initial lookup and reservation.
@@ -160,9 +166,9 @@ def create_order(item: CreateOrder, request: Request, idempotency_key: str = Hea
                 if existing:
                     if existing.request_fingerprint != digest:
                         raise HTTPException(409, 'Idempotency key already used for a different order')
-                    return {'order': public_summary(existing), 'access_token': token}
+                    return {'order': public_summary(existing, db), 'access_token': token}
                 raise HTTPException(503, 'Could not create the test order; try again') from None
-            return {'order': public_summary(order), 'access_token': token}
+            return {'order': public_summary(order, db), 'access_token': token}
     except HTTPException:
         raise
     except SQLAlchemyError:
@@ -182,7 +188,7 @@ def retrieve_order(order_code: str, authorization: str = Header(default='')):
             row = db.execute(select(Order).where(Order.order_code == order_code)).scalar_one_or_none()
             if not row or not equal_hash(row.access_token_hash, hash_value(token)):
                 raise HTTPException(404, 'Order not found or access denied')
-            return {'order': public_summary(row)}
+            return {'order': public_summary(row, db)}
     except HTTPException:
         raise
     except SQLAlchemyError:
@@ -194,3 +200,5 @@ from .admin import mount_admin
 mount_admin(app, SessionLocal)
 from .payment_review import mount_payment_review
 mount_payment_review(app, SessionLocal)
+from .fulfillment import mount_fulfillment
+mount_fulfillment(app, SessionLocal)
