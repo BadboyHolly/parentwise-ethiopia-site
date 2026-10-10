@@ -103,16 +103,18 @@ jobs:
           python-version: '3.12'
       - name: Install backend, PostgreSQL client and browser
         run: |
-          python -m pip install -r checkout-backend/requirements.txt 'playwright==1.56.0'
+          python -m pip install -r checkout-backend/requirements.txt httpx 'playwright==1.56.0'
           python -m playwright install --with-deps chromium
       - name: Create ephemeral synthetic founder factors
         run: |
           python - <<'PY'
           import os,base64,secrets
           from argon2 import PasswordHasher
+          factors={'FOUNDER_PASSWORD_HASH':PasswordHasher().hash('SyntheticCIOnlyFounderPasswordLong!2026'),
+                   'FOUNDER_TOTP_SECRET':base64.b32encode(secrets.token_bytes(20)).decode()}
+          for value in factors.values(): print('::add-mask::'+value)
           with open(os.environ['GITHUB_ENV'],'a') as f:
-              f.write('FOUNDER_PASSWORD_HASH='+PasswordHasher().hash('SyntheticCIOnlyFounderPasswordLong!2026')+'\n')
-              f.write('FOUNDER_TOTP_SECRET='+base64.b32encode(secrets.token_bytes(20)).decode()+'\n')
+              for key,value in factors.items(): f.write(key+'='+value+'\\n')
           PY
       - name: Run disposable migrations and temporary localhost HTTPS API
         env:

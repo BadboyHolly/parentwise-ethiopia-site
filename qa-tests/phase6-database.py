@@ -66,6 +66,16 @@ with TestClient(main.app,base_url="https://localhost:8443") as client:
     second=client.post("/api/v1/orders",json=body,headers={"Idempotency-Key":key})
     assert first.status_code==201 and first.json()==second.json()
     passed("retry after transaction failure creates exactly one recoverable order")
+from concurrent.futures import ThreadPoolExecutor
+race_key=secrets.token_urlsafe(32)
+with TestClient(main.app,base_url="https://localhost:8443") as client:
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        responses=list(pool.map(lambda _: client.post("/api/v1/orders",json=body,headers={"Idempotency-Key":race_key}),range(4)))
+    assert all(r.status_code==201 for r in responses)
+    assert all(r.json()==responses[0].json() for r in responses)
+    conflict=client.post("/api/v1/orders",json={**body,"payment_method":"telebirr"},headers={"Idempotency-Key":race_key})
+    assert conflict.status_code==409
+passed("PostgreSQL concurrent duplicate submissions produce one order; changed replay is rejected")
 before=snapshot(engine)
 subprocess.run(["alembic","upgrade","head"],check=True)
 assert before==snapshot(engine)
