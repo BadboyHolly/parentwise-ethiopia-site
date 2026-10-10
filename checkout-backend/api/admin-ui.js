@@ -1,7 +1,7 @@
 'use strict';
 (() => {
   const $ = id => document.getElementById(id);
-  const state = { csrf: '', page: 1, hasMore: false };
+  const state = { csrf: '', page: 1, hasMore: false, activeOrder: null, activeMethod: null, activeStatus: null };
   function display(id, show){ $(id).hidden = !show; }
   function error(message, target='dashError') { $(target).textContent = message; display(target, Boolean(message)); }
   async function api(path, options={}) {
@@ -43,6 +43,7 @@
   async function detail(code){
     try {
       error('');const d=await api('/admin/api/orders/'+encodeURIComponent(code));
+      state.activeOrder=code;state.activeMethod=d.order.method;state.activeStatus=d.order.status;
       const container=$('detailItems');container.replaceChildren();
       Object.entries(d.order).forEach(([key,value])=>{
         const wrapper=document.createElement('div'),dt=document.createElement('dt'),dd=document.createElement('dd');
@@ -51,9 +52,94 @@
       const list=$('timeline');list.replaceChildren();
       d.timeline.forEach(e=>{const li=document.createElement('li');li.textContent=e.status+' · '+formatDate(e.at);list.append(li)});
       d.audit.forEach(e=>{const li=document.createElement('li');li.textContent='Audit: '+e.event+' · '+formatDate(e.at);list.append(li)});
+      renderQaReconciliation(d);
       display('detail',true);$('detail').scrollIntoView({behavior:'smooth'});
     } catch(e){error(e.message)}
   }
+
+  function renderQaReconciliation(data) {
+    const o=data.order, reviews=data.reviews||[], events=data.verification_history||[];
+    const active=reviews.find(r=>['PROOF_SUBMITTED','VERIFYING'].includes(r.state));
+    $('qaRecordProof').disabled=o.status!=='PENDING_PAYMENT';
+    $('qaCheckLedger').disabled=o.status!=='PROOF_SUBMITTED';
+    $('qaVerify').disabled=o.status!=='VERIFYING'||!active||active.independent_check!=='MATCHED';
+    $('qaReject').disabled=!['PROOF_SUBMITTED','VERIFYING'].includes(o.status);
+    $('qaCancel').disabled=!['PENDING_PAYMENT','PROOF_SUBMITTED','VERIFYING'].includes(o.status);
+    $('qaGenerateFixture').disabled=!['PENDING_PAYMENT','PROOF_SUBMITTED','VERIFYING'].includes(o.status);
+    const claims=$('qaReviewHistory');claims.replaceChildren();
+    reviews.forEach(r=>{const li=document.createElement('li');
+      li.textContent=r.test_reference+' · '+r.reported_amount_etb+' ETB · '+r.state+
+        ' · ledger check: '+r.independent_check+(r.decision_reason?' · reason: '+r.decision_reason:'');
+      claims.append(li);
+    });
+    if(!reviews.length){const li=document.createElement('li');li.textContent='No fictional proof recorded.';claims.append(li);}
+    const history=$('qaEventHistory');history.replaceChildren();
+    events.forEach(e=>{const li=document.createElement('li');
+      li.textContent=e.event+' · '+e.before+' → '+e.after+' · '+formatDate(e.at)+
+        (e.reason?' · '+e.reason:'');history.append(li);
+    });
+    if(!events.length){const li=document.createElement('li');li.textContent='No review decisions yet.';history.append(li);}
+  }
+  function qaMessage(message) {
+    $('qaReviewMessage').textContent=message;
+    $('qaReviewMessage').hidden=!message;
+  }
+  let mutating=false;
+  async function qaMutation(path, payload, success) {
+    if(mutating || !state.activeOrder)return;
+    mutating=true;qaMessage('Updating fictional QA review…');
+    try{
+      const r=await api(path,{method:'POST',headers:{
+        'Content-Type':'application/json','X-CSRF-Token':state.csrf
+      },body:JSON.stringify(payload)});
+      qaMessage(success);
+      await detail(state.activeOrder);
+      await load();
+      return r;
+    }catch(e){qaMessage(e.message);throw e;}
+    finally{mutating=false;}
+  }
+  $('qaGenerateFixture').addEventListener('click',async()=>{
+    try{
+      const r=await qaMutation('/admin/api/qa-ledger',{
+        method:state.activeMethod,amount_etb:Number($('qaFixtureAmount').value)
+      },'A new internal QA ledger fixture was created. No bank transaction occurred.');
+      if(r){$('qaClaimRef').value=r.test_reference;
+        $('qaFixtureResult').textContent='FICTIONAL ONLY: '+r.test_reference+' · '+r.amount_etb+' ETB';
+      }
+    }catch(e){}
+  });
+  $('qaRecordProof').addEventListener('click',async()=>{
+    if(!state.activeOrder)return;
+    try{await qaMutation('/admin/api/orders/'+encodeURIComponent(state.activeOrder)+'/proof',{
+      test_reference:$('qaClaimRef').value.trim().toUpperCase(),
+      reported_amount_etb:Number($('qaClaimAmount').value),currency:'ETB'
+    },'Fictional proof recorded. No money verified.');}catch(e){}
+  });
+  $('qaCheckLedger').addEventListener('click',async()=>{
+    try{await qaMutation('/admin/api/orders/'+encodeURIComponent(state.activeOrder)+'/check',{},
+        'Comparison complete against the simulated internal test ledger. Review the result below.');}catch(e){}
+  });
+  $('qaVerify').addEventListener('click',async()=>{
+    if(!window.confirm('Confirm this is a SIMULATED QA ledger match only? This does NOT mean ParentWise received real money.'))return;
+    try{await qaMutation('/admin/api/orders/'+encodeURIComponent(state.activeOrder)+'/confirm',
+        {confirm_simulated_match:true},
+        'SIMULATED VERIFIED_PAID status recorded. No real payment received and no product delivered.');}catch(e){}
+  });
+  $('qaReject').addEventListener('click',async()=>{
+    const reason=$('qaReason').value.trim();
+    if(reason.length<8){qaMessage('Enter a rejection reason (at least 8 characters).');return;}
+    try{await qaMutation('/admin/api/orders/'+encodeURIComponent(state.activeOrder)+'/reject',
+        {reason},'Fictional claim rejected. Order returned to PENDING_PAYMENT.');}catch(e){}
+  });
+  $('qaCancel').addEventListener('click',async()=>{
+    const reason=$('qaReason').value.trim();
+    if(reason.length<8){qaMessage('Enter a cancellation reason (at least 8 characters).');return;}
+    if(!window.confirm('Cancel this TEST order? It cannot be reactivated in Phase 4.'))return;
+    try{await qaMutation('/admin/api/orders/'+encodeURIComponent(state.activeOrder)+'/cancel',
+        {reason},'QA test order cancelled. No refund or real payment action occurred.');}catch(e){}
+  });
+
   async function load(){ try {await Promise.all([overview(),list()]);}catch(e){error(e.message)} }
   async function initialize(){
     try{ const data=await api('/admin/api/session');state.csrf=data.csrf;showDashboard();await load(); }
