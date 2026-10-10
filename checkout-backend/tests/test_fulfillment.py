@@ -7,6 +7,7 @@ from fastapi.testclient import TestClient
 from api import fulfillment
 from api.models import Order, QaFulfillment, QaFulfillmentEvent
 from test_payment_review import review_env, ledger, claim, check, confirm, code, post, ORIGIN
+from test_admin import system  # expose dependent isolated founder fixture to pytest
 
 @pytest.fixture
 def env(review_env):
