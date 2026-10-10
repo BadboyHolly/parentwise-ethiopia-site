@@ -22,7 +22,7 @@ body{background:#F8F4EC}
 .qa-details div{font-size:13px;color:#5A6760}.qa-details strong{font-size:18px;color:#1F4D3A}
 .qa-panel label{display:block;font-weight:800;font-size:12px;margin:17px 0 7px}
 .qa-panel input,.qa-panel select{font:inherit;font-size:16px;width:100%;border:1px solid #CCC6BA;background:white;color:#202928;border-radius:12px;height:51px;padding:0 12px}
-.qa-panel input:focus-visible,.qa-panel select:focus-visible,.qa-panel button:focus-visible,.qa-panel a:focus-visible,.qa-panel summary:focus-visible{outline:3px solid #7A2E3E;outline-offset:2px}
+.qa-panel input:focus-visible,.qa-panel textarea:focus-visible,.qa-panel select:focus-visible,.qa-panel button:focus-visible,.qa-panel a:focus-visible,.qa-panel summary:focus-visible{outline:3px solid #7A2E3E;outline-offset:2px}
 .qa-panel button.primary{width:100%;border:0;border-radius:13px;background:#1F4D3A;color:white;min-height:52px;font:800 14px Inter,system-ui;cursor:pointer;margin-top:19px}
 .qa-panel button.primary:disabled,.qa-panel button:disabled{opacity:.65;cursor:wait}
 .qa-panel .smallprint{font-size:12px;color:#6D746F;margin:12px 0 0}
@@ -94,7 +94,12 @@ body{background:#F8F4EC}
       </div>
       <div class="qa-warning"><strong>DO NOT PAY</strong>The recipient is not configured. The Order ID is not proof of payment, and no payment confirmation or digital product delivery occurs in QA.</div>
       <div class="qa-actions"><button type="button" id="copy-order-id">Copy Order ID</button><button type="button" id="copy-recovery">Copy PRIVATE recovery code</button></div>
-      <p class="qa-private-warning">The private recovery code includes a secret access token. Keep it in a password manager or secure personal note. Do not share it in public chats, screenshots or URLs.</p>
+      <div id="recovery-copy-fallback" hidden>
+        <label for="private-recovery-code">PRIVATE recovery code — select and copy manually</label>
+        <textarea id="private-recovery-code" readonly autocomplete="off" spellcheck="false" rows="3" style="width:100%;max-width:100%;font:inherit;overflow-wrap:anywhere" aria-describedby="private-recovery-warning"></textarea>
+        <button type="button" class="qa-secondary" id="hide-private-recovery">Hide private code</button>
+      </div>
+      <p class="qa-private-warning" id="private-recovery-warning">The private recovery code includes a secret access token. Keep it in a password manager or secure personal note. Do not share it in public chats, screenshots or URLs.</p>
       <p class="qa-quiet">Refreshing this tab retrieves the saved order automatically. To recover after closing your browser or on a different device, save the private recovery code first. Without that code, automatic recovery after the browser session ends is not guaranteed.</p>
       <button type="button" class="qa-secondary" id="start-new-order">Start a new test order</button>
     </section>

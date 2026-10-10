@@ -58,6 +58,7 @@ with sync_playwright() as p:
             route.fulfill(status=404,body="")
         else:
             route.continue_()
+    shopping.add_init_script("Object.defineProperty(navigator,'clipboard',{value:{writeText:()=>Promise.reject(new Error('CI denied clipboard'))}})")
     shopping.route(BASE + "/**", assets)
     purchase = shopping.new_page()
     purchase.goto(BASE + "/index.html",wait_until="domcontentloaded")
@@ -73,9 +74,15 @@ with sync_playwright() as p:
         if synthetic_orders:
             purchase.once("dialog",lambda d:d.accept())
             purchase.locator("#start-new-order").click()
+            purchase.set_viewport_size({"width":390,"height":844})
         purchase.locator("#name").fill("Fictional CI Parent")
         purchase.locator("#mobile").fill("0912345678")
         purchase.locator("#payment-method").select_option(method)
+        purchase.route(BASE + "/api/v1/orders",lambda route:route.fulfill(status=503,content_type="application/json",body='{"detail":"storage unavailable"}'),times=1)
+        purchase.locator("#order-submit").click()
+        expect(purchase.locator("#checkout-feedback")).to_contain_text("temporarily unavailable")
+        error_key=purchase.evaluate("JSON.parse(sessionStorage.getItem('parentwise.qa.checkout.v2')).key")
+        assert_ok(purchase.locator("#order-submit").is_enabled(),method+" storage error announces safe retry and re-enables submission")
         def interrupt(route):
             response = route.fetch()
             assert response.status == 201
@@ -84,7 +91,7 @@ with sync_playwright() as p:
         purchase.locator("#order-submit").click()
         expect(purchase.locator("#checkout-feedback")).to_contain_text("SAME")
         saved = purchase.evaluate("JSON.parse(sessionStorage.getItem('parentwise.qa.checkout.v2'))")
-        assert_ok(bool(saved["key"]) and not saved.get("order"),method+" committed response loss preserves original attempt")
+        assert_ok(saved["key"]==error_key and not saved.get("order"),method+" committed response loss preserves original attempt")
         purchase.reload(wait_until="domcontentloaded")
         expect(purchase.locator("#order-submit")).to_contain_text("Retry saved")
         def slow(route):
@@ -99,6 +106,18 @@ with sync_playwright() as p:
         purchase.reload(wait_until="domcontentloaded")
         expect(purchase.locator("#order-id")).to_have_text(saved2["order"]["order_id"])
         assert_ok(True,method+" refreshed customer order is recovered using GET")
+        expect(purchase.locator("#recovery-copy-fallback")).to_be_hidden()
+        purchase.locator("#copy-recovery").click()
+        expect(purchase.locator("#recovery-copy-fallback")).to_be_visible()
+        manual=purchase.locator("#private-recovery-code")
+        assert_ok(manual.input_value()==saved2["order"]["order_id"]+"\n"+saved2["token"] and manual.get_attribute("readonly") is not None,
+            method+" denied clipboard offers correct readonly private manual recovery code")
+        assert_ok(manual.evaluate("(e)=>e===document.activeElement"),"manual recovery fallback receives keyboard focus")
+        purchase.locator("#hide-private-recovery").click()
+        expect(purchase.locator("#recovery-copy-fallback")).to_be_hidden()
+        assert_ok(manual.input_value()=="","explicit hide removes private code from the field")
+        assert_ok(purchase.evaluate("document.documentElement.scrollWidth<=innerWidth+1"),method+" checkout viewport has no horizontal overflow")
+        assert_ok(saved2["token"] not in purchase.url,"private token never appears in checkout URL")
     shopping.close()
     context = browser.new_context(ignore_https_errors=True, viewport={"width": 1280, "height": 900})
     page = context.new_page()

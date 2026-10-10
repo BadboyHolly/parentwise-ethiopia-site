@@ -17,6 +17,8 @@
     deliveryNotice: $('qa-fulfillment-notice'),
     deliveryVersionLabel: $('qa-delivery-version-label'), deliveryVersion: $('qa-delivery-version'),
     copyId: $('copy-order-id'), copyRecovery: $('copy-recovery'),
+    copyFallback: $('recovery-copy-fallback'), privateCode: $('private-recovery-code'),
+    hidePrivate: $('hide-private-recovery'),
     newOrder: $('start-new-order'), recoveryPanel: $('recovery-panel'),
     recoverToggle: $('recover-toggle'), recoverForm: $('recover-form'),
     recoverId: $('recover-order-id'), recoverToken: $('recover-token'),
@@ -122,8 +124,13 @@
       ['PENDING_PAYMENT','PROOF_SUBMITTED','VERIFYING','VERIFIED_PAID','CANCELLED'].includes(summary.status) && summary.test_mode === true &&
       summary.product === 'ParentWise Child Behavior & Discipline System';
   }
+  function hidePrivateCode() {
+    elements.copyFallback.hidden = true;
+    elements.privateCode.value = '';
+  }
   function showOrder(summary, token) {
     if (!checkSummary(summary)) throw new Error('Unexpected API response. The test order was not displayed. Retry with the same attempt.');
+    hidePrivateCode();
     record.order = summary;
     record.token = token;
     saveSession();
@@ -224,13 +231,22 @@
       feedback(failMessage(error), 'error');
     } finally { setBusy(false); }
   }
-  async function copy(text, successText) {
+  async function copy(text, successText, privateCode = false) {
     try {
       if (!navigator.clipboard?.writeText) throw new Error('unavailable');
       await navigator.clipboard.writeText(text);
+      hidePrivateCode();
       feedback(successText, 'success');
     } catch (_) {
-      feedback('Clipboard permission was denied. Select and copy the Order ID manually, or try another supported browser.', 'error');
+      if (privateCode) {
+        elements.privateCode.value = text;
+        elements.copyFallback.hidden = false;
+        elements.privateCode.focus();
+        elements.privateCode.select();
+        feedback('Clipboard access was denied. Your PRIVATE recovery code is selected below. Copy it manually into a secure personal note, then choose “Hide private code”. Do not share it in chat, screenshots or URLs.', 'error');
+      } else {
+        feedback('Clipboard permission was denied. Select and copy the Order ID manually, or try another supported browser.', 'error');
+      }
     }
   }
   form.addEventListener('submit', (event) => { event.preventDefault(); createOrder(); });
@@ -238,11 +254,13 @@
   elements.copyRecovery.addEventListener('click', () => {
     if (record?.order && record?.token) {
       copy(record.order.order_id + '\n' + record.token,
-        'Private recovery code copied. Store it in a secure note or password manager, not a public chat. Anyone with this code can view the QA order summary.');
+        'Private recovery code copied. Store it in a secure note or password manager, not a public chat. Anyone with this code can view the QA order summary.', true);
     }
   });
+  elements.hidePrivate.addEventListener('click', () => { hidePrivateCode(); elements.copyRecovery.focus(); });
   elements.newOrder.addEventListener('click', () => {
     if (busy || !window.confirm('Start a NEW test order? This removes the current session recovery details but does not cancel any previously created QA order. Save its private recovery code first.')) return;
+    hidePrivateCode();
     record = null; saveSession(); form.hidden = false; elements.result.hidden = true;
     elements.recoveryPanel.hidden = true; form.reset(); feedback('Ready for a new fictional test order.'); elements.name.focus();
   });
