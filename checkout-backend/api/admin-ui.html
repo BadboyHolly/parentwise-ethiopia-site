@@ -24,12 +24,12 @@
 </form><p id="loginError" class="alert" role="alert" hidden></p><small>Secure session expires after inactivity. Sign-ins are rate-limited. Never share codes or recovery secrets.</small>
 </section>
 <section id="dashboard" hidden aria-labelledby="dashboardTitle">
-<div class="dashboard-head"><div><div class="eyebrow">FOUNDER · READ-ONLY QA</div><h1 id="dashboardTitle">Order console</h1><p>View fictitious QA order records. Payment approvals and delivery are disabled.</p></div><button id="logout" type="button" class="secondary">Sign out</button></div>
+<div class="dashboard-head"><div><div class="eyebrow">FOUNDER · CONTROLLED QA ACTIONS</div><h1 id="dashboardTitle">Order console</h1><p>Review fictitious orders, simulated payments and dummy fulfillment. No real funds, Telegram sends or paid files.</p></div><button id="logout" type="button" class="secondary">Sign out</button></div>
 <p id="dashError" role="alert" class="alert" hidden></p>
 <section class="stats" aria-label="QA order totals">
 <div class="stat"><span>Total orders</span><strong id="total">—</strong></div><div class="stat"><span>Pending</span><strong id="pending">—</strong></div><div class="stat"><span>Telebirr selected</span><strong id="telebirr">—</strong></div><div class="stat"><span>Bank selected</span><strong id="bank">—</strong></div>
 </section>
-<section class="list-panel" aria-labelledby="ordersTitle"><div class="section-head"><h2 id="ordersTitle">QA orders</h2><span class="read-only">VIEW ONLY</span></div>
+<section class="list-panel" aria-labelledby="ordersTitle"><div class="section-head"><h2 id="ordersTitle">QA orders</h2><span class="read-only">TEST DATA</span></div>
 <form id="filterForm" class="filters">
 <div><label for="search">Order ID or prefix</label><input type="search" id="search" placeholder="PW-QA-…" maxlength="30"></div>
 <div><label for="method">Method</label><select id="method"><option value="">All methods</option><option value="telebirr">Telebirr</option><option value="bank">Bank</option></select></div>
@@ -39,6 +39,22 @@
 <button type="submit" class="filter-submit">Apply filters</button></form>
 <div class="table-scroll"><table><thead><tr><th>Created (UTC)</th><th>Order ID</th><th>Method</th><th>Total</th><th>Status</th><th>View</th></tr></thead><tbody id="orderRows"><tr><td colspan="6">Loading QA orders…</td></tr></tbody></table></div>
 <div class="pagination"><span id="pageInfo"></span><div><button id="prev" class="secondary" type="button">Previous</button><button id="next" class="secondary" type="button">Next</button></div></div>
+</section>
+
+<section class="list-panel qa-fulfillment-section" aria-labelledby="fulfillmentQueueHeading">
+<div class="section-head"><h2 id="fulfillmentQueueHeading">Dummy fulfillment queue</h2><span class="read-only">QA SIMULATION ONLY</span></div>
+<p class="muted">Eligibility is based on matched fictional ledger credits only. No real money received, no paid PDF access or automatic Telegram messages.</p>
+<div class="qa-queue-controls"><label for="qaFulfillmentFilter">Delivery state</label>
+<select id="qaFulfillmentFilter"><option value="">All</option>
+<option value="PENDING_FULFILLMENT">Pending fulfillment</option><option value="PREPARING">Preparing</option>
+<option value="SENT">Recorded as sent (dummy)</option><option value="DELIVERED">Simulated receipt</option>
+<option value="DELIVERY_FAILED">Failed / retry</option></select>
+<button type="button" id="qaQueueReload" class="secondary">Refresh queue</button></div>
+<div class="table-scroll"><table><thead><tr><th>QA order</th><th>Payment</th><th>Delivery</th><th>Package</th><th>Channel</th><th>Updated</th><th>Open</th></tr></thead>
+<tbody id="qaQueueRows"><tr><td colspan="7">Loading simulated queue…</td></tr></tbody></table></div>
+<div class="pagination"><span id="qaQueuePageInfo"></span><div>
+<button type="button" id="qaQueuePrev" class="secondary">Previous</button>
+<button type="button" id="qaQueueNext" class="secondary">Next</button></div></div>
 </section>
 <section id="detail" hidden class="detail-panel" aria-labelledby="detailTitle"><div class="section-head"><h2 id="detailTitle">Order details</h2><button type="button" id="closeDetail" class="secondary">Close</button></div><dl id="detailItems"></dl><h3>Timeline</h3><ol id="timeline"></ol><section id="qaPaymentReview" aria-labelledby="qaReviewTitle" class="qa-review-panel">
 <h3 id="qaReviewTitle">Simulated payment reconciliation · QA only</h3>
@@ -61,7 +77,30 @@
 <p id="qaReviewMessage" class="alert" role="status" aria-live="polite" hidden></p>
 <h4>Simulated claim history</h4><ol id="qaReviewHistory" class="qa-history"></ol>
 <h4>Immutable reconciliation events</h4><ol id="qaEventHistory" class="qa-history"></ol>
-<p class="muted">Only the founder can access these controls. No receipts, banking data, approvals of real money, refunds or file delivery are performed.</p>
+<p class="muted">These are simulated financial actions only. No receipts, real-money approvals or paid files are processed.</p>
+</section>
+<section class="qa-fulfill-panel" id="qaFulfillPanel" aria-labelledby="qaFulfillHeading" hidden>
+<h3 id="qaFulfillHeading">Simulated manual fulfillment · dummy package</h3>
+<p class="muted"><strong>TEST MODE: NO REAL PRODUCT DELIVERY.</strong> There is no Telegram automation and this screen cannot grant access to paid PDFs. A simulated `SENT` state means the founder rehearsed recording dispatch; it is not a Telegram confirmation.</p>
+<dl class="qa-result-list"><dt>Delivery state</dt><dd id="qaFulfillState">—</dd>
+<dt>Version</dt><dd id="qaFulfillVersion">—</dd>
+<dt>Channel</dt><dd id="qaFulfillChannel">—</dd>
+<dt>Attempts</dt><dd id="qaFulfillAttempts">0</dd></dl>
+<p><a href="/admin/api/fulfillment/dummy-document" id="qaDummyLink" download="PARENTWISE_QA_DUMMY_ONLY.txt">Download founder-only harmless QA dummy text file</a>. No real ParentWise resources are included.</p>
+<div class="qa-delivery-actions">
+<button type="button" id="qaPrepareDummy">Begin preparing dummy package</button>
+<label class="qa-tick"><input type="checkbox" id="qaCheckedDummy"> I inspected the harmless dummy text file (not real ParentWise PDFs).</label>
+<button type="button" id="qaDispatchDummy">Record hypothetical dispatch (NO Telegram send)</button>
+<label for="qaReceiptReference">Fictional recipient acknowledgement (QA-ACK- + 16 hex characters)</label>
+<input id="qaReceiptReference" maxlength="23" autocomplete="off" placeholder="QA-ACK-0123456789ABCDEF">
+<button type="button" id="qaReceiptDummy">Record simulated customer acknowledgement</button>
+<label for="qaDeliveryReason">Failure or retry explanation</label><input id="qaDeliveryReason" maxlength="250" autocomplete="off" placeholder="At least 8 characters; fictional only">
+<div class="qa-reject-actions"><button type="button" id="qaFailDummy" class="secondary">Mark dummy delivery failed</button>
+<button type="button" id="qaRetryDummy" class="secondary">Retry preparation</button></div>
+</div>
+<p id="qaFulfillFeedback" role="status" aria-live="polite" hidden></p>
+<h4>Append-only dummy delivery history</h4><ol id="qaFulfillEvents" class="qa-history"></ol>
+<p class="muted">Recorded QA acknowledgements are NOT independent Telegram delivery proof. Production requires a separate actual-payment check and separately approved founder-assisted delivery process.</p>
 </section></section>
 </section>
 <div id="loading" class="loading" role="status">Checking founder session…</div>
