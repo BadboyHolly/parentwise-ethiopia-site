@@ -129,6 +129,19 @@
     elements.orderPrice.textContent = '1,500 ETB';
     elements.orderMethod.textContent = summary.payment_method === 'telebirr' ? 'Telebirr · simulation only' : 'Ethiopian bank · simulation only';
     elements.orderStatus.textContent = summary.status;
+    const simulated = summary.fulfillment;
+    const visible = !!(simulated && simulated.simulated_only === true &&
+      ['PENDING_FULFILLMENT','PREPARING','SENT','DELIVERED','DELIVERY_FAILED'].includes(simulated.status));
+    elements.deliveryLabel.hidden = !visible;
+    elements.deliveryStatus.hidden = !visible;
+    elements.deliveryNotice.hidden = !visible;
+    if (visible) {
+      elements.deliveryStatus.textContent = simulated.status + ' · SIMULATION ONLY';
+      elements.deliveryNotice.textContent =
+        'QA DUMMY FULFILLMENT ONLY. No actual Telegram message or paid ParentWise document was sent. ' +
+        'Production fulfillment will be founder-assisted through official Telegram after independently confirmed real payment. ' +
+        'No instant delivery is promised. Official support: t.me/ParentWiseEthiopia.';
+    }
     elements.result.hidden = false;
     form.hidden = true;
     feedback('This is a QA simulation only. No real payment has been requested, received, or verified, regardless of the displayed test status.', 'success');
