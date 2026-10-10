@@ -75,7 +75,7 @@ with sync_playwright() as p:
     expect(page.locator("#qaReviewHistory")).to_contain_text("VERIFIED_PAID")
     assert_ok(page.locator("#qaVerify").is_disabled(), "desktop matched ledger confirmed only once")
     expect(page.locator("#qaFulfillPanel")).to_be_visible()
-    expect(page.locator("#qaQueueRows")).to_contain_text(original["order"]["order_id"] if False else "PW-QA-")
+    expect(page.locator("#qaQueueRows")).to_contain_text("PW-QA-")
     assert_ok(True, "desktop verified simulated order entered dummy fulfillment queue")
     page.set_viewport_size({"width": 390, "height": 844})
     assert_ok(page.evaluate("document.documentElement.scrollWidth <= innerWidth + 1"),
