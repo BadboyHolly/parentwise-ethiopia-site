@@ -133,3 +133,10 @@ jobs:
           uvicorn api.main:app --host 127.0.0.1 --port 8443 --no-access-log --ssl-keyfile /tmp/pw-qa-key.pem --ssl-certfile /tmp/pw-qa-cert.pem >/tmp/pw-qa-test-api.log 2>&1 &
           sleep 5
           python ../qa-tests/phase5-founder-browser.py
+
+      - name: Save synthetic customer recovery evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase5-customer-recovery
+          path: qa-test-evidence/phase5-customer-recovery.png
+          retention-days: 14

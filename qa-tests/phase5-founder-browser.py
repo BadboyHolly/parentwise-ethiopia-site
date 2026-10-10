@@ -121,7 +121,7 @@ with sync_playwright() as p:
         if filename == "checkout-qa.js":
             body = body.replace("https://parentwise-orders-api-qa.onrender.com", BASE)
         customer.route(BASE + "/" + filename,
-                       lambda route, body=body, mime=mime: route.fulfill(status=200, content_type=mime, body=body))
+                       lambda route, request, body=body, mime=mime: route.fulfill(status=200, content_type=mime, body=body))
     customer_page = customer.new_page()
     customer_page.goto(BASE + "/order.html", wait_until="domcontentloaded")
     customer_page.locator("#recover-toggle").click()
@@ -144,6 +144,9 @@ with sync_playwright() as p:
     assert_ok(True, "customer refresh safely recovers existing fulfillment without order creation")
     assert_ok(customer_page.evaluate("document.documentElement.scrollWidth <= innerWidth + 1"),
               "customer recovery mobile no horizontal overflow")
+    evidence_dir = root / 'qa-test-evidence'
+    evidence_dir.mkdir(exist_ok=True)
+    customer_page.screenshot(path=str(evidence_dir / 'phase5-customer-recovery.png'), full_page=True)
     customer.close()
 
     # Reuse authenticated cookie on 390px mobile; no second TOTP login attempt.
