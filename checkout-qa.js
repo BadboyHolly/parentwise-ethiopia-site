@@ -116,7 +116,7 @@
     return summary && typeof summary.order_id === 'string' && /^PW-QA-[A-F0-9]{24}$/.test(summary.order_id) &&
       summary.amount_etb === 1500 && summary.currency === 'ETB' &&
       ['bank', 'telebirr'].includes(summary.payment_method) &&
-      summary.status === 'PENDING_PAYMENT' && summary.test_mode === true &&
+      ['PENDING_PAYMENT','PROOF_SUBMITTED','VERIFYING','VERIFIED_PAID','CANCELLED'].includes(summary.status) && summary.test_mode === true &&
       summary.product === 'ParentWise Child Behavior & Discipline System';
   }
   function showOrder(summary, token) {
@@ -131,7 +131,7 @@
     elements.orderStatus.textContent = summary.status;
     elements.result.hidden = false;
     form.hidden = true;
-    feedback('This TEST order is saved. No payment has been requested or received.', 'success');
+    feedback('This is a QA simulation only. No real payment has been requested, received, or verified, regardless of the displayed test status.', 'success');
     elements.result.focus();
   }
   function failMessage(err, context = '') {
