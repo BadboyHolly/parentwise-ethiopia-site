@@ -70,3 +70,61 @@ class AdminAudit(Base):
 
 
 Index('ix_admin_audit_created_at', AdminAudit.created_at)
+
+
+class SimulatedLedgerEntry(Base):
+    __tablename__ = 'qa_simulated_ledger'
+    __table_args__ = (
+        UniqueConstraint('payment_method', 'test_reference', name='uq_qa_ledger_ref'),
+        CheckConstraint('amount_etb > 0', name='ck_qa_ledger_positive'),
+        CheckConstraint("currency = 'ETB'", name='ck_qa_ledger_currency'),
+    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    test_reference: Mapped[str] = mapped_column(String(22), nullable=False)
+    payment_method: Mapped[str] = mapped_column(String(16), nullable=False)
+    amount_etb: Mapped[int] = mapped_column(Integer, nullable=False)
+    currency: Mapped[str] = mapped_column(String(3), nullable=False)
+    generated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    credited_order_id: Mapped[str | None] = mapped_column(String(36), ForeignKey('orders.id'), unique=True, nullable=True)
+
+
+class PaymentReview(Base):
+    __tablename__ = 'qa_payment_reviews'
+    __table_args__ = (
+        UniqueConstraint('payment_method', 'test_reference', name='uq_qa_claim_reference'),
+        CheckConstraint('reported_amount_etb > 0', name='ck_qa_claim_positive'),
+        CheckConstraint("currency = 'ETB'", name='ck_qa_claim_currency'),
+        CheckConstraint("state IN ('PROOF_SUBMITTED','VERIFYING','VERIFIED_PAID','REJECTED')", name='ck_qa_claim_state'),
+        CheckConstraint("independent_check IN ('NOT_CHECKED','MATCHED','DISCREPANCY')", name='ck_qa_claim_independent'),
+    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    order_id: Mapped[str] = mapped_column(String(36), ForeignKey('orders.id'), nullable=False)
+    payment_method: Mapped[str] = mapped_column(String(16), nullable=False)
+    test_reference: Mapped[str] = mapped_column(String(22), nullable=False)
+    reported_amount_etb: Mapped[int] = mapped_column(Integer, nullable=False)
+    currency: Mapped[str] = mapped_column(String(3), nullable=False)
+    state: Mapped[str] = mapped_column(String(24), nullable=False)
+    independent_check: Mapped[str] = mapped_column(String(16), nullable=False)
+    evidence_received_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    checked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    decided_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    decision_reason: Mapped[str | None] = mapped_column(String(320), nullable=True)
+
+
+Index('ix_qa_reviews_order', PaymentReview.order_id)
+
+
+class PaymentEvent(Base):
+    __tablename__ = 'qa_payment_events'
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    order_id: Mapped[str] = mapped_column(String(36), ForeignKey('orders.id'), nullable=False)
+    review_id: Mapped[str | None] = mapped_column(String(36), ForeignKey('qa_payment_reviews.id'), nullable=True)
+    actor: Mapped[str] = mapped_column(String(20), nullable=False)
+    action: Mapped[str] = mapped_column(String(50), nullable=False)
+    previous_status: Mapped[str] = mapped_column(String(24), nullable=False)
+    new_status: Mapped[str] = mapped_column(String(24), nullable=False)
+    occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    reason: Mapped[str | None] = mapped_column(String(400), nullable=True)
+
+
+Index('ix_qa_events_order', PaymentEvent.order_id, PaymentEvent.occurred_at)
