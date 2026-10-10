@@ -4,6 +4,9 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/qa-phase4.yml'
+      - 'checkout-backend/api/payment_review.py'
+      - 'checkout-backend/tests/test_payment_review.py'
+      - 'checkout-backend/migrations/versions/20261010_03_simulated_reviews.py'
   workflow_dispatch:
 permissions:
   contents: read
