@@ -19,3 +19,20 @@ label{display:block;font-size:12px;font-weight:750;margin:12px 0 6px}input,selec
 .qa-review-panel .muted{font-size:12px}.qa-history{list-style:decimal;padding-left:20px;overflow-wrap:anywhere}
 .qa-history li{font-size:12px;margin-bottom:7px}.qa-workflow input{font-size:16px}
 @media(max-width:650px){.qa-workflow{grid-template-columns:1fr}.qa-workflow>div{padding:13px}.qa-reject-actions{grid-template-columns:1fr}}
+
+/* Phase 5: founder-only simulated fulfillment. No actual customer delivery. */
+.qa-fulfillment-section{margin-top:24px}.qa-queue-controls{display:flex;flex-wrap:wrap;align-items:end;gap:12px;margin:15px 0}
+.qa-queue-controls label{font-size:12px;font-weight:750}.qa-queue-controls select{min-width:180px;font-size:16px}
+.qa-fulfill-panel{border-top:1px solid var(--border);margin-top:26px;padding-top:20px}
+.qa-fulfill-panel>p{max-width:72ch}.qa-fulfill-panel a{color:var(--green);font-weight:700;text-decoration:underline}
+.qa-result-list{display:grid;grid-template-columns:150px minmax(0,1fr);gap:7px 15px}
+.qa-result-list dt{font-size:12px;font-weight:800;color:var(--muted)}.qa-result-list dd{margin:0;overflow-wrap:anywhere}
+.qa-delivery-actions{display:grid;grid-template-columns:minmax(0,1fr);max-width:550px;gap:8px;
+background:#F8F4EC;border:1px solid var(--border);padding:16px;border-radius:12px;margin-top:14px}
+.qa-delivery-actions button{width:100%;white-space:normal}.qa-delivery-actions label{font-size:12px;font-weight:750}
+.qa-delivery-actions input:not([type="checkbox"]){font-size:16px;width:100%}
+.qa-tick{display:flex;align-items:start;gap:8px;font-weight:600!important}
+.qa-tick input{width:18px;height:18px;flex-shrink:0;margin:3px 0 0}
+#qaFulfillFeedback{background:#F5ECE8;border-radius:8px;padding:11px}
+@media(max-width:540px){.qa-queue-controls{display:grid;grid-template-columns:1fr}.qa-result-list{grid-template-columns:1fr}
+.qa-delivery-actions{padding:12px}.qa-queue-controls button{width:100%}}
