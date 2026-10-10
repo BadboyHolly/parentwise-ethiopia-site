@@ -5,6 +5,14 @@ requires PAYMENTS_ENABLED=false. This workflow **never** sends Telegram
 messages, accesses actual bank transactions, uploads real paid PDFs, or
 generates public product links.
 
+**QA acceptance: QA ACCEPTED — 10 October 2026.**
+Founder completed the live dummy success and failure/retry walkthroughs.
+Remaining customer recovery/privacy and access checks passed against disposable
+PostgreSQL and synthetic browsers in [run 38058300716](https://github.com/BadboyHolly/parentwise-ethiopia-site/actions/runs/38058300716).
+Chrome confirmed live logout and the deployed checkout version fields.
+No new live orders were created; no real payment or delivery occurred.
+See [Task 05 milestones and Phase 6 handoff](TASK05-MILESTONES.md).
+
 ## What the founder can test
 
 1. Sign in with the existing founder password and TOTP.
@@ -91,8 +99,9 @@ concurrency, authenticated synthetic founder Chromium at desktop and
 real founder login, collect real payment evidence, or burn the shared
 12-new-order QA rate limit unnecessarily.
 
-Full phase acceptance requires the actual founder to perform the dummy
-walkthrough on the live QA dashboard. Production is separately blocked
+The founder's required live dummy walkthrough is complete, with original
+records preserved. Phase 5 is accepted for QA; Phase 6 remains pending.
+Production is separately blocked
 by independently verified real payment controls, secure buyer-binding,
 versioned private product storage, Telegram operations, refunds/terms,
 customer privacy, durable PostgreSQL backups, and recipient approval.
