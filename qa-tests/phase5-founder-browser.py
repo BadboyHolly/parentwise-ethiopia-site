@@ -71,8 +71,13 @@ with sync_playwright() as p:
     page.locator("#qaCheckLedger").click()
     expect(page.locator("#qaVerify")).to_be_enabled()
     page.once("dialog", lambda d: d.accept())
-    page.locator("#qaVerify").click()
-    expect(page.locator("#qaReviewHistory")).to_contain_text("VERIFIED_PAID")
+    with page.expect_response(lambda response: response.request.method == 'POST' and response.url.endswith('/confirm'),timeout=30000) as confirm_response:
+        page.locator("#qaVerify").click()
+    code = confirm_response.value.status
+    print("SIMULATED PAYMENT CONFIRM HTTP",code,flush=True)
+    if code != 200:
+        print("SIMULATED PAYMENT UI ERROR:",page.locator("#qaReviewMessage").inner_text()[:150],flush=True)
+    expect(page.locator("#qaReviewHistory")).to_contain_text("VERIFIED_PAID",timeout=12000)
     assert_ok(page.locator("#qaVerify").is_disabled(), "desktop matched ledger confirmed only once")
     expect(page.locator("#qaFulfillPanel")).to_be_visible()
     expect(page.locator("#qaQueueRows")).to_contain_text("PW-QA-")
