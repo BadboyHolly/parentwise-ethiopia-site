@@ -1,0 +1,61 @@
+name: ParentWise QA Admin Security Checks
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/qa-admin-security.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  postgres-tests:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_USER: testadmin
+          POSTGRES_DB: pwtest
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U testadmin -d pwtest"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      DATABASE_URL: postgresql+psycopg://testadmin@localhost:5432/pwtest
+      PW_TEST_POSTGRES_URL: postgresql+psycopg://testadmin@localhost:5432/pwtest
+      APP_MODE: qa
+      PAYMENTS_ENABLED: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          python -m pip install -r checkout-backend/requirements.txt pytest httpx
+          cd checkout-backend
+          alembic upgrade head
+          pytest -q tests/test_admin.py
+          pytest -q tests/test_orders.py
+  public-admin:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          python -m pip install 'playwright==1.56.0'
+          python -m playwright install --with-deps chromium
+          python qa-tests/admin-public-safety.py
+  public-checkout:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          python -m pip install 'playwright==1.56.0'
+          python -m playwright install --with-deps chromium
+          python qa-tests/checkout-live-e2e.py
