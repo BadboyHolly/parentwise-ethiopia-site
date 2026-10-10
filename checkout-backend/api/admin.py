@@ -1,7 +1,6 @@
-"""Server-authorized founder-only read-only QA administration.
+"""Server-authorized founder-only QA administration.
 
-Admin frontend and API use the same HTTPS origin. No registration,
-status mutations, payment actions, evidence uploads or product downloads.
+Admin frontend and API use the same HTTPS origin. No public registration, real money handling, customer evidence uploads or paid product downloads.
 """
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
@@ -23,6 +22,7 @@ from .admin_security import (COOKIE_NAME, SESSION_ABSOLUTE_SECONDS, SESSION_IDLE
 from .models import Order, AdminSession, AdminAudit, AdminTotpState
 from .rate_limit import reserve_attempt
 from .payment_review import inspection
+from .fulfillment import inspection as fulfillment_inspection
 
 router = APIRouter()
 _SESSION_MAKER = None
@@ -234,7 +234,7 @@ def inspect_order(order_code: str, request: Request):
         return {'test_mode': True, 'order': order_detail(o), 'timeline': [
             {'event': 'created', 'at': utc(o.created_at).isoformat(), 'status': 'PENDING_PAYMENT'}],
             'audit': [{'event': e.event, 'at': utc(e.created_at).isoformat()}
-                      for e in events], **inspection(db, o)}
+                      for e in events], **inspection(db, o), **fulfillment_inspection(db, o)}
 
 
 def mount_admin(app: FastAPI, sessionmaker):
