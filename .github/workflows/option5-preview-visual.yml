@@ -5,6 +5,14 @@ on:
       - preview/option5-bold-modern-20261011
     paths-ignore:
       - design-qa/**
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+    paths-ignore:
+      - design-qa/**
   workflow_dispatch:
 permissions:
   contents: write
