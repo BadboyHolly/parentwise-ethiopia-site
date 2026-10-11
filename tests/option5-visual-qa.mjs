@@ -21,6 +21,7 @@ for(const width of [320,360,375,390,414,430,768,1440]){
   sections:document.querySelectorAll('main > section').length,
   hasOldCards:document.querySelectorAll('.problem-grid,.credibility-layer,.use-grid').length,
   video:!!document.getElementById('option5-intro-player'),
+  overflowElements:[...document.querySelectorAll('body *')].map(e=>({el:e,box:e.getBoundingClientRect()})).filter(x=>x.box.right>innerWidth+1 && x.box.width>0 && getComputedStyle(x.el).position!=='absolute').slice(0,15).map(x=>({tag:x.el.tagName,cl:String(x.el.className).slice(0,80),text:x.el.textContent?.trim().slice(0,35),right:Math.round(x.box.right),width:Math.round(x.box.width)})),
   primaryHeading:document.querySelector('h1')?.textContent?.trim()
  }));
  if(data.scrollWidth>width+1)err.push('HORIZONTAL_OVERFLOW: '+data.scrollWidth+' > '+width);
