@@ -459,3 +459,29 @@ footer{background:#052017;color:#d7e4d8}
  .product-copy h3{font-size:16px}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* Visible six-stage verified ordering timeline, replacing the three generic cards. */
+.purchase-simple{min-width:0}
+.purchase-timeline{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;list-style:none;padding:16px 13px;margin:0 0 14px;background:#fff8ef;border:1px solid #d8bda8;border-radius:22px;color:#16372b;position:relative}
+.purchase-timeline li{padding:16px 11px 12px;min-width:0;position:relative;text-align:center}
+.purchase-timeline li:before{content:"";height:2px;position:absolute;top:32px;left:0;right:0;background:#dec8b7}
+.purchase-timeline li:first-child:before{left:50%}
+.purchase-timeline li:nth-child(3n):before{right:50%}
+.purchase-timeline li:nth-child(4):before{left:50%}
+.purchase-timeline li:last-child:before{right:50%}
+.purchase-timeline li>span{position:relative;z-index:2;display:grid;place-items:center;border-radius:50%;width:35px;height:35px;margin:0 auto 10px;background:var(--burgundy);color:#fff;font-weight:850;font-size:11px;box-shadow:0 0 0 4px #fff8ef}
+.purchase-timeline strong{display:block;font-size:12px;line-height:1.35;min-height:31px}
+.purchase-timeline small{display:block;font-size:11px;color:#617066;line-height:1.35;margin-top:5px}
+@media(max-width:640px){
+ .purchase-timeline{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));padding:11px 5px;gap:0}
+ .purchase-timeline li{padding:12px 5px 15px}
+ .purchase-timeline li>span{width:30px;height:30px;font-size:10px}
+ .purchase-timeline li:before{top:27px}
+ .purchase-timeline strong{font-size:11px;overflow-wrap:anywhere}
+ .purchase-timeline small{font-size:10px}
+}
+@media(max-width:365px){
+ .purchase-timeline{grid-template-columns:repeat(2,minmax(0,1fr));}
+ .purchase-timeline li:before{display:none}
+ .purchase-timeline strong{font-size:12px}
+}
