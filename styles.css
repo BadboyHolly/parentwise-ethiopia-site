@@ -231,7 +231,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid #d4
 .buying-reassurance{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:26px 0}
 .buying-reassurance>div{border:1px solid #fff3;border-radius:16px;background:#ffffff11;padding:17px}
 .buying-reassurance small{display:block;color:var(--gold);font-size:10px;font-weight:900;letter-spacing:.07em;margin-bottom:6px}
-.buying-reassurance b{font-size:13px;line-height:1.4}
+.buying-reassurance b{font-size:13px;line-height:1.4;min-width:0;overflow-wrap:anywhere;word-break:normal}
 .purchase-timeline{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;position:relative;list-style:none;padding:0;margin:37px 0 25px}
 .purchase-timeline:before{content:"";position:absolute;left:5%;right:5%;top:18px;height:2px;background:#c58a91;opacity:.65}
 .purchase-timeline li{min-width:0;display:flex;flex-direction:column;align-items:center;text-align:center;gap:7px;position:relative}
