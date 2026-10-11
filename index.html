@@ -7,8 +7,9 @@
   <title>ParentWise Ethiopia — Child Behavior & Discipline System</title>
   <meta name="description" content="Know what to say, what to do, and how to follow through when your child’s behavior gets difficult.">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="option5-preview.css">
 </head>
-<body>
+<body class="option5-preview">
 <header class="site-header">
   <div class="shell nav-shell">
     <a class="logo-link" href="#top" aria-label="ParentWise Ethiopia home">
@@ -22,6 +23,15 @@
       <a href="#faq">FAQ</a>
     </nav>
     <a class="nav-cta" href="order.html">Get ParentWise</a>
+    <button class="option5-menu-toggle" type="button" aria-label="Open navigation menu" aria-controls="option5-mobile-nav" aria-expanded="false">☰</button>
+    <nav id="option5-mobile-nav" class="option5-mobile-nav" aria-label="Mobile navigation" hidden>
+      <a href="#system">The system</a>
+      <a href="#inside">What you get</a>
+      <a href="#evidence">Evidence</a>
+      <a href="#how">How it works</a>
+      <a href="#faq">FAQ</a>
+      <a href="order.html">Get ParentWise — 1,500 ETB</a>
+    </nav>
   </div>
 </header>
 
@@ -36,6 +46,15 @@
       <p class="hero-lead">Know what to say, what to do, and how to follow through when your child’s behavior gets difficult.</p>
       <div class="hero-product-summary">Guides · ready-to-use parent scripts · planning tools · 30-day practice</div>
 
+      <div class="option5-video">
+        <button type="button" class="option5-video-trigger" id="option5-intro-open" aria-haspopup="dialog" aria-controls="option5-intro-dialog" aria-label="Introduction video: ParentWise Ethiopia">
+          <span class="option5-video-image">
+            <img src="https://images.pexels.com/photos/6393377/pexels-photo-6393377.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=900" alt="Mother embracing her child — temporary concept photo, pending approved video thumbnail" loading="lazy" decoding="async" width="480" height="340">
+          </span>
+          <span class="option5-video-play" aria-hidden="true">▶</span>
+          <span class="option5-video-label"><strong>Introduction video</strong><small>See how ParentWise helps you handle difficult moments and build lasting change.</small></span>
+        </button>
+      </div>
       <div class="hero-trust">
         <span>One clear system</span><i></i><span>One payment</span><i></i><span>No subscription</span>
       </div>
@@ -466,6 +485,15 @@
     </footer>
   </div>
 </dialog>
+<dialog id="option5-intro-dialog" class="option5-intro-dialog" aria-labelledby="option5-video-heading">
+  <div class="option5-dialog-inner">
+    <button type="button" class="option5-dialog-close" aria-label="Close introduction video" data-intro-close>×</button>
+    <h2 id="option5-video-heading">ParentWise Ethiopia — Introduction video</h2>
+    <video id="option5-intro-player" class="option5-intro-player" controls playsinline preload="none" hidden></video>
+    <p id="option5-video-unavailable">The introduction video has not yet been supplied for this design preview. The player is ready to connect to the approved video file; no video or duration is invented.</p>
+  </div>
+</dialog>
+<script src="option5-preview.js"></script>
 <script src="reviewers-data.js"></script>
 <script src="app.js"></script>
 <script src="product-preview.js"></script>
