@@ -1,0 +1,46 @@
+name: Option 5 Preview Visual QA
+on:
+  push:
+    branches:
+      - preview/option5-bold-modern-20261011
+    paths-ignore:
+      - design-qa/**
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  mobile-visual-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Start isolated local page
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/option5-web.log 2>&1 &
+          sleep 2
+          curl --fail http://127.0.0.1:8765/ -o /dev/null
+      - name: Browser visual and interaction QA
+        run: node tests/option5-visual-qa.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: option5-mobile-desktop-visual-review
+          path: design-qa/
+          if-no-files-found: warn
+      - name: Save founder preview screenshots to isolated branch
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add design-qa
+          git diff --cached --quiet || git commit -m "test(preview): capture responsive QA screenshots [skip ci]"
+          git push
