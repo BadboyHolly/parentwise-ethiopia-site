@@ -1,0 +1,207 @@
+{
+  "screenshots": [],
+  "errors": [],
+  "checks": [
+    {
+      "width": 320,
+      "data": {
+        "clientWidth": 320,
+        "scrollWidth": 320,
+        "problems": 6,
+        "method": 6,
+        "faq": 9,
+        "links": 5,
+        "refs": 9,
+        "pdfPreviews": 4,
+        "sections": 13,
+        "hasOldCards": 0,
+        "video": true,
+        "overflowElements": [
+          {
+            "tag": "IMG",
+            "cl": "",
+            "text": "",
+            "right": 397,
+            "width": 294
+          }
+        ],
+        "primaryHeading": "Parenting should not feel like the same fight every day."
+      },
+      "errors": []
+    },
+    {
+      "width": 360,
+      "data": {
+        "clientWidth": 360,
+        "scrollWidth": 360,
+        "problems": 6,
+        "method": 6,
+        "faq": 9,
+        "links": 5,
+        "refs": 9,
+        "pdfPreviews": 4,
+        "sections": 13,
+        "hasOldCards": 0,
+        "video": true,
+        "overflowElements": [
+          {
+            "tag": "IMG",
+            "cl": "",
+            "text": "",
+            "right": 446,
+            "width": 331
+          }
+        ],
+        "primaryHeading": "Parenting should not feel like the same fight every day."
+      },
+      "errors": []
+    },
+    {
+      "width": 375,
+      "data": {
+        "clientWidth": 375,
+        "scrollWidth": 375,
+        "problems": 6,
+        "method": 6,
+        "faq": 9,
+        "links": 5,
+        "refs": 9,
+        "pdfPreviews": 4,
+        "sections": 13,
+        "hasOldCards": 0,
+        "video": true,
+        "overflowElements": [
+          {
+            "tag": "IMG",
+            "cl": "",
+            "text": "",
+            "right": 465,
+            "width": 345
+          }
+        ],
+        "primaryHeading": "Parenting should not feel like the same fight every day."
+      },
+      "errors": []
+    },
+    {
+      "width": 390,
+      "data": {
+        "clientWidth": 390,
+        "scrollWidth": 390,
+        "problems": 6,
+        "method": 6,
+        "faq": 9,
+        "links": 5,
+        "refs": 9,
+        "pdfPreviews": 4,
+        "sections": 13,
+        "hasOldCards": 0,
+        "video": true,
+        "overflowElements": [
+          {
+            "tag": "IMG",
+            "cl": "",
+            "text": "",
+            "right": 484,
+            "width": 359
+          }
+        ],
+        "primaryHeading": "Parenting should not feel like the same fight every day."
+      },
+      "errors": []
+    },
+    {
+      "width": 414,
+      "data": {
+        "clientWidth": 414,
+        "scrollWidth": 414,
+        "problems": 6,
+        "method": 6,
+        "faq": 9,
+        "links": 5,
+        "refs": 9,
+        "pdfPreviews": 4,
+        "sections": 13,
+        "hasOldCards": 0,
+        "video": true,
+        "overflowElements": [
+          {
+            "tag": "IMG",
+            "cl": "",
+            "text": "",
+            "right": 513,
+            "width": 381
+          }
+        ],
+        "primaryHeading": "Parenting should not feel like the same fight every day."
+      },
+      "errors": []
+    },
+    {
+      "width": 430,
+      "data": {
+        "clientWidth": 430,
+        "scrollWidth": 430,
+        "problems": 6,
+        "method": 6,
+        "faq": 9,
+        "links": 5,
+        "refs": 9,
+        "pdfPreviews": 4,
+        "sections": 13,
+        "hasOldCards": 0,
+        "video": true,
+        "overflowElements": [
+          {
+            "tag": "IMG",
+            "cl": "",
+            "text": "",
+            "right": 533,
+            "width": 396
+          }
+        ],
+        "primaryHeading": "Parenting should not feel like the same fight every day."
+      },
+      "errors": []
+    },
+    {
+      "width": 768,
+      "data": {
+        "clientWidth": 768,
+        "scrollWidth": 768,
+        "problems": 6,
+        "method": 6,
+        "faq": 9,
+        "links": 5,
+        "refs": 9,
+        "pdfPreviews": 4,
+        "sections": 13,
+        "hasOldCards": 0,
+        "video": true,
+        "overflowElements": [],
+        "primaryHeading": "Parenting should not feel like the same fight every day."
+      },
+      "errors": []
+    },
+    {
+      "width": 1440,
+      "data": {
+        "clientWidth": 1440,
+        "scrollWidth": 1440,
+        "problems": 6,
+        "method": 6,
+        "faq": 9,
+        "links": 5,
+        "refs": 9,
+        "pdfPreviews": 4,
+        "sections": 13,
+        "hasOldCards": 0,
+        "video": true,
+        "overflowElements": [],
+        "primaryHeading": "Parenting should not feel like the same fight every day."
+      },
+      "errors": []
+    }
+  ],
+  "date": "2026-10-11T18:08:56.528Z"
+}
