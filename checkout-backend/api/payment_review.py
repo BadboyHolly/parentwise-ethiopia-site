@@ -9,13 +9,14 @@ from datetime import datetime, timezone
 from typing import Literal
 from uuid import uuid4
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Header, HTTPException, Request
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from .admin_security import check_origin, check_csrf
-from .models import Order, PaymentReview, PaymentEvent, SimulatedLedgerEntry
+from .models import Order, PaymentReview, PaymentEvent, SimulatedLedgerEntry, QaDownloadGrant, AdminAudit
+from .security import equal_hash, hash_value
 
 router = APIRouter()
 _ORDER_MAKER = None
@@ -54,6 +55,94 @@ def push_event(db, order, action, before, after, *, review_id=None, explanation=
                         action=action, previous_status=before, new_status=after,
                         reason=explanation, occurred_at=stamp(), actor='qa_founder'))
     order.updated_at = stamp()
+
+def customer_order(db, code, authorization):
+    if not authorization.startswith('Bearer ') or len(authorization[7:]) != 43:
+        raise HTTPException(404, 'Order not found or access denied')
+    if not re.fullmatch(r'PW-QA-[A-F0-9]{24}', code):
+        raise HTTPException(404, 'Order not found or access denied')
+    order = db.scalar(select(Order).where(Order.order_code == code).with_for_update())
+    if not order or not equal_hash(order.access_token_hash, hash_value(authorization[7:])):
+        raise HTTPException(404, 'Order not found or access denied')
+    return order
+
+@router.get('/api/v1/orders/{code}/checkout-status')
+def checkout_status(code: str, authorization: str = Header(default='')):
+    """Customer-safe status view. Legacy order summary shape remains unchanged for accepted clients."""
+    with _ORDER_MAKER() as db:
+        order = customer_order(db, code, authorization)
+        grant = db.scalar(select(QaDownloadGrant).where(QaDownloadGrant.order_id == order.id))
+        if order.status in ('PROOF_SUBMITTED', 'VERIFYING'):
+            label = 'Under Review'
+        elif order.status == 'VERIFIED_PAID':
+            label = 'Ready to Download' if grant and grant.revoked_at is None else 'Payment Confirmed'
+        elif order.status == 'CANCELLED':
+            label = 'Cancelled'
+        else:
+            label = 'Awaiting Payment'
+        return {'test_mode': True, 'order': {'order_id': order.order_code,
+            'product': 'ParentWise Child Behavior & Discipline System',
+            'amount_etb': order.amount_etb, 'currency': order.currency,
+            'payment_method': order.payment_method, 'status': order.status,
+            'customer_status': label, 'downloads_ready': bool(order.status == 'VERIFIED_PAID' and grant and grant.revoked_at is None),
+            'test_mode': True}}
+
+class CustomerClaim(BaseModel):
+    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
+    test_reference: str = Field(min_length=22, max_length=22)
+    reported_amount_etb: int = Field(ge=1, le=100000)
+    currency: Literal['ETB'] = 'ETB'
+
+@router.post('/api/v1/orders/{code}/simulate-transfer', status_code=201)
+def simulate_customer_transfer(code: str, request: Request, authorization: str = Header(default='')):
+    """Create a fictional ledger row for the QA walkthrough; this cannot contact a payment provider."""
+    assert_simulation()
+    with _ORDER_MAKER() as db:
+        order = customer_order(db, code, authorization)
+        if order.status != 'PENDING_PAYMENT':
+            raise HTTPException(409, 'This QA order is not awaiting a simulated transfer')
+        existing = db.scalar(select(SimulatedLedgerEntry).where(SimulatedLedgerEntry.customer_order_id == order.id))
+        if existing:
+            return {'test_mode': True, 'simulated_only': True, 'reference': existing.test_reference,
+                    'amount_etb': existing.amount_etb, 'currency': existing.currency,
+                    'message': 'Fictional QA transfer only. No money moved.'}
+        prefix = 'TB' if order.payment_method == 'telebirr' else 'BK'
+        fixture = SimulatedLedgerEntry(id=str(uuid4()), test_reference='QA-' + prefix + '-' + secrets.token_hex(8).upper(),
+            payment_method=order.payment_method, amount_etb=1500, currency='ETB', generated_at=stamp(),
+            credited_order_id=None, customer_order_id=order.id)
+        db.add(fixture); db.commit()
+        return {'test_mode': True, 'simulated_only': True, 'reference': fixture.test_reference,
+                'amount_etb': 1500, 'currency': 'ETB', 'message': 'Fictional QA transfer only. No money moved.'}
+
+@router.post('/api/v1/orders/{code}/payment-claim', status_code=201)
+def submit_customer_claim(code: str, payload: CustomerClaim, request: Request, authorization: str = Header(default='')):
+    """A customer reference is a claim only; it does not confirm payment."""
+    assert_simulation()
+    if not REF_RE.fullmatch(payload.test_reference):
+        raise HTTPException(422, 'Only fictional QA references are accepted')
+    with _ORDER_MAKER() as db:
+        order = customer_order(db, code, authorization)
+        if order.status != 'PENDING_PAYMENT':
+            raise HTTPException(409, 'This order already has a payment claim or is closed')
+        expected = 'QA-TB-' if order.payment_method == 'telebirr' else 'QA-BK-'
+        if not payload.test_reference.startswith(expected):
+            raise HTTPException(422, 'Reference does not match the selected payment method')
+        review = PaymentReview(id=str(uuid4()), order_id=order.id, payment_method=order.payment_method,
+            test_reference=payload.test_reference, reported_amount_etb=payload.reported_amount_etb,
+            currency='ETB', state='PROOF_SUBMITTED', independent_check='NOT_CHECKED', evidence_received_at=stamp())
+        db.add(review)
+        try:
+            db.flush()
+            before = order.status; order.status = 'PROOF_SUBMITTED'
+            db.add(PaymentEvent(id=str(uuid4()), order_id=order.id, review_id=review.id,
+                actor='qa_customer', action='fictional_payment_claim_submitted', previous_status=before,
+                new_status=order.status, occurred_at=stamp(), reason='Customer-submitted QA reference; not payment confirmation'))
+            order.updated_at = stamp(); db.commit()
+        except IntegrityError:
+            db.rollback()
+            raise HTTPException(409, 'This QA reference has already been submitted') from None
+        return {'test_mode': True, 'simulated_only': True, 'payment_claimed': True,
+            'order_status': 'PROOF_SUBMITTED', 'customer_status': 'Under Review'}
 
 
 def review_data(review):
@@ -195,8 +284,26 @@ def confirm_match(code: str, payload: FounderDecision, request: Request):
         push_event(db, order, 'qa_payment_verified', prior, order.status, review_id=review.id)
         from .fulfillment import enroll_qa_verified
         enroll_qa_verified(db, order, review, fixture)
+        grant = db.scalar(select(QaDownloadGrant).where(QaDownloadGrant.order_id == order.id).with_for_update())
+        if not grant:
+            db.add(QaDownloadGrant(id=str(uuid4()), order_id=order.id, review_id=review.id,
+                package_version='QA-DEMO-2026.10-v1', granted_at=stamp()))
+        db.add(AdminAudit(event='qa_dummy_download_granted', success=True, order_code=order.order_code))
         db.commit()
         return {'test_mode': True, 'simulated_only': True, 'status': 'VERIFIED_PAID'}
+
+@router.post('/admin/api/orders/{code}/downloads/revoke')
+def revoke_downloads(code: str, request: Request):
+    with _ORDER_MAKER() as db:
+        authenticated(request, db)
+        order = find_order(db, code)
+        grant = db.scalar(select(QaDownloadGrant).where(QaDownloadGrant.order_id == order.id).with_for_update())
+        if not grant or grant.revoked_at:
+            raise HTTPException(409, 'No active QA download grant exists')
+        grant.revoked_at = stamp()
+        db.add(AdminAudit(event='qa_dummy_download_revoked', success=True, order_code=order.order_code))
+        db.commit()
+        return {'test_mode': True, 'simulated_only': True, 'downloads_revoked': True}
 
 
 @router.post('/admin/api/orders/{code}/reject')
@@ -250,7 +357,7 @@ def inspection(db, order):
         .order_by(PaymentEvent.occurred_at.asc(), PaymentEvent.id.asc()).limit(100)).all()
     return {'reviews': [review_data(x) for x in reviews],
             'verification_history': [
-                {'event': e.action, 'before': e.previous_status, 'after': e.new_status,
+                {'event': e.action, 'actor': e.actor, 'before': e.previous_status, 'after': e.new_status,
                  'at': e.occurred_at.isoformat(), 'reason': e.reason}
                 for e in events]}
 

@@ -54,6 +54,7 @@
       d.audit.forEach(e=>{const li=document.createElement('li');li.textContent='Audit: '+e.event+' · '+formatDate(e.at);list.append(li)});
       renderQaReconciliation(d);
       renderQaFulfillment(d);
+      renderQaDownloads(d);
       display('detail',true);$('detail').scrollIntoView({behavior:'smooth'});
     } catch(e){error(e.message)}
   }
@@ -73,13 +74,21 @@
         ' · ledger check: '+r.independent_check+(r.decision_reason?' · reason: '+r.decision_reason:'');
       claims.append(li);
     });
+    if(active){ $('qaClaimRef').value=active.test_reference; $('qaClaimAmount').value=active.reported_amount_etb; }
     if(!reviews.length){const li=document.createElement('li');li.textContent='No fictional proof recorded.';claims.append(li);}
     const history=$('qaEventHistory');history.replaceChildren();
     events.forEach(e=>{const li=document.createElement('li');
-      li.textContent=e.event+' · '+e.before+' → '+e.after+' · '+formatDate(e.at)+
+      li.textContent=e.event+' · actor '+(e.actor||'qa_founder')+' · '+e.before+' → '+e.after+' · '+formatDate(e.at)+
         (e.reason?' · '+e.reason:'');history.append(li);
     });
     if(!events.length){const li=document.createElement('li');li.textContent='No review decisions yet.';history.append(li);}
+  }
+  function renderQaDownloads(data){
+    const grant=data.qa_downloads||{};
+    $('qaDownloadState').textContent=grant.active
+      ? `ACTIVE · five private QA DEMO PDFs · ${grant.package_version} · access can be revoked`
+      : (grant.revoked_at ? 'REVOKED · QA sample downloads are blocked.' : 'No active QA download grant. Explicit simulated approval grants the five QA samples.');
+    $('qaRevokeDownloads').disabled=!grant.active;
   }
   function qaMessage(message) {
     $('qaReviewMessage').textContent=message;
@@ -142,6 +151,11 @@
     if(!window.confirm('Cancel this TEST order? It cannot be reactivated in Phase 4.'))return;
     try{await qaMutation('/admin/api/orders/'+encodeURIComponent(state.activeOrder)+'/cancel',
         {reason},'QA test order cancelled. No refund or real payment action occurred.');}catch(e){}
+  });
+  $('qaRevokeDownloads').addEventListener('click',async()=>{
+    if(!state.activeOrder||!confirm('Revoke access to the five fictional QA sample PDFs?'))return;
+    try{await qaMutation('/admin/api/orders/'+encodeURIComponent(state.activeOrder)+'/downloads/revoke',{},
+      'QA sample access revoked. The customer download route will deny further access.');}catch(e){}
   });
 
 

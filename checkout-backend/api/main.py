@@ -202,3 +202,5 @@ from .payment_review import mount_payment_review
 mount_payment_review(app, SessionLocal)
 from .fulfillment import mount_fulfillment
 mount_fulfillment(app, SessionLocal)
+from .customer_downloads import mount_customer_downloads
+mount_customer_downloads(app, SessionLocal)

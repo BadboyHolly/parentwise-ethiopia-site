@@ -86,6 +86,7 @@ class SimulatedLedgerEntry(Base):
     currency: Mapped[str] = mapped_column(String(3), nullable=False)
     generated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     credited_order_id: Mapped[str | None] = mapped_column(String(36), ForeignKey('orders.id'), unique=True, nullable=True)
+    customer_order_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
 
 
 class PaymentReview(Base):
@@ -112,6 +113,8 @@ class PaymentReview(Base):
 
 
 Index('ix_qa_reviews_order', PaymentReview.order_id)
+
+Index('uq_qa_customer_transfer_order', SimulatedLedgerEntry.customer_order_id, unique=True)
 
 
 class PaymentEvent(Base):
@@ -168,3 +171,18 @@ class QaFulfillmentEvent(Base):
     happened_at: Mapped[datetime] = mapped_column(DateTime(timezone=True),nullable=False)
 
 Index('ix_qa_fulfillment_events_fulfillment',QaFulfillmentEvent.fulfillment_id,QaFulfillmentEvent.happened_at)
+
+class QaDownloadGrant(Base):
+    __tablename__ = 'qa_download_grants'
+    __table_args__ = (
+        UniqueConstraint('order_id', name='uq_qa_download_order'),
+        CheckConstraint("package_version = 'QA-DEMO-2026.10-v1'", name='ck_qa_download_dummy_version'),
+    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    order_id: Mapped[str] = mapped_column(String(36), ForeignKey('orders.id'), nullable=False)
+    review_id: Mapped[str] = mapped_column(String(36), ForeignKey('qa_payment_reviews.id'), nullable=False)
+    package_version: Mapped[str] = mapped_column(String(40), nullable=False)
+    granted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+Index('ix_qa_download_grants_order', QaDownloadGrant.order_id)

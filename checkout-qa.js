@@ -1,293 +1,159 @@
-/* ParentWise QA checkout: real test orders, NO REAL PAYMENTS.
-   Customer secrets stay in the current tab's sessionStorage, never URLs or analytics.
-   Reopen recovery is explicitly opt-in via a user-held private code. */
+/* Isolated ParentWise checkout prototype. QA-only fixtures; no real payment integration. */
 (() => {
   'use strict';
   const API = 'https://parentwise-orders-api-qa.onrender.com';
-  const SESSION_KEY = 'parentwise.qa.checkout.v2';
-  const form = document.getElementById('qaOrder');
-  if (!form) return;
-  const $ = (id) => document.getElementById(id);
-  const elements = {
-    name: $('name'), mobile: $('mobile'), method: $('payment-method'),
-    submit: $('order-submit'), feedback: $('checkout-feedback'),
-    result: $('testPreview'), orderId: $('order-id'), orderProduct: $('order-product'),
-    orderPrice: $('order-price'), orderMethod: $('order-method'), orderStatus: $('order-status'),
-    deliveryLabel: $('qa-delivery-label'), deliveryStatus: $('qa-delivery-status'),
-    deliveryNotice: $('qa-fulfillment-notice'),
-    deliveryVersionLabel: $('qa-delivery-version-label'), deliveryVersion: $('qa-delivery-version'),
-    copyId: $('copy-order-id'), copyRecovery: $('copy-recovery'),
-    copyFallback: $('recovery-copy-fallback'), privateCode: $('private-recovery-code'),
-    hidePrivate: $('hide-private-recovery'),
-    newOrder: $('start-new-order'), recoveryPanel: $('recovery-panel'),
-    recoverToggle: $('recover-toggle'), recoverForm: $('recover-form'),
-    recoverId: $('recover-order-id'), recoverToken: $('recover-token'),
-    recoverSubmit: $('recover-submit'), sessionNotice: $('session-storage-notice')
+  const STORAGE = 'parentwise.qa.checkout.v3';
+  const $ = id => document.getElementById(id);
+  const model = { method: 'telebirr', order: null, token: null, key: null, body: null, busy: false };
+  const names = ['A gentle start', 'Understanding big feelings', 'Calm boundaries', 'Everyday routines', 'Growing together'];
+  const recipients = {
+    telebirr: ['Telebirr QA ID', 'QA-TELEBIRR-RECIPIENT-001'],
+    bank: ['CBE QA account', 'QA-CBE-ACCOUNT-001']
   };
-  let record = null;
-  let busy = false;
-  let storageAvailable = true;
-  const timeoutMs = 90000; // Cold starts may take time on free hosting.
 
-  function loadSession() {
+  function announce(message, error = false) {
+    const box = $('feedback'); box.textContent = message; box.classList.toggle('hidden', !message);
+    box.classList.toggle('error', error);
+  }
+  function key() {
+    if (!crypto?.getRandomValues) throw new Error('Secure browser support is required. Please update your browser.');
+    const b = new Uint8Array(32); crypto.getRandomValues(b);
+    return btoa(String.fromCharCode(...b)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+  async function request(path, init = {}) {
+    const c = new AbortController(), timer = setTimeout(() => c.abort(), 90000);
     try {
-      const raw = sessionStorage.getItem(SESSION_KEY);
-      if (!raw) return null;
-      const data = JSON.parse(raw);
-      if (!data || data.version !== 2 || typeof data.key !== 'string' ||
-          !/^[A-Za-z0-9_-]{43}$/.test(data.key) || !data.body) return null;
-      return data;
-    } catch (_) { storageAvailable = false; return null; }
-  }
-  function saveSession() {
-    try {
-      if (record) sessionStorage.setItem(SESSION_KEY, JSON.stringify(record));
-      else sessionStorage.removeItem(SESSION_KEY);
-    } catch (_) { storageAvailable = false; }
-    if (!storageAvailable) elements.sessionNotice.hidden = false;
-  }
-  function makeKey() {
-    if (!window.crypto || typeof crypto.getRandomValues !== 'function') {
-      throw new Error('Your browser does not support secure order creation. Use an updated browser.');
-    }
-    const bytes = new Uint8Array(32);
-    crypto.getRandomValues(bytes);
-    let binary = '';
-    bytes.forEach((byte) => { binary += String.fromCharCode(byte); });
-    return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  }
-  function feedback(message, kind = 'info') {
-    elements.feedback.hidden = !message;
-    elements.feedback.textContent = message || '';
-    elements.feedback.dataset.kind = kind;
-  }
-  function setBusy(value, label) {
-    busy = value;
-    elements.submit.disabled = value;
-    elements.recoverSubmit.disabled = value;
-    elements.submit.textContent = label || (value ? 'Working securely…' : 'Create TEST order — no payment');
-    elements.recoverSubmit.textContent = value ? 'Checking…' : 'Recover QA order';
-    form.setAttribute('aria-busy', String(value));
-  }
-  function validate() {
-    const name = elements.name.value.trim();
-    const mobile = elements.mobile.value.trim();
-    const payment = elements.method.value;
-    elements.name.setCustomValidity('');
-    elements.mobile.setCustomValidity('');
-    if (name.length < 2 || name.length > 100 || !/[\p{L}]/u.test(name) || /[\x00-\x1f\x7f]/.test(name)) {
-      elements.name.setCustomValidity('Enter a fictional test name (2–100 characters).');
-      elements.name.reportValidity(); return null;
-    }
-    if (!/^(?:0[97][0-9]{8}|\+251[97][0-9]{8})$/.test(mobile)) {
-      elements.mobile.setCustomValidity('Use a valid format: 09XXXXXXXX, 07XXXXXXXX or +2519XXXXXXXX. Test data only.');
-      elements.mobile.reportValidity(); return null;
-    }
-    if (!payment) { elements.method.setCustomValidity('Choose Telebirr or bank (simulation only).'); elements.method.reportValidity(); return null; }
-    elements.method.setCustomValidity('');
-    return { customer_name: name, mobile, payment_method: payment };
-  }
-  function sameBody(a, b) {
-    // API normalizes phone numbers, so after reload use saved exact body rather than recomputing.
-    return !!a && !!b && a.customer_name === b.customer_name && a.mobile === b.mobile && a.payment_method === b.payment_method;
-  }
-  function restoreForm(data) {
-    if (!data) return;
-    elements.name.value = data.customer_name || '';
-    elements.mobile.value = data.mobile || '';
-    elements.method.value = data.payment_method || '';
-  }
-  function clearInvalid() { this.setCustomValidity(''); }
-  elements.name.addEventListener('input', clearInvalid);
-  elements.mobile.addEventListener('input', clearInvalid);
-  elements.method.addEventListener('change', clearInvalid);
-
-  async function apiRequest(path, options = {}) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeoutMs);
-    try {
-      const response = await fetch(API + path, {
-        ...options,
-        signal: controller.signal,
-        cache: 'no-store',
-        referrerPolicy: 'no-referrer'
-      });
-      let data;
-      try { data = await response.json(); } catch (_) { data = null; }
+      const response = await fetch(API + path, { ...init, signal: c.signal, cache: 'no-store', referrerPolicy: 'no-referrer' });
+      const data = response.headers.get('content-type')?.includes('json') ? await response.json() : null;
       return { response, data };
     } finally { clearTimeout(timer); }
   }
-  function checkSummary(summary) {
-    return summary && typeof summary.order_id === 'string' && /^PW-QA-[A-F0-9]{24}$/.test(summary.order_id) &&
-      summary.amount_etb === 1500 && summary.currency === 'ETB' &&
-      ['bank', 'telebirr'].includes(summary.payment_method) &&
-      ['PENDING_PAYMENT','PROOF_SUBMITTED','VERIFYING','VERIFIED_PAID','CANCELLED'].includes(summary.status) && summary.test_mode === true &&
-      summary.product === 'ParentWise Child Behavior & Discipline System';
+  function headers(json = false) {
+    const h = { Authorization: 'Bearer ' + model.token };
+    if (json) h['Content-Type'] = 'application/json';
+    return h;
   }
-  function hidePrivateCode() {
-    elements.copyFallback.hidden = true;
-    elements.privateCode.value = '';
+  function save() {
+    try { sessionStorage.setItem(STORAGE, JSON.stringify({ order: model.order, token: model.token, key: model.key, body: model.body })); }
+    catch (_) { announce('Browser session storage is unavailable. Copy your private recovery code before leaving this tab.', true); }
   }
-  function showOrder(summary, token) {
-    if (!checkSummary(summary)) throw new Error('Unexpected API response. The test order was not displayed. Retry with the same attempt.');
-    hidePrivateCode();
-    record.order = summary;
-    record.token = token;
-    saveSession();
-    elements.orderId.textContent = summary.order_id;
-    elements.orderProduct.textContent = summary.product;
-    elements.orderPrice.textContent = '1,500 ETB';
-    elements.orderMethod.textContent = summary.payment_method === 'telebirr' ? 'Telebirr · simulation only' : 'Ethiopian bank · simulation only';
-    elements.orderStatus.textContent = summary.status;
-    const simulated = summary.fulfillment;
-    const visible = !!(simulated && simulated.simulated_only === true &&
-      ['PENDING_FULFILLMENT','PREPARING','SENT','DELIVERED','DELIVERY_FAILED'].includes(simulated.status));
-    elements.deliveryLabel.hidden = !visible;
-    elements.deliveryStatus.hidden = !visible;
-    elements.deliveryNotice.hidden = !visible;
-    elements.deliveryVersionLabel.hidden = !visible;
-    elements.deliveryVersion.hidden = !visible;
-    if (visible) {
-      elements.deliveryStatus.textContent = simulated.status + ' · SIMULATION ONLY';
-      elements.deliveryVersion.textContent = simulated.package_version || 'Unavailable';
-      elements.deliveryNotice.textContent =
-        'QA DUMMY FULFILLMENT ONLY. No actual Telegram message or paid ParentWise document was sent. ' +
-        'Production fulfillment will be founder-assisted through official Telegram after independently confirmed real payment. ' +
-        'No instant delivery is promised. Official support: t.me/ParentWiseEthiopia.';
+  function display(summary) {
+    if (!summary || !/^PW-QA-[A-F0-9]{24}$/.test(summary.order_id) || summary.amount_etb !== 1500 || summary.test_mode !== true) {
+      throw new Error('Unexpected QA response. Refresh using your saved recovery code.');
     }
-    elements.result.hidden = false;
-    form.hidden = true;
-    feedback('This is a QA simulation only. No real payment has been requested, received, or verified, regardless of the displayed test status.', 'success');
-    elements.result.focus();
+    model.order = summary; save();
+    $('order-panel').classList.remove('hidden');
+    $('order-id').textContent = summary.order_id;
+    $('order-method').textContent = summary.payment_method === 'telebirr' ? 'Telebirr · QA simulation' : 'CBE · QA simulation';
+    $('customer-status').textContent = summary.customer_status || 'Awaiting Payment';
+    const status = summary.customer_status || 'Awaiting Payment';
+    document.querySelectorAll('.steps span').forEach((step, i) => step.classList.toggle('on',
+      i === 0 ? status === 'Awaiting Payment' : i === 1 ? status === 'Under Review' : ['Payment Confirmed', 'Ready to Download'].includes(status)));
+    document.querySelectorAll('.method').forEach(button => { button.disabled = true; });
+    $('status-message').textContent = status === 'Awaiting Payment' ? 'Create a fictional transfer reference, then submit it as a claim.' :
+      status === 'Under Review' ? 'Your reference is with the founder for independent QA review. A submitted reference is not payment confirmation.' :
+      status === 'Payment Confirmed' ? 'The simulated review is complete. QA sample access is temporarily unavailable.' :
+      status === 'Ready to Download' ? 'Your simulated approval is complete. Download the five QA samples below.' :
+      'This QA order is closed. Contact support if you need help recovering your test order.';
+    $('payment-claim').classList.toggle('hidden', summary.status !== 'PENDING_PAYMENT');
+    $('download-area').classList.toggle('hidden', !summary.downloads_ready);
+    if (summary.downloads_ready) renderDownloads();
+    if (summary.status === 'PROOF_SUBMITTED' || summary.status === 'VERIFYING') announce('Reference received. It is a claim only and is not a payment confirmation.');
+    else if (summary.status === 'VERIFIED_PAID') announce('QA simulation approved. This does not mean real payment was received.');
   }
-  function failMessage(err, context = '') {
-    if (err && err.name === 'AbortError') return 'The API is taking longer than expected. The order may already exist. Retry the SAME saved attempt; do not start a new one.';
-    return context || 'Cannot reach the QA API right now. It may be waking from sleep. Wait a moment and retry the SAME attempt.';
+  function renderDownloads() {
+    const list = $('download-list'); list.replaceChildren();
+    names.forEach((name, i) => {
+      const button = document.createElement('button'); button.type = 'button';
+      button.textContent = `Download QA sample ${i + 1} · ${name}`;
+      button.addEventListener('click', () => download(i + 1, button)); list.append(button);
+    });
   }
-  async function createOrder() {
-    if (busy) return;
-    const body = validate();
-    if (!body) return;
-    if (record?.order) { showOrder(record.order, record.token); return; }
-    if (record && !sameBody(record.body, body)) {
-      restoreForm(record.body);
-      feedback('A test attempt is already saved. Its original details were restored. Retry it to avoid duplicate orders, or choose “Start a new test order” explicitly.', 'error');
-      return;
-    }
-    if (!record) {
-      try { record = { version: 2, key: makeKey(), body }; }
-      catch (error) { feedback(error.message, 'error'); return; }
-      saveSession(); // Persist BEFORE making a network request.
-    }
-    setBusy(true, 'Contacting QA API…');
-    feedback('Creating or resuming the same test order. Free hosting can take up to a minute to wake.');
+  async function download(n, button) {
+    button.disabled = true; button.textContent = `Preparing QA sample ${n}…`;
     try {
-      const { response, data } = await apiRequest('/api/v1/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Idempotency-Key': record.key },
-        body: JSON.stringify(record.body)
+      const res = await fetch(`${API}/api/v1/orders/${encodeURIComponent(model.order.order_id)}/downloads/part-${n}`, {
+        headers: headers(), cache: 'no-store', referrerPolicy: 'no-referrer'
       });
-      if (response.status === 201) {
-        if (!data?.access_token || !/^[A-Za-z0-9_-]{43}$/.test(data.access_token)) throw new Error('Incomplete API response. Retry the same attempt.');
-        showOrder(data.order, data.access_token);
-      } else if (response.status === 429) {
-        feedback('Shared QA limit reached: at most 12 NEW test orders per 10 minutes across all testers. Wait and retry this SAME attempt. An existing order retry may still succeed.', 'error');
-      } else if (response.status === 409) {
-        feedback('These details differ from the original request. Retry the original saved attempt. If necessary, explicitly start a new test order.', 'error');
-      } else if (response.status === 422 || response.status === 400) {
-        feedback('The API rejected these test details. Check the name, Ethiopian phone format and method. To change a previously submitted attempt, explicitly start a new test order.', 'error');
-      } else if (response.status >= 500) {
-        feedback('Test-order storage is temporarily unavailable. Nothing was charged. Retry the SAME saved attempt.', 'error');
-      } else {
-        feedback('The QA API returned an unexpected response (' + response.status + '). Retry the SAME saved attempt.', 'error');
-      }
-    } catch (error) {
-      feedback(failMessage(error, error instanceof Error && /Incomplete|Unexpected/.test(error.message) ? error.message : ''), 'error');
-    } finally { setBusy(false); }
+      if (!res.ok) throw new Error(res.status === 403 ? 'Access is unavailable or was revoked. Contact QA support.' : 'Download failed. Check your connection and retry.');
+      const blob = await res.blob(), url = URL.createObjectURL(blob), a = document.createElement('a');
+      a.href = url; a.download = `ParentWise_QA_DEMO_Part_${n}.pdf`; document.body.append(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 15000); announce(`QA sample ${n} downloaded. It is a fictional demo PDF.`);
+    } catch (e) { announce(e.message || 'Download failed. Please retry.', true); }
+    finally { button.disabled = false; button.textContent = `Download QA sample ${n} · ${names[n - 1]}`; }
   }
-  async function retrieve(id, token, silent = false) {
-    if (busy) return;
-    if (!/^PW-QA-[A-F0-9]{24}$/.test(id) || !/^[A-Za-z0-9_-]{43}$/.test(token)) {
-      feedback('Enter a valid QA Order ID and its separate 43-character private recovery token.', 'error'); return;
-    }
-    setBusy(true, 'Retrieving QA order…');
-    if (!silent) feedback('Checking your QA order securely…');
+  async function refresh() {
+    const { response, data } = await request('/api/v1/orders/' + encodeURIComponent(model.order.order_id) + '/checkout-status', { headers: headers() });
+    if (!response.ok) throw new Error(response.status === 404 ? 'Order not found or private recovery code is incorrect.' : 'Order status is temporarily unavailable. Try again.');
+    display(data.order);
+  }
+  async function create() {
+    if (model.busy) return;
+    model.busy = true; $('create-order').disabled = true; $('create-order').textContent = 'Creating QA order…';
     try {
-      const { response, data } = await apiRequest('/api/v1/orders/' + encodeURIComponent(id), {
-        method: 'GET', headers: { Authorization: 'Bearer ' + token }
+      if (!model.key) {
+        model.key = key();
+        // Backend contract retained with synthetic values only; no customer PII is requested.
+        model.body = { customer_name: 'QA Sample Parent', mobile: '0911111111', payment_method: model.method };
+        save();
+      }
+      const { response, data } = await request('/api/v1/orders', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Idempotency-Key': model.key }, body: JSON.stringify(model.body) });
+      if (!response.ok) throw new Error(response.status === 429 ? 'Shared QA order limit reached. Wait briefly and retry this same attempt.' : 'Could not create the QA order. Please retry the same attempt.');
+      if (!/^[A-Za-z0-9_-]{43}$/.test(data.access_token || '')) throw new Error('The QA API returned an incomplete recovery code. Retry the saved attempt.');
+      model.token = data.access_token; display({ ...data.order, customer_status: 'Awaiting Payment', downloads_ready: false });
+      refresh().catch(e => announce(e.message, true)); announce('QA order created. No money was requested or taken.');
+      $('order-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (e) { announce(e.message || 'The QA service is unavailable. Please retry.', true); }
+    finally { model.busy = false; $('create-order').disabled = false; $('create-order').textContent = 'Create QA order'; }
+  }
+  async function simulateTransfer() {
+    try {
+      const { response, data } = await request(`/api/v1/orders/${encodeURIComponent(model.order.order_id)}/simulate-transfer`, { method: 'POST', headers: headers() });
+      if (!response.ok) throw new Error('Could not create a fictional QA reference. Try again.');
+      $('reference').value = data.reference; announce('Fictional reference generated. No transfer occurred. You can edit or copy this QA reference.');
+    } catch (e) { announce(e.message || 'The QA service is unavailable.', true); }
+  }
+  async function submitClaim() {
+    const ref = $('reference').value.trim().toUpperCase();
+    if (!/^QA-(TB|BK)-[A-F0-9]{16}$/.test(ref)) { announce('Enter a fictional QA reference in the format shown. Do not enter a real transaction reference.', true); return; }
+    try {
+      const { response, data } = await request(`/api/v1/orders/${encodeURIComponent(model.order.order_id)}/payment-claim`, {
+        method: 'POST', headers: headers(true), body: JSON.stringify({ test_reference: ref, reported_amount_etb: 1500, currency: 'ETB' })
       });
-      if (response.status === 200) {
-        if (!data?.order || data.order.order_id !== id) throw new Error('Invalid API order response');
-        if (!record || record.order?.order_id !== id) record = { version: 2, key: makeKey(), body: {}, order: data.order, token };
-        showOrder(data.order, token);
-        elements.recoveryPanel.hidden = true;
-      } else if (response.status === 404) {
-        if (silent) { record = null; saveSession(); elements.result.hidden = true; form.hidden = false; }
-        feedback('Order not found or the private token is incorrect. Check both values. No customer details were exposed.', 'error');
-      } else {
-        feedback('Order recovery is temporarily unavailable (' + response.status + '). Keep your private recovery code and try again.', 'error');
-      }
-    } catch (error) {
-      feedback(failMessage(error), 'error');
-    } finally { setBusy(false); }
+      if (!response.ok) throw new Error(response.status === 409 ? 'This reference is already claimed. Generate a new QA reference.' : 'Could not submit the QA claim. Check the reference and retry.');
+      announce('Claim submitted for founder review. The reference alone is not payment confirmation.'); await refresh();
+    } catch (e) { announce(e.message || 'The QA service is unavailable.', true); }
   }
-  async function copy(text, successText, privateCode = false) {
-    try {
-      if (!navigator.clipboard?.writeText) throw new Error('unavailable');
-      await navigator.clipboard.writeText(text);
-      hidePrivateCode();
-      feedback(successText, 'success');
-    } catch (_) {
-      if (privateCode) {
-        elements.privateCode.value = text;
-        elements.copyFallback.hidden = false;
-        elements.privateCode.focus();
-        elements.privateCode.select();
-        feedback('Clipboard access was denied. Your PRIVATE recovery code is selected below. Copy it manually into a secure personal note, then choose “Hide private code”. Do not share it in chat, screenshots or URLs.', 'error');
-      } else {
-        feedback('Clipboard permission was denied. Select and copy the Order ID manually, or try another supported browser.', 'error');
-      }
-    }
+  async function recover() {
+    const raw = $('recovery-code').value.trim();
+    const match = raw.match(/(PW-QA-[A-F0-9]{24})\s+([A-Za-z0-9_-]{43})/);
+    if (!match) { announce('Paste both the Order ID and private token from your saved recovery code.', true); return; }
+    model.order = { order_id: match[1] }; model.token = match[2];
+    try { await refresh(); save(); announce('QA order recovered securely.'); }
+    catch (e) { announce(e.message, true); model.order = null; model.token = null; }
   }
-  form.addEventListener('submit', (event) => { event.preventDefault(); createOrder(); });
-  elements.copyId.addEventListener('click', () => { if (record?.order) copy(record.order.order_id, 'QA Order ID copied. This is not proof of payment.'); });
-  elements.copyRecovery.addEventListener('click', () => {
-    if (record?.order && record?.token) {
-      copy(record.order.order_id + '\n' + record.token,
-        'Private recovery code copied. Store it in a secure note or password manager, not a public chat. Anyone with this code can view the QA order summary.', true);
-    }
-  });
-  elements.hidePrivate.addEventListener('click', () => { hidePrivateCode(); elements.copyRecovery.focus(); });
-  elements.newOrder.addEventListener('click', () => {
-    if (busy || !window.confirm('Start a NEW test order? This removes the current session recovery details but does not cancel any previously created QA order. Save its private recovery code first.')) return;
-    hidePrivateCode();
-    record = null; saveSession(); form.hidden = false; elements.result.hidden = true;
-    elements.recoveryPanel.hidden = true; form.reset(); feedback('Ready for a new fictional test order.'); elements.name.focus();
-  });
-  elements.recoverToggle.addEventListener('click', () => {
-    elements.recoveryPanel.hidden = !elements.recoveryPanel.hidden;
-    if (!elements.recoveryPanel.hidden) elements.recoverId.focus();
-  });
-  elements.recoverForm.addEventListener('submit', (event) => {
-    event.preventDefault();
-    const id = elements.recoverId.value.trim().toUpperCase();
-    let token = elements.recoverToken.value.trim();
-    // A copied two-line code can be pasted into either field.
-    const pasted = (elements.recoverId.value + '\n' + elements.recoverToken.value).match(/PW-QA-[A-F0-9]{24}\s+([A-Za-z0-9_-]{43})/);
-    if (pasted) token = pasted[1];
-    const finalId = pasted ? pasted[0].slice(0, 30).trim() : id;
-    elements.recoverToken.value = '';
-    retrieve(finalId, token);
-  });
-  // Refresh: the session is scoped to this tab, and no automatic POST is sent.
-  record = loadSession();
-  if (!storageAvailable) elements.sessionNotice.hidden = false;
-  if (record?.order?.order_id && record?.token) {
-    // Only GET. It cannot create a second order.
-    retrieve(record.order.order_id, record.token, true);
-  } else if (record?.key && record.body?.customer_name) {
-    restoreForm(record.body);
-    feedback('Your previous attempt was restored after refresh. Press “Retry saved test attempt” to safely retry the SAME Order ID request.', 'info');
-    elements.submit.textContent = 'Retry saved test attempt — no payment';
+  async function copy(value, label) {
+    try { await navigator.clipboard.writeText(value); announce(`${label} copied.`); }
+    catch (_) { announce('Clipboard access was denied. Select the value and copy it manually.', true); }
   }
+  document.querySelectorAll('.method').forEach(button => button.addEventListener('click', () => {
+    if (model.order) return;
+    model.method = button.dataset.method;
+    document.querySelectorAll('.method').forEach(x => x.setAttribute('aria-pressed', String(x === button)));
+    const [label, value] = recipients[model.method]; $('recipient-label').textContent = label; $('recipient-value').textContent = value;
+  }));
+  $('copy-recipient').addEventListener('click', () => copy(recipients[model.method][1], 'Fictional QA recipient'));
+  $('copy-amount').addEventListener('click', () => copy('1500 ETB', 'Amount'));
+  $('create-order').addEventListener('click', create);
+  $('simulate-transfer').addEventListener('click', simulateTransfer);
+  $('submit-claim').addEventListener('click', submitClaim);
+  $('copy-order').addEventListener('click', () => model.order && copy(model.order.order_id, 'Order ID'));
+  $('copy-recovery').addEventListener('click', () => model.order && model.token && copy(model.order.order_id + '\n' + model.token, 'Private recovery code'));
+  $('refresh-status').addEventListener('click', () => refresh().then(() => announce('Order status refreshed securely.')).catch(e => announce(e.message, true)));
+  $('recover').addEventListener('click', recover);
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(STORAGE) || 'null');
+    if (saved?.token && saved?.order?.order_id) { model.order = saved.order; model.token = saved.token; model.key = saved.key; model.body = saved.body; refresh().catch(e => announce(e.message, true)); }
+    else if (saved?.key) { model.key = saved.key; model.body = saved.body; }
+  } catch (_) { announce('No saved tab session is available. Use the private recovery code if you have it.', true); }
 })();

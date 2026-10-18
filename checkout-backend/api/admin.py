@@ -19,7 +19,7 @@ from .admin_security import (COOKIE_NAME, SESSION_ABSOLUTE_SECONDS, SESSION_IDLE
     MAX_LOGIN_PER_WINDOW, config, verified_password, accepted_totp_step,
     new_session_token, hashed_token, csrf_token, check_origin, check_csrf,
     agent_fingerprint)
-from .models import Order, AdminSession, AdminAudit, AdminTotpState
+from .models import Order, AdminSession, AdminAudit, AdminTotpState, QaDownloadGrant
 from .rate_limit import reserve_attempt
 from .payment_review import inspection
 from .fulfillment import inspection as fulfillment_inspection
@@ -229,12 +229,18 @@ def inspect_order(order_code: str, request: Request):
         if not o: raise HTTPException(404, 'Order not found')
         events = db.scalars(select(AdminAudit).where(AdminAudit.order_code == order_code)
                             .order_by(AdminAudit.created_at.desc()).limit(15)).all()
+        grant = db.scalar(select(QaDownloadGrant).where(QaDownloadGrant.order_id == o.id))
         audit(db, 'order_inspected', True, order_code=order_code)
         db.commit()
         return {'test_mode': True, 'order': order_detail(o), 'timeline': [
             {'event': 'created', 'at': utc(o.created_at).isoformat(), 'status': 'PENDING_PAYMENT'}],
             'audit': [{'event': e.event, 'at': utc(e.created_at).isoformat()}
-                      for e in events], **inspection(db, o), **fulfillment_inspection(db, o)}
+                      for e in events],
+                'qa_downloads': {'active': bool(grant and grant.revoked_at is None),
+                    'granted_at': utc(grant.granted_at).isoformat() if grant else None,
+                    'revoked_at': utc(grant.revoked_at).isoformat() if grant and grant.revoked_at else None,
+                    'files': 5, 'package_version': grant.package_version if grant else None},
+                **inspection(db, o), **fulfillment_inspection(db, o)}
 
 
 def mount_admin(app: FastAPI, sessionmaker):

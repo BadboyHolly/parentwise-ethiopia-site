@@ -79,6 +79,12 @@
 <h4>Immutable reconciliation events</h4><ol id="qaEventHistory" class="qa-history"></ol>
 <p class="muted">These are simulated financial actions only. No receipts, real-money approvals or paid files are processed.</p>
 </section>
+<section class="qa-review-panel" aria-labelledby="qaDownloadsTitle">
+<h3 id="qaDownloadsTitle">Private QA sample access</h3>
+<p class="muted">Five dummy QA PDFs are granted only after explicit simulated approval. Access requires the private order token, and can be revoked here. These are not paid ParentWise PDFs.</p>
+<p id="qaDownloadState" role="status">No active QA download grant.</p>
+<button type="button" id="qaRevokeDownloads" class="secondary" disabled>Revoke QA sample access</button>
+</section>
 <section class="qa-fulfill-panel" id="qaFulfillPanel" aria-labelledby="qaFulfillHeading" hidden>
 <h3 id="qaFulfillHeading">Simulated manual fulfillment · dummy package</h3>
 <p class="muted"><strong>TEST MODE: NO REAL PRODUCT DELIVERY.</strong> There is no Telegram automation and this screen cannot grant access to paid PDFs. A simulated `SENT` state means the founder rehearsed recording dispatch; it is not a Telegram confirmation.</p>
