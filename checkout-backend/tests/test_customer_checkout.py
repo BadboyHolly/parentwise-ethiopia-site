@@ -82,3 +82,33 @@ def test_checkout_ui_requests_no_personal_details_or_receipts():
     assert 'id="name"' not in html and 'id="mobile"' not in html
     assert 'QA-TELEBIRR-RECIPIENT-001' in script and 'QA-CBE-ACCOUNT-001' in script
     assert 'Fictional QA recipient' in html
+
+def test_checkout_order_is_created_before_fictional_payment_instructions():
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[2]
+    html = (root / 'order.html').read_text(encoding='utf-8')
+    script = (root / 'checkout-qa.js').read_text(encoding='utf-8')
+    assert 'id="payment-instructions" class="hidden"' in html
+    assert "$('payment-instructions').classList.toggle('hidden', summary.status !== 'PENDING_PAYMENT')" in script
+    assert 'QA-TELEBIRR-RECIPIENT-001' in html and 'QA-CBE-ACCOUNT-001' in script
+
+def test_private_recovery_code_clipboard_fallback_can_be_cleared():
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[2]
+    html = (root / 'order.html').read_text(encoding='utf-8')
+    script = (root / 'checkout-qa.js').read_text(encoding='utf-8')
+    assert 'id="private-code-fallback"' in html and 'id="private-recovery-code"' in html
+    assert "copy(model.order.order_id + '\\n' + model.token, 'Private recovery code', true)" in script
+    assert 'field.value = value; fallback.classList.remove' in script
+    assert 'field.select(); field.setSelectionRange(0, field.value.length)' in script
+    assert "field.value = ''; $('private-code-fallback').classList.add('hidden')" in script
+
+def test_checkout_uses_official_brand_and_amharic_ready_typography_without_new_tagline():
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[2]
+    html = (root / 'order.html').read_text(encoding='utf-8')
+    note = (root / 'checkout-backend' / 'CHECKOUT-AMHARIC-COPY.md').read_text(encoding='utf-8')
+    assert 'src="assets/logo-reversed.webp"' in html
+    assert 'CALM GUIDANCE FOR GROWING FAMILIES' not in html
+    assert ':lang(am)' in html and 'Noto Sans Ethiopic' in html
+    assert 'founder approval' in note

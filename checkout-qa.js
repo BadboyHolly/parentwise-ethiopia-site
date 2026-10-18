@@ -45,6 +45,10 @@
     $('order-panel').classList.remove('hidden');
     $('order-id').textContent = summary.order_id;
     $('order-method').textContent = summary.payment_method === 'telebirr' ? 'Telebirr · QA simulation' : 'CBE · QA simulation';
+    const savedMethod = summary.payment_method === 'bank' ? 'bank' : 'telebirr';
+    const [recipientLabel, recipientValue] = recipients[savedMethod];
+    $('recipient-label').textContent = recipientLabel;
+    $('recipient-value').textContent = recipientValue;
     $('customer-status').textContent = summary.customer_status || 'Awaiting Payment';
     const status = summary.customer_status || 'Awaiting Payment';
     document.querySelectorAll('.steps span').forEach((step, i) => step.classList.toggle('on',
@@ -56,6 +60,7 @@
       status === 'Ready to Download' ? 'Your simulated approval is complete. Download the five QA samples below.' :
       'This QA order is closed. Contact support if you need help recovering your test order.';
     $('payment-claim').classList.toggle('hidden', summary.status !== 'PENDING_PAYMENT');
+    $('payment-instructions').classList.toggle('hidden', summary.status !== 'PENDING_PAYMENT');
     $('download-area').classList.toggle('hidden', !summary.downloads_ready);
     if (summary.downloads_ready) renderDownloads();
     if (summary.status === 'PROOF_SUBMITTED' || summary.status === 'VERIFYING') announce('Reference received. It is a claim only and is not a payment confirmation.');
@@ -129,12 +134,20 @@
     const match = raw.match(/(PW-QA-[A-F0-9]{24})\s+([A-Za-z0-9_-]{43})/);
     if (!match) { announce('Paste both the Order ID and private token from your saved recovery code.', true); return; }
     model.order = { order_id: match[1] }; model.token = match[2];
-    try { await refresh(); save(); announce('QA order recovered securely.'); }
-    catch (e) { announce(e.message, true); model.order = null; model.token = null; }
+    try { await refresh(); save(); $('recovery-code').value = ''; $('order-recovery').open = false; announce('QA order recovered securely.'); }
+    catch (e) { $('recovery-code').value = ''; announce(e.message, true); model.order = null; model.token = null; }
   }
-  async function copy(value, label) {
+  async function copy(value, label, privateCode = false) {
     try { await navigator.clipboard.writeText(value); announce(`${label} copied.`); }
-    catch (_) { announce('Clipboard access was denied. Select the value and copy it manually.', true); }
+    catch (_) {
+      if (privateCode) {
+        const fallback = $('private-code-fallback'), field = $('private-recovery-code');
+        field.value = value; fallback.classList.remove('hidden');
+        field.focus(); field.select(); field.setSelectionRange(0, field.value.length);
+        announce('Clipboard access was denied. Your complete private recovery code is selected below. Save it securely, then hide it.', true);
+        fallback.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else announce('Clipboard access was denied. Select the value and copy it manually.', true);
+    }
   }
   document.querySelectorAll('.method').forEach(button => button.addEventListener('click', () => {
     if (model.order) return;
@@ -148,7 +161,11 @@
   $('simulate-transfer').addEventListener('click', simulateTransfer);
   $('submit-claim').addEventListener('click', submitClaim);
   $('copy-order').addEventListener('click', () => model.order && copy(model.order.order_id, 'Order ID'));
-  $('copy-recovery').addEventListener('click', () => model.order && model.token && copy(model.order.order_id + '\n' + model.token, 'Private recovery code'));
+  $('copy-recovery').addEventListener('click', () => model.order && model.token && copy(model.order.order_id + '\n' + model.token, 'Private recovery code', true));
+  $('hide-private-code').addEventListener('click', () => {
+    const field = $('private-recovery-code'); field.value = ''; $('private-code-fallback').classList.add('hidden');
+    announce('Private recovery code hidden from the page.'); $('copy-recovery').focus();
+  });
   $('refresh-status').addEventListener('click', () => refresh().then(() => announce('Order status refreshed securely.')).catch(e => announce(e.message, true)));
   $('recover').addEventListener('click', recover);
   try {
