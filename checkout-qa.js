@@ -4,7 +4,7 @@
   const API = 'https://parentwise-orders-api-qa.onrender.com';
   const STORAGE = 'parentwise.qa.checkout.v3';
   const $ = id => document.getElementById(id);
-  const model = { method: 'telebirr', order: null, token: null, key: null, body: null, busy: false };
+  const model = { method: 'telebirr', order: null, token: null, key: null, body: null, attemptMethod: null, busy: false };
   const names = ['A gentle start', 'Understanding big feelings', 'Calm boundaries', 'Everyday routines', 'Growing together'];
   const recipients = {
     telebirr: ['Telebirr QA ID', 'QA-TELEBIRR-RECIPIENT-001'],
@@ -34,26 +34,33 @@
     return h;
   }
   function save() {
-    try { sessionStorage.setItem(STORAGE, JSON.stringify({ order: model.order, token: model.token, key: model.key, body: model.body })); }
+    try { sessionStorage.setItem(STORAGE, JSON.stringify({ order: model.order, token: model.token, key: model.key, body: model.body, attemptMethod: model.attemptMethod })); }
     catch (_) { announce('Browser session storage is unavailable. Copy your private recovery code before leaving this tab.', true); }
+  }
+  function syncMethod(method) {
+    if (!Object.hasOwn(recipients, method)) throw new Error('Unexpected payment method in QA order.');
+    model.method = method;
+    document.querySelectorAll('.method').forEach(button => {
+      button.setAttribute('aria-pressed', String(button.dataset.method === method));
+      button.disabled = Boolean(model.order || model.attemptMethod);
+    });
+    const [label, value] = recipients[method];
+    $('recipient-label').textContent = label;
+    $('recipient-value').textContent = value;
   }
   function display(summary) {
     if (!summary || !/^PW-QA-[A-F0-9]{24}$/.test(summary.order_id) || summary.amount_etb !== 1500 || summary.test_mode !== true) {
       throw new Error('Unexpected QA response. Refresh using your saved recovery code.');
     }
-    model.order = summary; save();
+    if (!Object.hasOwn(recipients, summary.payment_method)) throw new Error('Unexpected payment method in QA order.');
+    model.order = summary; model.attemptMethod = null; syncMethod(summary.payment_method); save();
     $('order-panel').classList.remove('hidden');
     $('order-id').textContent = summary.order_id;
     $('order-method').textContent = summary.payment_method === 'telebirr' ? 'Telebirr · QA simulation' : 'CBE · QA simulation';
-    const savedMethod = summary.payment_method === 'bank' ? 'bank' : 'telebirr';
-    const [recipientLabel, recipientValue] = recipients[savedMethod];
-    $('recipient-label').textContent = recipientLabel;
-    $('recipient-value').textContent = recipientValue;
     $('customer-status').textContent = summary.customer_status || 'Awaiting Payment';
     const status = summary.customer_status || 'Awaiting Payment';
     document.querySelectorAll('.steps span').forEach((step, i) => step.classList.toggle('on',
       i === 0 ? status === 'Awaiting Payment' : i === 1 ? status === 'Under Review' : ['Payment Confirmed', 'Ready to Download'].includes(status)));
-    document.querySelectorAll('.method').forEach(button => { button.disabled = true; });
     $('status-message').textContent = status === 'Awaiting Payment' ? 'Create a fictional transfer reference, then submit it as a claim.' :
       status === 'Under Review' ? 'Your reference is with the founder for independent QA review. A submitted reference is not payment confirmation.' :
       status === 'Payment Confirmed' ? 'The simulated review is complete. QA sample access is temporarily unavailable.' :
@@ -98,9 +105,16 @@
     try {
       if (!model.key) {
         model.key = key();
+        model.attemptMethod = model.method;
         // Backend contract retained with synthetic values only; no customer PII is requested.
-        model.body = { customer_name: 'QA Sample Parent', mobile: '0911111111', payment_method: model.method };
+        model.body = { customer_name: 'QA Sample Parent', mobile: '0911111111', payment_method: model.attemptMethod };
+        syncMethod(model.attemptMethod);
         save();
+      }
+      // An interrupted request is ambiguous: retry its original method and key so it cannot
+      // create a second order or silently submit the previously saved body under a new choice.
+      if (!model.attemptMethod || model.body?.payment_method !== model.attemptMethod || model.method !== model.attemptMethod) {
+        throw new Error('This QA order attempt is still being checked. Retry using its original payment method.');
       }
       const { response, data } = await request('/api/v1/orders', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Idempotency-Key': model.key }, body: JSON.stringify(model.body) });
       if (!response.ok) throw new Error(response.status === 429 ? 'Shared QA order limit reached. Wait briefly and retry this same attempt.' : 'Could not create the QA order. Please retry the same attempt.');
@@ -109,7 +123,7 @@
       refresh().catch(e => announce(e.message, true)); announce('QA order created. No money was requested or taken.');
       $('order-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (e) { announce(e.message || 'The QA service is unavailable. Please retry.', true); }
-    finally { model.busy = false; $('create-order').disabled = false; $('create-order').textContent = 'Create QA order'; }
+    finally { model.busy = false; $('create-order').disabled = false; $('create-order').textContent = model.key && !model.order ? 'Retry QA order' : 'Create QA order'; }
   }
   async function simulateTransfer() {
     try {
@@ -151,11 +165,14 @@
   }
   document.querySelectorAll('.method').forEach(button => button.addEventListener('click', () => {
     if (model.order) return;
-    model.method = button.dataset.method;
-    document.querySelectorAll('.method').forEach(x => x.setAttribute('aria-pressed', String(x === button)));
-    const [label, value] = recipients[model.method]; $('recipient-label').textContent = label; $('recipient-value').textContent = value;
+    if (model.attemptMethod) {
+      syncMethod(model.attemptMethod);
+      announce('This QA order attempt may still be processing. Retry the same payment method to avoid creating a duplicate order.', true);
+      return;
+    }
+    syncMethod(button.dataset.method);
   }));
-  $('copy-recipient').addEventListener('click', () => copy(recipients[model.method][1], 'Fictional QA recipient'));
+  $('copy-recipient').addEventListener('click', () => copy($('recipient-value').textContent, 'Fictional QA recipient'));
   $('copy-amount').addEventListener('click', () => copy('1500 ETB', 'Amount'));
   $('create-order').addEventListener('click', create);
   $('simulate-transfer').addEventListener('click', simulateTransfer);
@@ -170,7 +187,17 @@
   $('recover').addEventListener('click', recover);
   try {
     const saved = JSON.parse(sessionStorage.getItem(STORAGE) || 'null');
-    if (saved?.token && saved?.order?.order_id) { model.order = saved.order; model.token = saved.token; model.key = saved.key; model.body = saved.body; refresh().catch(e => announce(e.message, true)); }
-    else if (saved?.key) { model.key = saved.key; model.body = saved.body; }
+    if (saved?.token && saved?.order?.order_id) {
+      model.order = saved.order; model.token = saved.token; model.key = saved.key; model.body = saved.body;
+      if (Object.hasOwn(recipients, saved.order.payment_method)) syncMethod(saved.order.payment_method);
+      refresh().catch(e => announce(e.message, true));
+    }
+    else if (saved?.key) {
+      model.key = saved.key; model.body = saved.body;
+      model.attemptMethod = saved.attemptMethod || saved.body?.payment_method || null;
+      if (Object.hasOwn(recipients, model.attemptMethod)) syncMethod(model.attemptMethod);
+      $('create-order').textContent = 'Retry QA order';
+    }
   } catch (_) { announce('No saved tab session is available. Use the private recovery code if you have it.', true); }
 })();
+
