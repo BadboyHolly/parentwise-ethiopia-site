@@ -112,3 +112,37 @@ def test_checkout_uses_official_brand_and_amharic_ready_typography_without_new_t
     assert 'CALM GUIDANCE FOR GROWING FAMILIES' not in html
     assert ':lang(am)' in html and 'Noto Sans Ethiopic' in html
     assert 'founder approval' in note
+
+def test_recovered_order_method_controls_selected_card_and_recipient():
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[2]
+    script = (root / 'checkout-qa.js').read_text(encoding='utf-8')
+    # Both server-provided methods are accepted explicitly; display() synchronizes the
+    # selection and recipient before persisting/rendering the recovered order.
+    assert "Object.hasOwn(recipients, summary.payment_method)" in script
+    assert "model.order = summary; model.attemptMethod = null; syncMethod(summary.payment_method); save()" in script
+    assert "model.method = method" in script
+    assert "button.setAttribute('aria-pressed', String(button.dataset.method === method))" in script
+    assert "const [label, value] = recipients[method]" in script
+    assert "saved.order.payment_method" in script
+    assert "telebirr: ['Telebirr QA ID', 'QA-TELEBIRR-RECIPIENT-001']" in script
+    assert "bank: ['CBE QA account', 'QA-CBE-ACCOUNT-001']" in script
+
+def test_copy_recipient_uses_the_recipient_currently_shown():
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[2]
+    script = (root / 'checkout-qa.js').read_text(encoding='utf-8')
+    assert "copy($('recipient-value').textContent, 'Fictional QA recipient')" in script
+    assert "copy(recipients[model.method][1]" not in script
+
+def test_interrupted_order_creation_keeps_idempotency_key_bound_to_original_method():
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[2]
+    script = (root / 'checkout-qa.js').read_text(encoding='utf-8')
+    assert "model.attemptMethod = model.method" in script
+    assert "payment_method: model.attemptMethod" in script
+    assert "model.body?.payment_method !== model.attemptMethod || model.method !== model.attemptMethod" in script
+    assert 'button.disabled = Boolean(model.order || model.attemptMethod)' in script
+    assert 'model.attemptMethod = saved.attemptMethod || saved.body?.payment_method || null' in script
+    assert 'Retry the same payment method to avoid creating a duplicate order.' in script
+
