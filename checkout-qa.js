@@ -122,7 +122,12 @@
       model.token = data.access_token; display({ ...data.order, customer_status: 'Awaiting Payment', downloads_ready: false });
       refresh().catch(e => announce(e.message, true)); announce('QA order created. No money was requested or taken.');
       $('order-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    } catch (e) { announce(e.message || 'The QA service is unavailable. Please retry.', true); }
+    } catch (e) {
+      const message = model.key && !model.order
+        ? 'We could not confirm whether this QA order was created. Retry with this same payment method to check the existing attempt safely.'
+        : e.message || 'The QA service is unavailable. Please retry.';
+      announce(message, true);
+    }
     finally { model.busy = false; $('create-order').disabled = false; $('create-order').textContent = model.key && !model.order ? 'Retry QA order' : 'Create QA order'; }
   }
   async function simulateTransfer() {
