@@ -149,3 +149,13 @@ def test_interrupted_order_creation_keeps_idempotency_key_bound_to_original_meth
     assert 'Retry with this same payment method to check the existing attempt safely.' in script
     assert 'id="create-feedback"' in html and "model.order ? $('feedback') : $('create-feedback')" in script
 
+
+
+def test_copy_amount_copies_numeric_1500_only():
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[2]
+    html = (root / 'order.html').read_text(encoding='utf-8')
+    script = (root / 'checkout-qa.js').read_text(encoding='utf-8')
+    assert '1,500 ETB' in html
+    assert "copy('1500', 'Amount')" in script
+    assert "copy('1500 ETB', 'Amount')" not in script
