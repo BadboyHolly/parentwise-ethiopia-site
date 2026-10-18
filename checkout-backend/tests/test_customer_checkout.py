@@ -145,4 +145,5 @@ def test_interrupted_order_creation_keeps_idempotency_key_bound_to_original_meth
     assert 'button.disabled = Boolean(model.order || model.attemptMethod)' in script
     assert 'model.attemptMethod = saved.attemptMethod || saved.body?.payment_method || null' in script
     assert 'Retry the same payment method to avoid creating a duplicate order.' in script
+    assert 'Retry with this same payment method to check the existing attempt safely.' in script
 
