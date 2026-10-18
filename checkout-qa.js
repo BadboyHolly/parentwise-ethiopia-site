@@ -178,7 +178,7 @@
     syncMethod(button.dataset.method);
   }));
   $('copy-recipient').addEventListener('click', () => copy($('recipient-value').textContent, 'Fictional QA recipient'));
-  $('copy-amount').addEventListener('click', () => copy('1500 ETB', 'Amount'));
+  $('copy-amount').addEventListener('click', () => copy('1500', 'Amount'));
   $('create-order').addEventListener('click', create);
   $('simulate-transfer').addEventListener('click', simulateTransfer);
   $('submit-claim').addEventListener('click', submitClaim);
