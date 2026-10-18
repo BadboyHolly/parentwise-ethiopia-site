@@ -12,7 +12,7 @@
   };
 
   function announce(message, error = false) {
-    const box = $('feedback'); box.textContent = message; box.classList.toggle('hidden', !message);
+    const box = model.order ? $('feedback') : $('create-feedback'); box.textContent = message; box.classList.toggle('hidden', !message);
     box.classList.toggle('error', error);
   }
   function key() {
