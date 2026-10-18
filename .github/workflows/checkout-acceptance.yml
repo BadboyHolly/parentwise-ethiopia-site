@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - codex/manual-payment-qa-checkout
-  workflow_dispatch:
-    branches:
-      - codex/manual-payment-qa-checkout
 
 permissions:
   contents: read
