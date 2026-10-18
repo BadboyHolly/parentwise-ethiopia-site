@@ -139,6 +139,7 @@ def test_interrupted_order_creation_keeps_idempotency_key_bound_to_original_meth
     from pathlib import Path
     root = Path(__file__).resolve().parents[2]
     script = (root / 'checkout-qa.js').read_text(encoding='utf-8')
+    html = (root / 'order.html').read_text(encoding='utf-8')
     assert "model.attemptMethod = model.method" in script
     assert "payment_method: model.attemptMethod" in script
     assert "model.body?.payment_method !== model.attemptMethod || model.method !== model.attemptMethod" in script
@@ -146,4 +147,5 @@ def test_interrupted_order_creation_keeps_idempotency_key_bound_to_original_meth
     assert 'model.attemptMethod = saved.attemptMethod || saved.body?.payment_method || null' in script
     assert 'Retry the same payment method to avoid creating a duplicate order.' in script
     assert 'Retry with this same payment method to check the existing attempt safely.' in script
+    assert 'id="create-feedback"' in html and "model.order ? $('feedback') : $('create-feedback')" in script
 
