@@ -3,7 +3,8 @@ from __future__ import annotations
 import hashlib, os
 from datetime import datetime, timedelta, timezone
 from fastapi import Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, HTMLResponse
+from pathlib import Path
 from sqlalchemy import case
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.exc import SQLAlchemyError
@@ -85,6 +86,11 @@ def build_staging_app(*, database_url: str, order_token_secret: str,
     mount_payment_claims(app)
     mount_founder_verification(app)
     mount_downloads(app)
+
+    @app.get("/staging/checkout", include_in_schema=False)
+    def staging_checkout_ui():
+        html = (Path(__file__).parent / "ui" / "checkout.html").read_text(encoding="utf-8")
+        return HTMLResponse(html, headers={"Cache-Control":"no-store", "X-Robots-Tag":"noindex, nofollow"})
 
     @app.get("/staging/healthz")
     def stage_health():

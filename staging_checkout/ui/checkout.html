@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer">
+<title>ParentWise Ethiopia — Isolated staging checkout</title>
+<style>
+:root{--green:#1F4D3A;--wine:#7A2E3E;--cream:#F8F4EC;--paper:#FFFDF8;--line:#E4DCCF;--ink:#202928;--muted:#5A6760}
+*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font:16px/1.5 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+main{width:min(100% - 28px,680px);margin:auto;padding:20px 0 70px}.head{display:flex;align-items:center;justify-content:space-between;margin:0 0 18px;color:var(--green);font-weight:850}.brand{font-size:18px;letter-spacing:-.02em}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:clamp(18px,5vw,28px);box-shadow:0 16px 45px #1f4d3a12}
+.kicker{font-size:11px;font-weight:850;letter-spacing:.09em;color:var(--wine)}h1{font-size:clamp(28px,6vw,38px);line-height:1.12;letter-spacing:-.035em;color:var(--green);margin:8px 0}
+h2{font-size:20px;line-height:1.25;color:var(--green);margin:10px 0}p{color:var(--muted);font-size:14px}
+.alert{background:#F8EAE7;border:1px solid #DDBBB9;color:#642E3A;border-radius:13px;padding:12px 14px;margin:14px 0;font-size:13px}.alert strong{display:block;font-size:10px;letter-spacing:.1em}
+.price{display:flex;justify-content:space-between;border-block:1px solid var(--line);padding:15px 0;margin:15px 0;color:var(--muted);font-size:14px}.price strong{font-size:20px;color:var(--green)}
+label{display:block;font-weight:800;font-size:13px;margin:15px 0 6px}input,select{font:inherit;width:100%;height:50px;padding:0 12px;border:1px solid #CCC6BA;background:#fff;border-radius:11px}
+button,.download{font:800 14px Inter,system-ui;display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:10px 15px;border-radius:11px;border:1px solid #ABC3B2;background:#fff;color:var(--green);cursor:pointer;text-decoration:none}
+button.primary{width:100%;background:var(--green);color:#fff;border:0;min-height:52px;margin-top:17px}button:disabled{opacity:.6;cursor:wait}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--wine);outline-offset:2px}
+.card{border-top:1px solid var(--line);margin-top:20px;padding-top:16px}.row{display:flex;gap:9px;flex-wrap:wrap}.row>*{flex:1;min-width:130px}.status{display:inline-block;background:#EFF3ED;color:var(--green);padding:6px 11px;border-radius:999px;font-size:13px;font-weight:850}
+.grid{display:grid;grid-template-columns:140px 1fr;gap:5px 10px;font-size:13px}.grid b{overflow-wrap:anywhere}.downloads{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+[hidden]{display:none!important}#message{overflow-wrap:anywhere;border-radius:10px;padding:10px;background:#EFF3ED;color:var(--green)}#message[data-error=true]{background:#F9EEF0;color:var(--wine)}
+small{font-size:12px;color:var(--muted)}.fine{font-size:12px;line-height:1.6}.controls{background:#F6F0E7;border-radius:13px;padding:14px}
+@media(max-width:480px){main{padding-top:14px}.head{align-items:flex-start}.grid{grid-template-columns:1fr;gap:1px}.grid b{margin-bottom:8px}.downloads{grid-template-columns:1fr}.row{flex-direction:column}.row>*{width:100%}}
+</style></head>
+<body><main>
+<header class="head"><span class="brand">ParentWise Ethiopia</span><span class="kicker">STAGING TEST</span></header>
+<section class="panel" aria-labelledby="title">
+<div class="kicker">PRIVATE CHECKOUT · FICTIONAL DATA ONLY</div>
+<h1 id="title">Order the complete ParentWise system.</h1>
+<p>Child Behavior &amp; Discipline System · Ages 2–12</p>
+<div class="alert" role="note"><strong>STAGING SIMULATION — DO NOT SEND MONEY</strong>This isolated test uses fictional recipient details and dummy downloads. No real payment or product delivery is available.</div>
+<div class="price"><span>One-time payment · No subscription</span><strong>1,500 ETB</strong></div>
+<p id="message" role="status" aria-live="polite" hidden></p>
+<form id="customer-form">
+<label for="customer-name">Full name</label><input id="customer-name" name="customer_name" autocomplete="name" minlength="2" maxlength="100" required>
+<label for="customer-mobile">Ethiopian mobile</label><input id="customer-mobile" name="mobile" inputmode="tel" value="0900000000" required>
+<label for="payment-method">Payment method</label><select id="payment-method"><option value="telebirr">Telebirr</option><option value="bank">CBE bank transfer</option></select>
+<button class="primary" id="create-order">Create staging order</button>
+<p class="fine">Your order is created before the fictional payment instructions appear. A reference is only a claim; founder review is required before downloads.</p>
+</form>
+<section id="order-panel" class="card" hidden>
+<div class="row" style="align-items:center"><span class="status" id="customer-status">Awaiting Payment</span><button type="button" id="refresh-status">Refresh status</button></div>
+<h2>Fictional transfer instructions</h2><div class="grid"><span>Order ID</span><b id="order-id"></b><span>Recipient</span><b id="recipient"></b><span>Amount</span><b>1,500 ETB</b><span>Buyer phone</span><b id="buyer-phone"></b></div>
+<form id="claim-form" class="controls"><label for="reference">Fictional transaction reference</label><input id="reference" pattern="SIM-[A-Z0-9]{8,40}" placeholder="SIM-AB12CD34" required><button class="primary" type="submit">Submit payment claim</button><small>A claim does not confirm payment. Do not enter a real payment reference.</small></form>
+<div id="downloads" class="card" hidden><h2>Dummy QA downloads</h2><div class="downloads" id="download-list"></div></div>
+</section>
+<section id="founder-panel" class="card">
+<div class="kicker">FOUNDER SIMULATION CONSOLE</div><h2>Independent fictional verification</h2>
+<p class="fine">Use CI-generated synthetic founder credentials. This console is only for isolated acceptance tests.</p>
+<form id="founder-login" class="controls"><label for="founder-user">Synthetic username</label><input id="founder-user" autocomplete="off" required><label for="founder-pass">Synthetic password</label><input id="founder-pass" type="password" autocomplete="off" required><label for="founder-totp">Synthetic TOTP</label><input id="founder-totp" inputmode="numeric" minlength="6" maxlength="6" required><button class="primary" type="submit">Sign in to simulation</button></form>
+<div id="founder-actions" hidden class="controls"><label for="settlement-reference">Settlement reference</label><input id="settlement-reference">
+<div class="row"><div><label for="settlement-amount">Settled amount ETB</label><input id="settlement-amount" type="number" value="1500"></div><div><label for="settlement-method">Method</label><select id="settlement-method"><option value="telebirr">Telebirr</option><option value="bank">CBE bank transfer</option></select></div></div>
+<label for="settlement-payer">Payer phone (must match buyer phone)</label><input id="settlement-payer" value="+251900000000">
+<div class="row"><button id="record-settlement" type="button">Record fictional settlement</button><button id="verify-settlement" type="button">Verify match</button></div>
+<div class="row"><button id="approve-order" type="button">Approve and grant dummy access</button><button id="reject-order" type="button">Reject claim for retry</button></div>
+<button id="revoke-access" type="button">Revoke downloads</button>
+</div>
+</section>
+</section></main>
+<script>
+(function(){
+const $=function(id){return document.getElementById(id)};
+const state={code:"",token:"",method:"",amount:1500,csrf:"",settlementRecorded:false};
+const KEY="parentwise-stage-order-v1";
+function say(message,error){$("message").hidden=false;$("message").textContent=message;$("message").dataset.error=error?"true":"false"}
+function auth(){return {"Authorization":"Bearer "+state.token}}
+function randomKey(){const bytes=new Uint8Array(32);crypto.getRandomValues(bytes);return btoa(String.fromCharCode.apply(null,bytes)).replace(/=/g,"").replace(/\+/g,"-").replace(/\//g,"_")}
+function save(){sessionStorage.setItem(KEY,JSON.stringify(state))}
+function restore(){try{const data=JSON.parse(sessionStorage.getItem(KEY)||"null");if(data&&data.code&&data.token){Object.assign(state,data);showOrder();refresh()}}catch(e){}}
+function showOrder(){ $("order-panel").hidden=false;$("order-id").textContent=state.code;$("recipient").textContent=state.method==="telebirr"?"QA-TELEBIRR-ONLY":"QA-CBE-ONLY";$("settlement-method").value=state.method;$("settlement-reference").value=$("reference").value;$("buyer-phone").textContent="+251900000000"; }
+async function req(path,options){const response=await fetch(path,options||{});let data={};try{data=await response.json()}catch(e){}if(!response.ok)throw new Error(data.detail||("Request failed ("+response.status+")"));return data}
+async function createOrder(event){event.preventDefault();const button=$("create-order");button.disabled=true;
+try{const form=new FormData($("customer-form"));let key=sessionStorage.getItem("parentwise-stage-idempotency");let payload=sessionStorage.getItem("parentwise-stage-payload");
+const body={customer_name:String(form.get("customer_name")).trim(),mobile:String(form.get("mobile")).trim(),payment_method:$("payment-method").value};
+if(!key){key=randomKey();sessionStorage.setItem("parentwise-stage-idempotency",key);sessionStorage.setItem("parentwise-stage-payload",JSON.stringify(body));payload=JSON.stringify(body)}
+const saved=JSON.parse(payload);if(JSON.stringify(saved)!==JSON.stringify(body))throw new Error("This retry key belongs to different order details. Start a new staging order to continue.");
+const result=await req("/api/v1/orders",{method:"POST",headers:{"Content-Type":"application/json","Idempotency-Key":key},body:JSON.stringify(body)});
+state.code=result.order.order_id;state.token=result.access_token;state.method=result.order.payment_method;state.amount=result.order.amount_etb;save();showOrder();say("Order created. These fictional details are for simulation only.",false)
+}catch(error){say(error.message+" You can retry with the same saved details.",true)}finally{button.disabled=false}}
+async function refresh(){if(!state.code)return;try{const data=await req("/api/v1/orders/"+state.code+"/checkout-status",{headers:auth()});$("customer-status").textContent=data.status;$("downloads").hidden=!data.downloads_ready;if(data.downloads_ready)renderDownloads()}catch(error){say("Could not refresh status: "+error.message,true)}}
+function renderDownloads(){const list=$("download-list");list.innerHTML="";for(let i=1;i<=5;i++){const button=document.createElement("button");button.type="button";button.className="download";button.textContent="Download dummy part "+i;button.addEventListener("click",async function(){try{const response=await fetch("/api/v1/orders/"+state.code+"/downloads/part-"+i,{headers:auth()});if(!response.ok)throw new Error("Download denied");const blob=await response.blob();const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="qa-demo-part-"+i+".pdf";a.click();URL.revokeObjectURL(url)}catch(error){say(error.message,true)}});list.appendChild(button)}}
+$("customer-form").addEventListener("submit",createOrder);
+$("claim-form").addEventListener("submit",async function(event){event.preventDefault();$("reference").value=$("reference").value.trim().toUpperCase();$("settlement-reference").value=$("reference").value;try{await req("/api/v1/orders/"+state.code+"/payment-claims",{method:"POST",headers:Object.assign({"Content-Type":"application/json"},auth()),body:JSON.stringify({test_reference:$("reference").value,reported_amount_etb:1500,currency:"ETB"})});save();say("Payment claim submitted. Status is Under Review; this is not payment confirmation.",false);await refresh()}catch(error){say(error.message,true)}});
+$("refresh-status").addEventListener("click",refresh);
+$("founder-login").addEventListener("submit",async function(event){event.preventDefault();try{const result=await req("/founder/session",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:$("founder-user").value,password:$("founder-pass").value,totp:$("founder-totp").value})});state.csrf=result.csrf_token;save();$("founder-actions").hidden=false;say("Synthetic founder session authenticated.",false)}catch(error){say(error.message,true)}});
+function founderHeaders(){return {"Content-Type":"application/json","X-CSRF-Token":state.csrf}}
+function settlementBody(){return {test_reference:$("settlement-reference").value,payment_method:$("settlement-method").value,amount_etb:Number($("settlement-amount").value),currency:"ETB",recipient_code:$("settlement-method").value==="telebirr"?"QA-TELEBIRR-ONLY":"QA-CBE-ONLY",payer_mobile:$("settlement-payer").value}}
+$("record-settlement").addEventListener("click",async function(){try{await req("/founder/api/simulated-settlements",{method:"POST",headers:founderHeaders(),body:JSON.stringify(settlementBody())});state.settlementRecorded=true;save();say("Fictional settlement evidence recorded.",false)}catch(error){say(error.message,true)}});
+$("verify-settlement").addEventListener("click",async function(){try{const data=await req("/founder/api/orders/"+state.code+"/verify",{method:"POST",headers:founderHeaders(),body:"{}"});say(data.matched?"Fictional settlement matched. Founder approval is still required.":"Settlement did not match the order claim.",!data.matched)}catch(error){say(error.message,true)}});
+$("approve-order").addEventListener("click",async function(){try{await req("/founder/api/orders/"+state.code+"/approve",{method:"POST",headers:founderHeaders(),body:JSON.stringify({reason:"Synthetic browser acceptance approval"})});say("Founder approved the fictional payment. Dummy downloads are ready.",false);await refresh()}catch(error){say(error.message,true)}});
+$("reject-order").addEventListener("click",async function(){try{await req("/founder/api/orders/"+state.code+"/reject",{method:"POST",headers:founderHeaders(),body:JSON.stringify({reason:"Synthetic browser rejection"})});say("Claim rejected. Customer can submit a corrected fictional reference.",false);await refresh()}catch(error){say(error.message,true)}});
+$("revoke-access").addEventListener("click",async function(){try{await req("/founder/api/orders/"+state.code+"/downloads/revoke",{method:"POST",headers:founderHeaders(),body:JSON.stringify({reason:"Synthetic browser revocation"})});say("Dummy download access revoked.",false);await refresh()}catch(error){say(error.message,true)}});
+restore();
+})();
+</script></body></html>
