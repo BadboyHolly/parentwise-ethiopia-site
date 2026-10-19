@@ -1,4 +1,4 @@
-"""Private, per-request authorized delivery using a mockable versioned object store.
+"""Private, per-request authorized delivery using a mockable immutable-release object store.
 
 The staging app injects generated QA-only PDFs. Production R2 credentials and
 objects are never read by this staging route.
@@ -49,14 +49,14 @@ def _install_dummy_store(app) -> None:
     objects = {}
     files = []
     for part in range(1, 6):
-        key = f"qa-dummy/v1/part-{part}.pdf"
-        version = "qa-dummy-v1"
+        release = "qa-dummy-v1"
+        key = f"releases/{release}/part-{part}.pdf"
         content = dummy_pdf(part)
-        objects[(bucket, key, version)] = content
-        files.append(ProductFile(part, key, version, hashlib.sha256(content).hexdigest()))
+        objects[(bucket, key)] = content
+        files.append(ProductFile(part, key, hashlib.sha256(content).hexdigest()))
     app.state.product_bucket = bucket
     app.state.product_object_store = MockObjectStore(objects)
-    app.state.product_manifest = ProductManifest(files)
+    app.state.product_manifest = ProductManifest(release, files)
 
 
 def mount_downloads(app):
@@ -86,7 +86,7 @@ def mount_downloads(app):
                     part=part,
                 )
             except (ManifestError, StorageUnavailable, OSError, KeyError):
-                # Provider/path/version details remain server-side; retry may be safe.
+                # Provider/path details remain server-side; retry may be safe.
                 raise HTTPException(503, "Download temporarily unavailable",
                                     headers={"Cache-Control": "private, no-store",
                                              "Retry-After": "30"}) from None
