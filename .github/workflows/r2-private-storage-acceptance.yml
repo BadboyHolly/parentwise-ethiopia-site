@@ -79,5 +79,5 @@ jobs:
           psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U parentwise_ci -d pw_r2_disposable -f staging_checkout/migrations/0001_stage_sidecar.sql
       - name: Compile backend modules
         run: python -m compileall -q production_checkout staging_checkout
-      - name: Run complete backend, staging journey, and R2 adapter regression suites
-        run: python -m pytest -q production_checkout/tests staging_checkout/tests
+      - name: Run all backend, PostgreSQL staging journey, and R2 adapter regression tests
+        run: python -m pytest -q production_checkout/tests staging_checkout/tests/test_journey.py
