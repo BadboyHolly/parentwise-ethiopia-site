@@ -225,8 +225,7 @@ def test_download_rechecks_gate_and_fails_safely_for_storage_errors(env):
     assert failed.status_code == 503
     assert failed.json()["detail"] == "Download temporarily unavailable"
     assert "no-store" in failed.headers["cache-control"]
-    assert missing_store.reads == [("qa-dummy-only", "qa-dummy/v1/part-1.pdf",
-                                    "qa-dummy-v1")]
+    assert missing_store.reads == [("qa-dummy-only", "releases/qa-dummy-v1/part-1.pdf")]
 
     revoked = client.post(f"/founder/api/orders/{code}/downloads/revoke",
         headers=admin, json={"reason":"QA storage failure test"})
