@@ -1,8 +1,6 @@
-"""Private, version-pinned object storage for the five production PDF parts.
+"""Private immutable-release object storage for five production PDF parts.
 
-This module is deliberately not connected to production order intake yet. The
-R2 adapter is constructed only from server-side environment configuration;
-staging injects an in-memory mock and never reads the configured bucket.
+The adapter never depends on S3 bucket versioning or object VersionId support.
 """
 from __future__ import annotations
 
@@ -14,10 +12,10 @@ from dataclasses import dataclass, field
 from typing import Mapping, Protocol
 from urllib.parse import urlsplit
 
-
 PARTS = frozenset({1, 2, 3, 4, 5})
 DEFAULT_MAX_OBJECT_BYTES = 25 * 1024 * 1024
 _SHA256 = re.compile(r"^[a-f0-9]{64}$")
+_RELEASE = re.compile(r"^[a-z0-9][a-z0-9-]{0,63}$")
 
 
 class ManifestError(ValueError):
@@ -28,35 +26,40 @@ class StorageUnavailable(Exception):
     """A private object could not be safely retrieved."""
 
 
+class ObjectAlreadyExists(Exception):
+    """An immutable release key already exists and cannot be overwritten."""
+
+
+def release_key(release_id: str, part: int) -> str:
+    if not isinstance(release_id, str) or not _RELEASE.fullmatch(release_id):
+        raise ManifestError("Release identifier is invalid")
+    if type(part) is not int or part not in PARTS:
+        raise ManifestError("Product part is invalid")
+    return f"releases/{release_id}/part-{part}.pdf"
+
+
 @dataclass(frozen=True)
 class ProductFile:
     part: int
     key: str
-    version_id: str
     sha256: str
 
 
 class ProductManifest:
-    """Validated immutable mapping for exactly five pinned product versions."""
+    """Validated immutable mapping for exactly five release-specific files."""
 
-    def __init__(self, files: list[ProductFile] | tuple[ProductFile, ...]):
+    def __init__(self, release_id: str, files: list[ProductFile] | tuple[ProductFile, ...]):
+        if not isinstance(release_id, str) or not _RELEASE.fullmatch(release_id):
+            raise ManifestError("Release identifier is invalid")
         if (len(files) != 5 or any(type(f.part) is not int for f in files) or
                 {f.part for f in files} != PARTS):
             raise ManifestError("Manifest must contain exactly parts 1 through 5")
-        seen: set[str] = set()
         for item in files:
-            if (not isinstance(item.key, str) or not item.key or
-                item.key.startswith("/") or "\\" in item.key or
-                any(segment in {"", ".", ".."} for segment in item.key.split("/"))):
-                raise ManifestError("Manifest contains an unsafe object key")
-            if (not isinstance(item.version_id, str) or not item.version_id or
-                    item.version_id.lower() == "null" or item.version_id.strip() != item.version_id):
-                raise ManifestError("Manifest requires an exact object version")
+            if item.key != release_key(release_id, item.part):
+                raise ManifestError("Manifest key does not match its immutable release and part")
             if not isinstance(item.sha256, str) or not _SHA256.fullmatch(item.sha256):
                 raise ManifestError("Manifest requires a lowercase SHA-256 checksum")
-            if item.key in seen:
-                raise ManifestError("Each product part must have a distinct object key")
-            seen.add(item.key)
+        self.release_id = release_id
         self._files = {item.part: item for item in files}
 
     def get(self, part: int) -> ProductFile:
@@ -68,20 +71,19 @@ class ProductManifest:
     def from_json(cls, raw: str) -> "ProductManifest":
         try:
             data = json.loads(raw)
-            if not isinstance(data, list):
+            if (not isinstance(data, dict) or set(data) != {"release_id", "files"} or
+                    not isinstance(data["release_id"], str) or
+                    not isinstance(data["files"], list)):
                 raise ValueError
-            expected = {"part", "key", "version_id", "sha256"}
-            if any(not isinstance(row, dict) or set(row) != expected or
+            files = data["files"]
+            if any(not isinstance(row, dict) or set(row) != {"part", "key", "sha256"} or
                    type(row["part"]) is not int or
-                   not all(isinstance(row[name], str)
-                           for name in ("key", "version_id", "sha256"))
-                   for row in data):
+                   not isinstance(row["key"], str) or not isinstance(row["sha256"], str)
+                   for row in files):
                 raise ValueError
-            files = [ProductFile(
-                part=row["part"], key=row["key"],
-                version_id=row["version_id"], sha256=row["sha256"],
-            ) for row in data]
-            return cls(files)
+            return cls(data["release_id"], [
+                ProductFile(row["part"], row["key"], row["sha256"]) for row in files
+            ])
         except (TypeError, ValueError, KeyError, json.JSONDecodeError) as exc:
             raise ManifestError("Product PDF manifest is invalid") from exc
 
@@ -99,8 +101,7 @@ class R2Settings:
         env = os.environ if environ is None else environ
         endpoint = env.get("R2_ENDPOINT_URL", "").strip()
         bucket = env.get("R2_BUCKET", "").strip()
-        access = env.get("R2_ACCESS_KEY_ID", "")
-        secret = env.get("R2_SECRET_ACCESS_KEY", "")
+        access, secret = env.get("R2_ACCESS_KEY_ID", ""), env.get("R2_SECRET_ACCESS_KEY", "")
         parsed = urlsplit(endpoint)
         host = (parsed.hostname or "").lower()
         try:
@@ -123,17 +124,15 @@ class R2Settings:
         return cls(endpoint, bucket, access, secret, maximum)
 
 
-class VersionedObjectStore(Protocol):
-    def read_version(self, *, bucket: str, key: str, version_id: str,
-                     max_bytes: int) -> bytes: ...
+class ObjectStore(Protocol):
+    def read_object(self, *, bucket: str, key: str, max_bytes: int) -> bytes: ...
 
 
 class R2PrivateObjectStore:
     """S3-compatible Cloudflare R2 reader; never generates signed URLs."""
 
     def __init__(self, client, settings: R2Settings):
-        self._client = client
-        self._settings = settings
+        self._client, self._settings = client, settings
 
     @property
     def max_object_bytes(self) -> int:
@@ -148,9 +147,7 @@ class R2PrivateObjectStore:
         except ImportError as exc:
             raise RuntimeError("Install the production checkout requirements for R2 support") from exc
         client = boto3.client(
-            "s3",
-            endpoint_url=settings.endpoint_url,
-            region_name="auto",
+            "s3", endpoint_url=settings.endpoint_url, region_name="auto",
             aws_access_key_id=settings.access_key_id,
             aws_secret_access_key=settings.secret_access_key,
             config=Config(connect_timeout=3, read_timeout=15,
@@ -158,21 +155,14 @@ class R2PrivateObjectStore:
         )
         return cls(client, settings)
 
-    def read_version(self, *, bucket: str, key: str, version_id: str,
-                     max_bytes: int) -> bytes:
-        if bucket != self._settings.bucket:
+    def read_object(self, *, bucket: str, key: str, max_bytes: int) -> bytes:
+        if bucket != self._settings.bucket or not key.startswith("releases/"):
             raise StorageUnavailable("Object unavailable")
         body = None
         try:
-            result = self._client.get_object(
-                Bucket=self._settings.bucket, Key=key, VersionId=version_id,
-            )
-            returned_version = result.get("VersionId")
-            if returned_version != version_id:
-                raise StorageUnavailable("Object unavailable")
+            result = self._client.get_object(Bucket=self._settings.bucket, Key=key)
             body = result["Body"]
-            chunks: list[bytes] = []
-            total = 0
+            chunks, total = [], 0
             while True:
                 chunk = body.read(min(64 * 1024, max_bytes + 1 - total))
                 if not chunk:
@@ -185,7 +175,6 @@ class R2PrivateObjectStore:
         except StorageUnavailable:
             raise
         except Exception as exc:
-            # Do not expose provider errors, bucket keys, or credentials to clients.
             raise StorageUnavailable("Object unavailable") from exc
         finally:
             if body is not None:
@@ -195,23 +184,50 @@ class R2PrivateObjectStore:
                     pass
 
 
+class R2ImmutablePublisher:
+    """Create-only publisher. Credentials must belong to a separate publishing identity."""
+
+    def __init__(self, client, bucket: str, max_object_bytes: int = DEFAULT_MAX_OBJECT_BYTES):
+        self._client, self._bucket, self._max_bytes = client, bucket, max_object_bytes
+
+    def publish(self, *, release_id: str, part: int, content: bytes,
+                expected_sha256: str) -> str:
+        key = release_key(release_id, part)
+        if (not isinstance(content, bytes) or len(content) > self._max_bytes or
+                not isinstance(expected_sha256, str) or not _SHA256.fullmatch(expected_sha256) or
+                hashlib.sha256(content).hexdigest() != expected_sha256):
+            raise ManifestError("Publishing content does not match its approved checksum or size")
+        try:
+            self._client.put_object(
+                Bucket=self._bucket, Key=key, Body=content, ContentType="application/pdf",
+                CacheControl="private, no-store", IfNoneMatch="*",
+            )
+        except Exception as exc:
+            response = getattr(exc, "response", {})
+            status = response.get("ResponseMetadata", {}).get("HTTPStatusCode")
+            code = response.get("Error", {}).get("Code")
+            if status == 412 or code in {"PreconditionFailed", "412"}:
+                raise ObjectAlreadyExists("Immutable release object already exists") from None
+            raise StorageUnavailable("Object could not be published") from None
+        return key
+
+
 class MockObjectStore:
-    """Small in-memory versioned object store for tests and isolated staging only."""
+    """In-memory release store for tests and isolated staging only."""
 
-    def __init__(self, objects: Mapping[tuple[str, str, str], bytes]):
+    def __init__(self, objects: Mapping[tuple[str, str], bytes]):
         self._objects = dict(objects)
-        self.reads: list[tuple[str, str, str]] = []
+        self.reads: list[tuple[str, str]] = []
 
-    def read_version(self, *, bucket: str, key: str, version_id: str,
-                     max_bytes: int) -> bytes:
-        self.reads.append((bucket, key, version_id))
-        value = self._objects.get((bucket, key, version_id))
+    def read_object(self, *, bucket: str, key: str, max_bytes: int) -> bytes:
+        self.reads.append((bucket, key))
+        value = self._objects.get((bucket, key))
         if value is None or len(value) > max_bytes:
             raise StorageUnavailable("Object unavailable")
         return value
 
 
-def fetch_verified_part(store: VersionedObjectStore, *, bucket: str,
+def fetch_verified_part(store: ObjectStore, *, bucket: str,
                         manifest: ProductManifest, part: int,
                         max_bytes: int | None = None) -> tuple[ProductFile, bytes]:
     if max_bytes is None:
@@ -220,8 +236,7 @@ def fetch_verified_part(store: VersionedObjectStore, *, bucket: str,
         raise StorageUnavailable("Object unavailable")
     item = manifest.get(part)
     try:
-        content = store.read_version(bucket=bucket, key=item.key,
-                                     version_id=item.version_id, max_bytes=max_bytes)
+        content = store.read_object(bucket=bucket, key=item.key, max_bytes=max_bytes)
     except StorageUnavailable:
         raise
     except Exception as exc:
