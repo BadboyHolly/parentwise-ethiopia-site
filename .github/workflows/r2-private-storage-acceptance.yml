@@ -81,4 +81,5 @@ jobs:
         run: >-
           python -m pytest -q
           production_checkout/tests/test_private_storage.py
+          staging_checkout/tests/test_journey.py::test_complete_order_claim_independent_review_private_download_recovery_and_revocation
           staging_checkout/tests/test_journey.py::test_download_rechecks_gate_and_fails_safely_for_storage_errors
