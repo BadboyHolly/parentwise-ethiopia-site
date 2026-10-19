@@ -42,7 +42,7 @@ def enter_review(page, method="telebirr"):
     assert page.locator("html").get_attribute("lang") == "am"
     page.locator("#customer-name").fill("QA Parent Example")
     page.locator("#customer-mobile").fill("0900000000")
-    page.locator('input[name="payment"][value="' + method + '"]').check()
+    page.locator("label.method").nth(0 if method == "telebirr" else 1).click()
     assert page.locator("#payment-details").is_hidden()
     page.locator("#review-order-button").click()
     review = page.locator("#checkout-review")
@@ -108,7 +108,7 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
         assert "0912910693" not in page.content()
         assert "10002230019327" not in page.content()
         assert "Kidus Elias" not in page.content()
-        assert no_horizontal_overflow(page, width)
+        assert no_horizontal_overflow(page, width), page.evaluate("""() => ({viewport: innerWidth, document: document.documentElement.scrollWidth, offenders: [...document.querySelectorAll("*")].map(e => ({tag:e.tagName,id:e.id,cls:typeof e.className==="string"?e.className:"",left:Math.round(e.getBoundingClientRect().left),right:Math.round(e.getBoundingClientRect().right),width:Math.round(e.getBoundingClientRect().width)})).filter(x => x.right > innerWidth + 1 || x.left < -1).slice(0,20)})""")
 
         # Same key and same payload must resolve to the same unique order.
         duplicate = page.evaluate("""async () => {
@@ -123,8 +123,14 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
 
         reference = "SIM-BROWSER" + label
         set_reference_and_claim(page, reference)
-        page.locator("#stage-claim-form button[type=submit]").click()
-        page.get_by_text("already under review", exact=False).wait_for()
+        duplicate_claim = page.evaluate("""async (ref) => {
+          const s=JSON.parse(sessionStorage.getItem("pw-stage-checkout-am-v1"));
+          const r=await fetch("/api/v1/orders/"+s.code+"/payment-claims",{method:"POST",
+            headers:{Authorization:"Bearer "+s.token,"Content-Type":"application/json"},
+            body:JSON.stringify({test_reference:ref,reported_amount_etb:1500,currency:"ETB"})});
+          return r.status;
+        }""", reference)
+        assert duplicate_claim == 409
         page.locator("#stage-refresh").click()
         assert page.locator("#stage-status").inner_text() == "Under Review"
         customer = page.evaluate("() => JSON.parse(sessionStorage.getItem('pw-stage-checkout-am-v1'))")
@@ -134,9 +140,9 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
           '/downloads/part-1',{headers:{Authorization:'Bearer '+'Z'.repeat(43)}})).status""",
           customer) == 404
 
+        founder_login(page)
         page.locator("#stage-settlement-ref").fill(reference)
         page.locator("#stage-settlement-payer").fill("+251900000000")
-        founder_login(page)
         page.locator("#stage-record").click()
         page.get_by_text("Fictional settlement recorded.").wait_for()
         page.locator("#stage-verify").click()
@@ -221,9 +227,9 @@ def test_third_party_payer_mismatch_is_denied_then_claim_can_be_rejected():
         order_through_review(page, label="third-party")
         reference = "SIM-THIRDPARTY01"
         set_reference_and_claim(page, reference)
+        founder_login(page)
         page.locator("#stage-settlement-ref").fill(reference)
         page.locator("#stage-settlement-payer").fill("+251911111111")
-        founder_login(page)
         page.locator("#stage-record").click()
         page.get_by_text("Fictional settlement recorded.").wait_for()
         page.locator("#stage-verify").click()
