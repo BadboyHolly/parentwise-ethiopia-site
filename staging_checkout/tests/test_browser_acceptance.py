@@ -34,6 +34,10 @@ def founder_login(page):
 def enter_review(page, method="telebirr"):
     page_errors = []
     page.on("pageerror", lambda exc: page_errors.append(str(exc)))
+    page.set_default_timeout(5_000)
+    page_errors = []
+    page.on("pageerror", lambda exc: page_errors.append(str(exc)))
+    page.on("console", lambda msg: page_errors.append("console:" + msg.text) if msg.type == "error" else None)
     page.goto(BASE + "/staging/checkout", wait_until="domcontentloaded")
     assert page.locator("html").get_attribute("lang") == "am"
     page.locator("#customer-name").fill("QA Parent Example")
@@ -45,13 +49,18 @@ def enter_review(page, method="telebirr"):
     try:
         review.wait_for(state="visible", timeout=3_000)
     except Exception as exc:
-        raise AssertionError(
-            "Review step did not open; "
-            f"form_error={page.locator('#form-error').text_content()!r}, "
-            f"name={page.locator('#customer-name').input_value()!r}, "
-            f"mobile={page.locator('#customer-mobile').input_value()!r}, "
-            f"page_errors={page_errors!r}"
-        ) from exc
+        details = page.evaluate("""() => ({
+          formPresent: !!document.getElementById("order-form"),
+          formHidden: document.getElementById("order-form")?.hidden,
+          reviewHidden: document.getElementById("checkout-review")?.hidden,
+          name: document.getElementById("customer-name")?.value,
+          mobile: document.getElementById("customer-mobile")?.value,
+          error: document.getElementById("form-error")?.textContent,
+          scriptCount: document.scripts.length,
+          ready: document.readyState
+        })""")
+        page.screenshot(path=str(OUT / "screenshots" / "am-checkout-debug.png"), full_page=True)
+        raise AssertionError(f"Review step did not open; details={details!r}; page_errors={page_errors!r}") from exc
     assert page.locator("#review-method").inner_text() == ("Telebirr" if method == "telebirr" else "CBE ባንክ")
 
 
