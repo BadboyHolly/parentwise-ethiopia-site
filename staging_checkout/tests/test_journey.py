@@ -192,7 +192,7 @@ def test_customer_download_endpoint_is_rate_limited(env):
     recipient="QA-TELEBIRR-ONLY" if saved["payment_method"]=="telebirr" else "QA-CBE-ONLY"
     assert settlement(client,admin,ref,saved["payment_method"],1500,"+251900000000",recipient).status_code == 201
     assert client.post(f"/founder/api/orders/{code}/verify",headers=admin).json()["matched"] is True
-    assert client.post(f"/founder/api/orders/{code}/approve",headers=admin,json={"reason":"QA"}).status_code == 200
+    assert client.post(f"/founder/api/orders/{code}/approve",headers=admin,json={"reason":"QA test"}).status_code == 200
     url=f"/api/v1/orders/{code}/downloads/part-1"
     assert client.get(url,headers=customer(token)).status_code == 200
     assert client.get(url,headers=customer(token)).status_code == 200
