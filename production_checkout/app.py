@@ -26,10 +26,11 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 PRODUCT = "ParentWise Ethiopia"
 PRICE_ETB = 1500
 CURRENCY = "ETB"
-# Founder-provided recipient details; confirmation against provider still required prelaunch.
+# Builder-only sentinel values. Production must supply recipient details through
+# private environment configuration; staging always injects fictional QA values.
 ACCOUNTS = {
-    "telebirr": {"name": "Telebirr", "number": "0912910693", "holder": "Kidus Elias"},
-    "bank": {"name": "Commercial Bank of Ethiopia", "number": "10002230019327", "holder": "Kidus Elias"},
+    "telebirr": {"name": "Telebirr", "number": "NOT-CONFIGURED", "holder": "NOT-CONFIGURED"},
+    "bank": {"name": "Commercial Bank of Ethiopia", "number": "NOT-CONFIGURED", "holder": "NOT-CONFIGURED"},
 }
 ORDER_PATTERN = re.compile(r"^PW-[0-9A-F]{24}$")
 IDEMPOTENCY_PATTERN = re.compile(r"^[A-Za-z0-9_-]{43}$")
@@ -104,7 +105,8 @@ def check_key(key: str) -> None:
         raise HTTPException(400, "Invalid idempotency key")
 
 
-def summary(order: Order) -> dict:
+def summary(order: Order, payment_accounts: dict[str, dict[str, str]] | None = None) -> dict:
+    accounts = ACCOUNTS if payment_accounts is None else payment_accounts
     return {
         "order_id": order.code,
         "product": PRODUCT,
@@ -113,7 +115,7 @@ def summary(order: Order) -> dict:
         "payment_method": order.method,
         "status": order.status,
         "created_at": (order.created_at if order.created_at.tzinfo else order.created_at.replace(tzinfo=timezone.utc)).isoformat(),
-        "payment_instructions": {**ACCOUNTS[order.method], "amount_etb": PRICE_ETB, "currency": CURRENCY},
+        "payment_instructions": {**accounts[order.method], "amount_etb": PRICE_ETB, "currency": CURRENCY},
     }
 
 
@@ -124,6 +126,7 @@ def build_app(
     allowed_origins: list[str],
     intake_enabled: bool = False,
     allow_sqlite_for_tests: bool = False,
+    payment_accounts: dict[str, dict[str, str]] | None = None,
 ) -> FastAPI:
     if len(token_secret) < 32:
         raise RuntimeError("A durable ORDER_TOKEN_KEY >= 32 characters is required")
@@ -135,6 +138,13 @@ def build_app(
         x.startswith("https://") or (allow_sqlite_for_tests and x.startswith("http://localhost"))
     ) for x in allowed_origins):
         raise RuntimeError("An explicit HTTPS allowed-origin list is required")
+    accounts = ACCOUNTS if payment_accounts is None else payment_accounts
+    if set(accounts) != {"telebirr", "bank"} or any(
+        not isinstance(accounts[method], dict) or not {"name", "number", "holder"} <= set(accounts[method])
+        for method in ("telebirr", "bank")
+    ):
+        raise RuntimeError("Both payment instruction records must be configured")
+    accounts = {method: dict(value) for method, value in accounts.items()}
 
     engine_kwargs = {"pool_pre_ping": True}
     if database_url.startswith("sqlite://"):
@@ -202,7 +212,7 @@ def build_app(
                 if existing:
                     if not hmac.compare_digest(existing.request_fingerprint, fingerprint):
                         raise HTTPException(409, "This retry key belongs to different order details")
-                    return {"order": summary(existing), "access_token": token}
+                    return {"order": summary(existing, accounts), "access_token": token}
                 record = Order(
                     id=str(uuid.uuid4()), code="PW-" + secrets.token_hex(12).upper(),
                     customer_name=item.customer_name, mobile_e164=item.mobile,
@@ -218,7 +228,7 @@ def build_app(
                     db.rollback()
                     # Collision/failure never creates an independently accepted order.
                     raise HTTPException(503, "Order could not be saved; retry with the same key") from None
-                return {"order": summary(record), "access_token": token}
+                return {"order": summary(record, accounts), "access_token": token}
         except HTTPException:
             raise
         except SQLAlchemyError:
@@ -258,9 +268,18 @@ def from_environment() -> FastAPI:
         database_url = "postgresql+psycopg://" + database_url[len("postgres://"):]
     elif database_url.startswith("postgresql://"):
         database_url = "postgresql+psycopg://" + database_url[len("postgresql://"):]
+    accounts = {
+        "telebirr": {"name":"Telebirr","number":os.getenv("TELEBIRR_ACCOUNT_NUMBER",""),
+                     "holder":os.getenv("TELEBIRR_ACCOUNT_HOLDER","")},
+        "bank": {"name":"Commercial Bank of Ethiopia","number":os.getenv("CBE_ACCOUNT_NUMBER",""),
+                 "holder":os.getenv("CBE_ACCOUNT_HOLDER","")},
+    }
+    if any(not value for account in accounts.values() for value in account.values()):
+        raise RuntimeError("Private settlement recipient configuration is required")
     return build_app(
         database_url=database_url,
         token_secret=os.getenv("ORDER_TOKEN_KEY", ""),
         allowed_origins=[x.strip() for x in os.getenv("ALLOWED_ORIGINS", "").split(",") if x.strip()],
         intake_enabled=os.getenv("ORDER_INTAKE_ENABLED", "false").lower() == "true",
+        payment_accounts=accounts,
     )

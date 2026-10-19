@@ -1,65 +1,51 @@
 # ParentWise Ethiopia — production checkout implementation contract
 
-**19 October 2026 — PRODUCTION NOT ENABLED.** This contract is a design and implementation gate, not an approval, live payment connector, or implementation of live order endpoints. Do not deploy the QA code as production by toggling settings.
+**19 October 2026 — production intake, payments, and delivery remain disabled.** This document defines the release architecture and contract; it does not authorize a production service or real transactions.
 
-## Preserved, verified starting state
+## Preserved starting point
 
-- Approved V4.14 sales page remains at `main` and is unchanged.
-- The separate approved-looking checkout **preview** runs on Render from `preview/checkout-amharic-review-20261019` with no checkout API, no POST and a disabled completion button.
-- Preview visual browser acceptance at 320 / 360 / 390 / 768 / 1280 px: GitHub Actions run `39208196371` PASS; this is only client UI and simulated interaction verification.
-- Existing backend `checkout-backend/api/main.py` explicitly rejects `APP_MODE != qa` or `PAYMENTS_ENABLED != false`.
-- `checkout-backend/api/payment_review.py` deals in **fabricated QA ledger records** and requires founder login. It is not a Telebirr/CBE funds-settlement verification service.
-- QA payment/fulfillment reports are accepted for synthetic flows, not real money, buyer identity or product delivery.
+- Approved V4.14 sales page and the Amharic checkout preview remain unchanged.
+- Independent order-intake prototype remains in `production_checkout/`; it creates `AWAITING_PAYMENT` orders and returns a private recovery token. Its status constraint remains unverified until settlement approval.
+- The existing QA backend remains isolated. It contains fabricated ledger data and QA-only fulfillment; it is not used by the independent checkout or the staging integration at runtime.
+- Staging integration is code/CI only. It is not publicly deployed.
 
-## Fixed offer and payment details
+## Customer journey and delivery decision
 
-- Product: ParentWise Ethiopia digital parenting system, **one-time 1,500 ETB**. Enforce amount and currency on the server. Reject client-supplied amount, coupon or item fields unless a separate audited offer is authorized.
-- Telebirr: `0912910693`, beneficiary **Kidus Elias**.
-- Commercial Bank of Ethiopia: `10002230019327`, beneficiary **Kidus Elias**.
-- Deliverable: five approved, versioned Amharic resources. Maintain a separate secured release artifact with hashes and authorizations; no public static file URLs for paid documents.
-- Public support: `https://t.me/ParentWiseEthiopia`.
-- Do not claim either bank account has been independently verified by a provider merely because numbers were supplied by the founder.
+1. Collect only the approved minimum customer details and payment method. Show the fixed offer and founder-approved terms before order submission.
+2. Create an order first through the independent order API. The server fixes amount/currency and returns an order identifier and private bearer recovery token. Retries use the same idempotency key and payload.
+3. Show payment instructions only after order creation. A customer transaction reference is a **claim**, never proof or confirmation of payment.
+4. Store a claim in an unverified state. Enforce one globally unique claimed transaction reference, one order association, saved server-side payment method, fixed amount/currency, claim attempt limits, and audited state transitions.
+5. A founder authenticates with MFA, independently matches actual settled funds against the payment provider’s records, account, method, reference, amount, currency and buyer identity. Only an explicit founder approval can transition the order to paid.
+6. After approval, issue an auditable, revocable download grant. **Secure website delivery of the five approved PDF parts is the primary fulfillment method.** Every download request rechecks the private order authorization, approved payment state and active grant; files are private, versioned and outside the public/static tree. Responses use `Cache-Control: private, no-store`.
+7. Telegram is **support and fallback only**. It may help a customer recover access or be used for a documented manual delivery fallback; it is not the normal delivery path and must never receive a private order token or OTP.
 
-## Customer journey — required server-trusted sequence
+The production order table remains limited to `AWAITING_PAYMENT` until the production settlement and approval modules are separately designed, migrated and accepted. Payment/fulfillment state belongs in separate modules/tables with explicit transitions and audit history.
 
-1. Customer opens checkout from the approved sales page, enters name and Ethiopian mobile, and selects payment method. Customer sees final amount and refund terms before committing.
-2. **Create a real order first.** Backend issues a unique order ID, persists sanitized minimal PII, amount 1500 ETB, currency ETB, selected method and `AWAITING_PAYMENT` status. Retain an idempotency key so double clicks/network retries cannot charge or create duplicate orders.
-3. Only **after** the server acknowledges the real order, show payee and selected payment instructions with the authoritative amount and unique order ID; explain that payment itself occurs externally in official Telebirr/CBE, not inside this website.
-4. Buyer makes external payment independently. They may send a screenshot/payment reference through the official Telegram channel with order ID, but **never** send their private order-recovery token or OTP. Do not treat a screenshot as proof that funds settled.
-5. Associate each customer payment **claim** with exactly one order; limit attempts; reject reused transaction references globally, mismatched method or currency, invalid data, and unexpected state transitions. Upload of image files is optional and requires approved malware/file/privacy controls; Telegram screenshot alone is preferred for launch unless an audited secure upload is implemented.
-6. Founder authenticates with password + TOTP and independently views settled credit in the actual Telebirr or CBE **provider records**, matching recipient account, reference, settled amount **1,500 ETB**, date, payer context and currency. Only the founder may mark `VERIFIED_PAID`; record an append-only audit with checks, who/when/reason and a unique payment reference. Do not allow customer-visible API requests to set paid states.
-7. Before any PDF fulfillment, independently **bind purchaser to recipient** (prefer OTP to the purchased phone with abuse limits; otherwise document an approved alternative). Telegram username and screenshots are not sufficient proof of purchase.
-8. Deliver the approved private PDF package manually using the official Telegram support channel, recording genuine dispatch and acknowledgment. Failed delivery must be retryable without duplicating a paid credit.
-9. Handle cancellations and the advertised 30-day guarantee under written founder-approved policy. Expose that policy unambiguously before accepting payment.
+## Independent architecture
 
-## Production architecture: isolated, not a QA config toggle
+- Keep order intake, payment claims, founder verification, authorization, and secure delivery in the independent `production_checkout` architecture. Use separate modules and a private PostgreSQL database; do not import or call the QA service and do not reuse its database, auth, ledger, secrets, order namespace or migrations.
+- Customer claim endpoints may record an unverified claim only. Customer endpoints must never write a paid state or issue a download grant.
+- Founder routes require a separate HTTPS origin, MFA-backed session, CSRF protection, least privilege, explicit check and approve actions, and append-only audit events.
+- Download authorization requires the original private order token on every request. Store token hashes, never place tokens in URLs, analytics, logs or referrers. Revoke grants immediately; do not use public URLs or long-lived bearer URLs.
+- Keep final PDFs in private, versioned storage. Staging dummy files are generated in memory or an ephemeral CI directory and are not committed or uploaded as public artifacts.
+- Payment references are unique across all claims. Store the minimum data required, redact logs, encrypt sensitive values at rest, set retention limits, and use a trusted proxy boundary before deriving production abuse-control keys.
+- Fail closed: `ORDER_INTAKE_ENABLED=false`, `PAYMENTS_ENABLED=false`, founder verification disabled, and delivery disabled unless each separate production release gate is explicitly approved.
 
-- New production FastAPI deployment and private durable PostgreSQL database; new migrations and secrets; separate domain, CORS allowlist and founder credentials. Never reuse the QA database, synthetic ledger, QA test references or order-code namespace.
-- Creation endpoint accepts only `customer_name`, `mobile`, `payment_method` plus a high-entropy `Idempotency-Key`. Server computes product/amount; writes orders atomically with rate limit and unique request fingerprint; returns an authenticated, non-PII summary plus private recovery token.
-- Public status endpoint requires a separate bearer token (not order ID alone). Customer cannot enumerate orders, payment references or phone numbers, and cannot perform founder actions.
-- Separate founder-origin HTTPS console with secure sessions, MFA, CSRF, least-privilege, independent real-world payment checks and immutable financial/fulfillment event logs. No secrets in URLs, localStorage, analytics, third-party pixels or logs.
-- If a claim endpoint is deployed, it can record **unverified claims only**; it cannot mark paid, trigger delivery or accept a claim as settled based on the customer screenshot.
-- Abuse controls: trusted-boundary source-IP verification (or equivalent privacy-conscious client identification), per-client limits, per-order proof limits, global incident circuit breaker and unique payment reference checks. The QA global 12/10-minute bucket is not production-ready.
-- HTTPS and encrypted secrets/DB; an approved privacy notice, retention limits for parent/child data and screenshots, monitored errors, managed backup + restoration and incident recovery procedures.
+## Staging contract
 
-## Explicit release gates (all must pass)
+- The staging integration runs only with `APP_MODE=staging`, `PAYMENTS_ENABLED=false`, explicit staging order-intake opt-in, synthetic founder factors, fictional recipient codes and a disposable PostgreSQL database.
+- It creates orders through the independent order API. Its claims, synthetic settlement evidence, founder sessions, audit events, grants and rate windows live in isolated staging sidecar tables in the disposable staging database.
+- Fictional settlement evidence is created independently from a customer claim and must match reference, order payment method, 1,500 ETB, ETB currency, fictional recipient code and fictional payer identity.
+- Staging supports exactly five generated dummy PDFs. It cannot read final product files or real recipient instructions.
+- No CI job contacts Render, payment providers, production databases, real accounts or customer-facing preview services.
 
-- [ ] Approve exact 30-day guarantee/refund eligibility, procedure, response times and dispute process.
-- [ ] Independently confirm founder ownership/access to both settlement accounts and evidence review procedure.
-- [ ] Approve who can review real payment records, founder login MFA provisioning and access revocation.
-- [ ] Choose and verify buyer phone/recipient binding or written approved fallback.
-- [ ] Approve versioned Amharic package, private delivery/receipt steps and no-public-link policy.
-- [ ] Confirm durable production hosting/PostgreSQL, tested offsite backups/restore, monitoring and domain/CORS.
-- [ ] Implement production data model, endpoints, independent funds review and immutable audit in **separate** modules.
-- [ ] Test concurrent idempotency, 429 abuse controls, duplicate refs, partial settlement, wrong account/amount, replay, identity mismatch and no premature delivery against disposable production-equivalent database.
-- [ ] Test real founder workflow with controlled **authorized** transactions and manual bank/provider reconciliation, then issue an explicit production go/no-go.
-- [ ] Deploy the real checkout behind an off-by-default server rollout gate. Monitor readiness, audit, rollback and backup recovery; never reuse the demo preview URL as payment authorization evidence.
+## Release blockers and founder decisions
 
-## Work that is safe before release approval
+- Independently confirm the settlement-account ownership and actual provider reconciliation procedure.
+- Approve buyer-to-payer identity binding, including whether the private recovery token alone is sufficient or an additional verified phone step is required.
+- Select private storage and retention/restore controls for the final versioned Amharic PDFs; approve file hashes and replacement/revocation procedure.
+- Approve the founder MFA/session provisioning and recovery process, refund/guarantee terms, privacy notice, retention periods and incident process.
+- Select production host/database, trusted-proxy boundary, rate limits, monitoring, backup/restore targets, domain and CORS allowlist.
+- Complete separate production-equivalent security, abuse, migration, backup and recovery acceptance; then make an explicit launch decision.
 
-- Leave current preview, QA site, QA API, founder-admin defaults and `PAYMENTS_ENABLED=false` unchanged.
-- Build and test new production modules on an isolated feature branch against disposable test data.
-- Add responsive browser acceptance and correct source assets for the production form.
-- Keep the real checkout button and payment initiation **disabled** until production backend, independent verification, operational policy and buyer-binding gates are passed.
-
-**Do not** remove the no-payment warning merely to make the page look live. **Do not** point the preview form at the QA order API while advertising it as a real customer checkout.
+**No merge, deployment, live order intake, real payment, or final PDF delivery is authorized by this contract or staging results.**

@@ -56,7 +56,7 @@ def test_create_persists_server_price_and_payment_instructions(intake):
     assert order["currency"] == "ETB"
     assert order["status"] == "AWAITING_PAYMENT"
     assert order["payment_instructions"] == {
-        "name": "Telebirr", "number": "0912910693", "holder": "Kidus Elias",
+        "name": "Telebirr", "number": "NOT-CONFIGURED", "holder": "NOT-CONFIGURED",
         "amount_etb": 1500, "currency": "ETB",
     }
     assert order["order_id"].startswith("PW-") and not order["order_id"].startswith("PW-QA-")
@@ -74,7 +74,7 @@ def test_bank_and_normalization(intake):
     client, app, *_ = intake
     r = post(client, payment_method="bank", mobile="+251712345678")
     assert r.status_code == 201, r.text
-    assert r.json()["order"]["payment_instructions"]["number"] == "10002230019327"
+    assert r.json()["order"]["payment_instructions"]["number"] == "NOT-CONFIGURED"
     with app.state.sessions() as db:
         assert db.scalar(select(Order).where(Order.code == r.json()["order"]["order_id"])).mobile_e164 == "+251712345678"
 
