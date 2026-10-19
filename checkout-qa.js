@@ -126,7 +126,7 @@
   }
   // Presentation-only status labels. API status codes remain unchanged.
   const statusLabels = {
-    PENDING_PAYMENT: 'ክፍያ በመጠባበቅ ላይ (ሙከራ)',
+    PENDING_PAYMENT: 'ትዕዛዝ ተቀምጧል · ክፍያ የለም (QA)',
     PROOF_SUBMITTED: 'የሙከራ ማስረጃ ገብቷል',
     VERIFYING: 'በማረጋገጥ ላይ (ሙከራ)',
     VERIFIED_PAID: 'በሙከራ ውስጥ ክፍያ ተረጋግጧል (እውነተኛ አይደለም)',
@@ -151,7 +151,7 @@
     record.token = token;
     saveSession();
     elements.orderId.textContent = summary.order_id;
-    elements.orderProduct.textContent = summary.product;
+    elements.orderProduct.textContent = 'የParentWise የልጆች ባህሪና የሥነ-ሥርዓት አስተዳደግ መመሪያ';
     elements.orderPrice.textContent = '1,500 ETB';
     elements.orderMethod.dataset.method = summary.payment_method;
     elements.orderMethod.textContent = summary.payment_method === 'telebirr' ? 'Telebirr · ለሙከራ ብቻ' : 'የኢትዮጵያ ባንክ · ለሙከራ ብቻ';
@@ -235,7 +235,7 @@
         method: 'GET', headers: { Authorization: 'Bearer ' + token }
       });
       if (response.status === 200) {
-        if (!data?.order || data.order.order_id !== id) throw new Error('Invalid API order response');
+        if (!data?.order || data.order.order_id !== id) throw new Error('የሙከራ ትዕዛዝ ምላሹ ትክክል አይደለም።');
         if (!record || record.order?.order_id !== id) record = { version: 2, key: makeKey(), body: {}, order: data.order, token };
         showOrder(data.order, token);
         elements.recoveryPanel.hidden = true;
