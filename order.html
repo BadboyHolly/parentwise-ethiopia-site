@@ -54,27 +54,28 @@ body{background:#F8F4EC}
 [hidden]{display:none!important}
 @media(max-width:480px){.qa-panel{padding:18px}.qa-checkout{padding-top:16px}.qa-result-grid{grid-template-columns:1fr;gap:3px}.qa-result-grid dd{margin-bottom:10px}.qa-actions{flex-direction:column}.qa-actions button{width:100%}}
 </style>
-<script src="checkout-qa.js" defer></script>
+<script src="checkout-preview.js" defer></script>
 </head>
 <body>
 <main class="qa-checkout">
-  <header class="qa-header"><span class="qa-brand">ParentWise Ethiopia</span><a href="index.html">← ወደ መሸጫ ገጹ ተመለስ</a></header>
+  <div class="qa-warning" role="note" style="margin-top:0"><strong>LIVE DESIGN PREVIEW · ለንድፍ ግምገማ ብቻ</strong>ይህ በተለየ ድረ-ገጽ የተዘጋጀ የንድፍ ማሳያ ነው። ትዕዛዝ አይፈጠርም፣ ክፍያ አይቀበልም፣ ወደ ስርዓቱም መረጃ አይላክም።</div>
+  <header class="qa-header"><span class="qa-brand">ParentWise Ethiopia</span><a href="index.html">← ወደ መሸጫ ገጹ ይመለሱ</a></header>
   <section class="qa-panel" aria-labelledby="checkout-title">
     <div class="qa-stepbar" aria-label="የሙከራ ትዕዛዝ ደረጃዎች"><span class="active">1 · መረጃ</span><span>2 · የሙከራ ትዕዛዝ</span><span>3 · ማረጋገጫ (አልተነቃም)</span></div>
-    <div class="section-kicker">የሙከራ መግቢያ · ትዕዛዝ ማስቀመጫ</div>
-    <h1 id="checkout-title">የParentWise ሙሉ ፕሮግራም የሙከራ ትዕዛዝ</h1>
-    <p>ለ2–12 ዓመት ልጆች የባህሪና የሥነ-ሥርዓት አስተዳደግ መመሪያ</p>
+    <div class="section-kicker">የሙከራ ትዕዛዝ ገጽ</div>
+    <h1 id="checkout-title">የParentWise ትዕዛዝዎን ያስገቡ</h1>
+    <p>ከ2 እስከ 12 ዓመት ዕድሜ ያሉ ልጆችን ለሚያሳድጉ ወላጆች የተዘጋጀ መመሪያ</p>
     <div class="qa-warning" role="note"><strong>የሙከራ ሁኔታ — እውነተኛ ክፍያ አይቀበልም</strong>ይህ ቅጽ ትዕዛዝን በሙከራ መረጃ ቋት ውስጥ ለማስቀመጥ ብቻ ነው። ገንዘብ ወይም የክፍያ ማስረጃ አይላኩ። እውነተኛ የግል መረጃ ሳይሆን ለሙከራ የተፈጠረ መረጃ ብቻ ያስገቡ። Telebirr እና የባንክ አማራጮች ማሳያዎች ብቻ ናቸው።</div>
     <p><b>የሚያገኙት፦</b> START HERE · Core Guide · Action Workbook · Quick Help &amp; Parent Scripts · 30-Day Practice Program.</p>
-    <div class="qa-details"><div>የአንድ ጊዜ ክፍያ · ወርሃዊ ምዝገባ የለም</div><strong>1,500 ETB</strong></div>
+    <div class="qa-details"><div>የአንድ ጊዜ ዋጋ · ወርሃዊ ክፍያ የለም</div><strong>1,500 ETB</strong></div>
     <p class="checkout-feedback" id="checkout-feedback" role="status" aria-live="polite" hidden></p>
     <p id="session-storage-notice" class="qa-warning" hidden>የአሳሽዎ ጊዜያዊ ማስቀመጫ አይሠራም። ገጹን እንደገና ከከፈቱ ትዕዛዙ ላይመለስ ይችላል። የሙከራ ትዕዛዝ ከፈጠሩ በኋላ የግል መመለሻ ኮዱን ይቅዱና በደህና ያስቀምጡ።</p>
     <form id="qaOrder" novalidate>
-      <label for="name">ሙሉ ስም (የተፈጠረ የሙከራ ስም ብቻ)</label><input id="name" name="name" maxlength="100" minlength="2" autocomplete="off" placeholder="የሙከራ ስም ያስገቡ" required>
-      <label for="mobile">የኢትዮጵያ ሞባይል ቁጥር (ለሙከራ ብቻ)</label><input id="mobile" name="mobile" inputmode="tel" autocomplete="off" placeholder="09XXXXXXXX" maxlength="13" required>
-      <label for="payment-method">የሙከራ የክፍያ ዘዴ ይምረጡ</label>
+      <label for="name">ሙሉ ስም (የሙከራ መረጃ ብቻ)</label><input id="name" name="name" maxlength="100" minlength="2" autocomplete="off" placeholder="የሙከራ ስም ያስገቡ" required>
+      <label for="mobile">ስልክ ቁጥር (ለሙከራ ብቻ)</label><input id="mobile" name="mobile" inputmode="tel" autocomplete="off" placeholder="09XXXXXXXX" maxlength="13" required>
+      <label for="payment-method">የክፍያ ዘዴ ይምረጡ (ለሙከራ ብቻ)</label>
       <select id="payment-method" name="payment-method" required><option value="">የሙከራ ዘዴ ይምረጡ</option><option value="telebirr">Telebirr · ለሙከራ ብቻ</option><option value="bank">የባንክ ዝውውር · ለሙከራ ብቻ</option></select>
-      <button class="primary" id="order-submit" type="submit">የሙከራ ትዕዛዝ ፍጠር — ክፍያ የለም</button>
+      <button class="primary" id="order-submit" type="submit">የሙከራ ትዕዛዝ ይፍጠሩ — ክፍያ አይጠየቅም</button>
       <p class="smallprint">ይህ የሙከራ ትዕዛዝን በደህንነቱ በተጠበቀ የሙከራ ስርዓት ያስቀምጣል። የሙከራ ስም፣ ስልክ ቁጥር፣ የተመረጠው ዘዴና የትዕዛዝ መረጃ ብቻ ይላካሉ። እውነተኛ የግል መረጃ አያስገቡ።</p>
     </form>
     <section id="testPreview" hidden aria-live="polite" tabindex="-1" aria-label="የተቀመጠው የሙከራ ትዕዛዝ">
@@ -86,32 +87,32 @@ body{background:#F8F4EC}
           <dt>ምርት</dt><dd id="order-product"></dd>
           <dt>ዋጋ</dt><dd id="order-price">1,500 ETB</dd>
           <dt>የተመረጠ ዘዴ</dt><dd id="order-method"></dd>
-          <dt>ሁኔታ</dt><dd id="order-status">PENDING_PAYMENT</dd>
+          <dt>ሁኔታ</dt><dd id="order-status">ትዕዛዝ ተቀምጧል · ክፍያ የለም</dd>
           <dt id="qa-delivery-label" hidden>የሙከራ ማድረስ</dt><dd id="qa-delivery-status" hidden>አይመለከተውም</dd>
           <dt id="qa-delivery-version-label" hidden>የሙከራ ጥቅል ስሪት</dt><dd id="qa-delivery-version" hidden></dd>
         </dl>
         <p id="qa-fulfillment-notice" class="qa-quiet" hidden></p>
       </div>
       <div class="qa-warning"><strong>ገንዘብ አይላኩ</strong>የክፍያ ተቀባይ አልተዘጋጀም። የትዕዛዝ መለያው የክፍያ ማስረጃ አይደለም። በሙከራ ሁኔታ ክፍያ አይረጋገጥም፤ ዲጂታል ምርትም አይላክም።</div>
-      <div class="qa-actions"><button type="button" id="copy-order-id">የትዕዛዝ መለያን ቅዳ</button><button type="button" id="copy-recovery">የግል መመለሻ ኮድን ቅዳ</button></div>
+      <div class="qa-actions"><button type="button" id="copy-order-id">የትዕዛዝ መለያን ይቅዱ</button><button type="button" id="copy-recovery">የግል መመለሻ ኮዱን ይቅዱ</button></div>
       <div id="recovery-copy-fallback" hidden>
         <label for="private-recovery-code">የግል መመለሻ ኮድ — በእጅ ይምረጡና ይቅዱ</label>
         <textarea id="private-recovery-code" readonly autocomplete="off" spellcheck="false" rows="3" style="width:100%;max-width:100%;font:inherit;overflow-wrap:anywhere" aria-describedby="private-recovery-warning"></textarea>
-        <button type="button" class="qa-secondary" id="hide-private-recovery">የግል ኮዱን ደብቅ</button>
+        <button type="button" class="qa-secondary" id="hide-private-recovery">የግል ኮዱን ይደብቁ</button>
       </div>
       <p class="qa-private-warning" id="private-recovery-warning">የግል መመለሻ ኮድ ሚስጥራዊ የመዳረሻ ቁልፍ አለው። በደህና ቦታ ያስቀምጡት። በይፋዊ ውይይት፣ በስክሪንሾት ወይም በድረ-ገጽ አድራሻ አያጋሩት።</p>
       <p class="qa-quiet">ይህን ገጽ እንደገና ሲከፍቱ የተቀመጠው ትዕዛዝ በራሱ ይመለሳል። አሳሽዎን ከዘጉ በኋላ ወይም በሌላ መሣሪያ ለመመለስ የግል መመለሻ ኮዱን አስቀድመው ያስቀምጡ። ያለ ኮዱ መመለሱ አይረጋገጥም።</p>
-      <button type="button" class="qa-secondary" id="start-new-order">አዲስ የሙከራ ትዕዛዝ ጀምር</button>
+      <button type="button" class="qa-secondary" id="start-new-order">አዲስ የሙከራ ትዕዛዝ ይጀምሩ</button>
     </section>
     <div class="qa-recovery-block">
       <h2>ከዚህ በፊት የሙከራ ትዕዛዝ ፈጥረዋል?</h2>
       <p class="qa-quiet">የትዕዛዝ መለያውን እና <b>ሚስጥራዊ የመዳረሻ ቁልፉን</b> በመጠቀም መመለስ ይችላሉ። የትዕዛዝ መለያ ብቻውን አይበቃም።</p>
-      <button type="button" class="qa-secondary" id="recover-toggle" aria-controls="recovery-panel">የቀድሞ የሙከራ ትዕዛዝን መልስ</button>
+      <button type="button" class="qa-secondary" id="recover-toggle" aria-controls="recovery-panel">የቀድሞ ትዕዛዝዎን ይመልሱ</button>
       <div id="recovery-panel" hidden>
         <form id="recover-form" novalidate>
           <label for="recover-order-id">የሙከራ ትዕዛዝ መለያ</label><input id="recover-order-id" autocomplete="off" autocapitalize="characters" placeholder="PW-QA-…" required>
           <label for="recover-token">ሚስጥራዊ የመዳረሻ ቁልፍ</label><input id="recover-token" autocomplete="off" autocorrect="off" spellcheck="false" type="password" placeholder="43 ቁምፊ ያለው የግል ቁልፍ" required>
-          <button class="primary" type="submit" id="recover-submit">የሙከራ ትዕዛዝን መልስ</button>
+          <button class="primary" type="submit" id="recover-submit">የሙከራ ትዕዛዝዎን ይመልሱ</button>
         </form>
         <p class="qa-private-warning">ሚስጥራዊ ቁልፍዎ በHTTPS ደህንነት ግንኙነት ብቻ ይላካል። በድረ-ገጽ አድራሻ (URL) ውስጥ አይለጥፉት።</p>
       </div>
