@@ -57,12 +57,12 @@ def verify_interactions(page):
     """Account selection must change numbers/logos without hitting any order API."""
     posted = []
     page.on("request", lambda req: posted.append(req.url) if req.method == "POST" else None)
-    page.locator('input[name="payment"][value="bank"]').check()
+    page.locator('label.method:has(input[value="bank"])').click()
     check(page.locator("#account-number").inner_text() == ACCOUNTS["bank"], "CBE number not updated")
     check(page.locator("#account-method").inner_text() == "CBE ባንክ", "CBE label mismatch")
     check(page.locator("#account-logo").get_attribute("src") == "assets/cbe-bank-logo.png", "CBE mark not updated")
     check(page.locator("#account-holder").inner_text() == "Kidus Elias", "CBE holder mismatch")
-    page.locator('input[name="payment"][value="telebirr"]').check()
+    page.locator('label.method:has(input[value="telebirr"])').click()
     check(page.locator("#account-number").inner_text() == ACCOUNTS["telebirr"], "Telebirr number not restored")
     check(page.locator("#account-logo").get_attribute("src") == "assets/telebirr-mark.svg", "Telebirr mark not restored")
     check(page.locator("#copy-label").inner_text() == "Copy", "Copy label after method change incorrect")
@@ -86,7 +86,7 @@ def main():
             evaluate_layout(page, width)
             verify_interactions(page)
             if width in (360, 390, 1280):
-                page.locator('input[name="payment"][value="bank"]').check()
+                page.locator('label.method:has(input[value="bank"])').click()
                 page.screenshot(path=str(ARTIFACTS / f"checkout-{width}px.png"), full_page=True, animations="disabled")
             context.close()
         browser.close()
