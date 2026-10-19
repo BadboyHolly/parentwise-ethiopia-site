@@ -5,23 +5,18 @@ on:
     branches:
       - dev/r2-secure-delivery-20261019
     paths:
-      - 'production_checkout/private_storage.py'
-      - 'production_checkout/tests/test_private_storage.py'
-      - 'production_checkout/requirements.txt'
-      - 'production_checkout/README.md'
-      - 'production_checkout/R2-SECURE-DELIVERY.md'
+      - 'production_checkout/**'
+      - 'staging_checkout/**'
       - 'checkout-backend/PRODUCTION-CHECKOUT-CONTRACT.md'
-      - 'staging_checkout/downloads.py'
-      - 'staging_checkout/tests/test_journey.py'
       - '.github/workflows/r2-private-storage-acceptance.yml'
 
 permissions:
   contents: read
 
 jobs:
-  mock-storage-and-authorized-download:
+  immutable-storage-and-backend-regression:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     services:
       postgres:
         image: postgres:18
@@ -41,6 +36,7 @@ jobs:
       PAYMENTS_ENABLED: 'false'
       STAGING_ORDER_INTAKE_ENABLED: 'true'
       STAGING_DATABASE_URL: postgresql+psycopg://parentwise_ci:ci_only_password_not_a_secret@127.0.0.1:5432/pw_r2_disposable
+      TEST_DATABASE_URL: postgresql+psycopg://parentwise_ci:ci_only_password_not_a_secret@127.0.0.1:5432/pw_orders_disposable
       STAGING_ALLOWED_ORIGINS: https://staging.example.invalid
       TEST_CUSTOMER_RATE_LIMIT: '100'
       PGPASSWORD: ci_only_password_not_a_secret
@@ -53,8 +49,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install backend, mock-test and PostgreSQL dependencies
+      - name: Install backend and test dependencies
         run: python -m pip install -r production_checkout/requirements.txt 'argon2-cffi>=23.1,<26' 'pytest>=8,<10' 'httpx>=0.27,<1'
+      - name: Create separate disposable order database
+        run: createdb -h 127.0.0.1 -U parentwise_ci pw_orders_disposable
       - name: Generate ephemeral synthetic founder factors
         run: |
           python - <<'PY'
@@ -74,15 +72,12 @@ jobs:
                   print("::add-mask::" + value)
                   env_file.write(f"{key}={value}\n")
           PY
-      - name: Apply staging test schemas to disposable database
+      - name: Apply checkout and staging schemas to disposable databases
         run: |
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U parentwise_ci -d pw_orders_disposable -f production_checkout/migrations/0001_create_orders.sql
           psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U parentwise_ci -d pw_r2_disposable -f production_checkout/migrations/0001_create_orders.sql
           psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U parentwise_ci -d pw_r2_disposable -f staging_checkout/migrations/0001_stage_sidecar.sql
       - name: Compile backend modules
         run: python -m compileall -q production_checkout staging_checkout
-      - name: Run storage unit tests and focused authenticated delivery regression
-        run: >-
-          python -m pytest -q
-          production_checkout/tests/test_private_storage.py
-          staging_checkout/tests/test_journey.py::test_complete_order_claim_independent_review_private_download_recovery_and_revocation
-          staging_checkout/tests/test_journey.py::test_download_rechecks_gate_and_fails_safely_for_storage_errors
+      - name: Run complete backend, staging journey, and R2 adapter regression suites
+        run: python -m pytest -q production_checkout/tests staging_checkout/tests
