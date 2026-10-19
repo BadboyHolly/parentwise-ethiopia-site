@@ -86,7 +86,13 @@ def claim(engine, code, token, reference):
 def evidence(engine, code, claim_id, *, reference=None, method="telebirr",
              amount=1500, currency="ETB", recipient=RECIPIENT, payer_mobile="+251912345678"):
     ref = reference or "SIM-" + secrets.token_hex(12).upper()
-    ref_digest = transaction_reference_digest(REFERENCE_SECRET, ref)
+    if reference is None:
+        with engine.connect() as connection:
+            ref_digest = connection.execute(text("""
+                SELECT reference_digest FROM production_payment_claims WHERE id=:claim_id
+            """), {"claim_id": claim_id}).scalar_one()
+    else:
+        ref_digest = transaction_reference_digest(REFERENCE_SECRET, ref)
     with session(engine) as db:
         evidence_id = record_settlement_evidence(
             db, actor_id=FOUNDER, order_code=code, claim_id=claim_id,
@@ -284,34 +290,33 @@ def test_revocation_denies_future_access_and_grant_cannot_be_reactivated(engine)
 
 def test_database_rejects_ready_state_without_decision_and_audit_is_append_only(engine):
     code, _ = order(engine)
-    with engine.begin() as connection:
+    with engine.connect() as connection:
         order_id = connection.execute(text(
             "SELECT id FROM production_orders WHERE code=:code"), {"code": code}).scalar_one()
-        with pytest.raises(DBAPIError):
-            with connection.begin_nested():
-                connection.execute(text("""
-                    UPDATE production_payment_fulfillment_state
-                       SET payment_status='PAYMENT_CONFIRMED',
-                           fulfillment_status='READY_TO_DOWNLOAD' WHERE order_id=:id
-                """), {"id": order_id})
+    with pytest.raises(DBAPIError):
+        with engine.begin() as connection:
+            connection.execute(text("""
+                UPDATE production_payment_fulfillment_state
+                   SET payment_status='PAYMENT_CONFIRMED',
+                       fulfillment_status='READY_TO_DOWNLOAD' WHERE order_id=:id
+            """), {"id": order_id})
+    with engine.begin() as connection:
         connection.execute(text("""
             INSERT INTO production_payment_audit_events(order_id,event_type,actor_type)
             VALUES (:id,'QA_TEST_EVENT','SYSTEM')
         """), {"id": order_id})
-    with engine.begin() as connection:
-        with pytest.raises(DBAPIError):
-            with connection.begin_nested():
-                connection.execute(text("""
-                    UPDATE production_payment_audit_events SET event_type='ALTERED'
-                     WHERE event_type='QA_TEST_EVENT'
-                """))
+    with pytest.raises(DBAPIError):
+        with engine.begin() as connection:
+            connection.execute(text("""
+                UPDATE production_payment_audit_events SET event_type='ALTERED'
+                 WHERE event_type='QA_TEST_EVENT'
+            """))
 
 
 def test_order_table_remains_awaiting_payment_only(engine):
     code, _ = order(engine)
-    with engine.begin() as connection:
-        with pytest.raises(DBAPIError):
-            with connection.begin_nested():
-                connection.execute(text("""
-                    UPDATE production_orders SET status='PAYMENT_CONFIRMED' WHERE code=:code
-                """), {"code": code})
+    with pytest.raises(DBAPIError):
+        with engine.begin() as connection:
+            connection.execute(text("""
+                UPDATE production_orders SET status='PAYMENT_CONFIRMED' WHERE code=:code
+            """), {"code": code})
