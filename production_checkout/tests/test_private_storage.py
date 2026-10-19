@@ -50,6 +50,14 @@ class PrivateStorageTests(unittest.TestCase):
         self.assertEqual(ProductManifest.from_json(raw).get(5), self.manifest.get(5))
         with self.assertRaises(ManifestError):
             ProductManifest.from_json("[]")
+        malformed = json.loads(raw)
+        malformed[0]["part"] = True
+        with self.assertRaises(ManifestError):
+            ProductManifest.from_json(json.dumps(malformed))
+        malformed[0]["part"] = 1
+        malformed[0]["version_id"] = "null"
+        with self.assertRaises(ManifestError):
+            ProductManifest.from_json(json.dumps(malformed))
         with self.assertRaises(KeyError):
             self.manifest.get(6)
 
@@ -61,7 +69,7 @@ class PrivateStorageTests(unittest.TestCase):
                 inner.body = io.BytesIO(blobs[1])
             def get_object(inner, **kwargs):
                 inner.kwargs = kwargs
-                return {"Body": inner.body}
+                return {"Body": inner.body, "VersionId": kwargs["VersionId"]}
         client = Client()
         settings = R2Settings("https://" + "a" * 32 + ".r2.cloudflarestorage.com",
                               self.bucket, "synthetic-access", "synthetic-secret")
@@ -73,6 +81,15 @@ class PrivateStorageTests(unittest.TestCase):
             "Bucket": self.bucket, "Key": "k1", "VersionId": "v1",
         })
         self.assertTrue(client.body.closed)
+        self.assertNotIn("synthetic-secret", repr(settings))
+
+        class WrongVersionClient:
+            def get_object(inner, **kwargs):
+                return {"Body": io.BytesIO(blobs[1]), "VersionId": "different"}
+        with self.assertRaises(StorageUnavailable):
+            R2PrivateObjectStore(WrongVersionClient(), settings).read_version(
+                bucket=self.bucket, key="k1", version_id="v1", max_bytes=1024
+            )
         self.assertNotIn("synthetic-secret", repr(settings))
 
     def test_r2_adapter_suppresses_provider_error_details(self):
