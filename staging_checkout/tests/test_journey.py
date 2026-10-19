@@ -6,6 +6,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy import text
 from staging_checkout.app import build_staging_app
 from staging_checkout.security import totp_code
+from production_checkout.private_storage import MockObjectStore
 
 ORIGIN = "https://staging.example.invalid"
 PASSWORD = os.environ["STAGING_FOUNDER_PASSWORD"]
@@ -197,3 +198,42 @@ def test_customer_download_endpoint_is_rate_limited(env):
     assert client.get(url,headers=customer(token)).status_code == 200
     assert client.get(url,headers=customer(token)).status_code == 200
     assert client.get(url,headers=customer(token)).status_code == 429
+
+def test_download_rechecks_gate_and_fails_safely_for_storage_errors(env):
+    client, app = env
+    code, token, _ = order(client)
+    original_store = app.state.product_object_store
+    denied = client.get(f"/api/v1/orders/{code}/downloads/part-1",
+                        headers=customer(token))
+    assert denied.status_code == 403
+    assert original_store.reads == []
+
+    admin = founder(client)
+    ref = "SIM-" + secrets.token_hex(8).upper()
+    assert claim(client, code, token, ref).status_code == 201
+    assert settlement(client, admin, ref).status_code == 201
+    assert client.post(f"/founder/api/orders/{code}/verify",
+                       headers=admin).json()["matched"] is True
+    approved = client.post(f"/founder/api/orders/{code}/approve",
+        headers=admin, json={"reason":"QA storage failure test"})
+    assert approved.status_code == 200
+
+    missing_store = MockObjectStore({})
+    app.state.product_object_store = missing_store
+    failed = client.get(f"/api/v1/orders/{code}/downloads/part-1",
+                        headers=customer(token))
+    assert failed.status_code == 503
+    assert failed.json()["detail"] == "Download temporarily unavailable"
+    assert "no-store" in failed.headers["cache-control"]
+    assert missing_store.reads == [("qa-dummy-only", "qa-dummy/v1/part-1.pdf",
+                                    "qa-dummy-v1")]
+
+    revoked = client.post(f"/founder/api/orders/{code}/downloads/revoke",
+        headers=admin, json={"reason":"QA storage failure test"})
+    assert revoked.status_code == 200
+    reads_before = len(missing_store.reads)
+    after_revoke = client.get(f"/api/v1/orders/{code}/downloads/part-1",
+                              headers=customer(token))
+    assert after_revoke.status_code == 403
+    assert len(missing_store.reads) == reads_before
+
