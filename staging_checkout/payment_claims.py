@@ -52,7 +52,7 @@ def mount_payment_claims(app):
             raise HTTPException(409, "This transaction reference was already claimed") from None
 
     @app.get("/api/v1/orders/{code}/checkout-status")
-    def checkout_status(code: str, request: Request, authorization: str = ""):
+    def checkout_status(code: str, request: Request, authorization: str = Header(default="", alias="Authorization")):
         with app.state.order_sessions() as db:
             order = order_for_customer(db, code, authorization, app.state.order_token_secret)
             state = db.scalar(select(OrderState).where(OrderState.order_id == order.id))
