@@ -25,7 +25,7 @@ The staging extension is not a production activation path. It must not be import
 
 ## Operations and release blockers
 
-Production requires separate, reviewed migrations and private PostgreSQL; high-entropy order-token keys; founder MFA and recovery; rate limiting at a verified proxy boundary; private versioned PDF storage; revocable per-request authorization; privacy and retention rules; monitoring; tested backups/restoration; and founder-approved payment, identity, refund and support policies.
+Production requires separate, reviewed migrations and private PostgreSQL; high-entropy order-token keys; founder MFA and recovery; rate limiting at a verified proxy boundary; private immutable-release PDF storage; revocable per-request authorization; privacy and retention rules; monitoring; tested backups/restoration; and founder-approved payment, identity, refund and support policies.
 
 See [the production checkout contract](../checkout-backend/PRODUCTION-CHECKOUT-CONTRACT.md) for the complete journey and release gates.
 
@@ -35,3 +35,10 @@ See [the production checkout contract](../checkout-backend/PRODUCTION-CHECKOUT-C
 `private_storage.py` defines a S3-compatible Cloudflare R2 reader using immutable release-specific keys and an exact-five-file SHA-256 manifest. It does not depend on bucket versioning or VersionId support. It is not constructed by production startup, does not hold credentials or final PDFs, and has no public/presigned URL flow. The isolated staging download endpoint uses generated in-memory QA PDFs through the mock storage implementation; it revalidates the customer token, approval state, and grant for every request. The R2 adapter has mock-only tests and is not connected to the named bucket.
 
 Publishing uses conditional create-only writes. Separate protected backups and a checksum-verified restore rehearsal are required before launch. See [R2 secure delivery runbook](R2-SECURE-DELIVERY.md). Production payment/grant state and route wiring, private bucket credentials, final files, real-provider backup/restore acceptance, and production acceptance remain release blockers.
+
+
+## Production payment and delivery state foundation
+
+`payment_state.py` and migration `0002_create_payment_delivery_state.sql` add separate production claim, settlement evidence, approval, exception, state, grant and audit structures without changing order intake. State transitions and private download authorization are implemented as unmounted service functions. They do not enable payment processing, founder decisions, delivery routes, or real orders.
+
+See [Payment state foundation](PAYMENT-STATE-FOUNDATION.md). MFA, authenticated route integration, claim-field encryption, real manual settlement operations, rate limiting, customer recovery and production launch remain outstanding.
