@@ -50,3 +50,10 @@ The production order table remains limited to `AWAITING_PAYMENT` until the produ
 - Complete separate production-equivalent security, abuse, migration, backup and recovery acceptance; then make an explicit launch decision.
 
 **No merge, deployment, live order intake, real payment, or final PDF delivery is authorized by this contract or staging results.**
+
+
+## Production state foundation update
+
+Migration 0002 now provides separate, guarded production payment and fulfillment state, claim and settlement evidence tables, explicit founder decisions, documented third-party payer exceptions, one revocable grant per order, and append-only audit events. The separate state service uses row locking and validates the order's existing private bearer token for claim submission. The original `production_orders` table remains constrained to `AWAITING_PAYMENT`.
+
+Third-party payer identity mismatch blocks approval until a founder records a reasoned exception linked to the matching claim and settlement evidence; it is not automatically rejected or approved. The service and migrations remain unmounted, and all routes and real order/payment/delivery settings remain closed pending a separate MFA-backed manual reconciliation and authorization implementation.
