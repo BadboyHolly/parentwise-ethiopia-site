@@ -10,7 +10,7 @@ import hashlib
 import json
 import os
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Mapping, Protocol
 from urllib.parse import urlsplit
 
@@ -80,8 +80,8 @@ class ProductManifest:
 class R2Settings:
     endpoint_url: str
     bucket: str
-    access_key_id: str
-    secret_access_key: str
+    access_key_id: str = field(repr=False)
+    secret_access_key: str = field(repr=False)
     max_object_bytes: int = DEFAULT_MAX_OBJECT_BYTES
 
     @classmethod
@@ -92,10 +92,15 @@ class R2Settings:
         access = env.get("R2_ACCESS_KEY_ID", "")
         secret = env.get("R2_SECRET_ACCESS_KEY", "")
         parsed = urlsplit(endpoint)
-        if (parsed.scheme != "https" or not parsed.hostname or
-            not parsed.hostname.endswith(".r2.cloudflarestorage.com") or
-            parsed.username or parsed.password or parsed.path not in ("", "/") or
-            parsed.query or parsed.fragment):
+        host = (parsed.hostname or "").lower()
+        try:
+            has_custom_port = parsed.port is not None
+        except ValueError:
+            has_custom_port = True
+        if (parsed.scheme != "https" or
+            not re.fullmatch(r"[a-f0-9]{32}\.r2\.cloudflarestorage\.com", host) or
+            has_custom_port or parsed.username or parsed.password or
+            parsed.path not in ("", "/") or parsed.query or parsed.fragment):
             raise RuntimeError("R2_ENDPOINT_URL must be an HTTPS Cloudflare account endpoint")
         if not bucket or not access or not secret:
             raise RuntimeError("R2 bucket and server-side credentials are required")
@@ -192,6 +197,8 @@ class MockObjectStore:
 def fetch_verified_part(store: VersionedObjectStore, *, bucket: str,
                         manifest: ProductManifest, part: int,
                         max_bytes: int = DEFAULT_MAX_OBJECT_BYTES) -> tuple[ProductFile, bytes]:
+    if max_bytes < 1 or max_bytes > 250 * 1024 * 1024:
+        raise StorageUnavailable("Object unavailable")
     item = manifest.get(part)
     try:
         content = store.read_version(bucket=bucket, key=item.key,
