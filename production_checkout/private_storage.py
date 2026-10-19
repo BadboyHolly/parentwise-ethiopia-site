@@ -40,16 +40,19 @@ class ProductManifest:
     """Validated immutable mapping for exactly five pinned product versions."""
 
     def __init__(self, files: list[ProductFile] | tuple[ProductFile, ...]):
-        if len(files) != 5 or {f.part for f in files} != PARTS:
+        if (len(files) != 5 or any(type(f.part) is not int for f in files) or
+                {f.part for f in files} != PARTS):
             raise ManifestError("Manifest must contain exactly parts 1 through 5")
         seen: set[str] = set()
         for item in files:
-            if (not item.key or item.key.startswith("/") or "\\" in item.key or
+            if (not isinstance(item.key, str) or not item.key or
+                item.key.startswith("/") or "\\" in item.key or
                 any(segment in {"", ".", ".."} for segment in item.key.split("/"))):
                 raise ManifestError("Manifest contains an unsafe object key")
-            if not item.version_id or item.version_id.strip() != item.version_id:
+            if (not isinstance(item.version_id, str) or not item.version_id or
+                    item.version_id.lower() == "null" or item.version_id.strip() != item.version_id):
                 raise ManifestError("Manifest requires an exact object version")
-            if not _SHA256.fullmatch(item.sha256):
+            if not isinstance(item.sha256, str) or not _SHA256.fullmatch(item.sha256):
                 raise ManifestError("Manifest requires a lowercase SHA-256 checksum")
             if item.key in seen:
                 raise ManifestError("Each product part must have a distinct object key")
@@ -67,9 +70,16 @@ class ProductManifest:
             data = json.loads(raw)
             if not isinstance(data, list):
                 raise ValueError
+            expected = {"part", "key", "version_id", "sha256"}
+            if any(not isinstance(row, dict) or set(row) != expected or
+                   type(row["part"]) is not int or
+                   not all(isinstance(row[name], str)
+                           for name in ("key", "version_id", "sha256"))
+                   for row in data):
+                raise ValueError
             files = [ProductFile(
-                part=int(row["part"]), key=str(row["key"]),
-                version_id=str(row["version_id"]), sha256=str(row["sha256"]),
+                part=row["part"], key=row["key"],
+                version_id=row["version_id"], sha256=row["sha256"],
             ) for row in data]
             return cls(files)
         except (TypeError, ValueError, KeyError, json.JSONDecodeError) as exc:
@@ -158,7 +168,7 @@ class R2PrivateObjectStore:
                 Bucket=self._settings.bucket, Key=key, VersionId=version_id,
             )
             returned_version = result.get("VersionId")
-            if returned_version is not None and returned_version != version_id:
+            if returned_version != version_id:
                 raise StorageUnavailable("Object unavailable")
             body = result["Body"]
             chunks: list[bytes] = []
