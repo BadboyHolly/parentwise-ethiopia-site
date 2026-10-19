@@ -656,3 +656,171 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid rgb
  #evidence .localization-status{grid-template-columns:1fr;gap:10px}
  #evidence .reference-list a{grid-template-columns:1fr;gap:5px}
 }
+
+
+/* ParentWise Checkout / Step 2 — mobile reading and touch comfort.
+   Scoped to this visual-review preview; deliberately no order logic. */
+.qa-checkout {
+  font-family: "Noto Sans Ethiopic","Nyala","Abyssinica SIL",Inter,system-ui,sans-serif;
+  color: #202928;
+  font-size: 16px;
+  line-height: 1.65;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+.qa-checkout,
+.qa-checkout * { overflow-wrap: break-word; }
+.qa-checkout h1,
+.qa-checkout h2,
+.qa-checkout h3 { letter-spacing: normal; }
+.qa-checkout .qa-header { gap: 16px; margin-bottom: 22px; }
+.qa-checkout .qa-brand { font-size: 19px; line-height: 1.4; }
+.qa-checkout .qa-header a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 15px;
+  line-height: 1.5;
+  text-align: right;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.qa-checkout .qa-panel { padding: 28px; }
+.qa-checkout .qa-panel h1 {
+  font-size: clamp(28px, 4.7vw, 37px);
+  line-height: 1.38;
+  margin: 12px 0 14px;
+  font-weight: 850;
+}
+.qa-checkout .qa-panel h2,
+.qa-checkout .qa-recovery-block h2 {
+  font-size: 20px;
+  line-height: 1.42;
+}
+.qa-checkout .qa-panel p {
+  font-size: 16px;
+  line-height: 1.75;
+  color: #485950;
+}
+.qa-checkout .section-kicker {
+  font-size: 13px;
+  line-height: 1.45;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.qa-checkout .qa-stepbar { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 6px; margin-bottom: 18px; }
+.qa-checkout .qa-stepbar span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 43px;
+  padding: 7px 9px;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.45;
+  letter-spacing: normal;
+  text-align: center;
+}
+.qa-checkout .qa-warning {
+  font-size: 15px;
+  line-height: 1.75;
+  padding: 16px 18px;
+  margin: 16px 0 24px;
+}
+.qa-checkout .qa-warning strong {
+  font-size: 13px;
+  line-height: 1.6;
+  letter-spacing: normal;
+  margin-bottom: 6px;
+}
+.qa-checkout > .qa-warning { margin: 0 0 22px !important; }
+.qa-checkout .qa-details {
+  grid-template-columns: minmax(0,1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 19px 0;
+  margin: 21px 0;
+}
+.qa-checkout .qa-details div { font-size: 15px; line-height: 1.6; }
+.qa-checkout .qa-details strong { font-size: 23px; line-height: 1.4; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.qa-checkout .qa-panel label {
+  font-size: 16px;
+  line-height: 1.5;
+  margin: 23px 0 9px;
+  font-weight: 750;
+}
+.qa-checkout .qa-panel input,
+.qa-checkout .qa-panel select,
+.qa-checkout .qa-panel textarea {
+  min-height: 54px;
+  height: auto;
+  padding: 13px 15px;
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 1.6;
+  border-radius: 13px;
+}
+.qa-checkout .qa-panel input::placeholder { color: #69786f; opacity: 1; }
+.qa-checkout .qa-panel button.primary {
+  min-height: 58px;
+  padding: 13px 18px;
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 1.55;
+  letter-spacing: normal;
+}
+.qa-checkout .qa-panel .smallprint { font-size: 15px; line-height: 1.75; margin-top: 17px; }
+.qa-checkout .checkout-feedback { font-size: 15px; line-height: 1.75; padding: 14px 16px; }
+.qa-checkout .qa-instructions { padding: 18px 20px; margin: 22px 0; }
+.qa-checkout .qa-instructions h2 { font-size: 20px; line-height: 1.4; margin: 7px 0 12px; }
+.qa-checkout .qa-instructions p { font-size: 15px; line-height: 1.75; }
+.qa-checkout .qa-result-grid { grid-template-columns: 132px minmax(0,1fr); gap: 11px 17px; font-size: 15px; line-height: 1.65; }
+.qa-checkout .qa-result-grid dt { font-size: 15px; line-height: 1.5; }
+.qa-checkout .qa-result-grid dd { font-size: 16px; line-height: 1.5; }
+.qa-checkout .qa-result-grid dd code { font-size: 16px; }
+.qa-checkout .qa-actions { gap: 11px; }
+.qa-checkout .qa-actions button,
+.qa-checkout .qa-secondary {
+  min-height: 50px;
+  padding: 12px 15px;
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1.5;
+}
+.qa-checkout .qa-quiet,
+.qa-checkout .qa-private-warning { font-size: 15px !important; line-height: 1.75 !important; }
+.qa-checkout .qa-private-tag { font-size: 13px; line-height: 1.5; letter-spacing: normal; }
+.qa-checkout .qa-privacy-details { font-size: 15px; }
+.qa-checkout .qa-privacy-details summary {
+  padding: 6px 0;
+  font-size: 16px;
+  line-height: 1.6;
+}
+.qa-checkout .qa-panel a { text-decoration-thickness: 1px; text-underline-offset: 3px; }
+@media (max-width: 600px) {
+  .qa-checkout { width: calc(100% - 28px); padding-top: 17px; padding-bottom: 60px; }
+  .qa-checkout .qa-panel { padding: 20px; border-radius: 18px; }
+  .qa-checkout .qa-header { align-items: flex-start; }
+  .qa-checkout .qa-header a { max-width: 48%; }
+  .qa-checkout .qa-stepbar { gap: 5px; }
+  .qa-checkout .qa-stepbar span { font-size: 12px; padding: 7px 5px; min-height: 50px; }
+  .qa-checkout .qa-panel h1 { font-size: clamp(27px, 7.8vw, 33px); line-height: 1.42; }
+  .qa-checkout .qa-details strong { font-size: 20px; }
+  .qa-checkout .qa-warning { padding: 15px; }
+  .qa-checkout .qa-instructions { padding: 16px; }
+  .qa-checkout .qa-result-grid { grid-template-columns: 1fr; gap: 3px; }
+  .qa-checkout .qa-result-grid dt { margin-top: 10px; }
+  .qa-checkout .qa-result-grid dd { margin-bottom: 5px; }
+  .qa-checkout .qa-actions { flex-direction: column; }
+  .qa-checkout .qa-actions button { width: 100%; }
+  .qa-checkout .qa-secondary { max-width: 100%; }
+}
+@media (max-width: 360px) {
+  .qa-checkout { width: calc(100% - 20px); }
+  .qa-checkout .qa-panel { padding: 16px; }
+  .qa-checkout .qa-brand { font-size: 17px; }
+  .qa-checkout .qa-header a { font-size: 14px; }
+  .qa-checkout .qa-details { grid-template-columns: 1fr; gap: 3px; }
+  .qa-checkout .qa-stepbar span { font-size: 12px; }
+}
