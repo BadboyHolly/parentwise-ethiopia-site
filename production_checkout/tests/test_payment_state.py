@@ -135,7 +135,7 @@ def test_approved_match_creates_single_active_grant_and_authorizes_original_toke
              WHERE order_id = (SELECT id FROM production_orders WHERE code=:code)
         """), {"code": code}).one()
         assert tuple(state) == ("PAYMENT_CONFIRMED", "READY_TO_DOWNLOAD")
-        assert tuple(grant) == (grant_id, "ACTIVE")
+        assert (str(grant[0]), grant[1]) == (grant_id, "ACTIVE")
 
 
 def test_claim_token_is_checked_and_reference_is_globally_unique(engine):
