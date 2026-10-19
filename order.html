@@ -196,6 +196,85 @@ label.fieldlabel{margin-bottom:7px;font-weight:700;color:#2d4637}
 }
 @media(max-width:360px){.account-value-row{flex-wrap:wrap}.copy-btn{margin-left:auto}}
 
+
+/* Checkout V4.14 sales-page continuity: forest-green cinematic hero, ivory canvas,
+   soft card overlap, burgundy accents, authentic payment marks and mobile-first steps. */
+.checkout-main{padding:0 0 58px}
+.checkout-hero{position:relative;overflow:hidden;color:#fff;background:
+  radial-gradient(circle at 77% 8%,rgba(122,46,62,.25),transparent 33%),
+  radial-gradient(circle at 15% 40%,rgba(255,255,255,.055),transparent 26%),
+  linear-gradient(145deg,#11342a,#1F4D3A 65%,#1b4736);
+  padding:55px 0 88px}
+.checkout-hero:before{content:"";position:absolute;inset:0;pointer-events:none;background-image:
+  linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:48px 48px;mask-image:linear-gradient(to bottom,rgba(0,0,0,.65),transparent 88%)}
+.checkout-hero:after{content:"";position:absolute;left:-4%;right:-4%;bottom:-51px;height:84px;border-radius:50% 50% 0 0/100% 100% 0 0;background:var(--ivory);pointer-events:none}
+.checkout-hero .shell{position:relative;z-index:1}
+.checkout-hero .heading{margin:0;align-items:center;gap:35px}
+.checkout-hero .eyebrow{color:#dabec5;margin-bottom:11px;font-size:11px;letter-spacing:.09em}
+.checkout-hero .eyebrow-dot{background:#e9bac3}
+.checkout-hero h1{color:#fff;font-size:clamp(35px,4.6vw,51px);line-height:1.22}
+.checkout-hero .headline-accent{color:#e3a2b3}
+.checkout-hero .subtitle{color:#dce8e1;max-width:600px;font-size:17px;line-height:1.78}
+.checkout-hero .pricechip{background:rgba(248,244,236,.075);border-color:rgba(248,244,236,.25);color:#f7f4ee;box-shadow:0 12px 28px rgba(0,0,0,.07);backdrop-filter:blur(10px);padding:22px 27px}
+.checkout-hero .pricechip span,.checkout-hero .pricechip small{color:#dce8e1}
+.checkout-hero .pricechip b{color:#fff;font-size:31px}
+.checkout-body{position:relative;margin-top:-18px}
+.checkout-body .steps{position:relative;z-index:2;background:#fffdf8;border:1px solid #e2ddd2;box-shadow:0 15px 32px rgba(24,63,46,.045)}
+.checkout-body .step.current{background:#eaf1ea;border-color:#c9dbca;box-shadow:none}
+.checkout-body .statusbar{background:#f8f2e9;color:#715d45;border-color:#e1d2b7;border-left-color:#967142}
+.method{min-width:0}
+.methodcontent{position:relative;gap:12px;min-height:95px;padding:14px 13px;overflow:hidden}
+.method-logo-wrap{flex:none;display:grid;place-items:center;width:56px;height:56px;border:1px solid #e6e9e1;border-radius:12px;background:white;overflow:hidden}
+.method-logo{display:block;width:49px;height:49px;object-fit:contain;object-position:center}
+.method-logo-telebirr{padding:5px}
+.method-logo-cbe{padding:2px}
+.method-label{min-width:0;flex:1;line-height:1.5}
+.method-check{flex:none;display:grid;place-items:center;width:22px;height:22px;border-radius:50%;border:1px solid #b5c3b9;background:#fff;color:transparent;font:800 13px/1 Arial,sans-serif}
+.method input:checked + .methodcontent .method-check{background:#1F4D3A;border-color:#1F4D3A;color:#fff}
+.method input:checked + .methodcontent{background:#f1f7f0;border-color:#739c7d;box-shadow:0 0 0 1px #739c7d}
+.account-symbol{background:white;border:1px solid #dfe4de;overflow:hidden;width:54px;height:54px;border-radius:14px}
+.account-symbol.is-cbe{background:white}
+.account-symbol img{display:block;width:48px;height:48px;object-fit:contain;padding:4px}
+.copy-btn{border-color:#b5cbbb;box-shadow:0 1px 0 rgba(24,60,38,.025);font-family:Arial,sans-serif;font-weight:700;letter-spacing:.005em;padding-inline:13px}
+.copy-btn:hover{background:#e8efe7}
+@media(max-width:850px){
+ .checkout-hero{padding:45px 0 75px}
+ .checkout-hero .heading{gap:23px}
+ .checkout-hero .pricechip{padding:17px 20px}
+ .checkout-hero .pricechip b{font-size:26px}
+}
+@media(max-width:550px){
+ .checkout-hero{padding:31px 0 68px}
+ .checkout-hero:after{bottom:-46px;height:69px}
+ .checkout-hero .heading{display:block}
+ .checkout-hero .eyebrow{font-size:10px}
+ .checkout-hero h1{font-size:35px}
+ .checkout-hero .subtitle{font-size:15px}
+ .checkout-hero .pricechip{display:inline-flex;gap:9px;margin-top:21px;background:rgba(255,255,255,.09);padding:12px 16px}
+ .checkout-hero .pricechip b{font-size:21px}
+ .checkout-body{margin-top:-19px}
+ .checkout-body .steps{margin-bottom:16px}
+ .methodcontent{min-height:89px;padding:10px 9px;gap:8px}
+ .method-logo-wrap{width:44px;height:44px;border-radius:10px}
+ .method-logo{width:39px;height:39px}
+ .method-logo-telebirr{padding:4px}
+ .method-logo-cbe{padding:2px}
+ .methodname{font-size:14px}
+ .methodsub{font-size:11px;line-height:1.3}
+ .method-check{position:absolute;right:6px;top:7px;width:17px;height:17px;font-size:10px}
+ .account-symbol{width:49px;height:49px}
+ .account-symbol img{width:44px;height:44px}
+}
+@media(max-width:365px){
+ .methodcontent{padding:9px 6px;gap:6px}
+ .method-logo-wrap{width:40px;height:42px}
+ .method-logo{width:36px;height:38px}
+ .methodname{font-size:12px}
+ .methodsub{font-size:10px}
+ .method-check{right:3px;top:3px;width:15px;height:15px}
+}
+
 </style>
 </head>
 <body>
@@ -208,16 +287,20 @@ label.fieldlabel{margin-bottom:7px;font-weight:700;color:#2d4637}
    </nav>
  </div>
 </header>
-<main class="shell">
+<main class="checkout-main">
+ <section class="checkout-hero" aria-labelledby="checkout-heading">
+  <div class="shell">
  <div class="heading">
   <div class="headingcopy">
     <p class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span> PARENTWISE ETHIOPIA · የግዢ ገጽ</p>
-    <h1>ትዕዛዝዎን ያጠናቅቁ<span class="headline-accent">.</span></h1>
+    <h1 id="checkout-heading">ትዕዛዝዎን ያጠናቅቁ<span class="headline-accent">.</span></h1>
     <p class="subtitle">ልጅዎን በተሻለ ሁኔታ ለመረዳትና ለማሳደግ የሚረዳዎትን የParentWise ሙሉ ፕሮግራም ያግኙ።</p>
-    <div class="microtrust"><span>የአንድ ጊዜ ክፍያ</span><i aria-hidden="true"></i><span>ወርሃዊ ክፍያ የለም</span><i aria-hidden="true"></i><span>5 ዲጂታል መመሪያዎች</span></div>
   </div>
   <div class="pricechip"><span>ጠቅላላ ዋጋ</span><b>1,500 ብር</b><small>አንድ ጊዜ ብቻ</small></div>
  </div>
+  </div>
+ </section>
+ <div class="shell checkout-body">
  <div class="steps" aria-label="የግዢ ደረጃዎች">
     <div class="step current" aria-current="step"><b>1</b><span>የእርስዎ መረጃ</span></div>
     <div class="step"><b>2</b><span>ክፍያ</span></div>
@@ -241,17 +324,17 @@ label.fieldlabel{margin-bottom:7px;font-weight:700;color:#2d4637}
     <div class="paymethods" role="group" aria-label="የክፍያ አማራጮች">
       <label class="method">
         <input type="radio" name="payment" value="telebirr" checked>
-        <span class="methodcontent"><span class="radioicon" aria-hidden="true"></span><span><strong class="methodname">Telebirr</strong><small class="methodsub">የሞባይል ክፍያ</small></span></span>
+        <span class="methodcontent"><span class="method-logo-wrap"><img class="method-logo method-logo-telebirr" src="assets/telebirr-mark.svg" width="50" height="50" alt="Telebirr official mark" loading="eager"></span><span class="method-label"><strong class="methodname">Telebirr</strong><small class="methodsub">የሞባይል ክፍያ</small></span><span class="method-check" aria-hidden="true">✓</span></span>
       </label>
       <label class="method">
         <input type="radio" name="payment" value="bank">
-        <span class="methodcontent"><span class="radioicon" aria-hidden="true"></span><span><strong class="methodname">CBE ባንክ</strong><small class="methodsub">የባንክ ዝውውር</small></span></span>
+        <span class="methodcontent"><span class="method-logo-wrap"><img class="method-logo method-logo-cbe" src="assets/cbe-bank-logo.png" width="50" height="50" alt="Commercial Bank of Ethiopia official logo" loading="eager"></span><span class="method-label"><strong class="methodname">CBE ባንክ</strong><small class="methodsub">የባንክ ዝውውር</small></span><span class="method-check" aria-hidden="true">✓</span></span>
       </label>
     </div>
     <div class="account-details" id="payment-details" aria-label="የተመረጠ የክፍያ መረጃ">
       <div class="account-kicker"><span class="account-kicker-line"></span> የተመረጠው የክፍያ መረጃ</div>
-      <div class="account-top"><span class="account-symbol" id="account-symbol" aria-hidden="true">T</span><div><strong class="account-method" id="account-method">Telebirr</strong><span class="account-method-sub" id="account-method-sub">የሞባይል ክፍያ</span></div></div>
-      <div class="account-meta"><span id="account-number-label">የTelebirr ቁጥር</span><div class="account-value-row"><strong class="account-number" id="account-number">0912910693</strong><button class="copy-btn" type="button" id="copy-number" aria-label="የTelebirr ቁጥር ይቅዱ"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span>ቁጥር ቅዳ</span></button></div></div>
+      <div class="account-top"><span class="account-symbol" id="account-symbol"><img id="account-logo" src="assets/telebirr-mark.svg" width="46" height="46" alt="Telebirr logo"></span><div><strong class="account-method" id="account-method">Telebirr</strong><span class="account-method-sub" id="account-method-sub">የሞባይል ክፍያ</span></div></div>
+      <div class="account-meta"><span id="account-number-label">የTelebirr ቁጥር</span><div class="account-value-row"><strong class="account-number" id="account-number">0912910693</strong><button class="copy-btn" type="button" id="copy-number" aria-label="የTelebirr ቁጥር ይቅዱ"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span id="copy-label">Copy</span></button></div></div>
       <div class="account-beneficiary"><span>የሂሳብ ባለቤት</span><strong id="account-holder">Kidus Elias</strong></div>
       <p class="copy-message" id="copy-message" role="status" aria-live="polite"></p>
     </div>
@@ -284,13 +367,14 @@ label.fieldlabel{margin-bottom:7px;font-weight:700;color:#2d4637}
   </aside>
  </div>
  <p class="footer">© ParentWise Ethiopia</p>
+ </div>
 </main>
 <script>
 (() => {
   'use strict';
   const accounts = Object.freeze({
-    telebirr: Object.freeze({ method: 'Telebirr', sub: 'የሞባይል ክፍያ', label: 'የTelebirr ቁጥር', number: '0912910693', holder: 'Kidus Elias', symbol: 'T' }),
-    bank: Object.freeze({ method: 'CBE ባንክ', sub: 'የባንክ ዝውውር', label: 'የCBE ሂሳብ ቁጥር', number: '10002230019327', holder: 'Kidus Elias', symbol: 'C' })
+    telebirr: Object.freeze({ method: 'Telebirr', sub: 'የሞባይል ክፍያ', label: 'የTelebirr ቁጥር', number: '0912910693', holder: 'Kidus Elias', logo: 'assets/telebirr-mark.svg', logoAlt:'Telebirr logo' }),
+    bank: Object.freeze({ method: 'CBE ባንክ', sub: 'የባንክ ዝውውር', label: 'የCBE ሂሳብ ቁጥር', number: '10002230019327', holder: 'Kidus Elias', logo: 'assets/cbe-bank-logo.png', logoAlt:'Commercial Bank of Ethiopia logo' })
   });
   const $ = id => document.getElementById(id);
   const getSelected = () => document.querySelector('input[name="payment"]:checked')?.value || 'telebirr';
@@ -301,8 +385,10 @@ label.fieldlabel{margin-bottom:7px;font-weight:700;color:#2d4637}
     $('account-number-label').textContent = details.label;
     $('account-number').textContent = details.number;
     $('account-holder').textContent = details.holder;
-    $('account-symbol').textContent = details.symbol;
+    $('account-logo').src = details.logo;
+    $('account-logo').alt = details.logoAlt;
     $('account-symbol').classList.toggle('is-cbe', getSelected() === 'bank');
+    $('copy-label').textContent = 'Copy';
     $('copy-number').setAttribute('aria-label', details.label + ' ይቅዱ');
     $('copy-message').textContent = '';
   }
@@ -312,6 +398,7 @@ label.fieldlabel{margin-bottom:7px;font-weight:700;color:#2d4637}
     try {
       if (!navigator.clipboard?.writeText) throw new Error('clipboard not available');
       await navigator.clipboard.writeText(number);
+      $('copy-label').textContent = 'Copied';
       $('copy-message').textContent = 'ቁጥሩ ተቀድቷል። ትዕዛዝ መቀበል እስኪጀመር ድረስ ክፍያ አይፈጽሙ።';
     } catch {
       $('copy-message').textContent = 'ቁጥሩን በእጅ ይምረጡና ይቅዱ። ትዕዛዝ መቀበል እስኪጀመር ድረስ ክፍያ አይፈጽሙ።';
