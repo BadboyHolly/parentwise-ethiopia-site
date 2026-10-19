@@ -28,3 +28,10 @@ The staging extension is not a production activation path. It must not be import
 Production requires separate, reviewed migrations and private PostgreSQL; high-entropy order-token keys; founder MFA and recovery; rate limiting at a verified proxy boundary; private versioned PDF storage; revocable per-request authorization; privacy and retention rules; monitoring; tested backups/restoration; and founder-approved payment, identity, refund and support policies.
 
 See [the production checkout contract](../checkout-backend/PRODUCTION-CHECKOUT-CONTRACT.md) for the complete journey and release gates.
+
+
+## Private PDF storage preparation
+
+`private_storage.py` defines a version-pinned S3-compatible Cloudflare R2 reader and exact-five-file manifest with SHA-256 checks. It is not constructed by production startup, does not hold credentials or final PDFs, and has no public/presigned URL flow. The isolated staging download endpoint uses generated in-memory QA PDFs through the mock storage implementation; it revalidates the customer token, approval state, and grant for every request. The R2 adapter has mock-only tests and is not connected to the named bucket.
+
+See [R2 secure delivery runbook](R2-SECURE-DELIVERY.md). Production payment/grant state and route wiring, private bucket credentials, final files, backup/restore, and production acceptance remain release blockers.
