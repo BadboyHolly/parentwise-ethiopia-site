@@ -129,7 +129,7 @@ def test_approved_match_creates_single_active_grant_and_authorizes_original_toke
              WHERE order_id = (SELECT id FROM production_orders WHERE code=:code)
         """), {"code": code}).one()
         assert tuple(state) == ("PAYMENT_CONFIRMED", "READY_TO_DOWNLOAD")
-        assert tuple(grant) == (uuid4() if False else grant_id, "ACTIVE")
+        assert tuple(grant) == (grant_id, "ACTIVE")
 
 
 def test_claim_token_is_checked_and_reference_is_globally_unique(engine):
@@ -145,6 +145,17 @@ def test_claim_token_is_checked_and_reference_is_globally_unique(engine):
     claim(engine, code1, token1, "SIM-GLOBAL-DUPLICATE")
     with pytest.raises(DuplicateReference):
         claim(engine, code2, token2, "sim-global-duplicate")
+
+
+def test_settlement_reference_cannot_be_reused_for_a_different_claim(engine):
+    code1, token1 = order(engine)
+    code2, token2 = order(engine)
+    claim1 = claim(engine, code1, token1, "SIM-CLAIM-ONE-" + secrets.token_hex(4))
+    claim2 = claim(engine, code2, token2, "SIM-CLAIM-TWO-" + secrets.token_hex(4))
+    shared_settlement_ref = "SIM-SETTLEMENT-GLOBAL-" + secrets.token_hex(4)
+    evidence(engine, code1, claim1, reference=shared_settlement_ref)
+    with pytest.raises(DuplicateReference):
+        evidence(engine, code2, claim2, reference=shared_settlement_ref)
 
 
 def test_third_party_payment_requires_documented_founder_exception(engine):
@@ -263,11 +274,12 @@ def test_revocation_denies_future_access_and_grant_cannot_be_reactivated(engine)
                               token_secret=TOKEN_SECRET)
     with engine.begin() as connection:
         with pytest.raises(DBAPIError):
-            connection.execute(text("""
-                UPDATE production_download_grants SET grant_status='ACTIVE',
-                  revoked_at=NULL, revoked_by=NULL, revoke_reason=NULL
-                 WHERE order_id=(SELECT id FROM production_orders WHERE code=:code)
-            """), {"code": code})
+            with connection.begin_nested():
+                connection.execute(text("""
+                    UPDATE production_download_grants SET grant_status='ACTIVE',
+                      revoked_at=NULL, revoked_by=NULL, revoke_reason=NULL
+                     WHERE order_id=(SELECT id FROM production_orders WHERE code=:code)
+                """), {"code": code})
 
 
 def test_database_rejects_ready_state_without_decision_and_audit_is_append_only(engine):
@@ -276,27 +288,30 @@ def test_database_rejects_ready_state_without_decision_and_audit_is_append_only(
         order_id = connection.execute(text(
             "SELECT id FROM production_orders WHERE code=:code"), {"code": code}).scalar_one()
         with pytest.raises(DBAPIError):
-            connection.execute(text("""
-                UPDATE production_payment_fulfillment_state
-                   SET payment_status='PAYMENT_CONFIRMED',
-                       fulfillment_status='READY_TO_DOWNLOAD' WHERE order_id=:id
-            """), {"id": order_id})
+            with connection.begin_nested():
+                connection.execute(text("""
+                    UPDATE production_payment_fulfillment_state
+                       SET payment_status='PAYMENT_CONFIRMED',
+                           fulfillment_status='READY_TO_DOWNLOAD' WHERE order_id=:id
+                """), {"id": order_id})
         connection.execute(text("""
             INSERT INTO production_payment_audit_events(order_id,event_type,actor_type)
             VALUES (:id,'QA_TEST_EVENT','SYSTEM')
         """), {"id": order_id})
     with engine.begin() as connection:
         with pytest.raises(DBAPIError):
-            connection.execute(text("""
-                UPDATE production_payment_audit_events SET event_type='ALTERED'
-                 WHERE event_type='QA_TEST_EVENT'
-            """))
+            with connection.begin_nested():
+                connection.execute(text("""
+                    UPDATE production_payment_audit_events SET event_type='ALTERED'
+                     WHERE event_type='QA_TEST_EVENT'
+                """))
 
 
 def test_order_table_remains_awaiting_payment_only(engine):
     code, _ = order(engine)
     with engine.begin() as connection:
         with pytest.raises(DBAPIError):
-            connection.execute(text("""
-                UPDATE production_orders SET status='PAYMENT_CONFIRMED' WHERE code=:code
-            """), {"code": code})
+            with connection.begin_nested():
+                connection.execute(text("""
+                    UPDATE production_orders SET status='PAYMENT_CONFIRMED' WHERE code=:code
+                """), {"code": code})
