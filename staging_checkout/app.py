@@ -4,6 +4,7 @@ import hashlib, os
 from datetime import datetime, timedelta, timezone
 from fastapi import Request
 from fastapi.responses import JSONResponse, HTMLResponse
+from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 from sqlalchemy import case
 from sqlalchemy.dialects.postgresql import insert as pg_insert
@@ -86,6 +87,8 @@ def build_staging_app(*, database_url: str, order_token_secret: str,
     mount_payment_claims(app)
     mount_founder_verification(app)
     mount_downloads(app)
+
+    app.mount("/staging/assets", StaticFiles(directory=str(Path(__file__).parent.parent / "assets")), name="staging-public-brand-assets")
 
     @app.get("/staging/checkout", include_in_schema=False)
     def staging_checkout_ui():
