@@ -69,7 +69,7 @@ jobs:
           with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as env_file:
               for key, value in values.items():
                   print("::add-mask::" + value)
-                  env_file.write(f"{key}={value}\\n")
+                  env_file.write(f"{key}={value}\n")
           PY
       - name: Apply staging test schemas to disposable database
         run: |
