@@ -32,7 +32,7 @@ def evaluate_layout(page, width):
     check(page.get_by_role("heading", name="ትዕዛዝዎን ያጠናቅቁ.").count() == 1, "Customer heading missing")
     check(not page.locator(".microtrust").count(), "Removed promotional strip is present")
     check(page.locator("#copy-label").inner_text() == "Copy", "Copy label must be English")
-    check(page.locator(".checkoutaction").is_disabled(), "Production order button unexpectedly enabled")
+    check(page.locator(".checkoutaction").is_enabled(), "Guided review button should be active")
     check(ACCOUNTS["telebirr"] == page.locator("#account-number").inner_text(), "Telebirr account incorrect")
     check(page.locator("#account-holder").inner_text() == "Kidus Elias", "Account holder incorrect")
     check("ገንዘብ አይላኩ" in page.locator(".statusbar").inner_text(), "No-payment guard missing")
@@ -50,11 +50,11 @@ def evaluate_layout(page, width):
     check(overflow["difference"] <= 1, f"Horizontal overflow at {width}px: {overflow}")
     check(page.locator("#customer-name").is_visible(), "Name field missing")
     check(page.locator("#customer-mobile").is_visible(), "Mobile field missing")
-    print(f"PASS {width}px layout, branding, disabled-order safety", flush=True)
+    print(f"PASS {width}px layout, branding and prelaunch warnings", flush=True)
 
 
 def verify_interactions(page):
-    """Account selection must change numbers/logos without hitting any order API."""
+    """Account selection and review must work without hitting any order API."""
     posted = []
     page.on("request", lambda req: posted.append(req.url) if req.method == "POST" else None)
     page.locator('label.method:has(input[value="bank"])').click()
@@ -66,9 +66,20 @@ def verify_interactions(page):
     check(page.locator("#account-number").inner_text() == ACCOUNTS["telebirr"], "Telebirr number not restored")
     check(page.locator("#account-logo").get_attribute("src") == "assets/telebirr-mark.svg", "Telebirr mark not restored")
     check(page.locator("#copy-label").inner_text() == "Copy", "Copy label after method change incorrect")
-    check(page.locator(".checkoutaction").is_disabled(), "Order gate was bypassed")
+    check(page.locator(".checkoutaction").is_enabled(), "Review action should be enabled")
+    page.locator("#review-order-button").click()
+    check(page.locator("#form-error").is_visible(), "Empty form should show an error")
+    page.locator("#customer-name").fill("ParentWise Buyer")
+    page.locator("#customer-mobile").fill("0912345678")
+    page.locator("#review-order-button").click()
+    check(page.locator("#checkout-review").is_visible(), "Review step was not opened")
+    check(page.locator("#review-method").inner_text() == "Telebirr", "Selected payment method was not carried through")
+    check(page.locator("#review-mobile").inner_text() == "0912345678", "Review phone mismatch")
+    check("ትዕዛዝ አልተመዘገበም" in page.locator(".review-unavailable").inner_text(), "Review does not explain that no order exists")
+    page.locator("#review-back").click()
+    check(page.locator("#order-form").is_visible(), "Edit step did not restore the form")
     check(not posted, f"Unexpected POST requests: {posted}")
-    print("PASS account selection, brand-switching, no POST", flush=True)
+    print("PASS account selection, review, back navigation and no POST", flush=True)
 
 
 def main():
