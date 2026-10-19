@@ -79,7 +79,7 @@ class CreateOrder(BaseModel):
     def normalize_mobile(cls, value: str) -> str:
         if re.fullmatch(r"0[97][0-9]{8}", value, flags=re.ASCII):
             return "+251" + value[1:]
-        if re.fullmatch(r"\\+251[97][0-9]{8}", value, flags=re.ASCII):
+        if re.fullmatch(r"\+251[97][0-9]{8}", value, flags=re.ASCII):
             return value
         raise ValueError("Use a valid Ethiopian mobile: 09…, 07… or +251…")
 
@@ -112,7 +112,7 @@ def summary(order: Order) -> dict:
         "currency": order.currency,
         "payment_method": order.method,
         "status": order.status,
-        "created_at": order.created_at.isoformat(),
+        "created_at": (order.created_at if order.created_at.tzinfo else order.created_at.replace(tzinfo=timezone.utc)).isoformat(),
         "payment_instructions": {**ACCOUNTS[order.method], "amount_etb": PRICE_ETB, "currency": CURRENCY},
     }
 
