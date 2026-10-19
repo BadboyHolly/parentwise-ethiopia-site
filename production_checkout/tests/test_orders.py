@@ -32,9 +32,18 @@ def intake(tmp_path, monkeypatch):
         intake_enabled=True,
     )
     Base.metadata.create_all(app.state.engine)
+    if is_pg:
+        # The separately migrated payment-state tables reference production_orders.
+        # Keep the schema and clear only rows in this disposable database.
+        with app.state.engine.begin() as conn:
+            conn.execute(text("TRUNCATE production_orders CASCADE"))
     with TestClient(app) as client:
         yield (client, app, is_pg, url)
-    Base.metadata.drop_all(app.state.engine)
+    if is_pg:
+        with app.state.engine.begin() as conn:
+            conn.execute(text("TRUNCATE production_orders CASCADE"))
+    else:
+        Base.metadata.drop_all(app.state.engine)
     app.state.engine.dispose()
 
 
