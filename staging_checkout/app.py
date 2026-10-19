@@ -1,6 +1,6 @@
 """Staging-only composition of independent order intake and isolated review/delivery."""
 from __future__ import annotations
-import hashlib, os
+import hashlib, os, secrets
 from datetime import datetime, timedelta, timezone
 from fastapi import Request
 from fastapi.responses import JSONResponse, HTMLResponse
@@ -55,6 +55,24 @@ def build_staging_app(*, database_url: str, order_token_secret: str,
     app = build_app(database_url=database_url, token_secret=order_token_secret,
         allowed_origins=allowed_origins, intake_enabled=True,
         payment_accounts=FICTIONAL_RECIPIENTS)
+    @app.middleware("http")
+    async def staging_checkout_policy(request: Request, call_next):
+        nonce = secrets.token_urlsafe(18) if request.url.path == "/staging/checkout" else ""
+        if nonce:
+            request.state.staging_csp_nonce = nonce
+        response = await call_next(request)
+        if nonce:
+            response.headers["Content-Security-Policy"] = (
+                "default-src 'none'; "
+                f"script-src 'nonce-{nonce}'; "
+                "style-src 'unsafe-inline' https://cdn.jsdelivr.net; "
+                "img-src 'self' data:; "
+                "font-src https://cdn.jsdelivr.net; "
+                "connect-src 'self'; "
+                "form-action 'self'; base-uri 'none'; frame-ancestors 'none'"
+            )
+        return response
+
     app.state.order_sessions = app.state.sessions
     app.state.order_token_secret = order_token_secret
     app.state.founder_username = founder_username
@@ -91,8 +109,12 @@ def build_staging_app(*, database_url: str, order_token_secret: str,
     app.mount("/staging/assets", StaticFiles(directory=str(Path(__file__).parent.parent / "assets")), name="staging-public-brand-assets")
 
     @app.get("/staging/checkout", include_in_schema=False)
-    def staging_checkout_ui():
+    def staging_checkout_ui(request: Request):
         html = (Path(__file__).parent / "ui" / "checkout.html").read_text(encoding="utf-8")
+        if html.count("<script>") != 1:
+            raise RuntimeError("Staging checkout script markup changed; refusing to serve without a CSP nonce")
+        nonce = request.state.staging_csp_nonce
+        html = html.replace("<script>", f'<script nonce="{nonce}">', 1)
         return HTMLResponse(html, headers={"Cache-Control":"no-store", "X-Robots-Tag":"noindex, nofollow"})
 
     @app.get("/staging/healthz")
