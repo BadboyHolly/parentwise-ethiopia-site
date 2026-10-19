@@ -125,6 +125,10 @@ class R2PrivateObjectStore:
         self._client = client
         self._settings = settings
 
+    @property
+    def max_object_bytes(self) -> int:
+        return self._settings.max_object_bytes
+
     @classmethod
     def from_environment(cls, environ: Mapping[str, str] | None = None) -> "R2PrivateObjectStore":
         settings = R2Settings.from_environment(environ)
@@ -153,6 +157,9 @@ class R2PrivateObjectStore:
             result = self._client.get_object(
                 Bucket=self._settings.bucket, Key=key, VersionId=version_id,
             )
+            returned_version = result.get("VersionId")
+            if returned_version is not None and returned_version != version_id:
+                raise StorageUnavailable("Object unavailable")
             body = result["Body"]
             chunks: list[bytes] = []
             total = 0
@@ -196,7 +203,9 @@ class MockObjectStore:
 
 def fetch_verified_part(store: VersionedObjectStore, *, bucket: str,
                         manifest: ProductManifest, part: int,
-                        max_bytes: int = DEFAULT_MAX_OBJECT_BYTES) -> tuple[ProductFile, bytes]:
+                        max_bytes: int | None = None) -> tuple[ProductFile, bytes]:
+    if max_bytes is None:
+        max_bytes = getattr(store, "max_object_bytes", DEFAULT_MAX_OBJECT_BYTES)
     if max_bytes < 1 or max_bytes > 250 * 1024 * 1024:
         raise StorageUnavailable("Object unavailable")
     item = manifest.get(part)
