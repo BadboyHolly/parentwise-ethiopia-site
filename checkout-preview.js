@@ -17,7 +17,7 @@
   const demo = document.createElement('button');
   demo.type = 'button';
   demo.className = 'qa-secondary';
-  demo.style.cssText = 'width:100%;margin-top:12px;min-height:48px;font-size:14px';
+  demo.style.cssText = 'width:100%;margin-top:12px';
   demo.textContent = 'የትዕዛዝ ማረጋገጫ ማሳያን ይመልከቱ';
   form.after(demo);
   demo.addEventListener('click', () => {
