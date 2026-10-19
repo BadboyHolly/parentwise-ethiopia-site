@@ -49,3 +49,12 @@ The production order table remains limited to `AWAITING_PAYMENT` until the produ
 - Complete separate production-equivalent security, abuse, migration, backup and recovery acceptance; then make an explicit launch decision.
 
 **No merge, deployment, live order intake, real payment, or final PDF delivery is authorized by this contract or staging results.**
+ 
+
+## R2 implementation-preparation delta
+
+The development branch adds an explicit private S3-compatible adapter, an exact-five versioned manifest and checksum validation. Staging tests inject an in-memory mock only. No production R2 client is created by staging, the production order API does not yet have verified-payment/grant state, and the named R2 bucket is not contacted.
+
+Before any production delivery route is mounted, each request must validate the private order token, approved payment state, active grant, allowed part number, pinned object version, and integrity checksum. The backend must return bytes with `private, no-store`; no permanent or pre-signed URL is allowed. See `production_checkout/R2-SECURE-DELIVERY.md` for minimum permissions and operator steps.
+
+**Current feature gates stay closed.** No R2 credentials, production PDFs, real provider access, production deployment, or live order intake are included in this change.
