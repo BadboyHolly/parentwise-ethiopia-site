@@ -275,6 +275,27 @@ label.fieldlabel{margin-bottom:7px;font-weight:700;color:#2d4637}
  .method-check{right:3px;top:3px;width:15px;height:15px}
 }
 
+
+/* Readable, working pre-launch review step; no order POST from this page. */
+[hidden]{display:none!important}
+.checkoutaction{display:flex;align-items:center;justify-content:center;gap:9px;cursor:pointer;transition:background .18s,transform .18s,box-shadow .18s}
+.checkoutaction:not(:disabled){background:var(--green);box-shadow:0 9px 24px rgba(31,77,58,.13)}
+.checkoutaction:not(:disabled):hover{background:#153b2c;transform:translateY(-1px)}
+.checkoutaction span{font-family:Arial,sans-serif;font-size:20px;line-height:1}
+.field-error{border:1px solid #e4a9b1;background:#fcf1f2;padding:11px 13px;border-radius:12px;color:#792e3d;font-size:14px;line-height:1.5;margin:12px 0}
+.checkout-review{padding:3px 0}
+.review-top h2{font-size:23px;line-height:1.4;margin:5px 0 5px}
+.review-top p{margin:0;color:#677268;font-size:15px}
+.review-list{margin:22px 0 0;display:grid;gap:0}
+.review-list>div{padding:14px 0;border-bottom:1px solid #e8e4da;display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.review-list dt{font-size:14px;color:#65776b}
+.review-list dd{margin:0;text-align:right;font-size:16px;color:#243b2b;font-weight:800;overflow-wrap:anywhere}
+.review-unavailable{padding:15px 17px;border:1px solid #dac7aa;background:#fcf7ef;border-radius:13px;font-size:14px;line-height:1.7;color:#785b3c;margin:24px 0}
+.review-unavailable strong{display:block}
+.review-back{display:block;background:#f0f4ee;color:var(--green);width:100%;min-height:54px;padding:12px 18px;border:1px solid #bfd3c0;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer}
+.review-back:hover{background:#e3eee3}
+@media(max-width:390px){.review-list>div{gap:9px}.review-list dd{font-size:15px;max-width:60%}}
+
 </style>
 </head>
 <body>
@@ -338,10 +359,21 @@ label.fieldlabel{margin-bottom:7px;font-weight:700;color:#2d4637}
       <div class="account-beneficiary"><span>የሂሳብ ባለቤት</span><strong id="account-holder">Kidus Elias</strong></div>
       <p class="copy-message" id="copy-message" role="status" aria-live="polite"></p>
     </div>
-    <button type="button" class="checkoutaction" disabled aria-describedby="order-unavailable">ትዕዛዝዎን ይቀጥሉ</button>
-    <p class="availability" id="order-unavailable" role="status">ትዕዛዝ ማስገባት ለጊዜው ዝግ ነው። ገንዘብ አይላኩ።</p>
+    <button type="submit" class="checkoutaction" id="review-order-button">ወደ ቀጣይ ይሂዱ <span aria-hidden="true">→</span></button>
+    <p class="availability" id="order-unavailable" role="status">መረጃዎን ማስተካከል ይችላሉ። ገንዘብ አይላኩ።</p>
     <p class="privacy">ክፍያ ከመፈጸምዎ በፊት ትዕዛዝዎ በስርዓቱ ውስጥ መመዝገብ አለበት። አሁን የትዕዛዝ መቀበያው ስላልተከፈተ የክፍያ ማስረጃም አይላኩ።</p>
    </form>
+   <section class="checkout-review" id="checkout-review" tabindex="-1" aria-labelledby="review-title" hidden>
+     <div class="review-top"><span class="panelnum">02 / 02</span><h2 class="paneltitle" id="review-title">የትዕዛዝዎን መረጃ ያረጋግጡ</h2><p>ከመቀጠልዎ በፊት ያስገቡትን መረጃ ይመልከቱ።</p></div>
+     <dl class="review-list">
+       <div><dt>ሙሉ ስም</dt><dd id="review-name"></dd></div>
+       <div><dt>ስልክ ቁጥር</dt><dd id="review-mobile"></dd></div>
+       <div><dt>የክፍያ ዘዴ</dt><dd id="review-method"></dd></div>
+       <div><dt>ጠቅላላ</dt><dd>1,500 ብር</dd></div>
+     </dl>
+     <p class="review-unavailable" role="status"><strong>ትዕዛዝ መቀበል ገና አልተጀመረም።</strong> ይህ ደረጃ ያስገቡትን መረጃ ለመመልከት ብቻ ነው። ትዕዛዝ አልተመዘገበም፤ ክፍያ አይፈጽሙ።</p>
+     <button type="button" class="review-back" id="review-back">← መረጃዎን ያስተካክሉ</button>
+   </section>
   </section>
   <aside aria-label="የትዕዛዝ ማጠቃለያ">
     <div class="panel summary">
@@ -410,7 +442,59 @@ label.fieldlabel{margin-bottom:7px;font-weight:700;color:#2d4637}
       selection.addRange(range);
     }
   });
-  document.getElementById('order-form').addEventListener('submit', event => event.preventDefault());
+  const form = $('order-form');
+  const review = $('checkout-review');
+  const steps = Array.from(document.querySelectorAll('.steps .step'));
+  const nameInput = $('customer-name');
+  const phoneInput = $('customer-mobile');
+  const error = document.createElement('p');
+  error.className = 'field-error';
+  error.id = 'form-error';
+  error.hidden = true;
+  error.setAttribute('role', 'alert');
+  form.insertBefore(error, $('review-order-button'));
+  function fail(message, target) {
+    error.hidden = false;
+    error.textContent = message;
+    target.setAttribute('aria-invalid','true');
+    target.focus();
+  }
+  function step(index) {
+    for (let i = 0; i < steps.length; i++) {
+      steps[i].classList.toggle('current', i === index);
+      if (i === index) steps[i].setAttribute('aria-current', 'step');
+      else steps[i].removeAttribute('aria-current');
+    }
+  }
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    error.hidden = true;
+    nameInput.removeAttribute('aria-invalid');
+    phoneInput.removeAttribute('aria-invalid');
+    const name = nameInput.value.trim();
+    const mobile = phoneInput.value.trim();
+    if (name.length < 2 || name.length > 100 || !Array.from(name).some(char => /[^0-9\\s]/.test(char))) {
+      fail('ትክክለኛ ሙሉ ስም ያስገቡ።', nameInput);
+      return;
+    }
+    if (!/^(0[97][0-9]{8}|\\+251[97][0-9]{8})$/.test(mobile)) {
+      fail('ትክክለኛ የኢትዮጵያ ስልክ ቁጥር ያስገቡ።', phoneInput);
+      return;
+    }
+    $('review-name').textContent = name;
+    $('review-mobile').textContent = mobile;
+    $('review-method').textContent = accounts[getSelected()].method;
+    form.hidden = true;
+    review.hidden = false;
+    step(1);
+    review.focus();
+  });
+  $('review-back').addEventListener('click', () => {
+    review.hidden = true;
+    form.hidden = false;
+    step(0);
+    nameInput.focus();
+  });
   updateMethod();
 })();
 </script>
