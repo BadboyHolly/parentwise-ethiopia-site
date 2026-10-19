@@ -1,10 +1,11 @@
 """Unit tests for private versioned storage using in-memory mock objects only."""
 import hashlib
+import io
 import json
 import unittest
 
 from production_checkout.private_storage import (
-    ManifestError, MockObjectStore, ProductFile, ProductManifest, R2Settings,
+    ManifestError, MockObjectStore, ProductFile, ProductManifest, R2PrivateObjectStore, R2Settings,
     StorageUnavailable, fetch_verified_part,
 )
 
@@ -52,6 +53,40 @@ class PrivateStorageTests(unittest.TestCase):
         with self.assertRaises(KeyError):
             self.manifest.get(6)
 
+    def test_r2_adapter_requests_exact_version_and_closes_stream(self):
+        blobs = self.blobs
+        class Client:
+            def __init__(inner):
+                inner.kwargs = None
+                inner.body = io.BytesIO(blobs[1])
+            def get_object(inner, **kwargs):
+                inner.kwargs = kwargs
+                return {"Body": inner.body}
+        client = Client()
+        settings = R2Settings("https://" + "a" * 32 + ".r2.cloudflarestorage.com",
+                              self.bucket, "synthetic-access", "synthetic-secret")
+        adapter = R2PrivateObjectStore(client, settings)
+        value = adapter.read_version(bucket=self.bucket, key="k1",
+                                     version_id="v1", max_bytes=1024)
+        self.assertEqual(value, blobs[1])
+        self.assertEqual(client.kwargs, {
+            "Bucket": self.bucket, "Key": "k1", "VersionId": "v1",
+        })
+        self.assertTrue(client.body.closed)
+        self.assertNotIn("synthetic-secret", repr(settings))
+
+    def test_r2_adapter_suppresses_provider_error_details(self):
+        class Client:
+            def get_object(self, **kwargs):
+                raise RuntimeError("secret provider detail")
+        settings = R2Settings("https://" + "a" * 32 + ".r2.cloudflarestorage.com",
+                              self.bucket, "synthetic-access", "synthetic-secret")
+        adapter = R2PrivateObjectStore(Client(), settings)
+        with self.assertRaises(StorageUnavailable) as caught:
+            adapter.read_version(bucket=self.bucket, key="private/path",
+                                 version_id="v1", max_bytes=1024)
+        self.assertEqual(str(caught.exception), "Object unavailable")
+
     def test_missing_object_checksum_mismatch_and_size_limit_fail_closed(self):
         missing = MockObjectStore({})
         with self.assertRaises(StorageUnavailable):
@@ -67,7 +102,7 @@ class PrivateStorageTests(unittest.TestCase):
 
     def test_r2_configuration_requires_https_account_endpoint_and_credentials(self):
         base = {
-            "R2_ENDPOINT_URL": "https://account.r2.cloudflarestorage.com",
+            "R2_ENDPOINT_URL": "https://" + "a" * 32 + ".r2.cloudflarestorage.com",
             "R2_BUCKET": "private-files",
             "R2_ACCESS_KEY_ID": "synthetic-access",
             "R2_SECRET_ACCESS_KEY": "synthetic-secret",
@@ -75,7 +110,8 @@ class PrivateStorageTests(unittest.TestCase):
         self.assertEqual(R2Settings.from_environment(base).bucket, "private-files")
         for endpoint in ("http://account.r2.cloudflarestorage.com",
                          "https://user:pass@account.r2.cloudflarestorage.com",
-                         "https://example.com"):
+                         "https://example.com",
+                         "https://" + "a" * 32 + ".r2.cloudflarestorage.com:444"):
             invalid = dict(base, R2_ENDPOINT_URL=endpoint)
             with self.assertRaises(RuntimeError):
                 R2Settings.from_environment(invalid)
