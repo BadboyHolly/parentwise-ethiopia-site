@@ -32,6 +32,8 @@ def founder_login(page):
 
 
 def enter_review(page, method="telebirr"):
+    page_errors = []
+    page.on("pageerror", lambda exc: page_errors.append(str(exc)))
     page.goto(BASE + "/staging/checkout", wait_until="domcontentloaded")
     assert page.locator("html").get_attribute("lang") == "am"
     page.locator("#customer-name").fill("QA Parent Example")
@@ -39,7 +41,17 @@ def enter_review(page, method="telebirr"):
     page.locator('input[name="payment"][value="' + method + '"]').check()
     assert page.locator("#payment-details").is_hidden()
     page.locator("#review-order-button").click()
-    page.locator("#checkout-review").wait_for(state="visible")
+    review = page.locator("#checkout-review")
+    try:
+        review.wait_for(state="visible", timeout=3_000)
+    except Exception as exc:
+        raise AssertionError(
+            "Review step did not open; "
+            f"form_error={page.locator('#form-error').text_content()!r}, "
+            f"name={page.locator('#customer-name').input_value()!r}, "
+            f"mobile={page.locator('#customer-mobile').input_value()!r}, "
+            f"page_errors={page_errors!r}"
+        ) from exc
     assert page.locator("#review-method").inner_text() == ("Telebirr" if method == "telebirr" else "CBE ባንክ")
 
 
