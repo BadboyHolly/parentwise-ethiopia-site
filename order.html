@@ -5,126 +5,171 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <meta name="referrer" content="no-referrer">
-<title>የሙከራ ትዕዛዝ — ParentWise Ethiopia</title>
-<link rel="stylesheet" href="styles.css">
+<title>ትዕዛዝዎን ያስገቡ | ParentWise Ethiopia</title>
 <style>
-body{background:#F8F4EC}
-.qa-checkout{width:min(100% - 28px,650px);margin:auto;padding:26px 0 78px}
-.qa-header{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:23px}
-.qa-header a{font-size:13px;color:#1F4D3A;font-weight:750}
-.qa-brand{font-size:18px;font-weight:900;color:#1F4D3A}
-.qa-panel{background:#FFFDF8;border:1px solid #E4DCCF;border-radius:22px;padding:26px;box-shadow:0 16px 45px rgba(31,77,58,.07)}
-.qa-panel h1{font-size:clamp(28px,5vw,38px);line-height:1.1;margin:7px 0 11px}
-.qa-panel p{font-size:14px;line-height:1.55;color:#5A6760}
-.qa-warning{background:#F8EAE7;border:1px solid #DDBBB9;color:#642E3A;border-radius:13px;padding:13px 15px;margin:14px 0 22px;font-size:13px;line-height:1.55}
-.qa-warning strong{display:block;letter-spacing:.09em;font-size:10px;margin-bottom:3px}
-.qa-details{display:grid;grid-template-columns:1fr auto;gap:9px;border-block:1px solid #E4DCCF;padding:16px 0;margin:17px 0}
-.qa-details div{font-size:13px;color:#5A6760}.qa-details strong{font-size:18px;color:#1F4D3A}
-.qa-panel label{display:block;font-weight:800;font-size:12px;margin:17px 0 7px}
-.qa-panel input,.qa-panel select{font:inherit;font-size:16px;width:100%;border:1px solid #CCC6BA;background:white;color:#202928;border-radius:12px;height:51px;padding:0 12px}
-.qa-panel input:focus-visible,.qa-panel textarea:focus-visible,.qa-panel select:focus-visible,.qa-panel button:focus-visible,.qa-panel a:focus-visible,.qa-panel summary:focus-visible{outline:3px solid #7A2E3E;outline-offset:2px}
-.qa-panel button.primary{width:100%;border:0;border-radius:13px;background:#1F4D3A;color:white;min-height:52px;font:800 14px Inter,system-ui;cursor:pointer;margin-top:19px}
-.qa-panel button.primary:disabled,.qa-panel button:disabled{opacity:.65;cursor:wait}
-.qa-panel .smallprint{font-size:12px;color:#6D746F;margin:12px 0 0}
-.qa-stepbar{display:flex;gap:6px;font-size:11px;font-weight:800;margin:0 0 15px;flex-wrap:wrap;color:#6D746F}
-.qa-stepbar span{padding:5px 8px;border-radius:99px;border:1px solid #DDD3C6}
-.qa-stepbar .active{background:#1F4D3A;color:white;border-color:#1F4D3A}
-.qa-instructions{background:#F6F0E7;border-radius:13px;padding:15px 17px;margin:18px 0}
-.qa-instructions h2{font-size:17px;margin:0 0 9px}.qa-instructions p{margin:7px 0}
-.qa-instructions a{color:#1F4D3A;text-decoration:underline;font-weight:800}
-.qa-muted{color:#7A2E3E;font-weight:800;font-size:12px}
-.checkout-feedback{padding:13px 15px;margin:13px 0;border:1px solid #DCD6CA;border-radius:12px;color:#1F4D3A;background:#EFF3ED;font-size:13px;line-height:1.55;overflow-wrap:anywhere}
-.checkout-feedback[data-kind=error]{color:#792E3D;border-color:#E0B7C0;background:#F9EEF0}
-.checkout-feedback[data-kind=success]{color:#1F4D3A;border-color:#B8D2BD;background:#EAF3EA}
-.qa-result-grid{display:grid;grid-template-columns:128px minmax(0,1fr);gap:10px 14px;font-size:13px;line-height:1.5}
-.qa-result-grid dt{color:#616F68}.qa-result-grid dd{margin:0;color:#202928;font-weight:800;overflow-wrap:anywhere}
-.qa-result-grid dd code{font-size:15px;color:#1F4D3A;font-weight:800;user-select:all;word-break:break-all}
-.qa-actions{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
-.qa-actions button,.qa-secondary{display:inline-flex;align-items:center;justify-content:center;min-height:42px;border-radius:10px;border:1px solid #ABC3B2;background:#FFFDF8;color:#1F4D3A;cursor:pointer;font-size:12px;line-height:1.35;font-weight:800;padding:9px 13px;text-decoration:none}
-.qa-actions button:hover,.qa-secondary:hover{background:#F0F3ED}
-.qa-quiet{font-size:12px!important;line-height:1.6!important}
-.qa-recovery-block{margin-top:20px;padding-top:18px;border-top:1px solid #E4DCCF}
-.qa-recovery-block h2{font-size:17px;line-height:1.3;margin:0 0 7px}
-.qa-recovery-block label{margin-top:12px}
-.qa-recovery-block .qa-secondary{margin:12px 0 0}
-.qa-private-warning{font-size:12px!important;color:#7A2E3E!important;font-weight:650}
-.qa-privacy-details{margin-top:20px;font-size:13px;line-height:1.55}
-.qa-privacy-details summary{cursor:pointer;font-weight:800;color:#1F4D3A}
-.qa-private-tag{font-size:11px;font-weight:800;letter-spacing:.07em;color:#7A2E3E}
-[hidden]{display:none!important}
-@media(max-width:480px){.qa-panel{padding:18px}.qa-checkout{padding-top:16px}.qa-result-grid{grid-template-columns:1fr;gap:3px}.qa-result-grid dd{margin-bottom:10px}.qa-actions{flex-direction:column}.qa-actions button{width:100%}}
+/* SurGraphics files here are identical (Git blob SHA) to the three supplied originals.
+   Typeface by Surafel Fitsum; permission for personal and commercial use accompanies source. */
+@font-face{font-family:"SurGraphics";src:url("https://cdn.jsdelivr.net/gh/geezorg/legally-free-geez-fonts@main/FreeToRedistribute/SurGraphics/SurGraphics%20Regular.ttf") format("truetype");font-style:normal;font-weight:400 600;font-display:swap}
+@font-face{font-family:"SurGraphics";src:url("https://cdn.jsdelivr.net/gh/geezorg/legally-free-geez-fonts@main/FreeToRedistribute/SurGraphics/SurGraphics%20Bold.ttf") format("truetype");font-style:normal;font-weight:700;font-display:swap}
+@font-face{font-family:"SurGraphics";src:url("https://cdn.jsdelivr.net/gh/geezorg/legally-free-geez-fonts@main/FreeToRedistribute/SurGraphics/SurGraphics%20ExtraBold.ttf") format("truetype");font-style:normal;font-weight:800 900;font-display:swap}
+:root{--green:#1F4D3A;--deep:#143a2c;--paper:#fffefa;--ivory:#f8f4ec;--wine:#7A2E3E;--ink:#24352c;--muted:#58675f;--line:#e4ddd1;--pale:#f2ede4}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;background:var(--ivory);color:var(--ink);font-family:"SurGraphics","Noto Sans Ethiopic",sans-serif;font-weight:400;line-height:1.68;-webkit-font-smoothing:antialiased}
+button,input,a{font:inherit}
+button,input{color:inherit}
+a{color:inherit}
+a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid #b77987;outline-offset:3px}
+.shell{width:min(100% - 44px,1080px);margin:auto}
+.topbar{background:var(--deep);color:#f8f4ec}
+.nav{min-height:78px;display:flex;align-items:center;gap:24px;justify-content:space-between}
+.brand{font-size:23px;line-height:1.2;font-weight:800;letter-spacing:-.02em;text-decoration:none;white-space:nowrap}
+.navlinks{display:flex;align-items:center;gap:22px}
+.navlinks a{color:#f6f6f1;font-size:14px;text-decoration:none;border-bottom:1px solid transparent;padding:9px 0}
+.navlinks a:hover{border-color:#fff}
+main{padding:53px 0 90px}
+.heading{display:flex;align-items:start;justify-content:space-between;gap:24px;margin:0 0 32px}
+.eyebrow{font-size:13px;letter-spacing:.04em;font-weight:700;color:var(--wine);margin:0 0 8px}
+h1{font-size:clamp(31px,4.5vw,43px);line-height:1.38;font-weight:800;margin:0 0 9px;letter-spacing:0}
+.subtitle{font-size:17px;color:var(--muted);line-height:1.8;margin:0;max-width:650px}
+.pricechip{border:1px solid #d3c6b4;background:#fdfbf6;border-radius:16px;min-width:176px;padding:16px 19px;text-align:center;white-space:nowrap}
+.pricechip span{display:block;font-size:12px;color:var(--muted)}
+.pricechip b{font-size:25px;font-weight:800;line-height:1.45;color:var(--green)}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-bottom:26px}
+.step{display:flex;align-items:center;gap:10px;padding:13px 16px;border:1px solid var(--line);border-radius:14px;color:#718177;font-size:15px;background:#f9f6f0}
+.step b{font-family:Arial,sans-serif;display:grid;place-items:center;width:30px;height:30px;flex:none;border-radius:50%;border:1px solid #d1d8d1;font-size:12px;color:#506057}
+.step.current{color:var(--deep);border-color:#a6bdb0;background:#eaf1ea;font-weight:700}
+.step.current b{background:var(--green);color:white;border-color:var(--green)}
+.layout{display:grid;grid-template-columns:minmax(0,1.38fr) minmax(290px,.9fr);gap:25px;align-items:start}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:24px;box-shadow:0 12px 35px rgba(23,54,41,.055)}
+.formpanel{padding:32px}
+.paneltitle{font-size:22px;line-height:1.4;font-weight:800;margin:0 0 7px}
+.panelintro{font-size:15px;line-height:1.8;color:var(--muted);margin:0 0 24px}
+.field{margin-bottom:21px}
+label.fieldlabel{display:block;font-size:16px;font-weight:700;line-height:1.6;margin:0 0 9px}
+.field input[type=text],.field input[type=tel]{width:100%;min-height:56px;background:#fff;color:#24352c;font-size:16px;padding:13px 15px;border:1px solid #c9d0c5;border-radius:12px;transition:border-color .2s}
+.field input::placeholder{color:#748078;opacity:1}
+.field input:focus{border-color:var(--green);outline:3px solid rgba(31,77,58,.14)}
+.fieldhint{font-size:13px;color:var(--muted);margin:7px 0 0;line-height:1.6}
+.paymentheading{margin:27px 0 10px;padding-top:25px;border-top:1px solid var(--line);font-size:19px;font-weight:800}
+.paymethods{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.method{display:block;position:relative;cursor:pointer}
+.method input{position:absolute;opacity:0;width:1px;height:1px}
+.methodcontent{min-height:83px;display:flex;align-items:center;gap:10px;padding:13px;border:1.5px solid #d8d6cc;background:#fff;border-radius:14px;transition:background .15s,border-color .15s}
+.radioicon{width:19px;height:19px;flex:none;border:2px solid #a6b4a9;border-radius:50%;display:grid;place-items:center}
+.radioicon:after{content:"";height:9px;width:9px;background:var(--green);border-radius:50%;transform:scale(0)}
+.methodname{font-family:"SurGraphics","Noto Sans Ethiopic",sans-serif;font-weight:700;font-size:15px}
+.methodsub{display:block;color:var(--muted);font-weight:400;font-size:12px;line-height:1.4;margin-top:2px}
+.method input:checked + .methodcontent{background:#edf5ed;border-color:var(--green);box-shadow:0 0 0 1px var(--green)}
+.method input:checked + .methodcontent .radioicon{border-color:var(--green)}
+.method input:checked + .methodcontent .radioicon:after{transform:scale(1)}
+.method input:focus-visible + .methodcontent{outline:3px solid #b77987;outline-offset:3px}
+.checkoutaction{width:100%;border:0;border-radius:13px;min-height:58px;margin:26px 0 9px;background:var(--green);color:white;padding:13px 17px;font-size:16px;line-height:1.5;font-weight:800;text-align:center}
+.checkoutaction:disabled{opacity:.60;cursor:not-allowed}
+.availability{font-size:14px;line-height:1.75;text-align:center;color:var(--wine);margin:4px 0 0}
+.privacy{font-size:13px;color:#65746c;line-height:1.7;margin:16px 0 0}
+.summary{padding:27px;position:sticky;top:24px}
+.summaryhead{font-size:20px;line-height:1.4;font-weight:800;margin:0 0 22px}
+.product{display:flex;align-items:center;gap:14px;padding-bottom:22px;border-bottom:1px solid var(--line)}
+.producticon{display:grid;place-items:center;flex:none;width:66px;height:72px;background:linear-gradient(152deg,#214e3c,#13382b);border-radius:12px;color:white;box-shadow:5px 6px 0 #d8d5c7;font-family:Arial,sans-serif;font-size:24px;font-weight:700}
+.productname{font-size:16px;line-height:1.45;font-weight:800}
+.productdesc{font-size:13px;line-height:1.6;color:var(--muted);margin:4px 0 0}
+.sumrow{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:20px 0;border-bottom:1px solid var(--line);font-size:15px}
+.sumrow.total{font-size:18px;font-weight:800;color:var(--deep)}
+.sumrow.total strong{font-size:23px;font-weight:800;white-space:nowrap}
+.included{padding:22px 0 0}
+.included h3{font-size:17px;margin:0 0 11px;font-weight:800}
+.included ul{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+.included li{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.55;color:#4c5d52}
+.included li:before{content:"✓";font-family:Arial,sans-serif;color:var(--green);font-weight:bold;flex:none}
+.help{margin-top:18px;padding:19px;border-radius:15px;background:#eff2eb;border:1px solid #dfe7d8}
+.help strong{display:block;font-size:16px;margin-bottom:6px;font-weight:800}
+.help p{margin:0 0 8px;font-size:14px;color:var(--muted);line-height:1.65}
+.help a{font-size:14px;color:var(--green);font-weight:800;text-decoration:underline;text-underline-offset:3px}
+.footer{font-size:12px;color:#6a776d;text-align:center;margin:34px 0 0}
+@media(max-width:850px){.layout{grid-template-columns:1fr}.summary{position:static}.heading{margin-bottom:24px}.shell{width:min(100% - 32px,710px)}}
+@media(max-width:550px){.shell{width:calc(100% - 26px)}.nav{min-height:67px}.brand{font-size:19px}.navlinks{gap:10px}.navlinks a{font-size:12px;line-height:1.4}.navlinks a:first-child{display:none}main{padding:29px 0 55px}.heading{display:block}.heading h1{font-size:31px;line-height:1.38}.subtitle{font-size:15px}.pricechip{margin-top:18px;min-width:0;text-align:left;padding:12px 15px;display:inline-flex;align-items:center;gap:9px}.pricechip span{font-size:12px}.pricechip b{font-size:21px}.steps{gap:5px;margin-bottom:15px}.step{display:flex;flex-direction:column;justify-content:center;padding:9px 4px;gap:5px;min-height:75px;font-size:12px;line-height:1.3;text-align:center}.step b{width:25px;height:25px;font-size:11px}.layout{gap:15px}.panel{border-radius:18px}.formpanel,.summary{padding:20px}.paneltitle{font-size:21px}.paymethods{gap:8px}.methodcontent{padding:10px;gap:7px;min-height:85px}.methodname{font-size:14px}.methodsub{font-size:11px}.producticon{width:59px;height:66px}.summaryhead{margin-bottom:14px}.footer{margin-top:26px}}
+@media(max-width:340px){.paymethods{grid-template-columns:1fr}.methodcontent{min-height:62px}.navlinks a{font-size:11px}}
 </style>
-<script src="checkout-preview.js" defer></script>
 </head>
 <body>
-<main class="qa-checkout">
-  <div class="qa-warning" role="note" style="margin-top:0"><strong>LIVE DESIGN PREVIEW · ለንድፍ ግምገማ ብቻ</strong>ይህ በተለየ ድረ-ገጽ የተዘጋጀ የንድፍ ማሳያ ነው። ትዕዛዝ አይፈጠርም፣ ክፍያ አይቀበልም፣ ወደ ስርዓቱም መረጃ አይላክም።</div>
-  <header class="qa-header"><span class="qa-brand">ParentWise Ethiopia</span><a href="https://parentwise-ethiopia-qa.onrender.com/">← ወደ መሸጫ ገጹ ይመለሱ</a></header>
-  <section class="qa-panel" aria-labelledby="checkout-title">
-    <div class="qa-stepbar" aria-label="የሙከራ ትዕዛዝ ደረጃዎች"><span class="active">1 · መረጃ</span><span>2 · የሙከራ ትዕዛዝ</span><span>3 · ማረጋገጫ (አልተነቃም)</span></div>
-    <div class="section-kicker">የሙከራ ትዕዛዝ ገጽ</div>
-    <h1 id="checkout-title">የParentWise ትዕዛዝዎን ያስገቡ</h1>
-    <p>ከ2 እስከ 12 ዓመት ዕድሜ ያሉ ልጆችን ለሚያሳድጉ ወላጆች የተዘጋጀ መመሪያ</p>
-    <div class="qa-warning" role="note"><strong>የሙከራ ሁኔታ — እውነተኛ ክፍያ አይቀበልም</strong>ይህ ቅጽ ትዕዛዝን በሙከራ መረጃ ቋት ውስጥ ለማስቀመጥ ብቻ ነው። ገንዘብ ወይም የክፍያ ማስረጃ አይላኩ። እውነተኛ የግል መረጃ ሳይሆን ለሙከራ የተፈጠረ መረጃ ብቻ ያስገቡ። Telebirr እና የባንክ አማራጮች ማሳያዎች ብቻ ናቸው።</div>
-    <p><b>የሚያገኙት፦</b> START HERE · Core Guide · Action Workbook · Quick Help &amp; Parent Scripts · 30-Day Practice Program.</p>
-    <div class="qa-details"><div>የአንድ ጊዜ ዋጋ · ወርሃዊ ክፍያ የለም</div><strong>1,500 ETB</strong></div>
-    <p class="checkout-feedback" id="checkout-feedback" role="status" aria-live="polite" hidden></p>
-    <p id="session-storage-notice" class="qa-warning" hidden>የአሳሽዎ ጊዜያዊ ማስቀመጫ አይሠራም። ገጹን እንደገና ከከፈቱ ትዕዛዙ ላይመለስ ይችላል። የሙከራ ትዕዛዝ ከፈጠሩ በኋላ የግል መመለሻ ኮዱን ይቅዱና በደህና ያስቀምጡ።</p>
-    <form id="qaOrder" novalidate>
-      <label for="name">ሙሉ ስም (የሙከራ መረጃ ብቻ)</label><input id="name" name="name" maxlength="100" minlength="2" autocomplete="off" placeholder="የሙከራ ስም ያስገቡ" required>
-      <label for="mobile">ስልክ ቁጥር (ለሙከራ ብቻ)</label><input id="mobile" name="mobile" inputmode="tel" autocomplete="off" placeholder="09XXXXXXXX" maxlength="13" required>
-      <label for="payment-method">የክፍያ ዘዴ ይምረጡ (ለሙከራ ብቻ)</label>
-      <select id="payment-method" name="payment-method" required><option value="">የሙከራ ዘዴ ይምረጡ</option><option value="telebirr">Telebirr · ለሙከራ ብቻ</option><option value="bank">የባንክ ዝውውር · ለሙከራ ብቻ</option></select>
-      <button class="primary" id="order-submit" type="submit">የሙከራ ትዕዛዝ ይፍጠሩ — ክፍያ አይጠየቅም</button>
-      <p class="smallprint">ይህ የሙከራ ትዕዛዝን በደህንነቱ በተጠበቀ የሙከራ ስርዓት ያስቀምጣል። የሙከራ ስም፣ ስልክ ቁጥር፣ የተመረጠው ዘዴና የትዕዛዝ መረጃ ብቻ ይላካሉ። እውነተኛ የግል መረጃ አያስገቡ።</p>
-    </form>
-    <section id="testPreview" hidden aria-live="polite" tabindex="-1" aria-label="የተቀመጠው የሙከራ ትዕዛዝ">
-      <div class="qa-instructions">
-        <div class="qa-private-tag">የሙከራ ትዕዛዝ ተቀምጧል · ክፍያ አልተቀበለም</div>
-        <h2>የሙከራ ትዕዛዝ መለያዎ</h2>
-        <dl class="qa-result-grid">
-          <dt>የትዕዛዝ መለያ</dt><dd><code id="order-id"></code></dd>
-          <dt>ምርት</dt><dd id="order-product"></dd>
-          <dt>ዋጋ</dt><dd id="order-price">1,500 ETB</dd>
-          <dt>የተመረጠ ዘዴ</dt><dd id="order-method"></dd>
-          <dt>ሁኔታ</dt><dd id="order-status">ትዕዛዝ ተቀምጧል · ክፍያ የለም</dd>
-          <dt id="qa-delivery-label" hidden>የሙከራ ማድረስ</dt><dd id="qa-delivery-status" hidden>አይመለከተውም</dd>
-          <dt id="qa-delivery-version-label" hidden>የሙከራ ጥቅል ስሪት</dt><dd id="qa-delivery-version" hidden></dd>
-        </dl>
-        <p id="qa-fulfillment-notice" class="qa-quiet" hidden></p>
+<header class="topbar">
+ <div class="shell nav">
+   <a class="brand" href="https://parentwise-ethiopia-qa.onrender.com/" aria-label="ParentWise Ethiopia ዋና ገጽ">ParentWise Ethiopia</a>
+   <nav class="navlinks" aria-label="መመሪያ እና ድጋፍ">
+     <a href="https://parentwise-ethiopia-qa.onrender.com/">← ወደ ዋናው ገጽ</a>
+     <a href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">እገዛ ይፈልጋሉ?</a>
+   </nav>
+ </div>
+</header>
+<main class="shell">
+ <div class="heading">
+  <div>
+    <p class="eyebrow">የParentWise የግዢ ገጽ</p>
+    <h1>ትዕዛዝዎን ያስገቡ</h1>
+    <p class="subtitle">ለ2–12 ዓመት ልጆች ወላጆች የተዘጋጀውን የParentWise ሙሉ ፕሮግራም ያግኙ።</p>
+  </div>
+  <div class="pricechip"><span>የአንድ ጊዜ ዋጋ</span><b>1,500 ብር</b></div>
+ </div>
+ <div class="steps" aria-label="የግዢ ደረጃዎች">
+    <div class="step current" aria-current="step"><b>1</b><span>የእርስዎ መረጃ</span></div>
+    <div class="step"><b>2</b><span>ክፍያ</span></div>
+    <div class="step"><b>3</b><span>ማረጋገጫ</span></div>
+ </div>
+ <div class="layout">
+  <section class="panel formpanel" aria-labelledby="detail-title">
+   <h2 class="paneltitle" id="detail-title">የእርስዎ መረጃ</h2>
+   <p class="panelintro">ትዕዛዝዎን ለማጠናቀቅ የሚያስፈልገውን መረጃ ያስገቡ።</p>
+   <form id="order-form" autocomplete="off" novalidate>
+    <div class="field">
+      <label class="fieldlabel" for="customer-name">ሙሉ ስም</label>
+      <input id="customer-name" name="name" type="text" maxlength="100" placeholder="ሙሉ ስምዎን ያስገቡ" autocomplete="off">
+    </div>
+    <div class="field">
+      <label class="fieldlabel" for="customer-mobile">ስልክ ቁጥር</label>
+      <input id="customer-mobile" name="mobile" type="tel" inputmode="tel" maxlength="13" placeholder="09XXXXXXXX" autocomplete="off">
+      <p class="fieldhint">የኢትዮጵያ ስልክ ቁጥር</p>
+    </div>
+    <h3 class="paymentheading">የክፍያ ዘዴ ይምረጡ</h3>
+    <div class="paymethods" role="group" aria-label="የክፍያ አማራጮች">
+      <label class="method">
+        <input type="radio" name="payment" value="telebirr" checked>
+        <span class="methodcontent"><span class="radioicon" aria-hidden="true"></span><span><strong class="methodname">Telebirr</strong><small class="methodsub">የሞባይል ክፍያ</small></span></span>
+      </label>
+      <label class="method">
+        <input type="radio" name="payment" value="bank">
+        <span class="methodcontent"><span class="radioicon" aria-hidden="true"></span><span><strong class="methodname">CBE ባንክ</strong><small class="methodsub">የባንክ ዝውውር</small></span></span>
+      </label>
+    </div>
+    <button type="button" class="checkoutaction" disabled aria-describedby="order-unavailable">ትዕዛዝዎን ይቀጥሉ</button>
+    <p class="availability" id="order-unavailable" role="status">የትዕዛዝ መቀበያው ለጊዜው አልተከፈተም። ገንዘብ አይላኩ።</p>
+    <p class="privacy">የክፍያ መረጃ ወይም የክፍያ ማስረጃ አይላኩ። ጥያቄ ካለዎት ከታች የተጠቀሰውን ኦፊሴላዊ የድጋፍ መንገድ ይጠቀሙ።</p>
+   </form>
+  </section>
+  <aside aria-label="የትዕዛዝ ማጠቃለያ">
+    <div class="panel summary">
+      <h2 class="summaryhead">የትዕዛዝ ማጠቃለያ</h2>
+      <div class="product">
+        <div class="producticon" aria-hidden="true">P</div>
+        <div><div class="productname">ParentWise Ethiopia</div><p class="productdesc">የልጆች ባህሪ እና አስተዳደግ የወላጆች መመሪያ</p></div>
       </div>
-      <div class="qa-warning"><strong>ገንዘብ አይላኩ</strong>የክፍያ ተቀባይ አልተዘጋጀም። የትዕዛዝ መለያው የክፍያ ማስረጃ አይደለም። በሙከራ ሁኔታ ክፍያ አይረጋገጥም፤ ዲጂታል ምርትም አይላክም።</div>
-      <div class="qa-actions"><button type="button" id="copy-order-id">የትዕዛዝ መለያን ይቅዱ</button><button type="button" id="copy-recovery">የግል መመለሻ ኮዱን ይቅዱ</button></div>
-      <div id="recovery-copy-fallback" hidden>
-        <label for="private-recovery-code">የግል መመለሻ ኮድ — በእጅ ይምረጡና ይቅዱ</label>
-        <textarea id="private-recovery-code" readonly autocomplete="off" spellcheck="false" rows="3" style="width:100%;max-width:100%;font:inherit;overflow-wrap:anywhere" aria-describedby="private-recovery-warning"></textarea>
-        <button type="button" class="qa-secondary" id="hide-private-recovery">የግል ኮዱን ይደብቁ</button>
-      </div>
-      <p class="qa-private-warning" id="private-recovery-warning">የግል መመለሻ ኮድ ሚስጥራዊ የመዳረሻ ቁልፍ አለው። በደህና ቦታ ያስቀምጡት። በይፋዊ ውይይት፣ በስክሪንሾት ወይም በድረ-ገጽ አድራሻ አያጋሩት።</p>
-      <p class="qa-quiet">ይህን ገጽ እንደገና ሲከፍቱ የተቀመጠው ትዕዛዝ በራሱ ይመለሳል። አሳሽዎን ከዘጉ በኋላ ወይም በሌላ መሣሪያ ለመመለስ የግል መመለሻ ኮዱን አስቀድመው ያስቀምጡ። ያለ ኮዱ መመለሱ አይረጋገጥም።</p>
-      <button type="button" class="qa-secondary" id="start-new-order">አዲስ የሙከራ ትዕዛዝ ይጀምሩ</button>
-    </section>
-    <div class="qa-recovery-block">
-      <h2>ከዚህ በፊት የሙከራ ትዕዛዝ ፈጥረዋል?</h2>
-      <p class="qa-quiet">የትዕዛዝ መለያውን እና <b>ሚስጥራዊ የመዳረሻ ቁልፉን</b> በመጠቀም መመለስ ይችላሉ። የትዕዛዝ መለያ ብቻውን አይበቃም።</p>
-      <button type="button" class="qa-secondary" id="recover-toggle" aria-controls="recovery-panel">የቀድሞ ትዕዛዝዎን ይመልሱ</button>
-      <div id="recovery-panel" hidden>
-        <form id="recover-form" novalidate>
-          <label for="recover-order-id">የሙከራ ትዕዛዝ መለያ</label><input id="recover-order-id" autocomplete="off" autocapitalize="characters" placeholder="PW-QA-…" required>
-          <label for="recover-token">ሚስጥራዊ የመዳረሻ ቁልፍ</label><input id="recover-token" autocomplete="off" autocorrect="off" spellcheck="false" type="password" placeholder="43 ቁምፊ ያለው የግል ቁልፍ" required>
-          <button class="primary" type="submit" id="recover-submit">የሙከራ ትዕዛዝዎን ይመልሱ</button>
-        </form>
-        <p class="qa-private-warning">ሚስጥራዊ ቁልፍዎ በHTTPS ደህንነት ግንኙነት ብቻ ይላካል። በድረ-ገጽ አድራሻ (URL) ውስጥ አይለጥፉት።</p>
+      <div class="sumrow"><span>የፕሮግራሙ ዋጋ</span><strong>1,500 ብር</strong></div>
+      <div class="sumrow total"><span>ጠቅላላ</span><strong>1,500 ብር</strong></div>
+      <div class="included">
+        <h3>በፕሮግራሙ ውስጥ የሚካተቱት</h3>
+        <ul>
+          <li>Start Here — የመጀመሪያ መመሪያ</li>
+          <li>Core Guide — ዋና መመሪያ</li>
+          <li>Action Workbook — የተግባር ማስታወሻ</li>
+          <li>Quick Help &amp; Parent Scripts</li>
+          <li>30-Day Practice Program</li>
+        </ul>
       </div>
     </div>
-    <details class="qa-instructions qa-privacy-details">
-      <summary>የግል መረጃ፣ የሙከራ ገደቦች፣ የገንዘብ ተመላሽና ማድረስ</summary>
-      <p><b>የግል መረጃ፦</b> ለሙከራ የተፈጠረ መረጃ ብቻ ይጠቀሙ። የሙከራ ስም፣ ስልክ ቁጥርና የትዕዛዝ ሁኔታ በተለየ የQA PostgreSQL መረጃ ቋት ይቀመጣሉ። ይህ ትር የመሞከሪያ ቁልፉንና ከትዕዛዝ ፍጠር በኋላ ሚስጥራዊ ቁልፉን ለገጽ ማደስ በsessionStorage ያስቀምጣል፤ በlocalStorage ወይም በURL አይቀመጡም። አሳሹን ሲዘጉ እነዚህ መረጃዎች ሊጠፉ ይችላሉ።</p>
-      <p><b>የሙከራ ገደብ፦</b> በዚህ የጋራ የሙከራ አገልግሎት በ10 ደቂቃ ውስጥ ከሁሉም ሞካሪዎች በድምሩ እስከ 12 አዳዲስ ትዕዛዞች ብቻ ይፈቀዳሉ። የቀድሞ ትዕዛዝን እንደገና መሞከር ወይም መፈለግ አዲስ ትዕዛዝ አይፈጥርም። ነፃ አስተናጋጁ ለመጀመር ጊዜ ሊወስድ ይችላል።</p>
-      <p><b>ክፍያ፦</b> የክፍያ ተቀባይ ቁጥሮች፣ የዝውውር መመሪያዎች፣ የተከፈለ ሁኔታ ለውጥ ወይም የክፍያ አገልግሎት አልተነቁም። <a href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">ኦፊሴላዊ ድጋፍ፦ t.me/ParentWiseEthiopia</a>. በሙከራ ጊዜ የክፍያ ማስረጃ አይላኩ።</p>
-      <p><b>ገንዘብ ተመላሽና ማድረስ፦</b> በመሸጫ ገጹ የ30 ቀን ዋስትና ተጠቅሷል፣ ግን የአሠራር ዝርዝሮቹ እስካሁን ይፋዊ የመጨረሻ ማረጋገጫ ይጠብቃሉ። በQA ውስጥ ገንዘብ ተመላሽም ሆነ የተከፈለበት PDF ማድረስ አልተነቃም።</p>
-    </details>
-  </section>
+    <div class="help"><strong>እገዛ ይፈልጋሉ?</strong><p>ስለ ፕሮግራሙ ወይም ስለ ግዢ ሂደቱ ጥያቄ ካለዎት ያነጋግሩን።</p><a href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">በTelegram ያግኙን →</a></div>
+  </aside>
+ </div>
+ <p class="footer">© ParentWise Ethiopia</p>
 </main>
 </body>
 </html>
