@@ -90,6 +90,112 @@ label.fieldlabel{display:block;font-size:16px;font-weight:700;line-height:1.6;ma
 @media(max-width:850px){.layout{grid-template-columns:1fr}.summary{position:static}.heading{margin-bottom:24px}.shell{width:min(100% - 32px,710px)}}
 @media(max-width:550px){.shell{width:calc(100% - 26px)}.nav{min-height:67px}.brand img{width:130px}.navlinks{gap:10px}.navlinks a{font-size:12px;line-height:1.4}.navlinks a:first-child{display:none}main{padding:29px 0 55px}.heading{display:block}.heading h1{font-size:31px;line-height:1.38}.subtitle{font-size:15px}.pricechip{margin-top:18px;min-width:0;text-align:left;padding:12px 15px;display:inline-flex;align-items:center;gap:9px}.pricechip span{font-size:12px}.pricechip b{font-size:21px}.steps{gap:5px;margin-bottom:15px}.step{display:flex;flex-direction:column;justify-content:center;padding:9px 4px;gap:5px;min-height:75px;font-size:12px;line-height:1.3;text-align:center}.step b{width:25px;height:25px;font-size:11px}.layout{gap:15px}.panel{border-radius:18px}.formpanel,.summary{padding:20px}.paneltitle{font-size:21px}.paymethods{gap:8px}.methodcontent{padding:10px;gap:7px;min-height:85px}.methodname{font-size:14px}.methodsub{font-size:11px}.producticon{width:59px;height:66px}.summaryhead{margin-bottom:14px}.footer{margin-top:26px}}
 @media(max-width:340px){.paymethods{grid-template-columns:1fr}.methodcontent{min-height:62px}.navlinks a{font-size:11px}}
+
+/* Final customer-facing presentation refinement */
+body{background:radial-gradient(1100px 520px at 85% -110px,rgba(207,193,166,.21),transparent 65%),var(--ivory)}
+main.shell{max-width:1120px}
+.heading{padding:3px 0 5px;margin-bottom:30px}
+.eyebrow{display:flex;align-items:center;gap:9px;font-size:12px;letter-spacing:.075em;font-weight:800}
+.eyebrow-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#8f4656}
+.headingcopy{max-width:690px}
+h1{font-size:clamp(34px,4.4vw,47px);line-height:1.25;margin:0 0 14px}
+.headline-accent{color:var(--wine)}
+.subtitle{color:#5d695e;font-size:16px;max-width:610px;line-height:1.8}
+.microtrust{display:flex;align-items:center;gap:11px;flex-wrap:wrap;margin-top:17px;font-size:13px;color:#4b6757;font-weight:700}
+.microtrust i{height:4px;width:4px;border-radius:50%;background:#aebcb0}
+.pricechip{background:linear-gradient(160deg,#fcfbf7,#f2ebdb);border:1px solid #dbd1be;box-shadow:0 10px 24px rgba(75,62,40,.045);padding:17px 23px}
+.pricechip b{display:block;line-height:1.25;font-size:29px}
+.pricechip small{display:block;color:#6b756c;font-size:12px;margin-top:2px}
+.steps{gap:0;margin-bottom:22px;padding:7px;background:#f1ede4;border:1px solid #e6dfd2;border-radius:16px}
+.step{border:0;background:transparent;border-radius:11px;min-height:52px;justify-content:center;font-size:14px}
+.step.current{box-shadow:0 3px 12px rgba(31,77,58,.07);border:1px solid #d1dfd3;background:white}
+.step.current b{background:var(--deep)}
+.statusbar{display:flex;align-items:flex-start;gap:12px;margin-bottom:24px;padding:15px 18px;background:#fcf6ed;border:1px solid #d9c4a0;border-left:3px solid #9b7548;border-radius:13px;color:#77583c}
+.statusbar p{margin:0;font-size:14px;line-height:1.75}
+.statusbar strong{font-weight:800}
+.status-icon{flex:none;width:25px;height:25px;display:grid;place-items:center;border-radius:50%;background:#e5d4b8;font-family:Arial,sans-serif;font-size:15px;font-weight:700;margin-top:2px;color:#6e512c}
+.layout{gap:27px}
+.panel{border-color:#e7ded1;box-shadow:0 15px 45px rgba(32,59,41,.055)}
+.formpanel{padding:30px 34px 29px}
+.panelheading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:24px}
+.panelheading-text{min-width:0}
+.panelnum{display:block;margin-bottom:5px;color:#996074;font:800 12px/1.5 Arial,sans-serif;letter-spacing:.11em}
+.paneltitle{font-size:23px;line-height:1.3;margin-bottom:4px}
+.panelintro{margin:0;font-size:13px;color:#69756b}
+.heading-symbol{display:grid;place-items:center;flex:none;width:44px;height:44px;color:#a37f88;background:#f6f0ed;border-radius:14px;font-size:20px}
+.field{margin-bottom:19px}
+label.fieldlabel{margin-bottom:7px;font-weight:700;color:#2d4637}
+.field input[type=text],.field input[type=tel]{background:#fffefc;border-color:#d3d2c8;border-radius:12px}
+.paysection-head{margin:27px 0 15px;padding-top:22px;border-top:1px solid #e9e2d8}
+.paysection-head .panelnum{margin-bottom:2px}
+.paymentheading{font-size:20px;margin:0 0 4px;padding:0;border:0}
+.paysection-head p{font-size:13px;margin:0;color:#677469;line-height:1.6}
+.paymethods{gap:11px}
+.methodcontent{border-radius:13px;border-color:#d9ddd4;min-height:87px}
+.method input:checked + .methodcontent{background:#f0f6ef;border-color:var(--green)}
+.account-details{margin-top:17px;background:linear-gradient(155deg,#f9f9f3,#f3f3e9);border:1px solid #d7e1d4;border-radius:17px;padding:22px 23px;transition:background .2s}
+.account-kicker{font-size:12px;letter-spacing:.035em;color:#728074;font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:15px}
+.account-kicker-line{width:17px;height:2px;background:#9cbaa4;border-radius:4px}
+.account-top{display:flex;align-items:center;gap:12px;padding-bottom:17px;border-bottom:1px solid #dbe3d8}
+.account-symbol{width:42px;height:42px;flex:none;display:grid;place-items:center;color:white;background:var(--green);border-radius:13px;font:800 21px/1 Arial,sans-serif}
+.account-symbol.is-cbe{background:#7a3444}
+.account-method{display:block;color:var(--deep);font-size:18px;line-height:1.35}
+.account-method-sub{display:block;font-size:12px;color:#6f7d71;margin-top:1px}
+.account-meta{padding-top:18px}
+.account-meta>span,.account-beneficiary>span{display:block;color:#69796d;font-size:13px;line-height:1.55}
+.account-value-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:5px}
+.account-number{font:800 clamp(19px,2.35vw,25px)/1.4 Arial,sans-serif;color:#1f4d3a;letter-spacing:.02em;overflow-wrap:anywhere}
+.copy-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;background:white;color:var(--green);border:1px solid #afc7b3;min-height:43px;padding:9px 11px;border-radius:10px;white-space:nowrap;cursor:pointer;font-size:13px;font-weight:800}
+.copy-btn:hover{background:#e8f0e8}
+.copy-btn:active{transform:translateY(1px)}
+.copy-btn svg{flex:none}
+.account-beneficiary{display:flex;align-items:baseline;justify-content:space-between;gap:11px;border-top:1px solid #dbe3d8;margin-top:16px;padding-top:14px}
+.account-beneficiary strong{color:#244a36;font-size:15px;letter-spacing:.01em;font-weight:800}
+.copy-message{min-height:1px;color:#236343;font-size:12px;margin:6px 0 0;font-weight:700;line-height:1.6}
+.checkoutaction{margin-top:23px}
+.checkoutaction:disabled{opacity:1;background:#abb9ac;color:#fff;box-shadow:none}
+.availability{color:#88515e}
+.privacy{margin-top:15px}
+.summary{padding:27px 28px}
+.summary-topline{display:flex;align-items:center;justify-content:space-between;gap:9px;font:800 11px/1.3 Arial,sans-serif;letter-spacing:.13em;color:#818b81;margin-bottom:10px}
+.summary-pill{font-size:10px;padding:6px 9px;background:#edf3eb;border-radius:20px;color:#2e6042}
+.summaryhead{font-size:22px;margin-bottom:21px}
+.sumrow.total{padding-bottom:7px;border:0}
+.included{padding-top:19px}
+.included ul{gap:10px}
+.help{display:flex;align-items:flex-start;gap:12px;background:#eff3ed;border-color:#dfe8dc;padding:19px 20px;margin-top:16px}
+.help-icon{flex:none;display:grid;place-items:center;width:34px;height:34px;font:800 17px Arial,sans-serif;color:#396449;border:1px solid #b7d1bb;border-radius:50%}
+.help strong{margin:0 0 3px}
+.help p{margin-bottom:10px}
+@media(max-width:850px){.heading{margin-bottom:21px}.pricechip{flex:none}}
+@media(max-width:550px){
+  .heading{margin:0 0 19px}
+  h1{font-size:33px;line-height:1.29}
+  .subtitle{font-size:15px}
+  .microtrust{font-size:12px;gap:7px;margin-top:13px}
+  .pricechip{display:flex;align-items:center;gap:9px;padding:10px 14px;margin-top:18px}
+  .pricechip b{font-size:21px}
+  .pricechip small{display:none}
+  .steps{padding:5px;gap:4px;margin-bottom:13px}
+  .step{padding:7px 4px;min-height:65px;font-size:12px}
+  .statusbar{padding:12px 13px;gap:10px;margin-bottom:14px}
+  .statusbar p{font-size:13px}
+  .status-icon{width:22px;height:22px}
+  .formpanel,.summary{padding:20px}
+  .panelheading{margin-bottom:21px}
+  .heading-symbol{width:39px;height:39px}
+  .paysection-head{margin-top:26px}
+  .methodcontent{min-height:85px}
+  .account-details{padding:18px 15px;border-radius:14px}
+  .account-value-row{gap:7px}
+  .account-number{font-size:clamp(18px,5vw,23px);letter-spacing:0}
+  .copy-btn{font-size:12px;padding:9px 9px;gap:5px;min-height:43px}
+  .copy-btn svg{width:15px;height:15px}
+  .account-beneficiary{align-items:flex-start;flex-direction:column;gap:1px}
+  .help{padding:17px}
+}
+@media(max-width:360px){.account-value-row{flex-wrap:wrap}.copy-btn{margin-left:auto}}
+
 </style>
 </head>
 <body>
@@ -104,22 +210,23 @@ label.fieldlabel{display:block;font-size:16px;font-weight:700;line-height:1.6;ma
 </header>
 <main class="shell">
  <div class="heading">
-  <div>
-    <p class="eyebrow">የParentWise የግዢ ገጽ</p>
-    <h1>ትዕዛዝዎን ያስገቡ</h1>
-    <p class="subtitle">ለ2–12 ዓመት ልጆች ወላጆች የተዘጋጀውን የParentWise ሙሉ ፕሮግራም ያግኙ።</p>
+  <div class="headingcopy">
+    <p class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span> PARENTWISE ETHIOPIA · የግዢ ገጽ</p>
+    <h1>ትዕዛዝዎን ያጠናቅቁ<span class="headline-accent">.</span></h1>
+    <p class="subtitle">ልጅዎን በተሻለ ሁኔታ ለመረዳትና ለማሳደግ የሚረዳዎትን የParentWise ሙሉ ፕሮግራም ያግኙ።</p>
+    <div class="microtrust"><span>የአንድ ጊዜ ክፍያ</span><i aria-hidden="true"></i><span>ወርሃዊ ክፍያ የለም</span><i aria-hidden="true"></i><span>5 ዲጂታል መመሪያዎች</span></div>
   </div>
-  <div class="pricechip"><span>የአንድ ጊዜ ዋጋ</span><b>1,500 ብር</b></div>
+  <div class="pricechip"><span>ጠቅላላ ዋጋ</span><b>1,500 ብር</b><small>አንድ ጊዜ ብቻ</small></div>
  </div>
  <div class="steps" aria-label="የግዢ ደረጃዎች">
     <div class="step current" aria-current="step"><b>1</b><span>የእርስዎ መረጃ</span></div>
     <div class="step"><b>2</b><span>ክፍያ</span></div>
     <div class="step"><b>3</b><span>ማረጋገጫ</span></div>
  </div>
+ <div class="statusbar" role="note"><span class="status-icon" aria-hidden="true">!</span><p><strong>የትዕዛዝ መቀበል ገና አልተጀመረም።</strong> የክፍያ መረጃዎቹ ለማወቅ ብቻ ቀርበዋል። የትዕዛዝ ማረጋገጫ እስኪከፈት ድረስ ገንዘብ አይላኩ።</p></div>
  <div class="layout">
   <section class="panel formpanel" aria-labelledby="detail-title">
-   <h2 class="paneltitle" id="detail-title">የእርስዎ መረጃ</h2>
-   <p class="panelintro">ትዕዛዝዎን ለማጠናቀቅ የሚያስፈልገውን መረጃ ያስገቡ።</p>
+   <div class="panelheading"><div class="panelheading-text"><span class="panelnum">01 / 02</span><h2 class="paneltitle" id="detail-title">የእርስዎ መረጃ</h2><p class="panelintro">የትዕዛዝ መቀበል ሲጀመር የሚያስፈልገው መረጃ</p></div><span class="heading-symbol" aria-hidden="true">✦</span></div>
    <form id="order-form" autocomplete="off" novalidate>
     <div class="field">
       <label class="fieldlabel" for="customer-name">ሙሉ ስም</label>
@@ -130,7 +237,7 @@ label.fieldlabel{display:block;font-size:16px;font-weight:700;line-height:1.6;ma
       <input id="customer-mobile" name="mobile" type="tel" inputmode="tel" maxlength="13" placeholder="09XXXXXXXX" autocomplete="off">
       <p class="fieldhint">የኢትዮጵያ ስልክ ቁጥር</p>
     </div>
-    <h3 class="paymentheading">የክፍያ ዘዴ ይምረጡ</h3>
+    <div class="paysection-head"><span class="panelnum">02 / 02</span><h3 class="paymentheading">የክፍያ ዘዴ ይምረጡ</h3><p>በሚመርጡት የክፍያ ዘዴ መሠረት የሂሳብ መረጃው ይታያል።</p></div>
     <div class="paymethods" role="group" aria-label="የክፍያ አማራጮች">
       <label class="method">
         <input type="radio" name="payment" value="telebirr" checked>
@@ -141,14 +248,21 @@ label.fieldlabel{display:block;font-size:16px;font-weight:700;line-height:1.6;ma
         <span class="methodcontent"><span class="radioicon" aria-hidden="true"></span><span><strong class="methodname">CBE ባንክ</strong><small class="methodsub">የባንክ ዝውውር</small></span></span>
       </label>
     </div>
+    <div class="account-details" id="payment-details" aria-label="የተመረጠ የክፍያ መረጃ">
+      <div class="account-kicker"><span class="account-kicker-line"></span> የተመረጠው የክፍያ መረጃ</div>
+      <div class="account-top"><span class="account-symbol" id="account-symbol" aria-hidden="true">T</span><div><strong class="account-method" id="account-method">Telebirr</strong><span class="account-method-sub" id="account-method-sub">የሞባይል ክፍያ</span></div></div>
+      <div class="account-meta"><span id="account-number-label">የTelebirr ቁጥር</span><div class="account-value-row"><strong class="account-number" id="account-number">0912910693</strong><button class="copy-btn" type="button" id="copy-number" aria-label="የTelebirr ቁጥር ይቅዱ"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span>ቁጥር ቅዳ</span></button></div></div>
+      <div class="account-beneficiary"><span>የሂሳብ ባለቤት</span><strong id="account-holder">Kidus Elias</strong></div>
+      <p class="copy-message" id="copy-message" role="status" aria-live="polite"></p>
+    </div>
     <button type="button" class="checkoutaction" disabled aria-describedby="order-unavailable">ትዕዛዝዎን ይቀጥሉ</button>
-    <p class="availability" id="order-unavailable" role="status">የትዕዛዝ መቀበያው ለጊዜው አልተከፈተም። ገንዘብ አይላኩ።</p>
-    <p class="privacy">የክፍያ መረጃ ወይም የክፍያ ማስረጃ አይላኩ። ጥያቄ ካለዎት ከታች የተጠቀሰውን ኦፊሴላዊ የድጋፍ መንገድ ይጠቀሙ።</p>
+    <p class="availability" id="order-unavailable" role="status">ትዕዛዝ ማስገባት ለጊዜው ዝግ ነው። ገንዘብ አይላኩ።</p>
+    <p class="privacy">ክፍያ ከመፈጸምዎ በፊት ትዕዛዝዎ በስርዓቱ ውስጥ መመዝገብ አለበት። አሁን የትዕዛዝ መቀበያው ስላልተከፈተ የክፍያ ማስረጃም አይላኩ።</p>
    </form>
   </section>
   <aside aria-label="የትዕዛዝ ማጠቃለያ">
     <div class="panel summary">
-      <h2 class="summaryhead">የትዕዛዝ ማጠቃለያ</h2>
+      <div class="summary-topline"><span>YOUR ORDER</span><span class="summary-pill">DIGITAL</span></div><h2 class="summaryhead">የትዕዛዝ ማጠቃለያ</h2>
       <div class="product">
         <div class="producticon"><img src="assets/product-workbook.webp" alt="የParentWise የተግባር መመሪያ" width="66" height="72"></div>
         <div><div class="productname">ParentWise Ethiopia</div><p class="productdesc">የልጆች ባህሪ እና አስተዳደግ የወላጆች መመሪያ</p></div>
@@ -158,18 +272,60 @@ label.fieldlabel{display:block;font-size:16px;font-weight:700;line-height:1.6;ma
       <div class="included">
         <h3>በፕሮግራሙ ውስጥ የሚካተቱት</h3>
         <ul>
-          <li>Start Here — የመጀመሪያ መመሪያ</li>
-          <li>Core Guide — ዋና መመሪያ</li>
-          <li>Action Workbook — የተግባር ማስታወሻ</li>
-          <li>Quick Help &amp; Parent Scripts</li>
-          <li>30-Day Practice Program</li>
+          <li>ከዚህ ይጀምሩ</li>
+          <li>የልጅ ባህሪ መመሪያ</li>
+          <li>የተግባር ደብተር</li>
+          <li>ፈጣን እርዳታ</li>
+          <li>የ30 ቀን ልምምድ</li>
         </ul>
       </div>
     </div>
-    <div class="help"><strong>እገዛ ይፈልጋሉ?</strong><p>ስለ ፕሮግራሙ ወይም ስለ ግዢ ሂደቱ ጥያቄ ካለዎት ያነጋግሩን።</p><a href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">በTelegram ያግኙን →</a></div>
+    <div class="help"><div class="help-icon" aria-hidden="true">?</div><div><strong>ጥያቄ አለዎት?</strong><p>ስለ ፕሮግራሙ፣ የክፍያ መረጃው ወይም የግዢ ሂደቱ እገዛ ያግኙ።</p><a href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">ኦፊሴላዊ የTelegram ድጋፍ →</a></div></div>
   </aside>
  </div>
  <p class="footer">© ParentWise Ethiopia</p>
 </main>
+<script>
+(() => {
+  'use strict';
+  const accounts = Object.freeze({
+    telebirr: Object.freeze({ method: 'Telebirr', sub: 'የሞባይል ክፍያ', label: 'የTelebirr ቁጥር', number: '0912910693', holder: 'Kidus Elias', symbol: 'T' }),
+    bank: Object.freeze({ method: 'CBE ባንክ', sub: 'የባንክ ዝውውር', label: 'የCBE ሂሳብ ቁጥር', number: '10002230019327', holder: 'Kidus Elias', symbol: 'C' })
+  });
+  const $ = id => document.getElementById(id);
+  const getSelected = () => document.querySelector('input[name="payment"]:checked')?.value || 'telebirr';
+  function updateMethod() {
+    const details = accounts[getSelected()];
+    $('account-method').textContent = details.method;
+    $('account-method-sub').textContent = details.sub;
+    $('account-number-label').textContent = details.label;
+    $('account-number').textContent = details.number;
+    $('account-holder').textContent = details.holder;
+    $('account-symbol').textContent = details.symbol;
+    $('account-symbol').classList.toggle('is-cbe', getSelected() === 'bank');
+    $('copy-number').setAttribute('aria-label', details.label + ' ይቅዱ');
+    $('copy-message').textContent = '';
+  }
+  for (const input of document.querySelectorAll('input[name="payment"]')) input.addEventListener('change', updateMethod);
+  $('copy-number').addEventListener('click', async () => {
+    const number = accounts[getSelected()].number;
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error('clipboard not available');
+      await navigator.clipboard.writeText(number);
+      $('copy-message').textContent = 'ቁጥሩ ተቀድቷል። ትዕዛዝ መቀበል እስኪጀመር ድረስ ክፍያ አይፈጽሙ።';
+    } catch {
+      $('copy-message').textContent = 'ቁጥሩን በእጅ ይምረጡና ይቅዱ። ትዕዛዝ መቀበል እስኪጀመር ድረስ ክፍያ አይፈጽሙ።';
+      const selected = $('account-number');
+      const range = document.createRange();
+      range.selectNodeContents(selected);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+  });
+  document.getElementById('order-form').addEventListener('submit', event => event.preventDefault());
+  updateMethod();
+})();
+</script>
 </body>
 </html>
