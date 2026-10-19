@@ -128,6 +128,32 @@ class PrivateStorageTests(unittest.TestCase):
             publisher.publish(release_id=self.release, part=1, content=b"changed",
                               expected_sha256=hashlib.sha256(self.blobs[1]).hexdigest())
 
+    def test_mock_backup_restore_revalidates_all_five_checksums(self):
+        backup_bucket = "independent-private-backup"
+        backup = MockObjectStore({
+            (backup_bucket, self.manifest.get(part).key): self.blobs[part]
+            for part in range(1, 6)
+        })
+        restored_bucket = "isolated-restore"
+        restored = MockObjectStore({
+            (restored_bucket, self.manifest.get(part).key): self.blobs[part]
+            for part in range(1, 6)
+        })
+        # The rehearsal restores only from the independent backup and checks
+        # each result against the separately retained release manifest.
+        for part in range(1, 6):
+            _, backed_up = fetch_verified_part(
+                backup, bucket=backup_bucket, manifest=self.manifest, part=part)
+            restored._objects[(restored_bucket, self.manifest.get(part).key)] = backed_up
+        for part in range(1, 6):
+            _, restored_bytes = fetch_verified_part(
+                restored, bucket=restored_bucket, manifest=self.manifest, part=part)
+            self.assertEqual(restored_bytes, self.blobs[part])
+        restored._objects[(restored_bucket, self.manifest.get(3).key)] = b"altered backup"
+        with self.assertRaises(StorageUnavailable):
+            fetch_verified_part(restored, bucket=restored_bucket,
+                                manifest=self.manifest, part=3)
+
     def test_r2_configuration_requires_https_account_endpoint_and_credentials(self):
         base = {
             "R2_ENDPOINT_URL": "https://" + "a" * 32 + ".r2.cloudflarestorage.com",
