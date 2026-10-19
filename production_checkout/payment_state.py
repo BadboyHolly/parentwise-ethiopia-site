@@ -420,7 +420,7 @@ def revoke_download_grant(
         """), {"id": grant.id, "actor": actor, "reason": reason.strip()})
         _audit(db, order_id=order["order_id"], event_type="DOWNLOAD_GRANT_REVOKED",
                actor_type="FOUNDER", actor_id=actor,
-               event_data={"grant_id": grant.id})
+               event_data={"grant_id": str(grant.id)})
 
 
 def authorize_download(
