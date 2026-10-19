@@ -42,7 +42,7 @@ def new_page(browser, width=1280, touch=False):
     page.set_default_timeout(125000)
     page.goto(SITE, wait_until='domcontentloaded', timeout=125000)
     page.locator('#qaOrder').wait_for(state='visible')
-    require('TEST MODE' in page.locator('.qa-warning').first.inner_text(), 'QA notice missing')
+    require('የሙከራ ሁኔታ' in page.locator('.qa-warning').first.inner_text(), 'QA notice missing')
     require('1,500 ETB' in page.locator('.qa-details').inner_text(), 'Price display incorrect')
     return context, page
 
@@ -58,8 +58,10 @@ def created(page, expected_method):
     oid = page.locator('#order-id').inner_text()
     require(oid.startswith('PW-QA-') and len(oid) == 30, 'Unexpected order format')
     require(page.locator('#order-price').inner_text() == '1,500 ETB', 'Server price not displayed')
-    require(page.locator('#order-status').inner_text() == 'PENDING_PAYMENT', 'Order status incorrect')
-    require(expected_method in page.locator('#order-method').inner_text(), 'Method not shown')
+    require(page.locator('#order-status').get_attribute('data-status') == 'PENDING_PAYMENT', 'Order status incorrect')
+    require('ሙከራ' in page.locator('#order-status').inner_text(), 'Status is not localized')
+    require(page.locator('#order-method').get_attribute('data-method') == expected_method, 'Method not shown')
+    require('ለሙከራ ብቻ' in page.locator('#order-method').inner_text(), 'Method is not localized')
     return oid
 
 
@@ -72,7 +74,7 @@ def main():
         page.on('request', lambda request: sends.append(1) if request.method == 'POST' and request.url == API_HOST + '/api/v1/orders' else None)
         fill(page, 'telebirr')
         page.locator('#order-submit').click()
-        original_id = created(page, 'Telebirr')
+        original_id = created(page, 'telebirr')
         require(len(sends) == 1, 'Desktop unexpectedly sent multiple orders')
         print('PASS desktop actual HTTP POST -> saved QA order; one request', flush=True)
 
@@ -96,7 +98,7 @@ def main():
         page2.locator('#recover-order-id').fill(lines[0])
         page2.locator('#recover-token').fill(lines[1])
         page2.locator('#recover-submit').click()
-        require(created(page2, 'Telebirr') == original_id, 'Reopen token recovery failed')
+        require(created(page2, 'telebirr') == original_id, 'Reopen token recovery failed')
         print('PASS manual recovery in a fresh browser session', flush=True)
         reopened.close()
 
@@ -113,7 +115,7 @@ def main():
         denied_page.locator('#recover-order-id').fill(lines[0])
         denied_page.locator('#recover-token').fill('A' * 43)
         denied_page.locator('#recover-submit').click()
-        denied_page.get_by_text('Order not found or the private token is incorrect', exact=False).wait_for(timeout=125000)
+        denied_page.get_by_text('ትዕዛዙ አልተገኘም ወይም የግል ቁልፉ ትክክል አይደለም', exact=False).wait_for(timeout=125000)
         require(denied_page.locator('#testPreview').is_hidden(), 'Unauthorized user saw order')
         print('PASS wrong token rejected without exposing order', flush=True)
         denied.close()
@@ -123,7 +125,7 @@ def main():
         phone.on('request', lambda request: mobile_posts.append(1) if request.method == 'POST' and request.url == API_HOST + '/api/v1/orders' else None)
         fill(phone, 'bank')
         phone.evaluate("() => {document.querySelector('#order-submit').click(); document.querySelector('#order-submit').click()}")
-        created(phone, 'Ethiopian bank')
+        created(phone, 'bank')
         require(len(mobile_posts) == 1, 'Double-click produced duplicate HTTP orders')
         require(not phone.evaluate('document.documentElement.scrollWidth > innerWidth + 1'), '390px horizontal overflow')
         print('PASS mobile 390px real API order, double-click guard, no overflow', flush=True)
