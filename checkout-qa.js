@@ -48,7 +48,7 @@
   }
   function makeKey() {
     if (!window.crypto || typeof crypto.getRandomValues !== 'function') {
-      throw new Error('Your browser does not support secure order creation. Use an updated browser.');
+      throw new Error('ይህ አሳሽ ደህንነቱ የተጠበቀ የሙከራ ትዕዛዝ መፍጠርን አይደግፍም። የተዘመነ አሳሽ ይጠቀሙ።');
     }
     const bytes = new Uint8Array(32);
     crypto.getRandomValues(bytes);
@@ -65,8 +65,8 @@
     busy = value;
     elements.submit.disabled = value;
     elements.recoverSubmit.disabled = value;
-    elements.submit.textContent = label || (value ? 'Working securely…' : 'Create TEST order — no payment');
-    elements.recoverSubmit.textContent = value ? 'Checking…' : 'Recover QA order';
+    elements.submit.textContent = label || (value ? 'በደህና እየተሠራ ነው…' : 'የሙከራ ትዕዛዝ ፍጠር — ክፍያ የለም');
+    elements.recoverSubmit.textContent = value ? 'እየተፈተሸ ነው…' : 'የሙከራ ትዕዛዝን መልስ';
     form.setAttribute('aria-busy', String(value));
   }
   function validate() {
@@ -76,14 +76,14 @@
     elements.name.setCustomValidity('');
     elements.mobile.setCustomValidity('');
     if (name.length < 2 || name.length > 100 || !/[\p{L}]/u.test(name) || /[\x00-\x1f\x7f]/.test(name)) {
-      elements.name.setCustomValidity('Enter a fictional test name (2–100 characters).');
+      elements.name.setCustomValidity('ለሙከራ የተፈጠረ ስም ያስገቡ (ከ2 እስከ 100 ቁምፊዎች)።');
       elements.name.reportValidity(); return null;
     }
     if (!/^(?:0[97][0-9]{8}|\+251[97][0-9]{8})$/.test(mobile)) {
-      elements.mobile.setCustomValidity('Use a valid format: 09XXXXXXXX, 07XXXXXXXX or +2519XXXXXXXX. Test data only.');
+      elements.mobile.setCustomValidity('ትክክለኛ ቅርጽ ይጠቀሙ፦ 09XXXXXXXX፣ 07XXXXXXXX ወይም +2519XXXXXXXX። ለሙከራ የተፈጠረ ቁጥር ብቻ ያስገቡ።');
       elements.mobile.reportValidity(); return null;
     }
-    if (!payment) { elements.method.setCustomValidity('Choose Telebirr or bank (simulation only).'); elements.method.reportValidity(); return null; }
+    if (!payment) { elements.method.setCustomValidity('Telebirr ወይም ባንክ ይምረጡ (ለሙከራ ብቻ)።'); elements.method.reportValidity(); return null; }
     elements.method.setCustomValidity('');
     return { customer_name: name, mobile, payment_method: payment };
   }
@@ -124,12 +124,28 @@
       ['PENDING_PAYMENT','PROOF_SUBMITTED','VERIFYING','VERIFIED_PAID','CANCELLED'].includes(summary.status) && summary.test_mode === true &&
       summary.product === 'ParentWise Child Behavior & Discipline System';
   }
+  // Presentation-only status labels. API status codes remain unchanged.
+  const statusLabels = {
+    PENDING_PAYMENT: 'ክፍያ በመጠባበቅ ላይ (ሙከራ)',
+    PROOF_SUBMITTED: 'የሙከራ ማስረጃ ገብቷል',
+    VERIFYING: 'በማረጋገጥ ላይ (ሙከራ)',
+    VERIFIED_PAID: 'በሙከራ ውስጥ ክፍያ ተረጋግጧል (እውነተኛ አይደለም)',
+    CANCELLED: 'ተሰርዟል (ሙከራ)',
+    PENDING_FULFILLMENT: 'ማድረስ በመጠባበቅ ላይ (ሙከራ)',
+    PREPARING: 'በማዘጋጀት ላይ (ሙከራ)',
+    SENT: 'ተልኳል (የሙከራ ሁኔታ)',
+    DELIVERED: 'ደርሷል (የሙከራ ሁኔታ)',
+    DELIVERY_FAILED: 'ማድረስ አልተሳካም (ሙከራ)'
+  };
+  function statusLabel(code) {
+    return statusLabels[code] || code;
+  }
   function hidePrivateCode() {
     elements.copyFallback.hidden = true;
     elements.privateCode.value = '';
   }
   function showOrder(summary, token) {
-    if (!checkSummary(summary)) throw new Error('Unexpected API response. The test order was not displayed. Retry with the same attempt.');
+    if (!checkSummary(summary)) throw new Error('ከሙከራ ስርዓቱ ያልተጠበቀ ምላሽ መጥቷል። ትዕዛዙ አልታየም። በዚያው የተቀመጠ ሙከራ እንደገና ይሞክሩ።');
     hidePrivateCode();
     record.order = summary;
     record.token = token;
@@ -137,8 +153,10 @@
     elements.orderId.textContent = summary.order_id;
     elements.orderProduct.textContent = summary.product;
     elements.orderPrice.textContent = '1,500 ETB';
-    elements.orderMethod.textContent = summary.payment_method === 'telebirr' ? 'Telebirr · simulation only' : 'Ethiopian bank · simulation only';
-    elements.orderStatus.textContent = summary.status;
+    elements.orderMethod.dataset.method = summary.payment_method;
+    elements.orderMethod.textContent = summary.payment_method === 'telebirr' ? 'Telebirr · ለሙከራ ብቻ' : 'የኢትዮጵያ ባንክ · ለሙከራ ብቻ';
+    elements.orderStatus.dataset.status = summary.status;
+    elements.orderStatus.textContent = statusLabel(summary.status);
     const simulated = summary.fulfillment;
     const visible = !!(simulated && simulated.simulated_only === true &&
       ['PENDING_FULFILLMENT','PREPARING','SENT','DELIVERED','DELIVERY_FAILED'].includes(simulated.status));
@@ -148,21 +166,21 @@
     elements.deliveryVersionLabel.hidden = !visible;
     elements.deliveryVersion.hidden = !visible;
     if (visible) {
-      elements.deliveryStatus.textContent = simulated.status + ' · SIMULATION ONLY';
-      elements.deliveryVersion.textContent = simulated.package_version || 'Unavailable';
+      elements.deliveryStatus.textContent = statusLabel(simulated.status) + ' · ለሙከራ ብቻ';
+      elements.deliveryVersion.textContent = simulated.package_version || 'አይገኝም';
       elements.deliveryNotice.textContent =
-        'QA DUMMY FULFILLMENT ONLY. No actual Telegram message or paid ParentWise document was sent. ' +
-        'Production fulfillment will be founder-assisted through official Telegram after independently confirmed real payment. ' +
-        'No instant delivery is promised. Official support: t.me/ParentWiseEthiopia.';
+        'ይህ የሙከራ ማድረስ ማሳያ ብቻ ነው። እውነተኛ የTelegram መልእክት ወይም የተከፈለበት የParentWise ሰነድ አልተላከም። ' +
+        'በቀጣይ በእውነተኛ ክፍያ ከተረጋገጠ በኋላ ማድረሱ በኦፊሴላዊ Telegram በሰው ድጋፍ ይከናወናል። ' +
+        'ወዲያውኑ ማድረስ አይጠበቅም። ኦፊሴላዊ ድጋፍ፦ t.me/ParentWiseEthiopia።';
     }
     elements.result.hidden = false;
     form.hidden = true;
-    feedback('This is a QA simulation only. No real payment has been requested, received, or verified, regardless of the displayed test status.', 'success');
+    feedback('ይህ የQA ሙከራ ብቻ ነው። የሚታየው ሁኔታ ምንም ይሁን ምን፣ እውነተኛ ክፍያ አልተጠየቀም፣ አልተቀበለም ወይም አልተረጋገጠም።', 'success');
     elements.result.focus();
   }
   function failMessage(err, context = '') {
-    if (err && err.name === 'AbortError') return 'The API is taking longer than expected. The order may already exist. Retry the SAME saved attempt; do not start a new one.';
-    return context || 'Cannot reach the QA API right now. It may be waking from sleep. Wait a moment and retry the SAME attempt.';
+    if (err && err.name === 'AbortError') return 'የሙከራ ስርዓቱ ምላሽ እየዘገየ ነው። ትዕዛዙ ተፈጥሮ ሊሆን ይችላል። አዲስ ትዕዛዝ ከመጀመር ይልቅ የተቀመጠውን ሙከራ ብቻ እንደገና ይሞክሩ።';
+    return context || 'የሙከራ ስርዓቱ አሁን አይገናኝም። እየተነሳ ሊሆን ይችላል። ትንሽ ቆይተው የተቀመጠውን ሙከራ እንደገና ይሞክሩ።';
   }
   async function createOrder() {
     if (busy) return;
@@ -171,7 +189,7 @@
     if (record?.order) { showOrder(record.order, record.token); return; }
     if (record && !sameBody(record.body, body)) {
       restoreForm(record.body);
-      feedback('A test attempt is already saved. Its original details were restored. Retry it to avoid duplicate orders, or choose “Start a new test order” explicitly.', 'error');
+      feedback('የቀድሞ ሙከራ ተቀምጧል። የመጀመሪያው መረጃ ተመልሷል። ድግግሞሽ እንዳይፈጠር በዚያው ይሞክሩ፤ ሌላ ትዕዛዝ ከፈለጉ «አዲስ የሙከራ ትዕዛዝ ጀምር» ይምረጡ።', 'error');
       return;
     }
     if (!record) {
@@ -179,8 +197,8 @@
       catch (error) { feedback(error.message, 'error'); return; }
       saveSession(); // Persist BEFORE making a network request.
     }
-    setBusy(true, 'Contacting QA API…');
-    feedback('Creating or resuming the same test order. Free hosting can take up to a minute to wake.');
+    setBusy(true, 'ከሙከራ ስርዓቱ ጋር እየተገናኘ ነው…');
+    feedback('የተቀመጠው የሙከራ ትዕዛዝ እየተፈጠረ ወይም እየቀጠለ ነው። ነፃ አስተናጋጁ ለመነሳት እስከ አንድ ደቂቃ ሊወስድ ይችላል።');
     try {
       const { response, data } = await apiRequest('/api/v1/orders', {
         method: 'POST',
@@ -188,18 +206,18 @@
         body: JSON.stringify(record.body)
       });
       if (response.status === 201) {
-        if (!data?.access_token || !/^[A-Za-z0-9_-]{43}$/.test(data.access_token)) throw new Error('Incomplete API response. Retry the same attempt.');
+        if (!data?.access_token || !/^[A-Za-z0-9_-]{43}$/.test(data.access_token)) throw new Error('ከሙከራ ስርዓቱ የተላከው መልስ አልተሟላም። የተቀመጠውን ሙከራ እንደገና ይሞክሩ።');
         showOrder(data.order, data.access_token);
       } else if (response.status === 429) {
-        feedback('Shared QA limit reached: at most 12 NEW test orders per 10 minutes across all testers. Wait and retry this SAME attempt. An existing order retry may still succeed.', 'error');
+        feedback('የጋራ የQA ገደብ ተሞልቷል፦ በ10 ደቂቃ ውስጥ እስከ 12 አዲስ የሙከራ ትዕዛዝ ብቻ ይፈቀዳል። ቆይተው የተቀመጠውን ሙከራ ይድገሙ። የቀድሞ ትዕዛዝ እንደገና መሞከር ሊሠራ ይችላል።', 'error');
       } else if (response.status === 409) {
-        feedback('These details differ from the original request. Retry the original saved attempt. If necessary, explicitly start a new test order.', 'error');
+        feedback('ይህ መረጃ ከመጀመሪያው ጥያቄ የተለየ ነው። የተቀመጠውን ሙከራ እንደገና ይሞክሩ። መረጃውን ለመቀየር አዲስ የሙከራ ትዕዛዝ ይጀምሩ።', 'error');
       } else if (response.status === 422 || response.status === 400) {
-        feedback('The API rejected these test details. Check the name, Ethiopian phone format and method. To change a previously submitted attempt, explicitly start a new test order.', 'error');
+        feedback('የሙከራ ስርዓቱ ያስገቡትን መረጃ አልተቀበለም። ስም፣ የኢትዮጵያ ስልክ ቁጥር ቅርጽና የተመረጠ ዘዴ ያረጋግጡ። የቀድሞ ሙከራ ለመቀየር አዲስ ትዕዛዝ ይጀምሩ።', 'error');
       } else if (response.status >= 500) {
-        feedback('Test-order storage is temporarily unavailable. Nothing was charged. Retry the SAME saved attempt.', 'error');
+        feedback('የሙከራ ትዕዛዝ ማስቀመጫው ለጊዜው አይሠራም። ምንም ክፍያ አልተከፈለም። የተቀመጠውን ሙከራ እንደገና ይሞክሩ።', 'error');
       } else {
-        feedback('The QA API returned an unexpected response (' + response.status + '). Retry the SAME saved attempt.', 'error');
+        feedback('የQA ስርዓቱ ያልተጠበቀ ምላሽ ሰጥቷል (' + response.status + ')። የተቀመጠውን ሙከራ እንደገና ይሞክሩ።', 'error');
       }
     } catch (error) {
       feedback(failMessage(error, error instanceof Error && /Incomplete|Unexpected/.test(error.message) ? error.message : ''), 'error');
@@ -208,10 +226,10 @@
   async function retrieve(id, token, silent = false) {
     if (busy) return;
     if (!/^PW-QA-[A-F0-9]{24}$/.test(id) || !/^[A-Za-z0-9_-]{43}$/.test(token)) {
-      feedback('Enter a valid QA Order ID and its separate 43-character private recovery token.', 'error'); return;
+      feedback('ትክክለኛ የQA ትዕዛዝ መለያ እና 43 ቁምፊ ያለው የግል መመለሻ ቁልፍ ያስገቡ።', 'error'); return;
     }
-    setBusy(true, 'Retrieving QA order…');
-    if (!silent) feedback('Checking your QA order securely…');
+    setBusy(true, 'የሙከራ ትዕዛዝ እየተመለሰ ነው…');
+    if (!silent) feedback('የሙከራ ትዕዛዝዎ በደህና እየተፈተሸ ነው…');
     try {
       const { response, data } = await apiRequest('/api/v1/orders/' + encodeURIComponent(id), {
         method: 'GET', headers: { Authorization: 'Bearer ' + token }
@@ -223,9 +241,9 @@
         elements.recoveryPanel.hidden = true;
       } else if (response.status === 404) {
         if (silent) { record = null; saveSession(); elements.result.hidden = true; form.hidden = false; }
-        feedback('Order not found or the private token is incorrect. Check both values. No customer details were exposed.', 'error');
+        feedback('ትዕዛዙ አልተገኘም ወይም የግል ቁልፉ ትክክል አይደለም። ሁለቱንም ያረጋግጡ። የደንበኛ መረጃ አልታየም።', 'error');
       } else {
-        feedback('Order recovery is temporarily unavailable (' + response.status + '). Keep your private recovery code and try again.', 'error');
+        feedback('ትዕዛዝ መመለስ ለጊዜው አይቻልም (' + response.status + ')። የግል መመለሻ ኮዱን ያስቀምጡና እንደገና ይሞክሩ።', 'error');
       }
     } catch (error) {
       feedback(failMessage(error), 'error');
@@ -243,26 +261,26 @@
         elements.copyFallback.hidden = false;
         elements.privateCode.focus();
         elements.privateCode.select();
-        feedback('Clipboard access was denied. Your PRIVATE recovery code is selected below. Copy it manually into a secure personal note, then choose “Hide private code”. Do not share it in chat, screenshots or URLs.', 'error');
+        feedback('ወደ ቅጂ ማስቀመጫ መዳረስ አልተፈቀደም። የግል መመለሻ ኮዱ ከታች ተመርጧል። በእጅ ወደ ደህንነቱ የተጠበቀ ማስታወሻ ይቅዱት፣ ከዚያ «የግል ኮዱን ደብቅ» ይምረጡ። በውይይት፣ በስክሪንሾት ወይም በURL አያጋሩት።', 'error');
       } else {
-        feedback('Clipboard permission was denied. Select and copy the Order ID manually, or try another supported browser.', 'error');
+        feedback('ወደ ቅጂ ማስቀመጫ መዳረስ አልተፈቀደም። የትዕዛዝ መለያውን በእጅ ይምረጡና ይቅዱ፤ ወይም ሌላ አሳሽ ይሞክሩ።', 'error');
       }
     }
   }
   form.addEventListener('submit', (event) => { event.preventDefault(); createOrder(); });
-  elements.copyId.addEventListener('click', () => { if (record?.order) copy(record.order.order_id, 'QA Order ID copied. This is not proof of payment.'); });
+  elements.copyId.addEventListener('click', () => { if (record?.order) copy(record.order.order_id, 'የQA ትዕዛዝ መለያ ተቀድቷል። ይህ የክፍያ ማስረጃ አይደለም።'); });
   elements.copyRecovery.addEventListener('click', () => {
     if (record?.order && record?.token) {
       copy(record.order.order_id + '\n' + record.token,
-        'Private recovery code copied. Store it in a secure note or password manager, not a public chat. Anyone with this code can view the QA order summary.', true);
+        'የግል መመለሻ ኮድ ተቀድቷል። በደህና ማስታወሻ ወይም በይለፍ ቃል ማስቀመጫ ያስቀምጡት፤ በይፋዊ ውይይት አያጋሩት። ኮዱን ያለው ሰው የQA ትዕዛዙን ማጠቃለያ ማየት ይችላል።', true);
     }
   });
   elements.hidePrivate.addEventListener('click', () => { hidePrivateCode(); elements.copyRecovery.focus(); });
   elements.newOrder.addEventListener('click', () => {
-    if (busy || !window.confirm('Start a NEW test order? This removes the current session recovery details but does not cancel any previously created QA order. Save its private recovery code first.')) return;
+    if (busy || !window.confirm('አዲስ የሙከራ ትዕዛዝ ይጀምሩ? ይህ በአሳሹ የተቀመጠውን የመመለሻ መረጃ ያጠፋል፣ ነገር ግን ቀደም ሲል የተፈጠረ የQA ትዕዛዝን አይሰርዝም። መጀመሪያ የግል መመለሻ ኮዱን ያስቀምጡ።')) return;
     hidePrivateCode();
     record = null; saveSession(); form.hidden = false; elements.result.hidden = true;
-    elements.recoveryPanel.hidden = true; form.reset(); feedback('Ready for a new fictional test order.'); elements.name.focus();
+    elements.recoveryPanel.hidden = true; form.reset(); feedback('አዲስ የሙከራ ትዕዛዝ ለመፍጠር ዝግጁ ነው።'); elements.name.focus();
   });
   elements.recoverToggle.addEventListener('click', () => {
     elements.recoveryPanel.hidden = !elements.recoveryPanel.hidden;
@@ -287,7 +305,7 @@
     retrieve(record.order.order_id, record.token, true);
   } else if (record?.key && record.body?.customer_name) {
     restoreForm(record.body);
-    feedback('Your previous attempt was restored after refresh. Press “Retry saved test attempt” to safely retry the SAME Order ID request.', 'info');
-    elements.submit.textContent = 'Retry saved test attempt — no payment';
+    feedback('ገጹን ካደሱ በኋላ የቀድሞ ሙከራዎ ተመልሷል። የዚያኑ ትዕዛዝ እንደገና ለመሞከር «የተቀመጠውን ሙከራ ደግም» ይጫኑ።', 'info');
+    elements.submit.textContent = 'የተቀመጠውን ሙከራ ደግም — ክፍያ የለም';
   }
 })();
