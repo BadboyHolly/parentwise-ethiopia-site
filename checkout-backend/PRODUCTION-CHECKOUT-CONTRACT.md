@@ -6,7 +6,7 @@
 
 - Approved V4.14 sales page and the Amharic checkout preview remain unchanged.
 - Independent order-intake prototype remains in `production_checkout/`; it creates `AWAITING_PAYMENT` orders and returns a private recovery token. Its status constraint remains unverified until settlement approval.
-- The existing QA backend remains isolated. It contains fabricated ledger data and QA-only fulfillment; it is not used by the independent checkout or the staging integration at runtime.
+- The existing QA backend remains isolated. It contains fabricated ledger data and QA-only fulfillment; it is not used by the independent checkout or staging integration at runtime.
 - Staging integration is code/CI only. It is not publicly deployed.
 
 ## Customer journey and delivery decision
@@ -16,8 +16,9 @@
 3. Show payment instructions only after order creation. A customer transaction reference is a **claim**, never proof or confirmation of payment.
 4. Store a claim in an unverified state. Enforce one globally unique claimed transaction reference, one order association, saved server-side payment method, fixed amount/currency, claim attempt limits, and audited state transitions.
 5. A founder authenticates with MFA, independently matches actual settled funds against the payment provider’s records, account, method, reference, amount, currency and buyer identity. Only an explicit founder approval can transition the order to paid.
-6. After approval, issue an auditable, revocable download grant. **Secure website delivery of the five approved PDF parts is the primary fulfillment method.** Every download request rechecks the private order authorization, approved payment state and active grant; files are private, versioned and outside the public/static tree. Responses use `Cache-Control: private, no-store`.
-7. Telegram is **support and fallback only**. It may help a customer recover access or be used for a documented manual delivery fallback; it is not the normal delivery path and must never receive a private order token or OTP.
+6. After approval, issue an auditable, revocable download grant. **Secure website delivery of the five approved PDF parts is the primary fulfillment method.** Each request rechecks the private order authorization, approved payment state and active grant. Keep files in a private object store outside public/static paths and serve through the backend with `Cache-Control: private, no-store`.
+7. Use immutable release-specific keys such as `releases/{release_id}/part-{1..5}.pdf`, with an exact-five manifest and SHA-256 check on every delivery. Do not depend on S3 bucket versioning or `VersionId`: Cloudflare's published R2 compatibility table marks bucket versioning operations unsupported and does not document exact-VersionId reads. Publish with atomic conditional create (`If-None-Match: *`); a changed release receives a new release ID and keys. Keep separate protected backups and pass a checksum-verified restore rehearsal before launch.
+8. Telegram is **support and fallback only**. It may help a customer recover access or be used for a documented manual delivery fallback; it is not the normal delivery path and must never receive a private order token or OTP.
 
 The production order table remains limited to `AWAITING_PAYMENT` until the production settlement and approval modules are separately designed, migrated and accepted. Payment/fulfillment state belongs in separate modules/tables with explicit transitions and audit history.
 
@@ -27,7 +28,7 @@ The production order table remains limited to `AWAITING_PAYMENT` until the produ
 - Customer claim endpoints may record an unverified claim only. Customer endpoints must never write a paid state or issue a download grant.
 - Founder routes require a separate HTTPS origin, MFA-backed session, CSRF protection, least privilege, explicit check and approve actions, and append-only audit events.
 - Download authorization requires the original private order token on every request. Store token hashes, never place tokens in URLs, analytics, logs or referrers. Revoke grants immediately; do not use public URLs or long-lived bearer URLs.
-- Keep final PDFs in private, versioned storage. Staging dummy files are generated in memory or an ephemeral CI directory and are not committed or uploaded as public artifacts.
+- Keep final PDFs in private object storage. Staging dummy files are generated in memory or an ephemeral CI directory and are not committed or uploaded as public artifacts.
 - Payment references are unique across all claims. Store the minimum data required, redact logs, encrypt sensitive values at rest, set retention limits, and use a trusted proxy boundary before deriving production abuse-control keys.
 - Fail closed: `ORDER_INTAKE_ENABLED=false`, `PAYMENTS_ENABLED=false`, founder verification disabled, and delivery disabled unless each separate production release gate is explicitly approved.
 
@@ -43,18 +44,9 @@ The production order table remains limited to `AWAITING_PAYMENT` until the produ
 
 - Independently confirm the settlement-account ownership and actual provider reconciliation procedure.
 - Approve buyer-to-payer identity binding, including whether the private recovery token alone is sufficient or an additional verified phone step is required.
-- Select private storage and retention/restore controls for the final versioned Amharic PDFs; approve file hashes and replacement/revocation procedure.
+- Approve immutable release IDs, final-file checksums, independent backup location, retention and successful restore rehearsal.
 - Approve the founder MFA/session provisioning and recovery process, refund/guarantee terms, privacy notice, retention periods and incident process.
-- Select production host/database, trusted-proxy boundary, rate limits, monitoring, backup/restore targets, domain and CORS allowlist.
+- Select production host/database, trusted-proxy boundary, rate limits, monitoring, domain and CORS allowlist.
 - Complete separate production-equivalent security, abuse, migration, backup and recovery acceptance; then make an explicit launch decision.
 
 **No merge, deployment, live order intake, real payment, or final PDF delivery is authorized by this contract or staging results.**
- 
-
-## R2 implementation-preparation delta
-
-The development branch adds an explicit private S3-compatible adapter, an exact-five versioned manifest and checksum validation. Staging tests inject an in-memory mock only. No production R2 client is created by staging, the production order API does not yet have verified-payment/grant state, and the named R2 bucket is not contacted.
-
-Before any production delivery route is mounted, each request must validate the private order token, approved payment state, active grant, allowed part number, pinned object version, and integrity checksum. The backend must return bytes with `private, no-store`; no permanent or pre-signed URL is allowed. See `production_checkout/R2-SECURE-DELIVERY.md` for minimum permissions and operator steps.
-
-**Current feature gates stay closed.** No R2 credentials, production PDFs, real provider access, production deployment, or live order intake are included in this change.
