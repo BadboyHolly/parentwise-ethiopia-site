@@ -276,10 +276,22 @@ def from_environment() -> FastAPI:
     }
     if any(not value for account in accounts.values() for value in account.values()):
         raise RuntimeError("Private settlement recipient configuration is required")
-    return build_app(
+    app = build_app(
         database_url=database_url,
         token_secret=os.getenv("ORDER_TOKEN_KEY", ""),
         allowed_origins=[x.strip() for x in os.getenv("ALLOWED_ORIGINS", "").split(",") if x.strip()],
         intake_enabled=os.getenv("ORDER_INTAKE_ENABLED", "false").lower() == "true",
         payment_accounts=accounts,
     )
+    founder_auth_enabled = os.getenv("FOUNDER_AUTH_ENABLED", "false").lower() == "true"
+    founder_approval_enabled = os.getenv("FOUNDER_APPROVAL_ENABLED", "false").lower() == "true"
+    if founder_approval_enabled and not founder_auth_enabled:
+        raise RuntimeError("Founder approval requires authenticated founder sessions")
+    app.state.founder_auth_enabled = founder_auth_enabled
+    app.state.founder_approval_enabled = False
+    if founder_auth_enabled:
+        from .founder_security import FounderConfig, create_founder_router
+        founder_config = FounderConfig.from_environment()
+        app.include_router(create_founder_router(app.state.sessions, founder_config))
+        app.state.founder_approval_enabled = founder_config.approvals_enabled
+    return app
