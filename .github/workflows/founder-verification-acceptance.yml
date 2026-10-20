@@ -42,6 +42,7 @@ jobs:
       APP_MODE: staging
       PAYMENTS_ENABLED: 'false'
       ORDER_INTAKE_ENABLED: 'false'
+      STAGING_ORDER_INTAKE_ENABLED: 'true'
       FOUNDER_AUTH_ENABLED: 'false'
       FOUNDER_APPROVAL_ENABLED: 'false'
       TEST_DATABASE_URL: postgresql+psycopg://parentwise_ci:disposable_only_password@127.0.0.1:5432/pw_founder_disposable
