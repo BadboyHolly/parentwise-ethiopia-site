@@ -83,7 +83,7 @@ def create_customer_delivery_router(
         if row > cfg.rate_limit:
             raise HTTPException(429, "Too many requests. Try again shortly.", headers={"Retry-After":"60"})
 
-    def order_status(db, code: str, token: str) -> str:
+    def order_status(db, code: str, token: str) -> tuple[str, str]:
         record = db.execute(text("""
             SELECT o.access_hash, s.payment_status, s.fulfillment_status
               FROM production_orders o
@@ -95,12 +95,14 @@ def create_customer_delivery_router(
             raise HTTPException(404, "Order not found")
         payment, delivery = record["payment_status"], record["fulfillment_status"]
         if payment == "AWAITING_PAYMENT":
-            return "Awaiting Payment"
+            return ("Awaiting Payment", "Complete your transfer, then submit its reference.")
+        if payment == "PAYMENT_REJECTED":
+            return ("Awaiting Payment", "We could not match the submitted claim. Check your transfer details and submit a new reference.")
         if payment == "UNDER_REVIEW":
-            return "Under Review"
+            return ("Under Review", "Your reference is a claim only. Payment remains unconfirmed while it is reviewed.")
         if payment == "PAYMENT_CONFIRMED" and delivery == "READY_TO_DOWNLOAD":
-            return "Ready to Download"
-        return "Payment Confirmed"
+            return ("Ready to Download", "Your payment is confirmed. Your five downloads are available.")
+        return ("Payment Confirmed", "Payment is confirmed, but download access is currently unavailable. Contact ParentWise support.")
 
     @router.post("/payment-claims", status_code=202)
     def submit_claim(code: str, body: ClaimInput, request: Request,
@@ -139,8 +141,8 @@ def create_customer_delivery_router(
             with sessions.begin() as db:
                 consume_limit(db, request, code, "status")
             with sessions() as db:
-                status = order_status(db, code, token)
-            return {"order_id": code, "status": status}
+                status, message = order_status(db, code, token)
+            return {"order_id": code, "status": status, "message": message}
         except HTTPException:
             raise
         except Exception:
