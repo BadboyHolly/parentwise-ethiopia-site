@@ -1,4 +1,4 @@
-# STEP 6.4A.2 — Final Five-Parent Usability Test Protocol
+# STEP 6.4A.4 — Final Five-Parent Usability Test Protocol
 
 **Status:** Prepared only. No parent sessions have been conducted. Do not claim real-parent validation until all five sessions occur, are documented and reviewed.
 
@@ -18,16 +18,16 @@ Test whether five Ethiopian parents buying a digital product for the first time 
 
 ## Session script
 
-1. Ask the participant to enter synthetic details and create the order.
-2. Before payment, ask them to save the order number and recovery code using their preferred private method.
-3. Have them copy both together, then copy the fictional payment number. Ask them what changed and whether the copy message proves the details were saved.
-4. Ask them to switch to the fictional payment-app simulation and return to the browser.
-5. Close or reload browser state. Ask them to recover the pending order with the saved order number and recovery code before continuing.
-6. Present a fictional transfer-completed scenario. Ask them where they would find the transaction reference, then submit a synthetic claim.
-7. Ask whether the submitted reference means payment is confirmed. Run pending, rejected/not-matched, and founder-approved scenarios separately.
-8. After approval, ask them to download guides 00–04, starting with 00 — ከዚህ ይጀምሩ. Ask where they would find the first file on Android.
-9. Simulate a brief network interruption and retry the status refresh. Then explain a revoked or unavailable download.
-10. Ask them to find optional official Telegram support.
+1. Ask the participant to enter synthetic details, review the 1,500 ETB total, choose Telebirr or CBE, and create an order.
+2. In the payment stage, ask them to locate the order number and private recovery code. Have them use the single Copy Order Details action, then save the block privately by their preferred safe method. Ask whether copying proves the block was saved.
+3. Ask them to select Continue to Payment, copy the fictional payment number, and explain what happened to the clipboard. Have them switch to a separate fictional payment-app simulation and return to the checkout.
+4. Reload or close the browser tab. Ask them to recover the order by pasting the complete saved block into one field. Do not help them split it unless they choose the separate-field fallback.
+5. Explain a fictional transfer scenario. Ask where the transaction reference can be found, then submit a synthetic claim. Ask whether that reference confirms payment.
+6. Show the pending state and ask what they would do next. Present an unmatched/rejected claim separately. Confirm they understand not to pay again if they already transferred money and can return later with their saved details.
+7. Run an approved scenario using the synthetic founder console and simulated settlement. Ask them to refresh status and find all five authorized downloads, starting with 00 — ከዚህ ይጀምሩ.
+8. Ask where the downloaded file appears on Android. Check that the facilitator confirms a completed browser download before calling it downloaded.
+9. Simulate a failed claim request, brief network interruption, duplicate Continue tap, and a revoked/unavailable download. Ask them what they would do.
+10. Ask them to locate optional official Telegram support. Do not require them to contact support or leave a real message.
 
 ## Observe and record
 

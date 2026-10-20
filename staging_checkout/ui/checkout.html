@@ -333,14 +333,14 @@ label.fieldlabel{margin-bottom:7px;font-weight:700;color:#2d4637}
  </section>
  <div class="shell checkout-body">
  <div class="steps" aria-label="የግዢ ደረጃዎች">
-    <div class="step current" aria-current="step"><b>1</b><span>የእርስዎ መረጃ</span></div>
-    <div class="step"><b>2</b><span>ክፍያ</span></div>
-    <div class="step"><b>3</b><span>ማረጋገጫ</span></div>
+    <div class="step current" aria-current="step"><b>01</b><span>የእርስዎ መረጃ</span></div>
+    <div class="step"><b>02</b><span>ክፍያ</span></div>
+    <div class="step"><b>03</b><span>ማረጋገጫ</span></div>
  </div>
  <div class="statusbar staging-placeholder" role="note"><span class="status-icon" aria-hidden="true">!</span><p><strong>Temporary English staging placeholder — founder review required</strong><br>This is an isolated test. Use fictional details only. Do not send money.</p></div>
  <div class="layout">
   <section class="panel formpanel" aria-labelledby="detail-title">
-   <div class="panelheading"><div class="panelheading-text"><span class="panelnum">01 / 02</span><h2 class="paneltitle" id="detail-title">የእርስዎ መረጃ</h2><p class="panelintro">የትዕዛዝ መቀበል ሲጀመር የሚያስፈልገው መረጃ</p></div><span class="heading-symbol" aria-hidden="true">✦</span></div>
+   <div class="panelheading"><div class="panelheading-text"><h2 class="paneltitle" id="detail-title">የእርስዎ መረጃ</h2><p class="panelintro">የትዕዛዝ መቀበል ሲጀመር የሚያስፈልገው መረጃ</p></div><span class="heading-symbol" aria-hidden="true">✦</span></div>
    <form id="order-form" autocomplete="off" novalidate>
     <div class="field">
       <label class="fieldlabel" for="customer-name">ሙሉ ስም</label>
@@ -351,7 +351,7 @@ label.fieldlabel{margin-bottom:7px;font-weight:700;color:#2d4637}
       <input id="customer-mobile" name="mobile" type="tel" inputmode="tel" maxlength="13" placeholder="09XXXXXXXX" autocomplete="off">
       <p class="fieldhint">የኢትዮጵያ ስልክ ቁጥር</p>
     </div>
-    <div class="paysection-head"><span class="panelnum">02 / 02</span><h3 class="paymentheading">የክፍያ ዘዴ ይምረጡ</h3><p>በሚመርጡት የክፍያ ዘዴ መሠረት የሂሳብ መረጃው ይታያል።</p></div>
+    <div class="paysection-head"><h3 class="paymentheading">የክፍያ ዘዴ ይምረጡ</h3><p>በሚመርጡት የክፍያ ዘዴ መሠረት የሂሳብ መረጃው ይታያል።</p></div>
     <div class="paymethods" role="group" aria-label="የክፍያ አማራጮች">
       <label class="method">
         <input type="radio" name="payment" value="telebirr" checked>
@@ -376,9 +376,13 @@ label.fieldlabel{margin-bottom:7px;font-weight:700;color:#2d4637}
 <details id="stage-existing-order" class="staging-placeholder" style="margin:18px 0;padding:14px;border:1px dashed #7A2E3E;border-radius:12px">
   <summary>Temporary English staging placeholder — founder review required: Recover an existing order</summary>
   <form id="stage-recovery-form">
-    <label for="stage-recovery-order">Order ID</label><input id="stage-recovery-order" autocomplete="off" required>
-    <label for="stage-recovery-code-input">Private recovery code</label><input id="stage-recovery-code-input" autocomplete="off" autocapitalize="off" spellcheck="false" required>
-    <button type="submit" class="review-back">Recover order</button>
+    <label for="stage-recovery-paste">Paste your complete saved order details</label>
+    <textarea id="stage-recovery-paste" rows="3" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Order number: …&#10;Private recovery code: …" style="width:100%;min-height:96px;padding:12px;border:1px solid #c9d0c5;border-radius:10px;background:#fff;font:14px/1.6 ui-monospace,monospace"></textarea>
+    <details style="margin-top:10px"><summary style="min-height:44px;padding:10px 2px;cursor:pointer">Enter the two details separately</summary>
+      <label for="stage-recovery-order">Order number</label><input id="stage-recovery-order" autocomplete="off">
+      <label for="stage-recovery-code-input">Private recovery code</label><input id="stage-recovery-code-input" autocomplete="off" autocapitalize="off" spellcheck="false">
+    </details>
+    <button type="submit" class="review-back" style="margin-top:12px">Recover order</button>
     <p id="stage-recovery-message" role="status" aria-live="polite"></p>
   </form>
 </details>
@@ -387,15 +391,16 @@ label.fieldlabel{margin-bottom:7px;font-weight:700;color:#2d4637}
   <div id="stage-payment-instructions" class="staging-placeholder" style="padding:14px 0"><strong>Temporary English staging placeholder — founder review required</strong><p>Pay exactly 1,500 ETB to the selected fictional recipient shown below. This is an isolated test. Do not send real money.</p></div>
   <div class="review-list"><div><dt>Order ID</dt><dd id="stage-order-code"></dd></div><div><dt>Status</dt><dd id="stage-status">Awaiting Payment</dd></div></div>
   <div id="stage-recovery-code-panel" class="staging-placeholder" hidden style="margin:14px 0;padding:16px;border:1px solid #d8c6a6;border-radius:14px;background:#fcf8ef">
-    <strong>Temporary English staging placeholder — founder review required</strong>
-    <p>Before opening your payment app, save your order number and private recovery code somewhere private. Copy both together, write them down privately, or use a password manager you control. Copying does not confirm that they were saved.</p>
+    <strong class="staging-placeholder">Temporary English staging placeholder — founder review required: Save your order details</strong>
+    <p>Temporary English staging placeholder — founder review required: Before opening your payment app, save your order number and private recovery code somewhere private. Copy both together, write them down privately, or use a password manager you control. Copying does not confirm that they were saved.</p>
     <label for="stage-order-recovery">Order number and private recovery code</label>
     <textarea id="stage-order-recovery" readonly rows="3" autocomplete="off" autocapitalize="off" spellcheck="false" style="width:100%;min-height:96px;padding:12px;border:1px solid #c9d0c5;border-radius:10px;background:#fff;font:14px/1.6 ui-monospace,monospace"></textarea>
-    <button type="button" class="review-back" id="stage-copy-order-details">Copy order details</button>
+    <button type="button" class="review-back" id="stage-copy-order-details">Copy Order Details</button>
     <button type="button" class="review-back" id="stage-hide-recovery">Hide details</button>
     <p id="stage-recovery-save-message" role="status" aria-live="polite"></p>
     <p class="staging-placeholder">Temporary English staging placeholder — founder review required: Copying the payment number replaces the copied order details. Save the details privately first, or write them down.</p>
   </div>
+  <button type="button" class="checkoutaction staging-placeholder" id="stage-continue-payment">Temporary English staging placeholder — founder review required: Continue to Payment</button>
   <p id="stage-status-message" role="status" aria-live="polite"></p>
   
   <button type="button" class="checkoutaction staging-placeholder" id="stage-ive-paid">Temporary English staging placeholder — founder review required: I have paid</button><p id="stage-reference-help" class="staging-placeholder">Temporary English staging placeholder — founder review required: Find the transaction reference in your payment SMS or bank transaction details. If you cannot find it, contact ParentWise on Telegram for help. <a href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Temporary English staging placeholder — founder review required: Open official Telegram support</a></p>
@@ -449,7 +454,7 @@ label.fieldlabel{margin-bottom:7px;font-weight:700;color:#2d4637}
   const form=$('order-form'), steps=Array.from(document.querySelectorAll('.steps .step'));
   const nameInput=$('customer-name'), phoneInput=$('customer-mobile');
   const error=document.createElement('p');error.className='field-error';error.id='form-error';error.hidden=true;error.setAttribute('role','alert');form.insertBefore(error,$('continue-order-button'));
-  const state={code:'',token:'',method:'',phone:''}, orderRequest={key:'',payload:''};
+  const state={code:'',token:'',method:'',phone:'',paymentStarted:false}, orderRequest={key:'',payload:''};
   const say=(target,msg)=>{target.textContent=msg};
   function step(i){for(let n=0;n<steps.length;n++){steps[n].classList.toggle('current',n===i);if(n===i)steps[n].setAttribute('aria-current','step');else steps[n].removeAttribute('aria-current')}}
   function updateMethod(method){let active=method||selectedMethod();if(!labels[active])active=/bank|cbe/i.test(String(active))?'bank':'telebirr';activeMethod=active;const m=labels[active];const radio=document.querySelector('input[name="payment"][value="'+active+'"]');if(radio)radio.checked=true;$('account-method').textContent=m.method;$('account-method-sub').textContent=m.sub;$('account-number-label').textContent=m.label;$('account-number').textContent=m.recipient;$('account-holder').textContent='FICTIONAL QA';$('account-logo').src=m.logo;$('account-logo').alt=m.alt;$('account-symbol').classList.toggle('is-cbe',active==='bank');$('copy-label').textContent='Copy Payment Number';$('copy-number').setAttribute('aria-label','Temporary English staging placeholder — founder review required: Copy Payment Number for '+m.method);}
@@ -460,45 +465,53 @@ label.fieldlabel{margin-bottom:7px;font-weight:700;color:#2d4637}
   function auth(){return {'Authorization':'Bearer '+state.token}}
   function newKey(){const a=new Uint8Array(32);crypto.getRandomValues(a);return btoa(String.fromCharCode(...a)).replace(/=/g,'').replace(/\+/g,'-').replace(/\//g,'_')}
   async function request(path,options){const r=await fetch(path,options||{});let data={};try{data=await r.json()}catch{}if(!r.ok)throw new Error(data.detail||('Request failed ('+r.status+')'));return data}
-  function showOrder(){form.hidden=true;step(1);$('staging-payment').hidden=false;updateMethod(state.method);$('stage-recovery-code-panel').hidden=false;$('stage-order-recovery').value='Order number: '+state.code+'\nPrivate recovery code: '+state.token;$('stage-order-code').textContent=state.code;$('payment-details').hidden=false;$('staging-payment').insertBefore($('stage-recovery-code-panel'),$('stage-payment-instructions'));$('staging-payment').insertBefore($('payment-details'),$('stage-status-message'))}
+  function showOrder(){form.hidden=true;document.querySelector('.layout > aside').hidden=true;state.paymentStarted=false;step(1);$('staging-payment').hidden=false;updateMethod(state.method);$('stage-recovery-code-panel').hidden=false;$('stage-order-recovery').value='Order number: '+state.code+'\nPrivate recovery code: '+state.token;$('stage-order-code').textContent=state.code;$('payment-details').hidden=true;$('stage-continue-payment').hidden=false;$('stage-ive-paid').hidden=true;$('stage-reference-help').hidden=true;$('staging-payment').insertBefore($('stage-recovery-code-panel'),$('stage-payment-instructions'));$('staging-payment').insertBefore($('payment-details'),$('stage-status-message'))}
   function toE164(v){return v.startsWith('0')?'+251'+v.slice(1):v}
   async function createOrder(){const button=$('continue-order-button');button.disabled=true;button.setAttribute('aria-busy','true');const body={customer_name:nameInput.value.trim(),mobile:phoneInput.value.trim(),payment_method:selectedMethod()};const payload=JSON.stringify(body);if(orderRequest.key&&orderRequest.payload!==payload){const original=JSON.parse(orderRequest.payload);nameInput.value=original.customer_name;phoneInput.value=original.mobile;document.querySelector('input[name="payment"][value="'+original.payment_method+'"]').checked=true;updateMethod(original.payment_method);say($('staging-message'),'Temporary English staging placeholder — founder review required: We restored the details tied to your pending order request. Select Continue to safely retry it.');button.disabled=false;button.removeAttribute('aria-busy');return}if(!orderRequest.key){orderRequest.key=newKey();orderRequest.payload=payload}try{const data=await request('/api/v1/orders',{method:'POST',headers:{'Content-Type':'application/json','Idempotency-Key':orderRequest.key},body:payload});state.code=data.order.order_id;state.token=data.access_token;state.method=data.order.payment_method;state.phone=toE164(body.mobile);showOrder();say($('stage-status-message'),'Temporary English staging placeholder — founder review required: Test order created. No payment has been received.')}catch(e){say($('staging-message'),'Temporary English staging placeholder — founder review required: '+e.message+' Retry with the same details.')}finally{button.disabled=false;button.removeAttribute('aria-busy')}}
-  $('stage-claim-form').addEventListener('submit',async e=>{e.preventDefault();const ref=$('stage-reference').value.trim().toUpperCase();$('stage-reference').value=ref;try{await request('/api/v1/orders/'+state.code+'/payment-claims',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},auth()),body:JSON.stringify({test_reference:ref,reported_amount_etb:1500,currency:'ETB'})});say($('stage-status'),'Under Review');say($('staging-payment-title'),'Temporary English staging placeholder — founder review required: Reference submitted for checking — payment is not confirmed');await refreshStatus()}catch(err){say($('stage-status-message'),'Temporary English staging placeholder — founder review required: '+err.message)}});
+  $('stage-claim-form').addEventListener('submit',async e=>{e.preventDefault();const ref=$('stage-reference').value.trim();$('stage-claim-form').querySelector('button[type="submit"]').disabled=true;try{await request('/api/v1/orders/'+state.code+'/payment-claims',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},auth()),body:JSON.stringify({test_reference:ref,reported_amount_etb:1500,currency:'ETB'})});say($('stage-status'),'Under Review');say($('stage-status-message'),'Temporary English staging placeholder — founder review required: Reference received. Payment is still being checked. If you have already paid, do not pay again. You can return later using your saved order details.');await refreshStatus()}catch(err){say($('stage-status-message'),'Temporary English staging placeholder — founder review required: Your reference was not submitted. Check your connection and try again.')}finally{$('stage-claim-form').querySelector('button[type="submit"]').disabled=false}});
   async function refreshStatus(){
     if(!state.code)return;
     try{
       const data=await request('/api/v1/orders/'+state.code+'/checkout-status',{headers:auth()});
-      say($('stage-status'),data.status);
       const downloadsReady=data.status==='Ready to Download'&&data.downloads_ready===true;
+      const visibleStatus=data.status==='Ready to Download'&&!downloadsReady?'Payment Confirmed':data.status;
+      say($('stage-status'),visibleStatus);
       $('stage-download-panel').hidden=!downloadsReady;
       if(data.status==='Awaiting Payment'){
         $('staging-payment-title').textContent='Temporary English staging placeholder — founder review required: Fictional payment instructions';
-        $('stage-payment-instructions').hidden=false;$('payment-details').hidden=false;$('stage-reference-help').hidden=false;
-        $('stage-claim-form').hidden=true;$('stage-ive-paid').hidden=false;
+        $('stage-payment-instructions').hidden=false;$('payment-details').hidden=!state.paymentStarted;$('stage-continue-payment').hidden=state.paymentStarted;$('stage-reference-help').hidden=!state.paymentStarted;
+        $('stage-claim-form').hidden=true;$('stage-ive-paid').hidden=!state.paymentStarted;
         $('stage-status-message').textContent=data.claim_outcome==='NOT_MATCHED'?'Temporary English staging placeholder — founder review required: We couldn’t verify your transfer. If you’ve already paid, don’t pay again. Check the reference or contact us.':'Temporary English staging placeholder — founder review required: No payment confirmation yet. If you have already paid, wait for review before paying again.';
       }else if(data.status==='Under Review'){
         $('staging-payment-title').textContent='Temporary English staging placeholder — founder review required: Payment reference under review';
         $('stage-payment-instructions').hidden=true;$('payment-details').hidden=true;$('stage-reference-help').hidden=true;
-        $('stage-claim-form').hidden=true;$('stage-ive-paid').hidden=true;
-        $('stage-status-message').textContent='Temporary English staging placeholder — founder review required: We’re checking your payment. You can return later using your saved order details.';
-      }else if(data.status==='Payment Confirmed'){
-        $('staging-payment-title').textContent='Temporary English staging placeholder — founder review required: Payment confirmed';
-        $('stage-payment-instructions').hidden=true;$('payment-details').hidden=true;$('stage-reference-help').hidden=true;
-        $('stage-claim-form').hidden=true;$('stage-ive-paid').hidden=true;step(2);
-        $('stage-status-message').textContent=data.download_access_revoked?'Temporary English staging placeholder — founder review required: Your payment is confirmed, but download access is unavailable. Contact us for help.':'Temporary English staging placeholder — founder review required: Your payment is confirmed. Your guides are being prepared.';
-      }else if(data.status==='Ready to Download'){
+        $('stage-claim-form').hidden=true;$('stage-continue-payment').hidden=true;$('stage-ive-paid').hidden=true;
+        $('stage-status-message').textContent='Temporary English staging placeholder — founder review required: Reference received. We’re checking your payment. If you already paid, do not pay again. You can return later using your saved order details.';
+      }else if(data.status==='Ready to Download'&&downloadsReady){
         $('staging-payment-title').textContent='Temporary English staging placeholder — founder review required: Your guides are ready';
         $('stage-payment-instructions').hidden=true;$('payment-details').hidden=true;$('stage-reference-help').hidden=true;
-        $('stage-claim-form').hidden=true;$('stage-ive-paid').hidden=true;step(2);
+        $('stage-claim-form').hidden=true;$('stage-continue-payment').hidden=true;$('stage-ive-paid').hidden=true;step(2);
         $('stage-status-message').textContent='Temporary English staging placeholder — founder review required: Your payment is confirmed. Your five guides are ready.';
+      }else if(data.status==='Payment Confirmed'||data.status==='Ready to Download'){
+        $('staging-payment-title').textContent='Temporary English staging placeholder — founder review required: Payment confirmed';
+        $('stage-payment-instructions').hidden=true;$('payment-details').hidden=true;$('stage-reference-help').hidden=true;
+        $('stage-claim-form').hidden=true;$('stage-continue-payment').hidden=true;$('stage-ive-paid').hidden=true;step(1);
+        $('stage-status-message').textContent='Temporary English staging placeholder — founder review required: Your payment is confirmed, but download access is unavailable. Contact us for help.';
       }
       if(downloadsReady)renderDownloads();
     }catch(e){say($('stage-status-message'),'Temporary English staging placeholder — founder review required: Status refresh failed. Check your connection and try again.')}
   }
   $('stage-refresh').addEventListener('click',refreshStatus);
+  $('stage-continue-payment').addEventListener('click',()=>{state.paymentStarted=true;$('stage-continue-payment').hidden=true;$('payment-details').hidden=false;$('stage-ive-paid').hidden=false;$('stage-reference-help').hidden=false;$('payment-details').scrollIntoView({behavior:'smooth',block:'center'});$('stage-ive-paid').focus({preventScroll:true})});
   $('stage-ive-paid').addEventListener('click',()=>{$('stage-ive-paid').hidden=true;$('stage-claim-form').hidden=false;$('stage-reference').focus()});
   function renderDownloads(){const list=$('stage-download-list');list.innerHTML='';const guides=[{number:'00',title:'ከዚህ ይጀምሩ',recommended:true},{number:'01',title:'የልጅ ባህሪ መመሪያ'},{number:'02',title:'የተግባር ደብተር'},{number:'03',title:'ፈጣን እርዳታ'},{number:'04',title:'የ30 ቀን ልምምድ'}];guides.forEach((guide,index)=>{const part=index+1;const b=document.createElement('button');b.type='button';b.className='review-back'+(guide.recommended?' guide-recommended':'');b.dataset.guideNumber=guide.number;b.innerHTML='<strong>'+guide.number+' — '+guide.title+'</strong>'+(guide.recommended?'<span class="guide-badge">Temporary English staging placeholder — founder review required: Recommended first guide</span>':'')+'<span class="guide-download-label">Temporary English staging placeholder — founder review required: Download</span>';b.addEventListener('click',async()=>{try{const r=await fetch('/api/v1/orders/'+state.code+'/downloads/part-'+part,{headers:auth()});if(!r.ok)throw new Error('Temporary English staging placeholder — founder review required: This download is unavailable. Refresh your order status or contact support.');const blob=await r.blob(),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='qa-demo-part-'+part+'.pdf';a.click();setTimeout(()=>URL.revokeObjectURL(url),30000)}catch(e){say($('stage-status-message'),'Temporary English staging placeholder — founder review required: '+e.message)}});list.appendChild(b)})}
-  $('stage-recovery-form').addEventListener('submit',async e=>{e.preventDefault();state.code=$('stage-recovery-order').value.trim();state.token=$('stage-recovery-code-input').value.trim();if(!/^PW-[0-9A-F]{24}$/.test(state.code)||!/^[A-Za-z0-9_-]{43}$/.test(state.token)){say($('stage-recovery-message'),'Temporary English staging placeholder — founder review required: Enter the complete order ID and recovery code.');return}try{const details=await request('/api/v1/orders/'+state.code,{headers:auth()});state.method=details.order.payment_method;state.phone='';showOrder();await refreshStatus();say($('stage-recovery-message'),'Temporary English staging placeholder — founder review required: Order recovered. Keep the code private.')}catch(err){say($('stage-recovery-message'),'Temporary English staging placeholder — founder review required: Order could not be recovered. Check the ID and code.')}});
+  function parseRecoveryBlock(raw){
+    const orderLine=raw.split(/\r?\n/).map(line=>line.trim()).find(line=>/^Order number:/i.test(line));
+    const codeLine=raw.split(/\r?\n/).map(line=>line.trim()).find(line=>/^Private recovery code:/i.test(line));
+    if(!orderLine||!codeLine)return null;
+    return {code:orderLine.replace(/^Order number:\s*/i,''),token:codeLine.replace(/^Private recovery code:\s*/i,'')};
+  }
+  $('stage-recovery-form').addEventListener('submit',async e=>{e.preventDefault();const parsed=parseRecoveryBlock($('stage-recovery-paste').value);state.code=parsed?.code??$('stage-recovery-order').value.trim();state.token=parsed?.token??$('stage-recovery-code-input').value.trim();if(!/^PW-[0-9A-F]{24}$/.test(state.code)||!/^[A-Za-z0-9_-]{43}$/.test(state.token)){say($('stage-recovery-message'),'Temporary English staging placeholder — founder review required: Order could not be recovered. Check the saved details and try again.');return}try{const details=await request('/api/v1/orders/'+state.code,{headers:auth()});state.method=details.order.payment_method;state.phone='';showOrder();await refreshStatus();say($('stage-recovery-message'),'Temporary English staging placeholder — founder review required: Order recovered. Keep the code private.')}catch(err){say($('stage-recovery-message'),'Temporary English staging placeholder — founder review required: Order could not be recovered. Check the saved details and try again.')}});
   $('stage-copy-order-details').addEventListener('click',async()=>{const input=$('stage-order-recovery');try{await navigator.clipboard.writeText(input.value);say($('stage-recovery-save-message'),'Temporary English staging placeholder — founder review required: Copied. Paste these details into a private place to save them. Copying does not confirm they were saved.')}catch{say($('stage-recovery-save-message'),'Temporary English staging placeholder — founder review required: Clipboard unavailable. Select and write down both complete details privately.');input.focus();input.select()}});
   $('stage-hide-recovery').addEventListener('click',()=>{$('stage-order-recovery').value='';$('stage-recovery-code-panel').hidden=true});
   updateMethod();

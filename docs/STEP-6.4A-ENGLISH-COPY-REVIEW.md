@@ -91,3 +91,48 @@ This current list supersedes earlier recovery, payment-copy, status and download
 - Refresh failure and status refresh guidance remain temporary English source copy for review.
 
 Do not present “Ready to Download” unless the backend confirms an active authorization grant. Keep all English staging labels and simulated recipient data out of production until founder and native Amharic approval.
+
+
+
+## STEP 6.4A.4 — Buyer-first checkout messages requiring approval
+
+This is a staging-only English source-copy inventory. Founder approval and native Amharic review are required before any new or modified message is used with real buyers. Existing Amharic labels and product titles are preserved.
+
+### Stage 01 — Your Details
+
+- Stage meaning for review: “Your Details.” The existing Amharic progress label remains unchanged.
+- Current payment choice must remain visible and correct before order creation. Existing labels need review only if changed during localization.
+
+### Stage 02 — Make Payment
+
+- Stage meaning for review: “Make Payment.” The existing Amharic progress label remains unchanged.
+- Recovery heading: “Save your order details.”
+- Recovery instruction: “Before opening your payment app, save your order number and private recovery code somewhere private. Copy both together, write them down privately, or use a password manager you control. Copying does not confirm that they were saved.”
+- Recovery label/action: “Paste your complete saved order details”; “Enter the two details separately”; “Recover order.”
+- Recovery error: “Order could not be recovered. Check the saved details and try again.” This must not reveal whether the order number or code was incorrect.
+- Payment transition: “Continue to Payment.”
+- Clipboard action and warning: “Copy Order Details”; “Copy Payment Number”; “Copying the payment number replaces the copied order details. Save the details privately first, or write them down.”
+- Payment instruction: “Pay exactly 1,500 ETB to the selected fictional recipient shown below. This is an isolated test. Do not send real money.”
+- Claim status after a successful API response: “Reference received. Payment is still being checked. If you have already paid, do not pay again. You can return later using your saved order details.”
+- Claim submission error: “Your reference was not submitted. Check your connection and try again.”
+- Reference not matched: “We couldn’t verify your transfer. If you’ve already paid, don’t pay again. Check the reference or contact us.”
+- Payment review: “We’re checking your payment. If you already paid, do not pay again. You can return later using your saved order details.”
+- SMS help: “Find the transaction reference in your payment SMS or bank transaction details. If you cannot find it, contact ParentWise on Telegram for help.”
+- Claim wording must state that a reference asks for a check and does not confirm payment.
+- The account-holder name and payment number shown in staging are fictional. Do not imply that FICTIONAL QA is a verified production recipient.
+
+### Stage 03 — Get Your Guides
+
+- Stage meaning for review: “Get Your Guides.” The existing Amharic progress label remains unchanged pending founder/native review.
+- Ready state (only with an active grant): “Your payment is confirmed. Your five guides are ready.”
+- Approved payment without active download authorization: “Your payment is confirmed, but download access is unavailable. Contact us for help.”
+- Guide labels and titles remain the existing Amharic text, numbered 00–04. Keep “00 — ከዚህ ይጀምሩ” as the first guide.
+- Android guidance: “After approval, tap Download. On Android, open the download notification or Files > Downloads.”
+- Download failure: “This download is unavailable. Refresh your order status or contact support.”
+- A download request must not be described as successful until the browser receives the file.
+
+### Across all stages
+
+- Existing warning: “This is an isolated test. Use fictional details only. Do not send money.”
+- No new English source copy is approved for production by this inventory. Keep staging warnings visibly marked in the isolated test interface.
+- Review every failure, retry, status-refresh, clipboard and support message so none implies that a reference or button press confirms payment.

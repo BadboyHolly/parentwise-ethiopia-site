@@ -62,9 +62,13 @@ def order_through_review(page, method="telebirr", label="review"):
     (OUT / "screenshots").mkdir(parents=True, exist_ok=True)
     page.screenshot(path=str(OUT / "screenshots" / ("am-checkout-" + label + "-details.png")), full_page=True)
     code = create_staging_order(page)
-    page.locator("#stage-recovery-code-panel").evaluate("(node) => node.hidden=true")
+    assert page.locator("#stage-recovery-code-panel").is_visible()
+    assert page.locator("#payment-details").is_hidden()
+    page.screenshot(path=str(OUT / "screenshots" / ("am-checkout-" + label + "-save-order.png")), full_page=True)
+    page.locator("#stage-continue-payment").click()
+    page.locator("#payment-details").wait_for(state="visible")
+    assert page.locator("#stage-ive-paid").is_visible()
     page.screenshot(path=str(OUT / "screenshots" / ("am-checkout-" + label + "-payment.png")), full_page=True)
-    page.locator("#stage-recovery-code-panel").evaluate("(node) => node.hidden=false")
     return code
 
 def set_reference_and_claim(page, reference):
@@ -110,7 +114,7 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
         assert page.evaluate("window.__copiedText") == details
         page.locator("#copy-number").click()
         assert page.evaluate("window.__copiedText") == "QA-TELEBIRR-ONLY"
-        assert "Copy Payment Number replaces anything copied before" in page.locator("#staging-payment").inner_text()
+        assert "Copying the payment number replaces the copied order details" in page.locator("#staging-payment").inner_text()
         # A separate page simulates switching to a payment app; no provider is contacted.
         payment_app = context.new_page()
         payment_app.set_content("<title>Fictional payment app simulation</title><p>QA only — no transfer</p>")
@@ -119,12 +123,14 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
         assert page.locator("#stage-order-recovery").input_value() == details
         page.reload(wait_until="domcontentloaded")
         assert page.evaluate("sessionStorage.length + localStorage.length") == 0
-        page.locator("#stage-existing-order summary").click()
-        page.locator("#stage-recovery-order").fill(code)
-        page.locator("#stage-recovery-code-input").fill(recovery_code)
+        page.locator("#stage-existing-order > summary").click()
+        page.locator("#stage-recovery-paste").fill(details)
         page.locator("#stage-recovery-form button[type=submit]").click()
         page.get_by_text("Awaiting Payment", exact=True).wait_for()
         assert page.locator("#stage-order-code").inner_text() == code
+        assert page.locator("#payment-details").is_hidden()
+        page.locator("#stage-continue-payment").click()
+        page.locator("#payment-details").wait_for(state="visible")
         assert "0912910693" not in page.content()
         assert "10002230019327" not in page.content()
         assert "Kidus Elias" not in page.content()
@@ -138,7 +144,16 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
         assert page.locator("#stage-order-recovery").evaluate("(el) => el.selectionStart === 0 && el.selectionEnd === el.value.length")
         assert page.locator("#copy-number").evaluate("(el) => parseFloat(getComputedStyle(el).minHeight) >= 44")
         reference = "SIM-BROWSER" + label
-        set_reference_and_claim(page, reference)
+        page.route("**/payment-claims", lambda route: route.abort("failed"))
+        page.locator("#stage-ive-paid").click()
+        page.locator("#stage-reference").fill(reference)
+        page.locator("#stage-claim-form button[type=submit]").click()
+        page.get_by_text("Your reference was not submitted", exact=False).wait_for()
+        assert "Reference received" not in page.locator("#stage-status-message").inner_text()
+        page.unroute("**/payment-claims")
+        page.locator("#stage-claim-form button[type=submit]").click()
+        page.get_by_text("Under Review", exact=True).wait_for()
+        assert "Reference received" in page.locator("#stage-status-message").inner_text()
         duplicate_claim = page.evaluate("""async ({ref, order}) => {
           const r=await fetch("/api/v1/orders/"+order.code+"/payment-claims",{method:"POST",
             headers:{Authorization:"Bearer "+order.token,"Content-Type":"application/json"},
@@ -182,9 +197,8 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
                               full_page=True)
         page.reload(wait_until="domcontentloaded")
         assert page.evaluate("sessionStorage.length + localStorage.length") == 0
-        page.locator("#stage-existing-order summary").click()
-        page.locator("#stage-recovery-order").fill(code)
-        page.locator("#stage-recovery-code-input").fill(recovery_code)
+        page.locator("#stage-existing-order > summary").click()
+        page.locator("#stage-recovery-paste").fill(details)
         page.locator("#stage-recovery-form button[type=submit]").click()
         page.get_by_text("Ready to Download", exact=True).wait_for()
 
@@ -211,6 +225,9 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
         founder.locator("#stage-revoke").click()
         page.locator("#stage-refresh").click()
         page.get_by_text("Payment Confirmed", exact=True).wait_for()
+        assert page.locator("#stage-download-panel").is_hidden()
+        assert "download access is unavailable" in page.locator("#stage-status-message").inner_text()
+        assert page.get_by_text("Ready to Download", exact=True).count() == 0
         assert page.evaluate("""async (s) => (await fetch('/api/v1/orders/' + s.code +
           '/downloads/part-1',{headers:{Authorization:'Bearer '+s.token}})).status""",
           customer) == 403
@@ -348,4 +365,44 @@ def test_keyboard_can_reach_primary_checkout_controls():
         assert {"customer-name", "customer-mobile", "continue-order-button"} <= focused
         assert page.locator('label[for="customer-name"]').count() == 1
         assert page.locator('label[for="customer-mobile"]').count() == 1
+        browser.close()
+
+
+
+def test_recovery_separate_field_fallback_remains_available():
+    reset_database()
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page(ignore_https_errors=True)
+        code = order_through_review(page, label="recovery-fallback")
+        details = page.locator("#stage-order-recovery").input_value()
+        token = details.split("Private recovery code: ", 1)[1]
+        page.reload(wait_until="domcontentloaded")
+        page.locator("#stage-existing-order > summary").click()
+        page.locator("#stage-recovery-form details summary").click()
+        page.locator("#stage-recovery-order").fill(code)
+        page.locator("#stage-recovery-code-input").fill(token)
+        page.locator("#stage-recovery-form button[type=submit]").click()
+        page.get_by_text("Awaiting Payment", exact=True).wait_for()
+        assert page.locator("#stage-continue-payment").is_visible()
+        browser.close()
+
+
+
+def test_backend_ready_label_without_active_grant_is_not_shown_as_ready():
+    reset_database()
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page(ignore_https_errors=True)
+        code = order_through_review(page, label="ready-without-grant")
+        page.route("**/checkout-status", lambda route: route.fulfill(
+            status=200, content_type="application/json",
+            body='{"status":"Ready to Download","downloads_ready":false,"download_access_revoked":false}'
+        ))
+        page.locator("#stage-refresh").click()
+        page.get_by_text("download access is unavailable", exact=False).wait_for()
+        assert page.locator("#stage-status").inner_text() == "Payment Confirmed"
+        assert page.get_by_text("Ready to Download", exact=True).count() == 0
+        assert page.locator("#stage-download-panel").is_hidden()
+        page.unroute("**/checkout-status")
         browser.close()
