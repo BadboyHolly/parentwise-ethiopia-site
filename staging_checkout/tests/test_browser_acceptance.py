@@ -322,7 +322,7 @@ def test_status_refresh_recovers_after_interrupted_network():
         set_reference_and_claim(page, "SIM-OFFLINEREF01")
         page.route("**/checkout-status", lambda route: route.abort("failed"))
         page.locator("#stage-refresh").click()
-        assert "Status refresh failed" in page.locator("#stage-status-message").inner_text()
+        page.get_by_text("Status refresh failed", exact=False).wait_for()
         page.unroute("**/checkout-status")
         page.locator("#stage-refresh").click()
         assert page.locator("#stage-status").inner_text() == "Under Review"
