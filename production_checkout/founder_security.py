@@ -62,7 +62,7 @@ class FounderConfig:
     secure_cookie: bool = True
 
     @classmethod
-    def from_environment(cls) -> "FounderConfig":
+    def from_environment(cls, *, payment_accounts: Mapping[str, Mapping[str, str]] | None = None) -> "FounderConfig":
         def required(name: str) -> str:
             value = os.getenv(name, "")
             if not value:
@@ -118,16 +118,33 @@ class FounderConfig:
             raise SecurityConfigurationError("FOUNDER_TOTP_SECRET must be a Base32 secret") from exc
         if len(seed) < 20:
             raise SecurityConfigurationError("FOUNDER_TOTP_SECRET must contain at least 160 bits")
+        secret_values = {
+            "ORDER_TOKEN_KEY": required("ORDER_TOKEN_KEY"),
+            "PAYMENT_REFERENCE_HASH_KEY": required("PAYMENT_REFERENCE_HASH_KEY"),
+            "PAYER_IDENTITY_HASH_KEY": required("PAYER_IDENTITY_HASH_KEY"),
+            "PAYMENT_RECIPIENT_HASH_KEY": required("PAYMENT_RECIPIENT_HASH_KEY"),
+        }
+        if any(len(value) < 32 for value in secret_values.values()):
+            raise SecurityConfigurationError("Order, reference, identity and recipient keys must each be at least 32 characters")
+        if payment_accounts is None or set(payment_accounts) != {"telebirr", "bank"}:
+            raise SecurityConfigurationError("Protected Telebirr and CBE recipient configuration is required")
+        recipients = {}
+        for method in ("telebirr", "bank"):
+            account = payment_accounts[method]
+            number, holder = account.get("number", "").strip(), account.get("holder", "").strip()
+            if not number or not holder or number == "NOT-CONFIGURED" or holder == "NOT-CONFIGURED":
+                raise SecurityConfigurationError("Protected payment recipient configuration is incomplete")
+            recipients[method] = number + "\x1f" + holder
         return cls(
             username=username, password_hash=password_hash,
             totp_secret=totp_secret, session_key=key("FOUNDER_SESSION_KEY"),
             rate_key=key("FOUNDER_RATE_LIMIT_KEY"), encryption_keys=ring,
-            active_encryption_key_id=active, token_secret=required("ORDER_TOKEN_KEY"),
-            reference_hash_secret=required("PAYMENT_REFERENCE_HASH_KEY"),
-            identity_hash_secret=required("PAYER_IDENTITY_HASH_KEY"),
-            recipient_hash_secret=required("PAYMENT_RECIPIENT_HASH_KEY"),
-            telebirr_recipient=required("TELEBIRR_RECIPIENT_CANONICAL"),
-            bank_recipient=required("CBE_RECIPIENT_CANONICAL"), allowed_origins=origins,
+            active_encryption_key_id=active, token_secret=secret_values["ORDER_TOKEN_KEY"],
+            reference_hash_secret=secret_values["PAYMENT_REFERENCE_HASH_KEY"],
+            identity_hash_secret=secret_values["PAYER_IDENTITY_HASH_KEY"],
+            recipient_hash_secret=secret_values["PAYMENT_RECIPIENT_HASH_KEY"],
+            telebirr_recipient=recipients["telebirr"], bank_recipient=recipients["bank"],
+            allowed_origins=origins,
             auth_enabled=True, approvals_enabled=approval_enabled,
         )
 
