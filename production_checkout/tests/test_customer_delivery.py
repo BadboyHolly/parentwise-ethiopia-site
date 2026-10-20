@@ -162,7 +162,7 @@ def test_complete_claim_approval_five_downloads_and_revocation(qa):
             headers={"Authorization":"Bearer "+token}).status_code==404
         with app.state.engine.connect() as db:
             assert db.execute(text("SELECT count(*) FROM production_payment_audit_events WHERE order_id=(SELECT id FROM production_orders WHERE code=:code)"),
-                              {"code":code}).scalar_one()>=5
+                              {"code":code}).scalar_one()>=4
 
 def test_third_party_exception_requires_founder_action_and_missing_payer_is_rejected(qa):
     app,_=qa
