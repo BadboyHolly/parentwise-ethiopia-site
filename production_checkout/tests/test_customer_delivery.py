@@ -100,7 +100,7 @@ def settlement(client,headers,code,claim_id,reference,payer="+251912345678"):
     return client.post("/api/v1/founder/settlements",headers=headers,json={
         "order_id":code,"claim_id":claim_id,"observed_reference":reference,
         "payment_method":"telebirr","amount_etb":1500,"currency":"ETB",
-        "recipient_confirmed":True,"payer_mobile":payer,"evidence_source":"TELEBIRR_PORTAL",
+        "recipient_confirmed":True,"manual_reconciliation_completed":True,"payer_mobile":payer,"evidence_source":"TELEBIRR_PORTAL",
         "settled_at":datetime.now(timezone.utc).isoformat(),"note":"Synthetic independent portal check"})
 
 def test_complete_claim_approval_five_downloads_and_revocation(qa):
@@ -178,6 +178,13 @@ def test_third_party_exception_requires_founder_action_and_missing_payer_is_reje
             "recipient_confirmed":True,"evidence_source":"TELEBIRR_PORTAL",
             "settled_at":datetime.now(timezone.utc).isoformat()})
         assert missing.status_code==422
+        unchecked=client.post("/api/v1/founder/settlements",headers=headers,json={
+            "order_id":code,"claim_id":claim_id,"observed_reference":ref,
+            "payment_method":"telebirr","amount_etb":1500,"currency":"ETB",
+            "recipient_confirmed":True,"manual_reconciliation_completed":False,
+            "payer_mobile":"+251911111111","evidence_source":"TELEBIRR_PORTAL",
+            "settled_at":datetime.now(timezone.utc).isoformat()})
+        assert unchecked.status_code==409
         ev=settlement(client,headers,code,claim_id,ref,payer="+251911111111")
         assert ev.status_code==200,ev.text
         evidence_id=ev.json()["evidence_id"]
