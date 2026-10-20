@@ -11,7 +11,7 @@ import re
 from dataclasses import dataclass
 from typing import Callable
 
-from fastapi import APIRouter, Header, HTTPException, Request
+from fastapi import APIRouter, Body, Header, HTTPException, Request
 from fastapi.responses import Response
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import text
@@ -105,7 +105,7 @@ def create_customer_delivery_router(
         return ("Payment Confirmed", "Payment is confirmed, but download access is currently unavailable. Contact ParentWise support.")
 
     @router.post("/payment-claims", status_code=202)
-    def submit_claim(code: str, body: ClaimInput, request: Request,
+    def submit_claim(code: str, body: ClaimInput = Body(...), request: Request,
                      authorization: str = Header(default="")):
         token = authorize_token(code, authorization)
         try:
