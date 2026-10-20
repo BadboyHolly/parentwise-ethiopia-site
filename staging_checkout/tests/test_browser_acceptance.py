@@ -1,5 +1,6 @@
 """Playwright browser acceptance of the approved Amharic staging checkout."""
 import os
+import time
 from pathlib import Path
 
 import pytest
@@ -26,9 +27,11 @@ def reset_database():
 def founder_login(page):
     page.locator("#stage-founder-user").fill(USERNAME)
     page.locator("#stage-founder-password").fill(PASSWORD)
-    page.locator("#stage-founder-totp").fill(totp_code(TOTP_SECRET))
+    code = totp_code(TOTP_SECRET)
+    page.locator("#stage-founder-totp").fill(code)
     page.locator("#stage-founder-login button[type=submit]").click()
     page.locator("#stage-founder-actions").wait_for(state="visible")
+    return code
 
 
 def enter_review(page, method="telebirr"):
@@ -141,7 +144,7 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
           '/downloads/part-1',{headers:{Authorization:'Bearer '+'Z'.repeat(43)}})).status""",
           customer) == 404
 
-        founder_login(page)
+        founder_totp = founder_login(page)
         page.locator("#stage-settlement-ref").fill(reference)
         page.locator("#stage-settlement-payer").fill("+251900000000")
         page.locator("#stage-record").click()
@@ -184,6 +187,11 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
             assert b"QA DEMO ONLY" in data
             assert b"NOT A PAID PARENTWISE PRODUCT" in data
 
+        # Reload intentionally removes the page's founder CSRF state. Reauthenticate
+        # with a fresh TOTP before using the privileged revoke control.
+        while totp_code(TOTP_SECRET) == founder_totp:
+            time.sleep(0.5)
+        founder_login(page)
         page.locator("#stage-revoke").click()
         page.get_by_text("Payment Confirmed", exact=True).wait_for()
         assert page.evaluate("""async (s) => (await fetch('/api/v1/orders/' + s.code +
