@@ -151,6 +151,8 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
         founder.locator("#stage-approve").click()
         page.locator("#stage-refresh").click()
         page.get_by_text("Ready to Download", exact=True).wait_for()
+        assert page.locator("#stage-claim-form").is_hidden()
+        assert page.locator("#stage-ive-paid").is_hidden()
         assert no_horizontal_overflow(page, width)
         page.locator("#stage-recovery-code-panel").evaluate("(node) => node.hidden=true")
         page.screenshot(path=str(OUT / "screenshots" / ("am-checkout-" + label + "-ready.png")),
@@ -231,6 +233,24 @@ def test_interrupted_order_creation_retries_same_key_and_payload():
         page.locator("#staging-payment").wait_for(state="visible")
         assert len(requests) == 2
         assert requests[0] == requests[1]
+        with create_engine(os.environ["STAGING_DATABASE_URL"]).connect() as conn:
+            assert conn.execute(text("SELECT count(*) FROM production_orders")).scalar_one() == 1
+        browser.close()
+
+
+def test_slow_network_order_creation_completes_without_duplicate_submit():
+    reset_database()
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page(ignore_https_errors=True)
+        page.set_default_timeout(5_000)
+        page.route("**/api/v1/orders", lambda route: (time.sleep(1.2), route.continue_()))
+        enter_review(page)
+        start = time.monotonic()
+        page.locator("#continue-order-button").click()
+        page.locator("#staging-payment").wait_for(state="visible")
+        assert time.monotonic() - start >= 1.0
+        assert page.locator("#continue-order-button").is_disabled()
         with create_engine(os.environ["STAGING_DATABASE_URL"]).connect() as conn:
             assert conn.execute(text("SELECT count(*) FROM production_orders")).scalar_one() == 1
         browser.close()
