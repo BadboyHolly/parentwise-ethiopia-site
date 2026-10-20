@@ -168,7 +168,7 @@ def build_app(
     @app.middleware("http")
     async def privacy_headers(request: Request, call_next):
         response = await call_next(request)
-        response.headers["Cache-Control"] = "no-store"
+        response.headers.setdefault("Cache-Control", "no-store")
         response.headers["Referrer-Policy"] = "no-referrer"
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'"
