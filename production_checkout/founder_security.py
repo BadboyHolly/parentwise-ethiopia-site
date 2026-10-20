@@ -253,6 +253,7 @@ def create_founder_router(sessions: sessionmaker, cfg: FounderConfig) -> APIRout
         amount_etb: int = Field(ge=0, le=10_000_000)
         currency: str = Field(min_length=3, max_length=3)
         recipient_confirmed: bool
+        manual_reconciliation_completed: bool
         payer_mobile: str = Field(pattern=r"^\+251[97][0-9]{8}$")
         evidence_source: str = Field(pattern=r"^(TELEBIRR_PORTAL|BANK_STATEMENT)$")
         settled_at: datetime
@@ -402,6 +403,8 @@ def create_founder_router(sessions: sessionmaker, cfg: FounderConfig) -> APIRout
         from .payment_state import record_settlement_evidence, transaction_reference_digest
         if not body.recipient_confirmed:
             raise HTTPException(409, "Recipient must be independently confirmed")
+        if not body.manual_reconciliation_completed:
+            raise HTTPException(409, "Complete the independent manual reconciliation checklist first")
         canonical_recipient = cfg.telebirr_recipient if body.payment_method == "telebirr" else cfg.bank_recipient
         recipient_digest = hmac.new(cfg.recipient_hash_secret.encode(), ("recipient:v1:"+canonical_recipient).encode(), hashlib.sha256).hexdigest()
         ref_digest = transaction_reference_digest(cfg.reference_hash_secret, body.observed_reference)
