@@ -25,50 +25,32 @@ def reset_database():
 
 
 def founder_login(page):
+    page.goto(BASE + "/staging/founder-simulation", wait_until="domcontentloaded")
     page.locator("#stage-founder-user").fill(USERNAME)
     page.locator("#stage-founder-password").fill(PASSWORD)
     code = totp_code(TOTP_SECRET)
     page.locator("#stage-founder-totp").fill(code)
     page.locator("#stage-founder-login button[type=submit]").click()
-    page.locator("#stage-founder-actions").wait_for(state="visible")
+    page.locator("#actions").wait_for(state="visible")
     return code
-
 
 def enter_review(page, method="telebirr"):
     page_errors = []
-    page.on("pageerror", lambda exc: page_errors.append(str(exc)))
     page.set_default_timeout(5_000)
-    page_errors = []
     page.on("pageerror", lambda exc: page_errors.append(str(exc)))
     page.on("console", lambda msg: page_errors.append("console:" + msg.text) if msg.type == "error" else None)
     page.goto(BASE + "/staging/checkout", wait_until="domcontentloaded")
     assert page.locator("html").get_attribute("lang") == "am"
+    assert page.locator("#staging-founder").count() == 0
     page.locator("#customer-name").fill("QA Parent Example")
     page.locator("#customer-mobile").fill("0900000000")
     page.locator("label.method").nth(0 if method == "telebirr" else 1).click()
     assert page.locator("#payment-details").is_hidden()
-    page.locator("#review-order-button").click()
-    review = page.locator("#checkout-review")
-    try:
-        review.wait_for(state="visible", timeout=3_000)
-    except Exception as exc:
-        details = page.evaluate("""() => ({
-          formPresent: !!document.getElementById("order-form"),
-          formHidden: document.getElementById("order-form")?.hidden,
-          reviewHidden: document.getElementById("checkout-review")?.hidden,
-          name: document.getElementById("customer-name")?.value,
-          mobile: document.getElementById("customer-mobile")?.value,
-          error: document.getElementById("form-error")?.textContent,
-          scriptCount: document.scripts.length,
-          ready: document.readyState
-        })""")
-        page.screenshot(path=str(OUT / "screenshots" / "am-checkout-debug.png"), full_page=True)
-        raise AssertionError(f"Review step did not open; details={details!r}; page_errors={page_errors!r}") from exc
-    assert page.locator("#review-method").inner_text() == ("Telebirr" if method == "telebirr" else "CBE ባንክ")
-
+    assert page.get_by_text("Founder simulation console", exact=True).count() == 0
+    assert page_errors == []
 
 def create_staging_order(page):
-    page.locator("#create-staging-order").click()
+    page.locator("#continue-order-button").click()
     page.locator("#staging-payment").wait_for(state="visible")
     return page.locator("#stage-order-code").inner_text()
 
@@ -76,9 +58,8 @@ def create_staging_order(page):
 def order_through_review(page, method="telebirr", label="review"):
     enter_review(page, method)
     (OUT / "screenshots").mkdir(parents=True, exist_ok=True)
-    page.screenshot(path=str(OUT / "screenshots" / ("am-checkout-" + label + "-review.png")), full_page=True)
+    page.screenshot(path=str(OUT / "screenshots" / ("am-checkout-" + label + "-details.png")), full_page=True)
     return create_staging_order(page)
-
 
 def set_reference_and_claim(page, reference):
     page.locator("#stage-reference").fill(reference)
@@ -232,7 +213,7 @@ def test_interrupted_order_creation_retries_same_key_and_payload():
                 route.continue_()
         page.route("**/api/v1/orders", fail_first)
         enter_review(page)
-        page.locator("#create-staging-order").click()
+        page.locator("#continue-order-button").click()
         page.get_by_text("Retry with the same details.", exact=False).wait_for()
         page.locator("#create-staging-order").click()
         page.locator("#staging-payment").wait_for(state="visible")
@@ -274,7 +255,7 @@ def test_keyboard_can_reach_primary_checkout_controls():
         for _ in range(40):
             page.keyboard.press("Tab")
             focused.add(page.evaluate("document.activeElement.id"))
-            if {"customer-name", "customer-mobile", "review-order-button"} <= focused:
+            if {"customer-name", "customer-mobile", "continue-order-button"} <= focused:
                 break
         assert {"customer-name", "customer-mobile", "review-order-button"} <= focused
         assert page.locator('label[for="customer-name"]').count() == 1
