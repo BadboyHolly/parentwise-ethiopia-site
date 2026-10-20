@@ -1,3 +1,4 @@
+<!-- Static buyer-first mobile demonstration of STEP 6.4A.5, no backend or real payment. -->
 <!doctype html>
 <html lang="am">
 <head>
@@ -145,7 +146,7 @@ label.fieldlabel{margin-bottom:7px;font-weight:700;color:#2d4637}
 .account-meta>span,.account-beneficiary>span{display:block;color:#69796d;font-size:13px;line-height:1.55}
 .account-value-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:5px}
 .account-number{font:800 clamp(19px,2.35vw,25px)/1.4 Arial,sans-serif;color:#1f4d3a;letter-spacing:.02em;overflow-wrap:anywhere}
-.copy-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;background:white;color:var(--green);border:1px solid #afc7b3;min-height:43px;padding:9px 11px;border-radius:10px;white-space:nowrap;cursor:pointer;font-size:13px;font-weight:800}
+.copy-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;background:white;color:var(--green);border:1px solid #afc7b3;min-height:48px;padding:9px 11px;border-radius:10px;white-space:nowrap;cursor:pointer;font-size:13px;font-weight:800}
 .copy-btn:hover{background:#e8f0e8}
 .copy-btn:active{transform:translateY(1px)}
 .copy-btn svg{flex:none}
@@ -189,7 +190,7 @@ label.fieldlabel{margin-bottom:7px;font-weight:700;color:#2d4637}
   .account-details{padding:18px 15px;border-radius:14px}
   .account-value-row{gap:7px}
   .account-number{font-size:clamp(18px,5vw,23px);letter-spacing:0}
-  .copy-btn{font-size:12px;padding:9px 9px;gap:5px;min-height:43px}
+  .copy-btn{font-size:12px;padding:9px 9px;gap:5px;min-height:48px}
   .copy-btn svg{width:15px;height:15px}
   .account-beneficiary{align-items:flex-start;flex-direction:column;gap:1px}
   .help{padding:17px}
@@ -296,6 +297,15 @@ label.fieldlabel{margin-bottom:7px;font-weight:700;color:#2d4637}
 .review-back:hover{background:#e3eee3}
 @media(max-width:390px){.review-list>div{gap:9px}.review-list dd{font-size:15px;max-width:60%}}
 
+
+/* Keep the isolated staging controls contained at narrow mobile widths. */
+@media(max-width:850px){.layout>.panel{min-width:0}}
+#staging-payment,#staging-founder,.staging-placeholder{min-width:0;max-width:100%;width:100%;overflow-wrap:anywhere}
+.staging-placeholder *{min-width:0;max-width:100%;overflow-wrap:anywhere}
+#stage-download-list{display:grid;gap:10px;margin-top:12px}
+#stage-download-list .guide-recommended{border:2px solid #1F4D3A;background:#f0f6ef}
+.guide-badge{display:block;margin-top:4px;color:#7A2E3E;font-size:12px}
+.guide-download-label{display:block;margin-top:7px;text-decoration:underline;text-underline-offset:3px}
 </style>
 </head>
 <body>
@@ -323,14 +333,14 @@ label.fieldlabel{margin-bottom:7px;font-weight:700;color:#2d4637}
  </section>
  <div class="shell checkout-body">
  <div class="steps" aria-label="የግዢ ደረጃዎች">
-    <div class="step current" aria-current="step"><b>1</b><span>የእርስዎ መረጃ</span></div>
-    <div class="step"><b>2</b><span>ክፍያ</span></div>
-    <div class="step"><b>3</b><span>ማረጋገጫ</span></div>
+    <div class="step current" aria-current="step"><b>01</b><span>የእርስዎ መረጃ</span></div>
+    <div class="step"><b>02</b><span>ክፍያ</span></div>
+    <div class="step"><b>03</b><span>ማረጋገጫ</span></div>
  </div>
- <div class="statusbar" role="note"><span class="status-icon" aria-hidden="true">!</span><p><strong>የትዕዛዝ መቀበል ገና አልተጀመረም።</strong> የክፍያ መረጃዎቹ ለማወቅ ብቻ ቀርበዋል። የትዕዛዝ ማረጋገጫ እስኪከፈት ድረስ ገንዘብ አይላኩ።</p></div>
+ <div class="statusbar staging-placeholder" role="note"><span class="status-icon" aria-hidden="true">!</span><p><strong>Temporary English staging placeholder — founder review required</strong><br>This is an isolated test. Use fictional details only. Do not send money.</p></div>
  <div class="layout">
   <section class="panel formpanel" aria-labelledby="detail-title">
-   <div class="panelheading"><div class="panelheading-text"><span class="panelnum">01 / 02</span><h2 class="paneltitle" id="detail-title">የእርስዎ መረጃ</h2><p class="panelintro">የትዕዛዝ መቀበል ሲጀመር የሚያስፈልገው መረጃ</p></div><span class="heading-symbol" aria-hidden="true">✦</span></div>
+   <div class="panelheading"><div class="panelheading-text"><h2 class="paneltitle" id="detail-title">የእርስዎ መረጃ</h2><p class="panelintro">የትዕዛዝ መቀበል ሲጀመር የሚያስፈልገው መረጃ</p></div><span class="heading-symbol" aria-hidden="true">✦</span></div>
    <form id="order-form" autocomplete="off" novalidate>
     <div class="field">
       <label class="fieldlabel" for="customer-name">ሙሉ ስም</label>
@@ -341,7 +351,7 @@ label.fieldlabel{margin-bottom:7px;font-weight:700;color:#2d4637}
       <input id="customer-mobile" name="mobile" type="tel" inputmode="tel" maxlength="13" placeholder="09XXXXXXXX" autocomplete="off">
       <p class="fieldhint">የኢትዮጵያ ስልክ ቁጥር</p>
     </div>
-    <div class="paysection-head"><span class="panelnum">02 / 02</span><h3 class="paymentheading">የክፍያ ዘዴ ይምረጡ</h3><p>በሚመርጡት የክፍያ ዘዴ መሠረት የሂሳብ መረጃው ይታያል።</p></div>
+    <div class="paysection-head"><h3 class="paymentheading">የክፍያ ዘዴ ይምረጡ</h3><p>በሚመርጡት የክፍያ ዘዴ መሠረት የሂሳብ መረጃው ይታያል።</p></div>
     <div class="paymethods" role="group" aria-label="የክፍያ አማራጮች">
       <label class="method">
         <input type="radio" name="payment" value="telebirr" checked>
@@ -352,28 +362,62 @@ label.fieldlabel{margin-bottom:7px;font-weight:700;color:#2d4637}
         <span class="methodcontent"><span class="method-logo-wrap"><img class="method-logo method-logo-cbe" src="assets/cbe-bank-logo.png" width="50" height="50" alt="Commercial Bank of Ethiopia official logo" loading="eager"></span><span class="method-label"><strong class="methodname">CBE ባንክ</strong><small class="methodsub">የባንክ ዝውውር</small></span><span class="method-check" aria-hidden="true">✓</span></span>
       </label>
     </div>
-    <div class="account-details" id="payment-details" aria-label="የተመረጠ የክፍያ መረጃ">
+    <div class="account-details" id="payment-details" hidden aria-label="የተመረጠ የክፍያ መረጃ">
       <div class="account-kicker"><span class="account-kicker-line"></span> የተመረጠው የክፍያ መረጃ</div>
       <div class="account-top"><span class="account-symbol" id="account-symbol"><img id="account-logo" src="assets/telebirr-mark.svg" width="46" height="46" alt="Telebirr logo"></span><div><strong class="account-method" id="account-method">Telebirr</strong><span class="account-method-sub" id="account-method-sub">የሞባይል ክፍያ</span></div></div>
-      <div class="account-meta"><span id="account-number-label">የTelebirr ቁጥር</span><div class="account-value-row"><strong class="account-number" id="account-number">0912910693</strong><button class="copy-btn" type="button" id="copy-number" aria-label="የTelebirr ቁጥር ይቅዱ"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span id="copy-label">Copy</span></button></div></div>
-      <div class="account-beneficiary"><span>የሂሳብ ባለቤት</span><strong id="account-holder">Kidus Elias</strong></div>
-      <p class="copy-message" id="copy-message" role="status" aria-live="polite"></p>
+      <div class="account-meta"><span id="account-number-label">የTelebirr ቁጥር</span><div class="account-value-row"><strong class="account-number" id="account-number">QA-TELEBIRR-ONLY</strong><button class="copy-btn" type="button" id="copy-number" aria-label="የTelebirr ቁጥር ይቅዱ"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span id="copy-label">Copy Payment Number</span></button></div></div>
+      <div class="account-beneficiary"><span>የሂሳብ ባለቤት</span><strong id="account-holder">FICTIONAL QA</strong></div>
+      <p class="copy-message" id="copy-message" role="status" aria-live="polite"></p><p class="staging-placeholder" style="font-size:12px;line-height:1.6;margin:8px 0 0">Temporary English staging placeholder — founder review required: Copy Payment Number replaces anything copied before. Save your order details privately first.</p>
     </div>
-    <button type="submit" class="checkoutaction" id="review-order-button">ወደ ቀጣይ ይሂዱ <span aria-hidden="true">→</span></button>
+    <p id="staging-message" role="status" aria-live="polite"></p><button type="submit" class="checkoutaction" id="continue-order-button">ወደ ቀጣይ ይሂዱ <span aria-hidden="true">→</span></button>
     <p class="availability" id="order-unavailable" role="status">መረጃዎን ማስተካከል ይችላሉ። ገንዘብ አይላኩ።</p>
-    <p class="privacy">ክፍያ ከመፈጸምዎ በፊት ትዕዛዝዎ በስርዓቱ ውስጥ መመዝገብ አለበት። አሁን የትዕዛዝ መቀበያው ስላልተከፈተ የክፍያ ማስረጃም አይላኩ።</p>
+    
    </form>
-   <section class="checkout-review" id="checkout-review" tabindex="-1" aria-labelledby="review-title" hidden>
-     <div class="review-top"><span class="panelnum">02 / 02</span><h2 class="paneltitle" id="review-title">የትዕዛዝዎን መረጃ ያረጋግጡ</h2><p>ከመቀጠልዎ በፊት ያስገቡትን መረጃ ይመልከቱ።</p></div>
-     <dl class="review-list">
-       <div><dt>ሙሉ ስም</dt><dd id="review-name"></dd></div>
-       <div><dt>ስልክ ቁጥር</dt><dd id="review-mobile"></dd></div>
-       <div><dt>የክፍያ ዘዴ</dt><dd id="review-method"></dd></div>
-       <div><dt>ጠቅላላ</dt><dd>1,500 ብር</dd></div>
-     </dl>
-     <p class="review-unavailable" role="status"><strong>ትዕዛዝ መቀበል ገና አልተጀመረም።</strong> ይህ ደረጃ ያስገቡትን መረጃ ለመመልከት ብቻ ነው። ትዕዛዝ አልተመዘገበም፤ ክፍያ አይፈጽሙ።</p>
-     <button type="button" class="review-back" id="review-back">← መረጃዎን ያስተካክሉ</button>
-   </section>
+<details id="stage-existing-order" class="staging-placeholder" style="margin:18px 0;padding:14px;border:1px dashed #7A2E3E;border-radius:12px">
+  <summary>Temporary English staging placeholder — founder review required: Recover an existing order</summary>
+  <form id="stage-recovery-form">
+    <label for="stage-recovery-paste">Paste your complete saved order details</label>
+    <textarea id="stage-recovery-paste" rows="3" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Order number: …&#10;Private recovery code: …" style="width:100%;min-height:96px;padding:12px;border:1px solid #c9d0c5;border-radius:10px;background:#fff;font:14px/1.6 ui-monospace,monospace"></textarea>
+    <details style="margin-top:10px"><summary style="min-height:44px;padding:10px 2px;cursor:pointer">Enter the two details separately</summary>
+      <label for="stage-recovery-order">Order number</label><input id="stage-recovery-order" autocomplete="off">
+      <label for="stage-recovery-code-input">Private recovery code</label><input id="stage-recovery-code-input" autocomplete="off" autocapitalize="off" spellcheck="false">
+    </details>
+    <button type="submit" class="review-back" style="margin-top:12px">Recover order</button>
+    <p id="stage-recovery-message" role="status" aria-live="polite"></p>
+  </form>
+</details>
+<section id="staging-payment" class="checkout-review" hidden aria-labelledby="staging-payment-title" tabindex="-1">
+  <div class="review-top"><span class="panelnum">TEMPORARY ENGLISH STAGING PLACEHOLDER</span><h2 class="paneltitle" id="staging-payment-title">Fictional payment instructions</h2><p>Founder review required for this new message. Do not send money.</p></div>
+  <div id="stage-payment-instructions" class="staging-placeholder" style="padding:14px 0"><strong>Temporary English staging placeholder — founder review required</strong><p>Pay exactly 1,500 ETB to the selected fictional recipient shown below. This is an isolated test. Do not send real money.</p></div>
+  <div class="review-list"><div><dt>Order ID</dt><dd id="stage-order-code"></dd></div><div><dt>Status</dt><dd id="stage-status">Awaiting Payment</dd></div></div>
+  <div id="stage-recovery-code-panel" class="staging-placeholder" hidden style="margin:14px 0;padding:16px;border:1px solid #d8c6a6;border-radius:14px;background:#fcf8ef">
+    <strong class="staging-placeholder">Temporary English staging placeholder — founder review required: Save your order details</strong>
+    <p>Temporary English staging placeholder — founder review required: Before opening your payment app, save your order number and private recovery code somewhere private. Copy both together, write them down privately, or use a password manager you control. Copying does not confirm that they were saved.</p>
+    <label for="stage-order-recovery">Order number and private recovery code</label>
+    <textarea id="stage-order-recovery" readonly rows="3" autocomplete="off" autocapitalize="off" spellcheck="false" style="width:100%;min-height:96px;padding:12px;border:1px solid #c9d0c5;border-radius:10px;background:#fff;font:14px/1.6 ui-monospace,monospace"></textarea>
+    <button type="button" class="review-back" id="stage-copy-order-details">Copy Order Details</button>
+    <button type="button" class="review-back" id="stage-hide-recovery">Hide details</button>
+    <p id="stage-recovery-save-message" role="status" aria-live="polite"></p>
+    <p class="staging-placeholder">Temporary English staging placeholder — founder review required: Copying the payment number replaces the copied order details. Save the details privately first, or write them down.</p>
+  </div>
+  <button type="button" class="review-back" id="stage-show-recovery" hidden>Show saved order details</button>
+  <button type="button" class="checkoutaction staging-placeholder" id="stage-continue-payment">Temporary English staging placeholder — founder review required: Continue to Payment</button>
+  <p id="stage-status-message" role="status" aria-live="polite"></p>
+  
+  <button type="button" class="checkoutaction staging-placeholder" id="stage-ive-paid">Temporary English staging placeholder — founder review required: I have paid</button><p id="stage-reference-help" class="staging-placeholder">Temporary English staging placeholder — founder review required: Find the transaction reference in your payment SMS or bank transaction details. If you cannot find it, contact ParentWise on Telegram for help. <a href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Temporary English staging placeholder — founder review required: Open official Telegram support</a></p>
+  <form id="stage-claim-form" hidden class="staging-placeholder" style="margin-top:16px;padding:14px;border:1px dashed #7A2E3E;border-radius:12px">
+    <strong>Temporary English staging placeholder — founder review required</strong>
+    <label for="stage-reference">Fictional transaction reference</label><input id="stage-reference" autocomplete="off" placeholder="" required>
+    <button type="submit" class="checkoutaction">Temporary English staging placeholder — founder review required: Submit reference for checking</button>
+    <p>Temporary English staging placeholder — founder review required: A reference asks us to check the transfer. It does not confirm payment.</p>
+  </form>
+  <div style="margin-top:14px"><button type="button" class="review-back" id="stage-refresh">Refresh order status</button><span id="stage-downloads" hidden></span></div>
+  <div id="stage-download-panel" class="staging-placeholder" hidden style="margin-top:14px;padding:14px;border:1px dashed #7A2E3E;border-radius:12px">
+    <strong>Temporary English staging placeholder — founder review required</strong>
+    <p>Temporary English staging placeholder — founder review required: After approval, tap Download. On Android, open the download notification or Files > Downloads.</p><div id="stage-download-list"></div>
+  </div>
+</section>
+
   </section>
   <aside aria-label="የትዕዛዝ ማጠቃለያ">
     <div class="panel summary">
@@ -402,100 +446,233 @@ label.fieldlabel{margin-bottom:7px;font-weight:700;color:#2d4637}
  </div>
 </main>
 <script>
+/* VISUAL-ONLY PARENTWISE DEMO. Never sends requests, creates orders, or handles real payments. */
 (() => {
   'use strict';
-  const accounts = Object.freeze({
-    telebirr: Object.freeze({ method: 'Telebirr', sub: 'የሞባይል ክፍያ', label: 'የTelebirr ቁጥር', number: '0912910693', holder: 'Kidus Elias', logo: 'assets/telebirr-mark.svg', logoAlt:'Telebirr logo' }),
-    bank: Object.freeze({ method: 'CBE ባንክ', sub: 'የባንክ ዝውውር', label: 'የCBE ሂሳብ ቁጥር', number: '10002230019327', holder: 'Kidus Elias', logo: 'assets/cbe-bank-logo.png', logoAlt:'Commercial Bank of Ethiopia logo' })
-  });
   const $ = id => document.getElementById(id);
-  const getSelected = () => document.querySelector('input[name="payment"]:checked')?.value || 'telebirr';
-  function updateMethod() {
-    const details = accounts[getSelected()];
-    $('account-method').textContent = details.method;
-    $('account-method-sub').textContent = details.sub;
-    $('account-number-label').textContent = details.label;
-    $('account-number').textContent = details.number;
-    $('account-holder').textContent = details.holder;
-    $('account-logo').src = details.logo;
-    $('account-logo').alt = details.logoAlt;
-    $('account-symbol').classList.toggle('is-cbe', getSelected() === 'bank');
-    $('copy-label').textContent = 'Copy';
-    $('copy-number').setAttribute('aria-label', details.label + ' ይቅዱ');
-    $('copy-message').textContent = '';
+  const form = $('order-form'), steps = Array.from(document.querySelectorAll('.steps .step'));
+  const name = $('customer-name'), phone = $('customer-mobile');
+  const account = {
+    telebirr: {label:'Telebirr', sub:'የሞባይል ክፍያ', number:'QA-TELEBIRR-ONLY', numberLabel:'የTelebirr ቁጥር', logo:'assets/telebirr-mark.svg'},
+    bank: {label:'CBE ባንክ', sub:'የባንክ ዝውውር', number:'QA-CBE-ONLY', numberLabel:'የCBE ሂሳብ ቁጥር', logo:'assets/cbe-bank-logo.png'}
+  };
+  const state = {code:'',token:'',method:'telebirr',mode:0,paymentVisible:false,hasClaim:false,approved:false};
+  const labels = ['00 — ከዚህ ይጀምሩ','01 — የልጅ ባህሪ መመሪያ','02 — የተግባር ደብተር','03 — ፈጣን እርዳታ','04 — የ30 ቀን ልምምድ'];
+  const warning = 'DEMO ONLY — ይህ ለማሳያ ብቻ ነው። እውነተኛ ገንዘብ አይላኩ። ትዕዛዝ አይፈጠርም።';
+  const setText = (id,s) => {$(id).textContent=s};
+  const q = (sel,root=document) => root.querySelector(sel);
+  const selected = () => q('input[name="payment"]:checked')?.value || 'telebirr';
+  const copy = async s => {if (!navigator.clipboard?.writeText) throw Error('clipboard disabled'); await navigator.clipboard.writeText(s)};
+  const savedBlock = () => 'Order number: '+state.code+'\nPrivate recovery code: '+state.token;
+  const scrollPanel = () => {try{window.scrollTo({top:0,behavior:'smooth'})}catch{window.scrollTo(0,0)}};
+  function stage(n){
+    state.mode=n;
+    steps.forEach((el,i)=>{el.classList.toggle('current',i===n);i===n?el.setAttribute('aria-current','step'):el.removeAttribute('aria-current')});
+    form.hidden=n!==0;
+    $('stage-existing-order').hidden=n!==0;
+    $('staging-payment').hidden=n===0;
+    const aside=q('.layout > aside');if(aside)aside.hidden=n!==0;
+    scrollPanel();
   }
-  for (const input of document.querySelectorAll('input[name="payment"]')) input.addEventListener('change', updateMethod);
-  $('copy-number').addEventListener('click', async () => {
-    const number = accounts[getSelected()].number;
-    try {
-      if (!navigator.clipboard?.writeText) throw new Error('clipboard not available');
-      await navigator.clipboard.writeText(number);
-      $('copy-label').textContent = 'Copied';
-      $('copy-message').textContent = 'ቁጥሩ ተቀድቷል። ትዕዛዝ መቀበል እስኪጀመር ድረስ ክፍያ አይፈጽሙ።';
-    } catch {
-      $('copy-message').textContent = 'ቁጥሩን በእጅ ይምረጡና ይቅዱ። ትዕዛዝ መቀበል እስኪጀመር ድረስ ክፍያ አይፈጽሙ።';
-      const selected = $('account-number');
-      const range = document.createRange();
-      range.selectNodeContents(selected);
-      const selection = window.getSelection();
-      selection.removeAllRanges();
-      selection.addRange(range);
-    }
-  });
-  const form = $('order-form');
-  const review = $('checkout-review');
-  const steps = Array.from(document.querySelectorAll('.steps .step'));
-  const nameInput = $('customer-name');
-  const phoneInput = $('customer-mobile');
-  const error = document.createElement('p');
-  error.className = 'field-error';
-  error.id = 'form-error';
-  error.hidden = true;
-  error.setAttribute('role', 'alert');
-  form.insertBefore(error, $('review-order-button'));
-  function fail(message, target) {
-    error.hidden = false;
-    error.textContent = message;
-    target.setAttribute('aria-invalid','true');
-    target.focus();
+  function method(){
+    const a=account[state.code?state.method:selected()];
+    setText('account-method',a.label);setText('account-method-sub',a.sub);
+    setText('account-number-label',a.numberLabel);setText('account-number',a.number);
+    setText('account-holder','DEMO ONLY — NOT A REAL RECIPIENT');
+    $('account-logo').src=a.logo;$('account-logo').alt=a.label;
+    $('account-symbol').classList.toggle('is-cbe',(state.code?state.method:selected())==='bank');
+    setText('copy-label','Copy Number');
   }
-  function step(index) {
-    for (let i = 0; i < steps.length; i++) {
-      steps[i].classList.toggle('current', i === index);
-      if (i === index) steps[i].setAttribute('aria-current', 'step');
-      else steps[i].removeAttribute('aria-current');
-    }
+  function fakeKeys(){
+    const a=crypto.getRandomValues(new Uint8Array(12));
+    const b=crypto.getRandomValues(new Uint8Array(32));
+    state.code='PW-'+Array.from(a,v=>v.toString(16).padStart(2,'0')).join('').toUpperCase();
+    state.token=btoa(String.fromCharCode(...b)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
   }
-  form.addEventListener('submit', event => {
-    event.preventDefault();
-    error.hidden = true;
-    nameInput.removeAttribute('aria-invalid');
-    phoneInput.removeAttribute('aria-invalid');
-    const name = nameInput.value.trim();
-    const mobile = phoneInput.value.trim();
-    if (name.length < 2 || name.length > 100 || !Array.from(name).some(char => /[^0-9\\s]/.test(char))) {
-      fail('ትክክለኛ ሙሉ ስም ያስገቡ።', nameInput);
-      return;
-    }
-    if (!/^(0[97][0-9]{8}|\\+251[97][0-9]{8})$/.test(mobile)) {
-      fail('ትክክለኛ የኢትዮጵያ ስልክ ቁጥር ያስገቡ።', phoneInput);
-      return;
-    }
-    $('review-name').textContent = name;
-    $('review-mobile').textContent = mobile;
-    $('review-method').textContent = accounts[getSelected()].method;
-    form.hidden = true;
-    review.hidden = false;
-    step(1);
-    review.focus();
+  function hiddenDetails(){
+    $('stage-order-recovery').value='';
+    $('stage-recovery-code-panel').hidden=true;
+    $('stage-show-recovery').hidden=false;
+  }
+  function shownDetails(){
+    $('stage-order-recovery').value=savedBlock();
+    $('stage-recovery-code-panel').hidden=false;
+    $('stage-show-recovery').hidden=true;
+  }
+  function showPayment(){
+    state.paymentVisible=true;
+    $('stage-continue-payment').hidden=true;
+    $('payment-details').hidden=false;
+    $('stage-ive-paid').hidden=false;
+    $('demo-skip').hidden=false;
+    setText('stage-status','Demo: Awaiting Payment');
+    setText('stage-status-message','DEMO: No payment was made. Use a fictional reference to continue, or preview Step 3 directly.');
+    $('payment-details').scrollIntoView({behavior:'smooth',block:'center'});
+  }
+  function newOrder(){
+    fakeKeys();state.method=selected();state.paymentVisible=false;state.hasClaim=false;state.approved=false;
+    method();
+    stage(1);shownDetails();
+    $('payment-details').hidden=true;
+    $('stage-continue-payment').hidden=false;
+    $('stage-ive-paid').hidden=true;
+    $('stage-reference-help').hidden=true;
+    $('stage-claim-form').hidden=true;
+    $('demo-next').hidden=true;$('demo-skip').hidden=true;
+    $('stage-download-panel').hidden=true;
+    $('stage-payment-instructions').hidden=false;
+    setText('stage-order-code',state.code);
+    setText('stage-status','DEMO — No payment');
+    setText('stage-status-message','Sample order created in this page only. No real order exists.');
+    setText('staging-payment-title','02 — ክፍያ · Payment Preview');
+  }
+  function pdfBlob(i){
+    const body = 'BT /F1 20 Tf 45 750 Td (ParentWise Ethiopia - DEMO ONLY) Tj 0 -40 Td /F1 12 Tf (Guide '+i+' - sample placeholder, not the paid parenting guide.) Tj ET';
+    const objs=[
+      '<< /Type /Catalog /Pages 2 0 R >>',
+      '<< /Type /Pages /Count 1 /Kids [3 0 R] >>',
+      '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>',
+      '<< /Length '+body.length+' >>\nstream\n'+body+'\nendstream',
+      '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>'
+    ];
+    let file='%PDF-1.4\n',positions=[0];
+    objs.forEach((obj,n)=>{positions.push(file.length);file+=(n+1)+' 0 obj\n'+obj+'\nendobj\n'});
+    const xref=file.length;
+    file+='xref\n0 6\n0000000000 65535 f \n';
+    positions.slice(1).forEach(n=>{file+=String(n).padStart(10,'0')+' 00000 n \n'});
+    file+='trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n'+xref+'\n%%EOF';
+    return new Blob([file],{type:'application/pdf'});
+  }
+  function renderDownloads(){
+    const list=$('stage-download-list');
+    list.replaceChildren();
+    labels.forEach((label,i)=>{
+      const btn=document.createElement('button');
+      btn.type='button';btn.className='review-back'+(i===0?' guide-recommended':'');
+      btn.style.marginBottom='12px';
+      btn.textContent=label+' — Download DEMO PDF'+(i===0?' · Start first':'');
+      btn.addEventListener('click',()=>{
+        const blob=pdfBlob(i);
+        const link=document.createElement('a'),url=URL.createObjectURL(blob);
+        link.href=url;link.download='PARENTWISE-DEMO-'+String(i).padStart(2,'0')+'.pdf';
+        document.body.appendChild(link);link.click();link.remove();
+        setTimeout(()=>URL.revokeObjectURL(url),30000);
+        setText('stage-status-message','Downloaded a sample DEMO PDF only. The real guides are not on this preview.');
+      });
+      list.appendChild(btn);
+    });
+  }
+  function previewReady(){
+    state.approved=true;state.hasClaim=true;
+    stage(2);
+    $('stage-recovery-code-panel').hidden=true;
+    $('stage-show-recovery').hidden=true;
+    $('stage-continue-payment').hidden=true;
+    $('payment-details').hidden=true;
+    $('stage-ive-paid').hidden=true;
+    $('stage-reference-help').hidden=true;
+    $('stage-claim-form').hidden=true;
+    $('stage-payment-instructions').hidden=true;
+    $('demo-next').hidden=true;$('demo-skip').hidden=true;
+    $('stage-refresh').hidden=true;
+    $('stage-download-panel').hidden=false;
+    setText('staging-payment-title','03 — መመሪያዎቹን ያግኙ · Demo Guides');
+    setText('stage-status','DEMO — Simulated approval');
+    setText('stage-status-message','DEMO ONLY: Approval is simulated. No money received, no real order created, and no paid files unlocked.');
+    renderDownloads();
+  }
+  // Every customer-facing interactive element in this preview is local to the page.
+  q('.statusbar').innerHTML='<span class="status-icon" aria-hidden="true">!</span><p><strong>DEMO · ለማሳያ ብቻ</strong> — የግዢውን 3 ደረጃዎች ለመመልከት ነው። <strong>እውነተኛ ክፍያ አይፈጽሙ።</strong> No accounts, payments or orders are processed.</p>';
+  q('.steps .step:nth-child(3) span').textContent='መመሪያዎች';
+  setText('continue-order-button','ይቀጥሉ →');
+  setText('order-unavailable','DEMO ONLY · የሙከራ መረጃ ብቻ ያስገቡ። ምንም መረጃ ወደ ሰርቨር አይላክም።');
+  q('#stage-existing-order > summary').textContent='Return to sample order (current tab only)';
+  q('#stage-recovery-code-panel strong').textContent='Save Your Demo Order Details';
+  q('#stage-recovery-code-panel p').textContent='Keep your order number and private code before opening your payment app. Copying is not the same as saving. This visual demo resets on refresh.';
+  q('#stage-recovery-code-panel p:last-child').textContent='Copying the payment number overwrites your clipboard. Keep the order details private first.';
+  setText('stage-copy-order-details','Copy Order Details');
+  setText('stage-hide-recovery','Hide Details');
+  setText('stage-show-recovery','Show Order Details');
+  setText('stage-continue-payment','Continue to Payment →');
+  q('#staging-payment .review-top .panelnum').textContent='INTERACTIVE DESIGN DEMO';
+  q('#staging-payment .review-top p').textContent=warning;
+  $('stage-payment-instructions').innerHTML='<p>Amount shown: <strong>1,500 ETB</strong>. Recipient below is fictional and cannot receive money. <strong>Do not pay.</strong></p>';
+  q('#payment-details p.staging-placeholder').textContent='Copy Number is a demo action. Save your private order details first; copying a new number replaces the previous clipboard contents.';
+  setText('stage-ive-paid',"I've Paid — DEMO");
+  $('stage-reference-help').innerHTML='In real use, the reference comes from your payment confirmation SMS or bank transaction details. <strong>For this demo, use SIM-DEMO-123.</strong>';
+  q('#stage-claim-form strong').textContent='Demo Transaction Reference';
+  q('#stage-claim-form label').textContent='Fictional reference (SIM-...)';
+  q('#stage-claim-form button[type="submit"]').textContent='Submit Demo Reference';
+  q('#stage-claim-form p').textContent='DEMO: Sending a reference is not proof of payment. Simulated approval is separate.';
+  setText('stage-refresh','View Demo Status');
+  q('#stage-download-panel strong').textContent='Five guides — Demo Download Screen';
+  q('#stage-download-panel p').textContent='Tap a guide to download a dummy PDF. Real ParentWise PDFs are not included. On Android, check Files > Downloads.';
+  q('#stage-recovery-form label').textContent='Paste sample order number and private code';
+  setText('stage-reference','SIM-DEMO-123');
+  name.value='Demo Parent';phone.value='0900000000';
+  q('#stage-existing-order').insertAdjacentHTML('beforeend','<p class="fieldhint">DEMO recovery works only while this page remains open. No credentials are saved by this preview.</p>');
+  $('stage-claim-form').insertAdjacentHTML('afterend','<div id="demo-next" hidden style="margin:20px 0;padding:16px;background:#e9f0e7;border-radius:12px"><strong>DEMO: Payment is not confirmed.</strong><p>To see Step 3 without transferring money, simulate the approval below.</p><button type="button" class="checkoutaction" id="demo-approve">Preview Step 3 — Simulate Approval</button></div><button type="button" class="review-back" id="demo-skip" hidden style="margin-top:12px">Skip to Step 3 (Demo Only)</button>');
+  form.addEventListener('submit',e=>{
+    e.preventDefault();
+    if(name.value.trim().length<2){setText('staging-message','Enter a demo name.');name.focus();return}
+    if(!/^(0[97][0-9]{8}|\+251[97][0-9]{8})$/.test(phone.value.trim())){setText('staging-message','Enter a sample Ethiopian-format phone number.');phone.focus();return}
+    setText('staging-message','');newOrder();
   });
-  $('review-back').addEventListener('click', () => {
-    review.hidden = true;
-    form.hidden = false;
-    step(0);
-    nameInput.focus();
+  q('input[name="payment"][value="telebirr"]').addEventListener('change',method);
+  q('input[name="payment"][value="bank"]').addEventListener('change',method);
+  $('stage-copy-order-details').addEventListener('click',async()=>{
+    try{await copy(savedBlock());setText('stage-recovery-save-message','Copied. Save it privately before copying the payment number.')}
+    catch{setText('stage-recovery-save-message','Clipboard unavailable. Select both details manually.');$('stage-order-recovery').focus();$('stage-order-recovery').select()}
   });
-  updateMethod();
+  $('stage-hide-recovery').addEventListener('click',hiddenDetails);
+  $('stage-show-recovery').addEventListener('click',shownDetails);
+  $('stage-continue-payment').addEventListener('click',showPayment);
+  $('copy-number').addEventListener('click',async()=>{
+    try{await copy(account[state.method].number);setText('copy-message','Copied DEMO recipient. No transfer should be made.')}
+    catch{setText('copy-message','Clipboard unavailable. Fictional number shown above.')}
+  });
+  $('stage-ive-paid').addEventListener('click',()=>{
+    $('stage-ive-paid').hidden=true;
+    $('stage-claim-form').hidden=false;
+    $('stage-reference-help').hidden=false;
+    $('stage-reference').focus();
+  });
+  $('stage-claim-form').addEventListener('submit',e=>{
+    e.preventDefault();
+    const ref=$('stage-reference').value.trim();
+    if(!/^SIM-[A-Za-z0-9-]{3,40}$/.test(ref)){setText('stage-status-message','Use a demo-only SIM- reference.');$('stage-reference').focus();return}
+    state.hasClaim=true;
+    $('stage-claim-form').hidden=true;
+    $('payment-details').hidden=true;
+    $('stage-reference-help').hidden=true;
+    $('demo-next').hidden=false;
+    $('demo-skip').hidden=true;
+    setText('staging-payment-title','02 — ክፍያ በማረጋገጥ ላይ · Demo Pending');
+    setText('stage-status','DEMO — Under Review');
+    setText('stage-status-message','Demo reference recorded in this page only. No payment is confirmed. Do not send money.');
+  });
+  $('stage-refresh').addEventListener('click',()=>{setText('stage-status-message',state.approved?'DEMO approval only. No real payment.':state.hasClaim?'DEMO: Reference under review. No payment confirmed.':'DEMO: No payment and no claim.');});
+  $('demo-approve').addEventListener('click',previewReady);
+  $('demo-skip').addEventListener('click',previewReady);
+  function parseBlock(s){
+    const a=s.match(/(?<![A-Za-z0-9-])PW-[A-F0-9]{24}(?![A-Za-z0-9-])/g)||[];
+    const b=s.match(/(?<![A-Za-z0-9_-])[A-Za-z0-9_-]{43}(?![A-Za-z0-9_-])/g)||[];
+    return a.length===1&&b.length===1?{code:a[0],token:b[0]}:null;
+  }
+  $('stage-recovery-form').addEventListener('submit',e=>{
+    e.preventDefault();
+    const combined=parseBlock($('stage-recovery-paste').value);
+    const code=combined?.code||$('stage-recovery-order').value.trim();
+    const token=combined?.token||$('stage-recovery-code-input').value.trim();
+    if(code!==state.code||token!==state.token||!state.code){
+      setText('stage-recovery-message','This is a visual-only demo. Recovery works only for the sample order created in this open tab.');return;
+    }
+    $('stage-recovery-paste').value='';$('stage-recovery-order').value='';$('stage-recovery-code-input').value='';
+    $('stage-existing-order').open=false;hiddenDetails();
+    state.approved?previewReady():stage(1);
+    setText('stage-recovery-message','Demo order restored in this tab. No server or real access involved.');
+  });
+  method();stage(0);
 })();
 </script>
 </body>
