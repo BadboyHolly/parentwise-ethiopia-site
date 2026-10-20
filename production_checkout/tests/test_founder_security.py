@@ -143,6 +143,18 @@ def test_approval_gate_and_forged_founder_identity_are_denied(founder_app):
         assert blocked.status_code==503
 
 
+def test_founder_request_cannot_supply_recipient_configuration(founder_app):
+    with TestClient(founder_app, base_url="https://founder.example") as client:
+        response=login(client); assert response.status_code==200
+        body={"order_id":"PW-"+"A"*24,"claim_id":"claim-1","observed_reference":"SIM-REFERENCE-1",
+              "payment_method":"telebirr","amount_etb":1500,"currency":"ETB","recipient_confirmed":True,
+              "payer_mobile":"+251912345678","evidence_source":"TELEBIRR_PORTAL",
+              "settled_at":time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime()),"recipient":"ATTACKER-ACCOUNT"}
+        result=client.post("/api/v1/founder/settlements",headers={"Origin":"https://founder.example",
+              "X-CSRF-Token":response.json()["csrf_token"]},json=body)
+        assert result.status_code==422
+
+
 def test_encryption_key_rotation_aad_and_tamper_detection():
     old={"old":b"o"*32,"new":b"n"*32}
     envelope=encrypt_sensitive("SIMULATED-REFERENCE",keyring=old,key_id="old",aad="claim:one")
