@@ -608,7 +608,7 @@ label.fieldlabel{margin-bottom:7px;font-weight:700;color:#2d4637}
   q('#stage-download-panel strong').textContent='Five guides — Demo Download Screen';
   q('#stage-download-panel p').textContent='Tap a guide to download a dummy PDF. Real ParentWise PDFs are not included. On Android, check Files > Downloads.';
   q('#stage-recovery-form label').textContent='Paste sample order number and private code';
-  setText('stage-reference','SIM-DEMO-123');
+  $('stage-reference').value='SIM-DEMO-123';
   name.value='Demo Parent';phone.value='0900000000';
   q('#stage-existing-order').insertAdjacentHTML('beforeend','<p class="fieldhint">DEMO recovery works only while this page remains open. No credentials are saved by this preview.</p>');
   $('stage-claim-form').insertAdjacentHTML('afterend','<div id="demo-next" hidden style="margin:20px 0;padding:16px;background:#e9f0e7;border-radius:12px"><strong>DEMO: Payment is not confirmed.</strong><p>To see Step 3 without transferring money, simulate the approval below.</p><button type="button" class="checkoutaction" id="demo-approve">Preview Step 3 — Simulate Approval</button></div><button type="button" class="review-back" id="demo-skip" hidden style="margin-top:12px">Skip to Step 3 (Demo Only)</button>');
