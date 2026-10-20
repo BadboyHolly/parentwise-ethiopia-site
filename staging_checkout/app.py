@@ -133,6 +133,15 @@ def build_staging_app(*, database_url: str, order_token_secret: str,
         html = html.replace("<script>", f'<script nonce="{nonce}">', 1)
         return HTMLResponse(html, headers={"Cache-Control":"no-store", "X-Robots-Tag":"noindex, nofollow"})
 
+    @app.get("/staging/founder-simulation", include_in_schema=False)
+    def staging_founder_simulator(request: Request):
+        html = (Path(__file__).parent / "ui" / "founder_console.html").read_text(encoding="utf-8")
+        if html.count("<script>") != 1:
+            raise RuntimeError("Founder simulator script markup changed; refusing to serve without a CSP nonce")
+        nonce = request.state.staging_csp_nonce
+        html = html.replace("<script>", f'<script nonce="{nonce}">', 1)
+        return HTMLResponse(html, headers={"Cache-Control":"no-store", "X-Robots-Tag":"noindex, nofollow"})
+
     @app.get("/staging/healthz")
     def stage_health():
         return {"environment":"isolated-staging","payments_enabled":False,
