@@ -333,14 +333,14 @@ label.fieldlabel{margin-bottom:7px;font-weight:700;color:#2d4637}
  </section>
  <div class="shell checkout-body">
  <div class="steps" aria-label="የግዢ ደረጃዎች">
-    <div class="step current" aria-current="step"><b>1</b><span>የእርስዎ መረጃ</span></div>
-    <div class="step"><b>2</b><span>ክፍያ</span></div>
-    <div class="step"><b>3</b><span>ማረጋገጫ</span></div>
+    <div class="step current" aria-current="step"><b>01</b><span>የእርስዎ መረጃ</span></div>
+    <div class="step"><b>02</b><span>ክፍያ</span></div>
+    <div class="step"><b>03</b><span>ማረጋገጫ</span></div>
  </div>
  <div class="statusbar staging-placeholder" role="note"><span class="status-icon" aria-hidden="true">!</span><p><strong>Temporary English staging placeholder — founder review required</strong><br>This is an isolated test. Use fictional details only. Do not send money.</p></div>
  <div class="layout">
   <section class="panel formpanel" aria-labelledby="detail-title">
-   <div class="panelheading"><div class="panelheading-text"><span class="panelnum">01 / 02</span><h2 class="paneltitle" id="detail-title">የእርስዎ መረጃ</h2><p class="panelintro">የትዕዛዝ መቀበል ሲጀመር የሚያስፈልገው መረጃ</p></div><span class="heading-symbol" aria-hidden="true">✦</span></div>
+   <div class="panelheading"><div class="panelheading-text"><h2 class="paneltitle" id="detail-title">የእርስዎ መረጃ</h2><p class="panelintro">የትዕዛዝ መቀበል ሲጀመር የሚያስፈልገው መረጃ</p></div><span class="heading-symbol" aria-hidden="true">✦</span></div>
    <form id="order-form" autocomplete="off" novalidate>
     <div class="field">
       <label class="fieldlabel" for="customer-name">ሙሉ ስም</label>
@@ -351,7 +351,7 @@ label.fieldlabel{margin-bottom:7px;font-weight:700;color:#2d4637}
       <input id="customer-mobile" name="mobile" type="tel" inputmode="tel" maxlength="13" placeholder="09XXXXXXXX" autocomplete="off">
       <p class="fieldhint">የኢትዮጵያ ስልክ ቁጥር</p>
     </div>
-    <div class="paysection-head"><span class="panelnum">02 / 02</span><h3 class="paymentheading">የክፍያ ዘዴ ይምረጡ</h3><p>በሚመርጡት የክፍያ ዘዴ መሠረት የሂሳብ መረጃው ይታያል።</p></div>
+    <div class="paysection-head"><h3 class="paymentheading">የክፍያ ዘዴ ይምረጡ</h3><p>በሚመርጡት የክፍያ ዘዴ መሠረት የሂሳብ መረጃው ይታያል።</p></div>
     <div class="paymethods" role="group" aria-label="የክፍያ አማራጮች">
       <label class="method">
         <input type="radio" name="payment" value="telebirr" checked>
@@ -465,7 +465,7 @@ label.fieldlabel{margin-bottom:7px;font-weight:700;color:#2d4637}
   function auth(){return {'Authorization':'Bearer '+state.token}}
   function newKey(){const a=new Uint8Array(32);crypto.getRandomValues(a);return btoa(String.fromCharCode(...a)).replace(/=/g,'').replace(/\+/g,'-').replace(/\//g,'_')}
   async function request(path,options){const r=await fetch(path,options||{});let data={};try{data=await r.json()}catch{}if(!r.ok)throw new Error(data.detail||('Request failed ('+r.status+')'));return data}
-  function showOrder(){form.hidden=true;step(1);$('staging-payment').hidden=false;updateMethod(state.method);$('stage-recovery-code-panel').hidden=false;$('stage-order-recovery').value='Order number: '+state.code+'\nPrivate recovery code: '+state.token;$('stage-order-code').textContent=state.code;$('payment-details').hidden=true;$('stage-continue-payment').hidden=false;$('stage-ive-paid').hidden=true;$('stage-reference-help').hidden=true;$('staging-payment').insertBefore($('stage-recovery-code-panel'),$('stage-payment-instructions'));$('staging-payment').insertBefore($('payment-details'),$('stage-status-message'))}
+  function showOrder(){form.hidden=true;document.querySelector('.layout > aside').hidden=true;step(1);$('staging-payment').hidden=false;updateMethod(state.method);$('stage-recovery-code-panel').hidden=false;$('stage-order-recovery').value='Order number: '+state.code+'\nPrivate recovery code: '+state.token;$('stage-order-code').textContent=state.code;$('payment-details').hidden=true;$('stage-continue-payment').hidden=false;$('stage-ive-paid').hidden=true;$('stage-reference-help').hidden=true;$('staging-payment').insertBefore($('stage-recovery-code-panel'),$('stage-payment-instructions'));$('staging-payment').insertBefore($('payment-details'),$('stage-status-message'))}
   function toE164(v){return v.startsWith('0')?'+251'+v.slice(1):v}
   async function createOrder(){const button=$('continue-order-button');button.disabled=true;button.setAttribute('aria-busy','true');const body={customer_name:nameInput.value.trim(),mobile:phoneInput.value.trim(),payment_method:selectedMethod()};const payload=JSON.stringify(body);if(orderRequest.key&&orderRequest.payload!==payload){const original=JSON.parse(orderRequest.payload);nameInput.value=original.customer_name;phoneInput.value=original.mobile;document.querySelector('input[name="payment"][value="'+original.payment_method+'"]').checked=true;updateMethod(original.payment_method);say($('staging-message'),'Temporary English staging placeholder — founder review required: We restored the details tied to your pending order request. Select Continue to safely retry it.');button.disabled=false;button.removeAttribute('aria-busy');return}if(!orderRequest.key){orderRequest.key=newKey();orderRequest.payload=payload}try{const data=await request('/api/v1/orders',{method:'POST',headers:{'Content-Type':'application/json','Idempotency-Key':orderRequest.key},body:payload});state.code=data.order.order_id;state.token=data.access_token;state.method=data.order.payment_method;state.phone=toE164(body.mobile);showOrder();say($('stage-status-message'),'Temporary English staging placeholder — founder review required: Test order created. No payment has been received.')}catch(e){say($('staging-message'),'Temporary English staging placeholder — founder review required: '+e.message+' Retry with the same details.')}finally{button.disabled=false;button.removeAttribute('aria-busy')}}
   $('stage-claim-form').addEventListener('submit',async e=>{e.preventDefault();const ref=$('stage-reference').value.trim();$('stage-claim-form').querySelector('button[type="submit"]').disabled=true;try{await request('/api/v1/orders/'+state.code+'/payment-claims',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},auth()),body:JSON.stringify({test_reference:ref,reported_amount_etb:1500,currency:'ETB'})});say($('stage-status'),'Under Review');say($('stage-status-message'),'Temporary English staging placeholder — founder review required: Reference received. Payment is still being checked. If you have already paid, do not pay again. You can return later using your saved order details.');await refreshStatus()}catch(err){say($('stage-status-message'),'Temporary English staging placeholder — founder review required: Your reference was not submitted. Check your connection and try again.')}finally{$('stage-claim-form').querySelector('button[type="submit"]').disabled=false}});
