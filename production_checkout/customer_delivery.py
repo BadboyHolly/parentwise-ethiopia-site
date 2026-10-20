@@ -103,7 +103,7 @@ def create_customer_delivery_router(
         return "Payment Confirmed"
 
     @router.post("/payment-claims", status_code=202)
-    def submit_claim(body: ClaimInput, request: Request,
+    def submit_claim(code: str, body: ClaimInput, request: Request,
                      authorization: str = Header(default="")):
         token = authorize_token(code, authorization)
         try:
@@ -133,7 +133,7 @@ def create_customer_delivery_router(
             raise HTTPException(503, "Payment claim could not be saved. Please retry shortly.") from None
 
     @router.get("/checkout-status")
-    def checkout_status(request: Request, authorization: str = Header(default="")):
+    def checkout_status(code: str, request: Request, authorization: str = Header(default="")):
         token = authorize_token(code, authorization)
         try:
             with sessions.begin() as db:
@@ -147,7 +147,7 @@ def create_customer_delivery_router(
             raise HTTPException(503, "Order status is temporarily unavailable") from None
 
     for part in range(1, 6):
-        def download(request: Request, authorization: str = Header(default=""), file_part: int = part):
+        def download(code: str, request: Request, authorization: str = Header(default=""), file_part: int = part):
             token = authorize_token(code, authorization)
             try:
                 with sessions.begin() as db:
