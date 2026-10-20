@@ -167,6 +167,7 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
         page.reload(wait_until="domcontentloaded")
         assert page.evaluate("sessionStorage.length + localStorage.length") == 0
         page.locator("#stage-recovery-code-panel").wait_for(state="hidden")
+        page.locator("#stage-existing-order summary").click()
         page.locator("#stage-recovery-order").fill(code)
         page.locator("#stage-recovery-code-input").fill(recovery_code)
         page.locator("#stage-recovery-form button[type=submit]").click()
