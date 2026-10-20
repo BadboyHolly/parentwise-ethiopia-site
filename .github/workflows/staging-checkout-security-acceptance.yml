@@ -5,6 +5,7 @@ on:
     branches:
       - dev/staging-checkout-security-20261020
       - dev/staging-checkout-ux-20261020
+      - dev/staging-checkout-final-simplicity-20261020
     paths:
       - 'production_checkout/**'
       - 'staging_checkout/**'
@@ -12,15 +13,21 @@ on:
       - 'docs/STEP-6.4B-R2-AND-FOUNDER-RUNBOOK.md'
       - 'docs/STEP-6.4A-ENGLISH-COPY-REVIEW.md'
       - 'docs/STEP-6.4A-5-PARENT-USABILITY-TEST.md'
+      - 'docs/STEP-6.4A.2-SETTLEMENT-VERIFICATION-FEASIBILITY.md'
   pull_request:
     branches:
       - dev/secure-pdf-delivery-20261020
       - dev/staging-checkout-security-20261020
+      - dev/staging-checkout-ux-20261020
+      - dev/staging-checkout-final-simplicity-20261020
     paths:
       - 'production_checkout/**'
       - 'staging_checkout/**'
       - '.github/workflows/staging-checkout-security-acceptance.yml'
       - 'docs/STEP-6.4B-R2-AND-FOUNDER-RUNBOOK.md'
+      - 'docs/STEP-6.4A-ENGLISH-COPY-REVIEW.md'
+      - 'docs/STEP-6.4A-5-PARENT-USABILITY-TEST.md'
+      - 'docs/STEP-6.4A.2-SETTLEMENT-VERIFICATION-FEASIBILITY.md'
 
 permissions:
   contents: read
