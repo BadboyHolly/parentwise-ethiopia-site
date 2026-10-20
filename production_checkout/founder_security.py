@@ -24,7 +24,7 @@ from argon2.exceptions import InvalidHashError, VerifyMismatchError
 from cryptography.exceptions import InvalidTag
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from fastapi import APIRouter, Cookie, Depends, Header, HTTPException, Request, Response
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from sqlalchemy import text
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -195,20 +195,25 @@ def _audit(db: Session, event_type: str, founder_id: str | None, source_hash: st
 
 def _consume_rate_limit(db: Session, cfg: FounderConfig, request: Request, username: str) -> str:
     ip = request.client.host if request.client else "unknown"
-    bucket = _digest(cfg.rate_key, "founder-login", username.lower() + "|" + ip)
-    row = db.execute(text("""INSERT INTO production_founder_rate_limits
-       (bucket_hash, window_started_at, attempts) VALUES (:bucket, now(), 0)
-       ON CONFLICT (bucket_hash) DO UPDATE SET bucket_hash=EXCLUDED.bucket_hash
-       RETURNING bucket_hash"""), {"bucket": bucket}).first()
-    current = db.execute(text("""SELECT window_started_at, attempts
-       FROM production_founder_rate_limits WHERE bucket_hash=:bucket FOR UPDATE"""),
-       {"bucket": row[0]}).one()
-    if current.attempts >= 5 and current.window_started_at > datetime.now(timezone.utc) - timedelta(minutes=15):
-        raise HTTPException(429, "Too many sign-in attempts. Try again later.")
-    if current.window_started_at <= datetime.now(timezone.utc) - timedelta(minutes=15):
-        db.execute(text("UPDATE production_founder_rate_limits SET window_started_at=now(), attempts=1, updated_at=now() WHERE bucket_hash=:bucket"), {"bucket": bucket})
-    else:
-        db.execute(text("UPDATE production_founder_rate_limits SET attempts=attempts+1, updated_at=now() WHERE bucket_hash=:bucket"), {"bucket": bucket})
+    now = datetime.now(timezone.utc)
+    buckets = sorted((
+        (_digest(cfg.rate_key, "founder-login-ip", username.lower() + "|" + ip), 5, timedelta(minutes=15)),
+        (_digest(cfg.rate_key, "founder-login-user", username.lower()), 20, timedelta(hours=1)),
+    ))
+    # Lock both deterministic keys in sorted order to avoid deadlocks under concurrent attempts.
+    for bucket, limit, window in buckets:
+        db.execute(text("""INSERT INTO production_founder_rate_limits
+           (bucket_hash, window_started_at, attempts) VALUES (:bucket, now(), 0)
+           ON CONFLICT (bucket_hash) DO UPDATE SET bucket_hash=EXCLUDED.bucket_hash"""), {"bucket": bucket})
+        current = db.execute(text("""SELECT window_started_at, attempts
+           FROM production_founder_rate_limits WHERE bucket_hash=:bucket FOR UPDATE"""),
+           {"bucket": bucket}).one()
+        if current.attempts >= limit and current.window_started_at > now - window:
+            raise HTTPException(429, "Too many sign-in attempts. Try again later.", headers={"Retry-After": str(int(window.total_seconds()))})
+        if current.window_started_at <= now - window:
+            db.execute(text("UPDATE production_founder_rate_limits SET window_started_at=now(), attempts=1, updated_at=now() WHERE bucket_hash=:bucket"), {"bucket": bucket})
+        else:
+            db.execute(text("UPDATE production_founder_rate_limits SET attempts=attempts+1, updated_at=now() WHERE bucket_hash=:bucket"), {"bucket": bucket})
     return _digest(cfg.rate_key, "source", ip)
 
 
@@ -235,7 +240,17 @@ def create_founder_router(sessions: sessionmaker, cfg: FounderConfig) -> APIRout
         recipient_confirmed: bool
         payer_mobile: str = Field(pattern=r"^\+251[97][0-9]{8}$")
         evidence_source: str = Field(pattern=r"^(TELEBIRR_PORTAL|BANK_STATEMENT)$")
+        settled_at: datetime
         note: str = Field(default="", max_length=512)
+
+        @field_validator("settled_at")
+        @classmethod
+        def validate_settled_at(cls, value: datetime) -> datetime:
+            if value.tzinfo is None or value.utcoffset() is None:
+                raise ValueError("Settlement time must include a timezone")
+            if value > datetime.now(timezone.utc) + timedelta(minutes=5):
+                raise ValueError("Settlement time cannot be in the future")
+            return value
 
     class ExceptionInput(BaseModel):
         model_config = ConfigDict(extra="forbid")
@@ -381,7 +396,7 @@ def create_founder_router(sessions: sessionmaker, cfg: FounderConfig) -> APIRout
                     claim_id=body.claim_id, reference_digest=ref_digest, payment_method=body.payment_method,
                     amount_etb=body.amount_etb, currency=body.currency.upper(), recipient_digest=recipient_digest,
                     payer_identity_digest=payer_digest, evidence_source=body.evidence_source,
-                    settled_at=datetime.now(timezone.utc), evidence_note_ciphertext=note)
+                    settled_at=body.settled_at.astimezone(timezone.utc), evidence_note_ciphertext=note)
             except Exception as exc:
                 _domain_error(exc)
         return {"evidence_id": evidence_id, "status": "EVIDENCE_RECORDED_NOT_APPROVED"}
