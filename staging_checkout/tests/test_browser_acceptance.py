@@ -214,6 +214,10 @@ def test_interrupted_order_creation_retries_same_key_and_payload():
             request = route.request
             requests.append((request.headers.get("idempotency-key"), request.post_data))
             if len(requests) == 1:
+                # Let the server commit, then drop its response. This exercises
+                # the ambiguous-network outcome rather than a pre-send failure.
+                response = route.fetch()
+                assert response.status == 201
                 route.abort("failed")
             else:
                 route.continue_()
@@ -225,6 +229,8 @@ def test_interrupted_order_creation_retries_same_key_and_payload():
         page.locator("#staging-payment").wait_for(state="visible")
         assert len(requests) == 2
         assert requests[0] == requests[1]
+        with create_engine(os.environ["STAGING_DATABASE_URL"]).connect() as conn:
+            assert conn.execute(text("SELECT count(*) FROM production_orders")).scalar_one() == 1
         browser.close()
 
 
