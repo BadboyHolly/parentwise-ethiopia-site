@@ -473,8 +473,9 @@ label.fieldlabel{margin-bottom:7px;font-weight:700;color:#2d4637}
     if(!state.code)return;
     try{
       const data=await request('/api/v1/orders/'+state.code+'/checkout-status',{headers:auth()});
-      say($('stage-status'),data.status);
       const downloadsReady=data.status==='Ready to Download'&&data.downloads_ready===true;
+      const visibleStatus=data.status==='Ready to Download'&&!downloadsReady?'Payment Confirmed':data.status;
+      say($('stage-status'),visibleStatus);
       $('stage-download-panel').hidden=!downloadsReady;
       if(data.status==='Awaiting Payment'){
         $('staging-payment-title').textContent='Temporary English staging placeholder — founder review required: Fictional payment instructions';
@@ -486,12 +487,12 @@ label.fieldlabel{margin-bottom:7px;font-weight:700;color:#2d4637}
         $('stage-payment-instructions').hidden=true;$('payment-details').hidden=true;$('stage-reference-help').hidden=true;
         $('stage-claim-form').hidden=true;$('stage-continue-payment').hidden=true;$('stage-ive-paid').hidden=true;
         $('stage-status-message').textContent='Temporary English staging placeholder — founder review required: Reference received. We’re checking your payment. If you already paid, do not pay again. You can return later using your saved order details.';
-      }else if(data.status==='Payment Confirmed'){
+      }else if(data.status==='Payment Confirmed'||data.status==='Ready to Download'){
         $('staging-payment-title').textContent='Temporary English staging placeholder — founder review required: Payment confirmed';
         $('stage-payment-instructions').hidden=true;$('payment-details').hidden=true;$('stage-reference-help').hidden=true;
         $('stage-claim-form').hidden=true;$('stage-continue-payment').hidden=true;$('stage-ive-paid').hidden=true;step(1);
         $('stage-status-message').textContent='Temporary English staging placeholder — founder review required: Your payment is confirmed, but download access is unavailable. Contact us for help.';
-      }else if(data.status==='Ready to Download'){
+      }else if(data.status==='Ready to Download'&&downloadsReady){
         $('staging-payment-title').textContent='Temporary English staging placeholder — founder review required: Your guides are ready';
         $('stage-payment-instructions').hidden=true;$('payment-details').hidden=true;$('stage-reference-help').hidden=true;
         $('stage-claim-form').hidden=true;$('stage-continue-payment').hidden=true;$('stage-ive-paid').hidden=true;step(2);
