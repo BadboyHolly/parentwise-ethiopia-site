@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - main
+      - dev/payment-delivery-state-foundation-20261019
     paths:
       - 'production_checkout/**'
       - 'staging_checkout/tests/test_journey.py'
