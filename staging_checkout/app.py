@@ -44,6 +44,21 @@ def build_staging_app(*, database_url: str, order_token_secret: str,
         raise RuntimeError("Staging integration requires APP_MODE=staging")
     if os.getenv("PAYMENTS_ENABLED", "true").lower() != "false":
         raise RuntimeError("Staging integration requires PAYMENTS_ENABLED=false")
+    production_gates = (
+        "ORDER_INTAKE_ENABLED",
+        "CUSTOMER_PAYMENT_CLAIMS_ENABLED",
+        "FOUNDER_AUTH_ENABLED",
+        "FOUNDER_APPROVAL_ENABLED",
+        "SECURE_PDF_DELIVERY_ENABLED",
+        "PRODUCTION_ORDER_INTAKE_ENABLED",
+    )
+    enabled_gates = [name for name in production_gates
+                     if os.getenv(name, "false").strip().lower() != "false"]
+    if enabled_gates:
+        raise RuntimeError(
+            "Production feature gates must remain disabled in staging: "
+            + ", ".join(enabled_gates)
+        )
     if not order_intake_enabled or os.getenv("STAGING_ORDER_INTAKE_ENABLED") != "true":
         raise RuntimeError("Staging order intake must be explicitly enabled for isolated tests")
     if not database_url.startswith("postgresql+psycopg://"):
@@ -57,7 +72,7 @@ def build_staging_app(*, database_url: str, order_token_secret: str,
         payment_accounts=FICTIONAL_RECIPIENTS)
     @app.middleware("http")
     async def staging_checkout_policy(request: Request, call_next):
-        nonce = secrets.token_urlsafe(18) if request.url.path == "/staging/checkout" else ""
+        nonce = secrets.token_urlsafe(18) if request.url.path in {"/staging/checkout", "/staging/checkout-amharic"} else ""
         if nonce:
             request.state.staging_csp_nonce = nonce
         response = await call_next(request)
@@ -109,6 +124,7 @@ def build_staging_app(*, database_url: str, order_token_secret: str,
     app.mount("/staging/assets", StaticFiles(directory=str(Path(__file__).parent.parent / "assets")), name="staging-public-brand-assets")
 
     @app.get("/staging/checkout", include_in_schema=False)
+    @app.get("/staging/checkout-amharic", include_in_schema=False)
     def staging_checkout_ui(request: Request):
         html = (Path(__file__).parent / "ui" / "checkout.html").read_text(encoding="utf-8")
         if html.count("<script>") != 1:

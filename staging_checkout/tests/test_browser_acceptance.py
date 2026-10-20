@@ -1,5 +1,6 @@
 """Playwright browser acceptance of the approved Amharic staging checkout."""
 import os
+import time
 from pathlib import Path
 
 import pytest
@@ -26,9 +27,11 @@ def reset_database():
 def founder_login(page):
     page.locator("#stage-founder-user").fill(USERNAME)
     page.locator("#stage-founder-password").fill(PASSWORD)
-    page.locator("#stage-founder-totp").fill(totp_code(TOTP_SECRET))
+    code = totp_code(TOTP_SECRET)
+    page.locator("#stage-founder-totp").fill(code)
     page.locator("#stage-founder-login button[type=submit]").click()
     page.locator("#stage-founder-actions").wait_for(state="visible")
+    return code
 
 
 def enter_review(page, method="telebirr"):
@@ -110,37 +113,38 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
         assert "Kidus Elias" not in page.content()
         assert no_horizontal_overflow(page, width), page.evaluate("""() => ({viewport: innerWidth, document: document.documentElement.scrollWidth, offenders: [...document.querySelectorAll("*")].map(e => ({tag:e.tagName,id:e.id,cls:typeof e.className==="string"?e.className:"",left:Math.round(e.getBoundingClientRect().left),right:Math.round(e.getBoundingClientRect().right),width:Math.round(e.getBoundingClientRect().width)})).filter(x => x.right > innerWidth + 1 || x.left < -1).slice(0,20)})""")
 
-        # Same key and same payload must resolve to the same unique order.
-        duplicate = page.evaluate("""async () => {
-          const key=sessionStorage.getItem('pw-stage-idem');
-          const body=sessionStorage.getItem('pw-stage-payload');
-          const r=await fetch('/api/v1/orders',{method:'POST',
-            headers:{'Content-Type':'application/json','Idempotency-Key':key},body});
-          return {status:r.status,data:await r.json()};
-        }""")
-        assert duplicate["status"] in (200, 201)
-        assert duplicate["data"]["order"]["order_id"] == code
-
+        # Authorization is retained in memory only; customers reenter it after reload.
+        recovery_code = page.locator("#stage-recovery-code").input_value()
+        assert len(recovery_code) == 43
+        assert recovery_code not in page.url
+        assert page.evaluate("sessionStorage.length + localStorage.length") == 0
+        customer = {"code": code, "token": recovery_code}
+        page.evaluate("""() => Object.defineProperty(navigator, "clipboard", {
+          configurable: true, value: {writeText: () => Promise.reject(new Error("denied"))}
+        })""")
+        page.locator("#stage-copy-recovery").click()
+        assert "Clipboard unavailable" in page.locator("#stage-recovery-save-message").inner_text()
+        assert page.locator("#stage-recovery-code").evaluate(
+            "(el) => el.selectionStart === 0 && el.selectionEnd === el.value.length"
+        )
         reference = "SIM-BROWSER" + label
         set_reference_and_claim(page, reference)
-        duplicate_claim = page.evaluate("""async (ref) => {
-          const s=JSON.parse(sessionStorage.getItem("pw-stage-checkout-am-v1"));
-          const r=await fetch("/api/v1/orders/"+s.code+"/payment-claims",{method:"POST",
-            headers:{Authorization:"Bearer "+s.token,"Content-Type":"application/json"},
+        duplicate_claim = page.evaluate("""async ({ref, order}) => {
+          const r=await fetch("/api/v1/orders/"+order.code+"/payment-claims",{method:"POST",
+            headers:{Authorization:"Bearer "+order.token,"Content-Type":"application/json"},
             body:JSON.stringify({test_reference:ref,reported_amount_etb:1500,currency:"ETB"})});
           return r.status;
-        }""", reference)
+        }""", {"ref": reference, "order": customer})
         assert duplicate_claim == 409
         page.locator("#stage-refresh").click()
         assert page.locator("#stage-status").inner_text() == "Under Review"
-        customer = page.evaluate("() => JSON.parse(sessionStorage.getItem('pw-stage-checkout-am-v1'))")
         assert page.evaluate("""async (s) => (await fetch('/api/v1/orders/' + s.code +
           '/downloads/part-1',{headers:{Authorization:'Bearer '+s.token}})).status""", customer) == 403
         assert page.evaluate("""async (s) => (await fetch('/api/v1/orders/' + s.code +
           '/downloads/part-1',{headers:{Authorization:'Bearer '+'Z'.repeat(43)}})).status""",
           customer) == 404
 
-        founder_login(page)
+        founder_totp = founder_login(page)
         page.locator("#stage-settlement-ref").fill(reference)
         page.locator("#stage-settlement-payer").fill("+251900000000")
         page.locator("#stage-record").click()
@@ -150,6 +154,7 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
         page.locator("#stage-refresh").click()
         assert page.locator("#stage-status").inner_text() == "Under Review"
         page.locator("#staging-founder").evaluate("(node) => node.style.display='none'")
+        page.locator("#stage-recovery-code-panel").evaluate("(node) => node.hidden=true")
         page.screenshot(path=str(OUT / "screenshots" / ("am-checkout-" + label + "-pending.png")),
                               full_page=True)
         page.locator("#staging-founder").evaluate("(node) => node.style.display=''")
@@ -157,10 +162,18 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
         page.get_by_text("Ready to Download", exact=True).wait_for()
         assert no_horizontal_overflow(page, width)
         page.locator("#staging-founder").evaluate("(node) => node.style.display='none'")
+        page.locator("#stage-recovery-code-panel").evaluate("(node) => node.hidden=true")
         page.screenshot(path=str(OUT / "screenshots" / ("am-checkout-" + label + "-ready.png")),
                               full_page=True)
         page.locator("#staging-founder").evaluate("(node) => node.style.display=''")
+        page.locator("#stage-recovery-code-panel").evaluate("(node) => node.hidden=true")
         page.reload(wait_until="domcontentloaded")
+        assert page.evaluate("sessionStorage.length + localStorage.length") == 0
+        page.locator("#stage-recovery-code-panel").wait_for(state="hidden")
+        page.locator("#stage-existing-order summary").click()
+        page.locator("#stage-recovery-order").fill(code)
+        page.locator("#stage-recovery-code-input").fill(recovery_code)
+        page.locator("#stage-recovery-form button[type=submit]").click()
         page.get_by_text("Ready to Download", exact=True).wait_for()
 
         for part in range(1, 6):
@@ -174,6 +187,11 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
             assert b"QA DEMO ONLY" in data
             assert b"NOT A PAID PARENTWISE PRODUCT" in data
 
+        # Reload intentionally removes the page's founder CSRF state. Reauthenticate
+        # with a fresh TOTP before using the privileged revoke control.
+        while totp_code(TOTP_SECRET) == founder_totp:
+            time.sleep(0.5)
+        founder_login(page)
         page.locator("#stage-revoke").click()
         page.get_by_text("Payment Confirmed", exact=True).wait_for()
         assert page.evaluate("""async (s) => (await fetch('/api/v1/orders/' + s.code +
@@ -205,6 +223,10 @@ def test_interrupted_order_creation_retries_same_key_and_payload():
             request = route.request
             requests.append((request.headers.get("idempotency-key"), request.post_data))
             if len(requests) == 1:
+                # Let the server commit, then drop its response. This exercises
+                # the ambiguous-network outcome rather than a pre-send failure.
+                response = route.fetch()
+                assert response.status == 201
                 route.abort("failed")
             else:
                 route.continue_()
@@ -216,6 +238,8 @@ def test_interrupted_order_creation_retries_same_key_and_payload():
         page.locator("#staging-payment").wait_for(state="visible")
         assert len(requests) == 2
         assert requests[0] == requests[1]
+        with create_engine(os.environ["STAGING_DATABASE_URL"]).connect() as conn:
+            assert conn.execute(text("SELECT count(*) FROM production_orders")).scalar_one() == 1
         browser.close()
 
 
@@ -238,4 +262,21 @@ def test_third_party_payer_mismatch_is_denied_then_claim_can_be_rejected():
         assert page.locator("#stage-download-panel").is_hidden()
         page.locator("#stage-reject").click()
         page.get_by_text("Awaiting Payment", exact=True).wait_for()
+        browser.close()
+
+def test_keyboard_can_reach_primary_checkout_controls():
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page(viewport={"width": 360, "height": 800},
+                                ignore_https_errors=True)
+        page.goto(BASE + "/staging/checkout", wait_until="domcontentloaded")
+        focused = set()
+        for _ in range(40):
+            page.keyboard.press("Tab")
+            focused.add(page.evaluate("document.activeElement.id"))
+            if {"customer-name", "customer-mobile", "review-order-button"} <= focused:
+                break
+        assert {"customer-name", "customer-mobile", "review-order-button"} <= focused
+        assert page.locator('label[for="customer-name"]').count() == 1
+        assert page.locator('label[for="customer-mobile"]').count() == 1
         browser.close()

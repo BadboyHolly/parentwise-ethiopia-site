@@ -236,3 +236,27 @@ def test_download_rechecks_gate_and_fails_safely_for_storage_errors(env):
     assert after_revoke.status_code == 403
     assert len(missing_store.reads) == reads_before
 
+
+@pytest.mark.parametrize("gate", [
+    "ORDER_INTAKE_ENABLED",
+    "CUSTOMER_PAYMENT_CLAIMS_ENABLED",
+    "FOUNDER_AUTH_ENABLED",
+    "FOUNDER_APPROVAL_ENABLED",
+    "SECURE_PDF_DELIVERY_ENABLED",
+    "PRODUCTION_ORDER_INTAKE_ENABLED",
+])
+def test_staging_refuses_each_enabled_production_gate(gate, monkeypatch):
+    monkeypatch.setenv("APP_MODE", "staging")
+    monkeypatch.setenv("PAYMENTS_ENABLED", "false")
+    monkeypatch.setenv("STAGING_ORDER_INTAKE_ENABLED", "true")
+    monkeypatch.setenv(gate, "true")
+    with pytest.raises(RuntimeError, match="Production feature gates must remain disabled"):
+        build_staging_app(
+            database_url="postgresql+psycopg://synthetic:synthetic@127.0.0.1/disposable",
+            order_token_secret="staging-only-token-secret-" + "x" * 32,
+            founder_username="synthetic-founder",
+            founder_password_hash="not-used-before-the-gate-check",
+            founder_totp_secret="SYNTHETICTOTPSECRET123456",
+            allowed_origins=[ORIGIN],
+            order_intake_enabled=True,
+        )

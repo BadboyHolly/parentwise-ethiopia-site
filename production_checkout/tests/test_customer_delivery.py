@@ -145,6 +145,13 @@ def test_complete_claim_approval_five_downloads_and_revocation(qa):
             assert got.content==FILES[part]
             assert got.headers["cache-control"]=="private, no-store, max-age=0"
             assert "attachment" in got.headers["content-disposition"]
+        # Path-fixed selection must ignore a client-supplied override parameter.
+        part_one_with_override=client.get(
+            f"/api/v1/orders/{code}/downloads/part-1.pdf?file_part=2",
+            headers={"Authorization":"Bearer "+token})
+        assert part_one_with_override.status_code==200
+        assert part_one_with_override.content==FILES[1]
+        assert "parentwise-part-1.pdf" in part_one_with_override.headers["content-disposition"]
         app.state.test_store._objects.pop((BUCKET,"releases/qa-release/part-3.pdf"))
         missing=client.get(f"/api/v1/orders/{code}/downloads/part-3.pdf",
             headers={"Authorization":"Bearer "+token})

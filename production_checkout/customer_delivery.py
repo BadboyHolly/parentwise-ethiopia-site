@@ -149,8 +149,9 @@ def create_customer_delivery_router(
         except Exception:
             raise HTTPException(503, "Order status is temporarily unavailable") from None
 
-    for part in range(1, 6):
-        def download(code: str, request: Request, authorization: str = Header(default=""), file_part: int = part):
+    def make_download_handler(part_number: int):
+        # Bind the route part in the closure; never expose it as an API parameter.
+        def download(code: str, request: Request, authorization: str = Header(default="")):
             token = authorize_token(code, authorization)
             try:
                 with sessions.begin() as db:
@@ -160,11 +161,11 @@ def create_customer_delivery_router(
                                        token_secret=cfg.token_secret)
                 item, content = fetch_verified_part(
                     cfg.object_store, bucket=cfg.bucket, manifest=cfg.manifest,
-                    part=file_part, max_bytes=cfg.max_object_bytes)
+                    part=part_number, max_bytes=cfg.max_object_bytes)
                 return Response(
                     content=content, media_type="application/pdf",
                     headers={
-                        "Content-Disposition": f'attachment; filename="parentwise-part-{file_part}.pdf"',
+                        "Content-Disposition": f'attachment; filename="parentwise-part-{part_number}.pdf"',
                         "Cache-Control": "private, no-store, max-age=0",
                         "Pragma": "no-cache",
                         "X-Content-Type-Options": "nosniff",
@@ -178,8 +179,11 @@ def create_customer_delivery_router(
                 raise HTTPException(503, "Download is temporarily unavailable. Please retry.") from None
             except Exception:
                 raise HTTPException(503, "Download is temporarily unavailable. Please retry.") from None
+        return download
+
+    for part in range(1, 6):
         router.add_api_route(
-            f"/downloads/part-{part}.pdf", download, methods=["GET"],
+            f"/downloads/part-{part}.pdf", make_download_handler(part), methods=["GET"],
             name=f"download_private_product_part_{part}",
             responses={200: {"content": {"application/pdf": {}}}},
         )
