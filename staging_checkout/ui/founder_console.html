@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><title>Staging founder simulator</title>
+<style>body{font:16px/1.55 system-ui,sans-serif;max-width:760px;margin:24px auto;padding:0 16px;color:#24352c}main{border:1px solid #ddd5c9;border-radius:16px;padding:22px}h1{font-size:1.6rem}label{display:block;font-weight:700;margin-top:14px}input,select,button{font:inherit;min-height:46px;padding:8px 10px;max-width:100%}input,select{width:100%;box-sizing:border-box;border:1px solid #999;border-radius:8px}button{margin:12px 8px 0 0;min-height:48px;border:0;border-radius:9px;background:#1F4D3A;color:white;padding:9px 14px;font-weight:700}button.secondary{background:#eee8df;color:#24352c}#actions{margin-top:20px;padding-top:16px;border-top:1px solid #ddd}</style></head>
+<body><main><h1>Staging founder simulator</h1><p>Internal test only. Uses fictional settlements, synthetic founder credentials, and dummy products. Never use real customer or payment information here.</p>
+<form id="stage-founder-login"><label for="stage-founder-user">Synthetic founder username</label><input id="stage-founder-user" autocomplete="username" required><label for="stage-founder-password">Synthetic password</label><input id="stage-founder-password" type="password" autocomplete="current-password" required><label for="stage-founder-totp">Synthetic TOTP</label><input id="stage-founder-totp" inputmode="numeric" autocomplete="one-time-code" required><button type="submit">Sign in to simulation</button></form>
+<p id="message" role="status" aria-live="polite"></p>
+<div id="actions" hidden><h2>Fictional settlement checks</h2>
+<label for="order-code">Staging order ID</label><input id="order-code" autocomplete="off">
+<label for="settlement-ref">Fictional settlement reference</label><input id="settlement-ref" autocomplete="off">
+<label for="settlement-amount">Amount ETB</label><input id="settlement-amount" value="1500" inputmode="numeric">
+<label for="settlement-method">Payment method</label><select id="settlement-method"><option value="telebirr">Telebirr</option><option value="bank">CBE bank transfer</option></select>
+<label for="settlement-payer">Synthetic payer phone</label><input id="settlement-payer" placeholder="+251900000000" autocomplete="off">
+<button type="button" class="secondary" id="stage-record">Record fictional settlement</button><button type="button" class="secondary" id="stage-verify">Check settlement match</button><button type="button" id="stage-approve">Approve dummy access</button><button type="button" class="secondary" id="stage-reject">Reject claim</button><button type="button" class="secondary" id="stage-revoke">Revoke dummy access</button>
+</div></main>
+<script>
+(()=>{'use strict';const $=id=>document.getElementById(id);let csrf='';
+async function request(path,options={}){const r=await fetch(path,{credentials:'same-origin',...options});let d={};try{d=await r.json()}catch{}if(!r.ok)throw new Error(d.detail||('Request failed ('+r.status+')'));return d}
+const say=m=>{$('message').textContent=m};
+$('stage-founder-login').addEventListener('submit',async e=>{e.preventDefault();try{const d=await request('/founder/session',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:$('stage-founder-user').value,password:$('stage-founder-password').value,totp:$('stage-founder-totp').value})});csrf=d.csrf_token;$('actions').hidden=false;say('Synthetic founder session authenticated.')}catch(err){say(err.message)}});
+const headers=()=>({'Content-Type':'application/json','X-CSRF-Token':csrf}),code=()=>encodeURIComponent($('order-code').value.trim()),ref=()=>$('settlement-ref').value.trim();
+function settlement(){const method=$('settlement-method').value;return {test_reference:ref(),payment_method:method,amount_etb:Number($('settlement-amount').value),currency:'ETB',recipient_code:method==='telebirr'?'QA-TELEBIRR-ONLY':'QA-CBE-ONLY',payer_mobile:$('settlement-payer').value.trim()}}
+$('stage-record').addEventListener('click',async()=>{try{await request('/founder/api/simulated-settlements',{method:'POST',headers:headers(),body:JSON.stringify(settlement())});say('Fictional settlement recorded.')}catch(e){say(e.message)}});
+$('stage-verify').addEventListener('click',async()=>{try{const d=await request('/founder/api/orders/'+code()+'/verify',{method:'POST',headers:headers(),body:'{}'});say(d.matched?'Fictional settlement matched. Explicit approval is still required.':'Settlement did not match. Check reference, recipient, method, amount and payer.')}catch(e){say(e.message)}});
+for(const [id,path,body,msg] of [['stage-approve','approve',{reason:'Synthetic browser acceptance approval'},'Dummy access approved.'],['stage-reject','reject',{reason:'Synthetic browser rejection'},'Claim rejected.'],['stage-revoke','downloads/revoke',{reason:'Synthetic browser revocation'},'Dummy access revoked.']])$(id).addEventListener('click',async()=>{try{await request('/founder/api/orders/'+code()+'/'+path,{method:'POST',headers:headers(),body:JSON.stringify(body)});say(msg)}catch(e){say(e.message)}});
+})();
+</script></body></html>

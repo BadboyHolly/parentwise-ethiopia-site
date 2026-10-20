@@ -72,7 +72,7 @@ def build_staging_app(*, database_url: str, order_token_secret: str,
         payment_accounts=FICTIONAL_RECIPIENTS)
     @app.middleware("http")
     async def staging_checkout_policy(request: Request, call_next):
-        nonce = secrets.token_urlsafe(18) if request.url.path in {"/staging/checkout", "/staging/checkout-amharic"} else ""
+        nonce = secrets.token_urlsafe(18) if request.url.path in {"/staging/checkout", "/staging/checkout-amharic", "/staging/founder-simulation"} else ""
         if nonce:
             request.state.staging_csp_nonce = nonce
         response = await call_next(request)
@@ -129,6 +129,15 @@ def build_staging_app(*, database_url: str, order_token_secret: str,
         html = (Path(__file__).parent / "ui" / "checkout.html").read_text(encoding="utf-8")
         if html.count("<script>") != 1:
             raise RuntimeError("Staging checkout script markup changed; refusing to serve without a CSP nonce")
+        nonce = request.state.staging_csp_nonce
+        html = html.replace("<script>", f'<script nonce="{nonce}">', 1)
+        return HTMLResponse(html, headers={"Cache-Control":"no-store", "X-Robots-Tag":"noindex, nofollow"})
+
+    @app.get("/staging/founder-simulation", include_in_schema=False)
+    def staging_founder_simulator(request: Request):
+        html = (Path(__file__).parent / "ui" / "founder_console.html").read_text(encoding="utf-8")
+        if html.count("<script>") != 1:
+            raise RuntimeError("Founder simulator script markup changed; refusing to serve without a CSP nonce")
         nonce = request.state.staging_csp_nonce
         html = html.replace("<script>", f'<script nonce="{nonce}">', 1)
         return HTMLResponse(html, headers={"Cache-Control":"no-store", "X-Robots-Tag":"noindex, nofollow"})
