@@ -402,7 +402,6 @@ label.fieldlabel{margin-bottom:7px;font-weight:700;color:#2d4637}
     <p>This recovery code is private and held only in this page's memory. Save it in a password manager you control or write it down and keep it secure; do not leave it on a shared device.</p>
     <label for="stage-recovery-code">Private recovery code</label><input id="stage-recovery-code" readonly autocomplete="off" autocapitalize="off" spellcheck="false">
     <button type="button" class="review-back" id="stage-copy-recovery">Copy recovery code</button>
-    <button type="button" class="review-back" id="stage-download-recovery">Download recovery instructions</button>
     <button type="button" class="review-back" id="stage-hide-recovery">Hide code</button>
     <p id="stage-recovery-save-message" role="status" aria-live="polite"></p>
   </div>
@@ -501,9 +500,7 @@ label.fieldlabel{margin-bottom:7px;font-weight:700;color:#2d4637}
   $('stage-reject').addEventListener('click',async()=>{try{await request('/founder/api/orders/'+state.code+'/reject',{method:'POST',headers:founderHeaders(),body:JSON.stringify({reason:'Synthetic browser rejection'})});await refreshStatus()}catch(e){say($('stage-status-message'),e.message)}});
   $('stage-revoke').addEventListener('click',async()=>{try{await request('/founder/api/orders/'+state.code+'/downloads/revoke',{method:'POST',headers:founderHeaders(),body:JSON.stringify({reason:'Synthetic browser revocation'})});await refreshStatus()}catch(e){say($('stage-status-message'),e.message)}});
   $('stage-recovery-form').addEventListener('submit',async e=>{e.preventDefault();state.code=$('stage-recovery-order').value.trim();state.token=$('stage-recovery-code-input').value.trim();if(!/^PW-[0-9A-F]{24}$/.test(state.code)||!/^[A-Za-z0-9_-]{43}$/.test(state.token)){say($('stage-recovery-message'),'Enter the complete order ID and recovery code.');return}try{const details=await request('/api/v1/orders/'+state.code,{headers:auth()});state.method=details.order.payment_method;state.phone='';showOrder();await refreshStatus();say($('stage-recovery-message'),'Order recovered. Keep the code private.')}catch(err){say($('stage-recovery-message'),'Order could not be recovered. Check the ID and code.')}});
-  $('stage-copy-recovery').addEventListener('click',async()=>{const input=$('stage-recovery-code');try{await navigator.clipboard.writeText(input.value);say($('stage-recovery-save-message'),'Recovery code copied. Keep it private.')}catch{say($('stage-recovery-save-message'),'Clipboard unavailable. Select and save the complete code manually.');input.focus();input.select()}});
-nOrder ID: '+state.code+'\\nPrivate recovery code: '+state.token+'\\nKeep this file private.';const url=URL.createObjectURL(new Blob([text],{type:'text/plain'}));const a=document.createElement('a');a.href=url;a.download='parentwise-order-recovery.txt';a.click();URL.revokeObjectURL(url)});
-  $('stage-hide-recovery').addEventListener('click',()=>{$('stage-recovery-code').value='';$('stage-recovery-code-panel').hidden=true});
+  $('stage-copy-recovery').addEventListener('click',async()=>{const input=$('stage-recovery-code');try{await navigator.clipboard.writeText(input.value);say($('stage-recovery-save-message'),'Recovery code copied. Keep it private.')}catch{say($('stage-recovery-save-message'),'Clipboard unavailable. Select and save the complete code manually.');input.focus();input.select()}});\n  $('stage-hide-recovery').addEventListener('click',()=>{$('stage-recovery-code').value='';$('stage-recovery-code-panel').hidden=true});
   updateMethod();
 })();
 </script>
