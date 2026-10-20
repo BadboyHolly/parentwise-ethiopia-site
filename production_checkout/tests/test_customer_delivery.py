@@ -156,7 +156,7 @@ def test_complete_claim_approval_five_downloads_and_revocation(qa):
         assert client.get(f"/api/v1/orders/{code}/downloads/part-1.pdf",
             headers={"Authorization":"Bearer "+secrets.token_urlsafe(32)}).status_code==404
         revoked=client.post("/api/v1/founder/grants/revoke",headers=headers,json={
-            "order_id":code,"reason":"Synthetic revocation verification"})
+            "order_id":code,"claim_id":claim_id,"reason":"Synthetic revocation verification"})
         assert revoked.status_code==200,revoked.text
         assert client.get(f"/api/v1/orders/{code}/downloads/part-1.pdf",
             headers={"Authorization":"Bearer "+token}).status_code==404
