@@ -479,7 +479,7 @@ label.fieldlabel{margin-bottom:7px;font-weight:700;color:#2d4637}
       if(data.status==='Awaiting Payment'){
         $('staging-payment-title').textContent='Temporary English staging placeholder — founder review required: Fictional payment instructions';
         $('stage-payment-instructions').hidden=false;$('payment-details').hidden=false;$('stage-reference-help').hidden=false;
-        $('stage-claim-form').hidden=true;$('stage-continue-payment').hidden=true;$('stage-ive-paid').hidden=false;
+        $('stage-claim-form').hidden=true;$('stage-ive-paid').hidden=true;
         $('stage-status-message').textContent=data.claim_outcome==='NOT_MATCHED'?'Temporary English staging placeholder — founder review required: We couldn’t verify your transfer. If you’ve already paid, don’t pay again. Check the reference or contact us.':'Temporary English staging placeholder — founder review required: No payment confirmation yet. If you have already paid, wait for review before paying again.';
       }else if(data.status==='Under Review'){
         $('staging-payment-title').textContent='Temporary English staging placeholder — founder review required: Payment reference under review';
