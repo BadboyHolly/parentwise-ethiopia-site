@@ -27,6 +27,11 @@ from .payment_state import (
 from .private_storage import ProductManifest, StorageUnavailable, fetch_verified_part
 
 
+class ClaimInput(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+    transaction_reference: str = Field(min_length=3, max_length=128, pattern=r"^[A-Za-z0-9][A-Za-z0-9/_ -]{2,127}$")
+
+
 @dataclass(frozen=True)
 class CustomerDeliveryConfig:
     token_secret: str
@@ -48,10 +53,6 @@ def create_customer_delivery_router(
     if set(cfg.manifest._files) != {1, 2, 3, 4, 5}:
         raise RuntimeError("Customer delivery requires exactly five product files")
     router = APIRouter(prefix="/api/v1/orders/{code}", tags=["customer-private"])
-
-    class ClaimInput(BaseModel):
-        model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
-        transaction_reference: str = Field(min_length=3, max_length=128, pattern=r"^[A-Za-z0-9][A-Za-z0-9/_ -]{2,127}$")
 
     def authorize_token(code: str, authorization: str) -> str:
         if (not re.fullmatch(r"PW-[0-9A-F]{24}", code or "") or
