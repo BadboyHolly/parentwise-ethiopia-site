@@ -156,6 +156,7 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
         assert "Kidus Elias" not in page.content()
         assert no_horizontal_overflow(page, width), page.evaluate("""() => ({viewport: innerWidth, document: document.documentElement.scrollWidth, offenders: [...document.querySelectorAll("*")].map(e => ({tag:e.tagName,id:e.id,cls:typeof e.className==="string"?e.className:"",left:Math.round(e.getBoundingClientRect().left),right:Math.round(e.getBoundingClientRect().right),width:Math.round(e.getBoundingClientRect().width)})).filter(x => x.right > innerWidth + 1 || x.left < -1).slice(0,20)})""")
 
+        page.locator("#stage-show-recovery").click()
         page.evaluate("""() => Object.defineProperty(navigator, "clipboard", {
           configurable: true, value: {writeText: () => Promise.reject(new Error("denied"))}
         })""")
