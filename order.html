@@ -512,6 +512,8 @@ label.fieldlabel{margin-bottom:7px;font-weight:700;color:#2d4637}
   function newOrder(){
     fakeKeys();state.method=selected();state.paymentVisible=false;state.hasClaim=false;state.approved=false;
     method();
+    // Source checkout keeps payment details inside the details form; move them into Stage 2 before hiding that form.
+    $('staging-payment').insertBefore($('payment-details'),$('stage-status-message'));
     stage(1);shownDetails();
     $('payment-details').hidden=true;
     $('stage-continue-payment').hidden=false;
