@@ -1,6 +1,13 @@
 name: ParentWise Founder Verification Acceptance
 
 on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'production_checkout/**'
+      - 'staging_checkout/tests/test_journey.py'
+      - '.github/workflows/founder-verification-acceptance.yml'
   push:
     branches:
       - dev/founder-payment-verification-20261020
