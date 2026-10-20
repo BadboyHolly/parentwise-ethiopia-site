@@ -126,7 +126,7 @@ def test_expired_session_denies_requests(founder_app):
     with TestClient(founder_app, base_url="https://founder.example") as client:
         assert login(client).status_code==200
         with founder_app.state.engine.begin() as db:
-            db.execute(text("UPDATE production_founder_sessions SET expires_at=now()-interval '1 minute'"))
+            db.execute(text("UPDATE production_founder_sessions SET created_at=now()-interval '9 hours', expires_at=now()-interval '1 minute'"))
         assert client.get("/api/v1/founder/session").status_code==401
 
 
