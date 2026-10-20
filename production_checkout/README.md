@@ -41,4 +41,4 @@ Publishing uses conditional create-only writes. Separate protected backups and a
 
 `payment_state.py` and migration `0002_create_payment_delivery_state.sql` add separate production claim, settlement evidence, approval, exception, state, grant and audit structures without changing order intake. State transitions and private download authorization are implemented as unmounted service functions. They do not enable payment processing, founder decisions, delivery routes, or real orders.
 
-See [Payment state foundation](PAYMENT-STATE-FOUNDATION.md). MFA, authenticated route integration, claim-field encryption, real manual settlement operations, rate limiting, customer recovery and production launch remain outstanding.
+See [Payment state foundation](PAYMENT-STATE-FOUNDATION.md) and [Founder verification](FOUNDER-VERIFICATION.md). Founder MFA, CSRF-protected review routes, managed AES-GCM field encryption and session controls are implemented behind disabled feature gates. Secret provisioning, live settlement operations, independent security review, STEP 6.3 delivery integration and production launch remain outstanding.
