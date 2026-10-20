@@ -62,6 +62,7 @@ def order_through_review(page, method="telebirr", label="review"):
     return create_staging_order(page)
 
 def set_reference_and_claim(page, reference):
+    page.locator("#stage-ive-paid").click()
     page.locator("#stage-reference").fill(reference)
     page.locator("#stage-claim-form button[type=submit]").click()
     page.get_by_text("Under Review", exact=True).wait_for()
@@ -125,21 +126,22 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
           '/downloads/part-1',{headers:{Authorization:'Bearer '+'Z'.repeat(43)}})).status""",
           customer) == 404
 
-        founder_totp = founder_login(page)
-        page.locator("#stage-settlement-ref").fill(reference)
-        page.locator("#stage-settlement-payer").fill("+251900000000")
-        page.locator("#stage-record").click()
+        founder = page.context.new_page()
+        founder_totp = founder_login(founder)
+        founder.locator("#order-code").fill(code)
+        founder.locator("#settlement-ref").fill(reference)
+        founder.locator("#settlement-payer").fill("+251900000000")
+        founder.locator("#stage-record").click()
         page.get_by_text("Fictional settlement recorded.").wait_for()
-        page.locator("#stage-verify").click()
+        founder.locator("#stage-verify").click()
         page.get_by_text("Founder approval is still required.").wait_for()
         page.locator("#stage-refresh").click()
         assert page.locator("#stage-status").inner_text() == "Under Review"
-        page.locator("#staging-founder").evaluate("(node) => node.style.display='none'")
         page.locator("#stage-recovery-code-panel").evaluate("(node) => node.hidden=true")
         page.screenshot(path=str(OUT / "screenshots" / ("am-checkout-" + label + "-pending.png")),
                               full_page=True)
-        page.locator("#staging-founder").evaluate("(node) => node.style.display=''")
-        page.locator("#stage-approve").click()
+        founder.locator("#order-code").fill(code)
+        founder.locator("#stage-approve").click()
         page.get_by_text("Ready to Download", exact=True).wait_for()
         assert no_horizontal_overflow(page, width)
         page.locator("#staging-founder").evaluate("(node) => node.style.display='none'")
@@ -172,8 +174,9 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
         # with a fresh TOTP before using the privileged revoke control.
         while totp_code(TOTP_SECRET) == founder_totp:
             time.sleep(0.5)
-        founder_login(page)
-        page.locator("#stage-revoke").click()
+        founder_login(founder)
+        founder.locator("#order-code").fill(code)
+        founder.locator("#stage-revoke").click()
         page.get_by_text("Payment Confirmed", exact=True).wait_for()
         assert page.evaluate("""async (s) => (await fetch('/api/v1/orders/' + s.code +
           '/downloads/part-1',{headers:{Authorization:'Bearer '+s.token}})).status""",
@@ -188,7 +191,7 @@ def test_cbe_card_uses_only_fictional_recipient_details():
         page = browser.new_page(ignore_https_errors=True)
         order_through_review(page, method="bank", label="cbe")
         assert page.locator("#stage-recipient").inner_text() == "QA-CBE-ONLY"
-        assert page.locator("#stage-settlement-method").input_value() == "bank"
+        assert page.locator("#account-method").inner_text() == "CBE ባንክ"
         assert "10002230019327" not in page.content()
         assert "Kidus Elias" not in page.content()
         browser.close()
@@ -232,16 +235,18 @@ def test_third_party_payer_mismatch_is_denied_then_claim_can_be_rejected():
         order_through_review(page, label="third-party")
         reference = "SIM-THIRDPARTY01"
         set_reference_and_claim(page, reference)
-        founder_login(page)
-        page.locator("#stage-settlement-ref").fill(reference)
-        page.locator("#stage-settlement-payer").fill("+251911111111")
-        page.locator("#stage-record").click()
+        founder = page.context.new_page()
+        founder_login(founder)
+        founder.locator("#order-code").fill(page.locator("#stage-order-code").inner_text())
+        founder.locator("#settlement-ref").fill(reference)
+        founder.locator("#settlement-payer").fill("+251911111111")
+        founder.locator("#stage-record").click()
         page.get_by_text("Fictional settlement recorded.").wait_for()
-        page.locator("#stage-verify").click()
+        founder.locator("#stage-verify").click()
         page.get_by_text("Settlement did not match.", exact=False).wait_for()
         assert page.locator("#stage-status").inner_text() == "Under Review"
         assert page.locator("#stage-download-panel").is_hidden()
-        page.locator("#stage-reject").click()
+        founder.locator("#stage-reject").click()
         page.get_by_text("Awaiting Payment", exact=True).wait_for()
         browser.close()
 
@@ -257,7 +262,7 @@ def test_keyboard_can_reach_primary_checkout_controls():
             focused.add(page.evaluate("document.activeElement.id"))
             if {"customer-name", "customer-mobile", "continue-order-button"} <= focused:
                 break
-        assert {"customer-name", "customer-mobile", "review-order-button"} <= focused
+        assert {"customer-name", "customer-mobile", "continue-order-button"} <= focused
         assert page.locator('label[for="customer-name"]').count() == 1
         assert page.locator('label[for="customer-mobile"]').count() == 1
         browser.close()
