@@ -171,6 +171,7 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
                               full_page=True)
         founder.locator("#order-code").fill(code)
         founder.locator("#stage-approve").click()
+        founder.get_by_text("Dummy access approved.", exact=True).wait_for()
         page.locator("#stage-refresh").click()
         page.get_by_text("Ready to Download", exact=True).wait_for()
         assert page.locator("#stage-claim-form").is_hidden()
@@ -325,6 +326,7 @@ def test_status_refresh_recovers_after_interrupted_network():
         page.get_by_text("Status refresh failed", exact=False).wait_for()
         page.unroute("**/checkout-status")
         page.locator("#stage-refresh").click()
+        page.get_by_text("We’re checking your payment", exact=False).wait_for()
         assert page.locator("#stage-status").inner_text() == "Under Review"
         assert "We’re checking your payment" in page.locator("#stage-status-message").inner_text()
         assert page.evaluate("sessionStorage.length + localStorage.length") == 0
