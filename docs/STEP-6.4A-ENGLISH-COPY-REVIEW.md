@@ -136,3 +136,15 @@ This is a staging-only English source-copy inventory. Founder approval and nativ
 - Existing warning: “This is an isolated test. Use fictional details only. Do not send money.”
 - No new English source copy is approved for production by this inventory. Keep staging warnings visibly marked in the isolated test interface.
 - Review every failure, retry, status-refresh, clipboard and support message so none implies that a reference or button press confirms payment.
+
+
+## STEP 6.4A.5 — Recovery privacy and copy controls
+
+These recovery-only messages are temporary English staging placeholders and require founder approval plus native Amharic review before any real-customer use:
+
+- “Show saved order details” — reveal the same order number and private code already held in the active page session; this does not create or change credentials.
+- “Hide details” — clear the visible details field and collapse the panel; the customer may reveal the same values again while the current authenticated page session remains active.
+- Recovery success — after the server accepts the private order authorization, clear the paste/separate fields, collapse the recovery form, and keep authorization only in page memory so pending and ready screens do not show the credential.
+- The parser accepts exactly one valid order number and one exact 43-character case-sensitive private code in the combined paste, independent of human-readable labels. Existing labeled saved blocks remain compatible. Malformed or ambiguous blocks are rejected without clearing inputs; separate-field recovery remains supported.
+
+Do not imply that hiding, copying, or browser UI state saves recovery details. No token is persisted in browser storage, URLs, analytics, or logs.
