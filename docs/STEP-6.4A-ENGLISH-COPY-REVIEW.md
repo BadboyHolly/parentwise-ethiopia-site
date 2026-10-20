@@ -47,3 +47,47 @@ For every item below, approve the meaning, then obtain native Amharic review bef
 
 
 ## Additional temporary system messages\n\nThe staging page also presents a temporary test-order success notice, submission/network retry notices, recovery success/failure notices, and a generic download failure message. Have the founder and native reviewer approve meaning and tone for each; keep them out of production until localized. The backend status values shown in the checkout (Awaiting Payment, Under Review, Payment Confirmed, Ready to Download) also require approved Amharic labels.
+
+
+## STEP 6.4A.2 — Current additional source copy for approval
+
+This current list supersedes earlier recovery, payment-copy, status and download labels in the tables above where the wording differs. Approve the meanings and placements, then obtain native Amharic review. No existing approved Amharic checkout wording is changed.
+
+### Step 1 — Create the order and preserve recovery details
+
+- Staging warning: “This is an isolated test. Use fictional details only. Do not send money.”
+- Order success: “Test order created. No payment has been received.”
+- Save-before-switching instruction: “Before opening your payment app, save your order number and private recovery code somewhere private. Copy both together, write them down privately, or use a password manager you control. Copying does not confirm that they were saved.”
+- Label: “Order number and private recovery code.”
+- Action: “Copy order details.”
+- Clipboard success: “Copied. Paste these details into a private place to save them. Copying does not confirm they were saved.”
+- Clipboard failure: “Clipboard unavailable. Select and write down both complete details privately.”
+- Payment-number overwrite warning: “Copying the payment number replaces the copied order details. Save the details privately first, or write them down.”
+- Hide action: “Hide details.”
+- Recovery form: “Recover an existing order”; “Order ID”; “Private recovery code”; “Recover order”; “Enter the complete order ID and recovery code”; “Order could not be recovered. Check the ID and code”; “Order recovered. Keep the code private.”
+- Network/order retry: generic order creation failure, safe retry with the same details, and request-protection unavailable messages.
+
+### Step 2 — Pay and submit a reference claim
+
+- Instruction: “Pay exactly 1,500 ETB to the selected fictional recipient shown below. This is an isolated test. Do not send real money.”
+- Price and recipient labels: “1,500 ETB”; “Copy Payment Number”; “Payment number copied. This replaces the copied order details; copying does not confirm they were saved”; “Clipboard unavailable; select the displayed payment number manually.”
+- Existing Amharic account-holder label remains. The staging account-holder value is FICTIONAL QA and must not be mistaken for a real or verified banking detail.
+- Primary action: “I have paid.” This reveals the reference form only; it does not confirm receipt.
+- Reference help: “Find the transaction reference in your payment confirmation SMS or transaction details. If you cannot find it, contact ParentWise on Telegram for help.” No sample reference pattern is shown.
+- Claim form/action: “Fictional transaction reference”; “Submit reference for checking”; “A reference asks us to check the transfer. It does not confirm payment.”
+- Pending: “We’re checking your payment. You can return later using your saved order details.”
+- Not matched: “We couldn’t verify your transfer. If you’ve already paid, don’t pay again. Check the reference or contact us.”
+- Retry, duplicate claim, refresh and network errors: review all generic failure messages and ensure they never imply payment confirmation.
+
+### Step 3 — Confirm and download
+
+- Approved with active grant: “Your payment is confirmed. Your five guides are ready.”
+- Approved without active access, including revoked access: “Your payment is confirmed, but download access is unavailable. Contact us for help.”
+- Guide 00 label: “00 — ከዚህ ይጀምሩ”; badge: “Recommended first guide.”
+- Remaining existing Amharic product titles: “01 — የልጅ ባህሪ መመሪያ”; “02 — የተግባር ደብተር”; “03 — ፈጣን እርዳታ”; “04 — የ30 ቀን ልምምድ.”
+- Download action: “Download.”
+- Android help: “After approval, tap Download. On Android, open the download notification or Files > Downloads.”
+- Unavailable file/access: “This download is unavailable. Refresh your order status or contact support.”
+- Refresh failure and status refresh guidance remain temporary English source copy for review.
+
+Do not present “Ready to Download” unless the backend confirms an active authorization grant. Keep all English staging labels and simulated recipient data out of production until founder and native Amharic approval.
