@@ -175,8 +175,9 @@ def test_totp_parser_rejects_invalid_codes():
 def test_login_rate_limit_is_consumed_before_argon_verification(founder_app, monkeypatch):
     from production_checkout import founder_security
     calls=[]
-    monkeypatch.setattr(founder_security._ARGON, "verify",
-                        lambda *args, **kwargs: calls.append(1) or False)
+    from types import SimpleNamespace
+    monkeypatch.setattr(founder_security, "_ARGON",
+                        SimpleNamespace(verify=lambda *args, **kwargs: calls.append(1) or False))
     with TestClient(founder_app, base_url="https://founder.example") as client:
         statuses=[]
         for _ in range(8):
@@ -199,7 +200,8 @@ def test_concurrent_login_abuse_is_limited_before_argon_work(founder_app, monkey
         with guard:
             calls.append(1)
         return False
-    monkeypatch.setattr(founder_security._ARGON, "verify", verify)
+    from types import SimpleNamespace
+    monkeypatch.setattr(founder_security, "_ARGON", SimpleNamespace(verify=verify))
     def attempt(_):
         with TestClient(founder_app, base_url="https://founder.example") as client:
             return client.post("/api/v1/founder/session",
