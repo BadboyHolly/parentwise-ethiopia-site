@@ -205,10 +205,10 @@ def test_cbe_card_uses_only_fictional_recipient_details():
         assert page.locator("#account-number").inner_text() == "QA-CBE-ONLY"
         assert page.locator("#account-method").inner_text() == "CBE ባንክ"
         page.evaluate("""() => { window.__copiedText=""; Object.defineProperty(navigator,"clipboard",{configurable:true,value:{writeText:async v=>{window.__copiedText=v}}}) }""")
+        assert "Copy Number" in page.locator("#copy-number").inner_text()
         page.locator("#copy-number").click()
         assert page.evaluate("window.__copiedText") == "QA-CBE-ONLY"
         assert page.locator("#account-number").inner_text() == "QA-CBE-ONLY"
-        assert "Copy Number" in page.locator("#copy-number").inner_text()
         assert "10002230019327" not in page.content()
         assert "Kidus Elias" not in page.content()
         browser.close()
