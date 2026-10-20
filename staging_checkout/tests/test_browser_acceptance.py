@@ -123,7 +123,7 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
         assert page.locator("#stage-order-recovery").input_value() == details
         page.reload(wait_until="domcontentloaded")
         assert page.evaluate("sessionStorage.length + localStorage.length") == 0
-        page.locator("#stage-existing-order summary").click()
+        page.locator("#stage-existing-order > summary").click()
         page.locator("#stage-recovery-paste").fill(details)
         page.locator("#stage-recovery-form button[type=submit]").click()
         page.get_by_text("Awaiting Payment", exact=True).wait_for()
@@ -197,7 +197,7 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
                               full_page=True)
         page.reload(wait_until="domcontentloaded")
         assert page.evaluate("sessionStorage.length + localStorage.length") == 0
-        page.locator("#stage-existing-order summary").click()
+        page.locator("#stage-existing-order > summary").click()
         page.locator("#stage-recovery-paste").fill(details)
         page.locator("#stage-recovery-form button[type=submit]").click()
         page.get_by_text("Ready to Download", exact=True).wait_for()
@@ -378,7 +378,7 @@ def test_recovery_separate_field_fallback_remains_available():
         details = page.locator("#stage-order-recovery").input_value()
         token = details.split("Private recovery code: ", 1)[1]
         page.reload(wait_until="domcontentloaded")
-        page.locator("#stage-existing-order summary").click()
+        page.locator("#stage-existing-order > summary").click()
         page.locator("#stage-recovery-form details summary").click()
         page.locator("#stage-recovery-order").fill(code)
         page.locator("#stage-recovery-code-input").fill(token)
