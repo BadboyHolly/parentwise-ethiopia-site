@@ -58,6 +58,8 @@ def mount_payment_claims(app):
             state = db.scalar(select(OrderState).where(OrderState.order_id == order.id))
             status = state.status if state else "AWAITING_PAYMENT"
             grant = db.scalar(select(DownloadGrant).where(DownloadGrant.order_id == order.id))
+            latest_claim = db.scalar(select(PaymentClaim).where(PaymentClaim.order_id == order.id)
+                                      .order_by(PaymentClaim.created_at.desc()).limit(1))
             ready = bool(grant and grant.active and grant.revoked_at is None and status == "READY_TO_DOWNLOAD")
             # Approval remains confirmed after access revocation, but the customer
             # must not be told downloads are ready when no active grant exists.
@@ -65,5 +67,7 @@ def mount_payment_claims(app):
                 status = "PAYMENT_CONFIRMED"
             labels = {"AWAITING_PAYMENT":"Awaiting Payment","UNDER_REVIEW":"Under Review",
                       "PAYMENT_CONFIRMED":"Payment Confirmed","READY_TO_DOWNLOAD":"Ready to Download"}
+            claim_outcome = "NOT_MATCHED" if latest_claim and latest_claim.state == "REJECTED" else None
             return {"order_id": order.code, "status": labels.get(status, "Awaiting Payment"),
-                    "downloads_ready": ready, "payment_confirmation_requires_founder": True}
+                    "downloads_ready": ready, "download_access_revoked": bool(grant and grant.revoked_at is not None),
+                    "claim_outcome": claim_outcome, "payment_confirmation_requires_founder": True}

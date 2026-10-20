@@ -1,49 +1,51 @@
-# STEP 6.4A — Five-Parent Usability Test Protocol
+# STEP 6.4A.2 — Final Five-Parent Usability Test Protocol
 
-**Status:** Prepared only. No participant research has been performed. Do not describe the checkout as user-tested until five sessions have been completed and recorded.
+**Status:** Prepared only. No parent sessions have been conducted. Do not claim real-parent validation until all five sessions occur, are documented and reviewed.
 
-## Purpose
+## Objective
 
-Check whether first-time Ethiopian digital-product buyers can understand and complete the fictional checkout on a phone, understand manual payment review, save/reenter the recovery code, and locate the downloaded dummy files.
+Test whether five Ethiopian parents buying a digital product for the first time can complete the existing three-step checkout, protect their order recovery details while switching to a payment app, understand manual settlement review, recover after losing browser state, and find the five downloaded files.
 
-## Participants and setup
+## Setup and participant privacy
 
-- Recruit five Ethiopian parents who have not bought a digital product through this checkout before.
-- Test in a language the participant is comfortable using. Do not ask them to evaluate Amharic wording that has not passed native review.
-- Use a local isolated staging build, fictional Telebirr/CBE recipients, synthetic founder MFA, disposable PostgreSQL and dummy PDFs.
-- Use a test Android phone at 320–390 CSS px where possible; record device/browser and network conditions. No participant should use a real account, phone number, payment, or personal recovery code.
-- Obtain consent to observe the task and record anonymized notes. Do not capture faces, voice, phone notifications, personal payment screens, or identifiable data.
-- One facilitator reads each task verbatim, then stays quiet. Do not coach unless the participant asks; note any help given.
+- Use an isolated staging copy, fictional Telebirr/CBE recipients, synthetic founder MFA, disposable PostgreSQL and five dummy PDFs.
+- Test on phones at 320–390 CSS px where possible; capture 768 and 1280 desktop/tablet behavior in automated tests.
+- Do not use a real transfer, provider account, customer record, phone number, notification, SMS or final PDF.
+- Use a separate fictional payment-app simulation page. Never open Telebirr/CBE.
+- Obtain consent for anonymous facilitator notes. Do not record faces, voices, real notifications, screens containing personal data or recovery secrets.
+- Use only labels P1–P5. Do not place any names, phone numbers, account details or recovery codes in the report.
+- Have founder and native Amharic reviewers approve all temporary English meanings and the final Amharic wording before sessions use that copy.
 
-## Tasks
+## Session script
 
-1. “Please order this guide using the fictional payment option shown. Tell me what you would do next.”
-2. “You have sent the fictional transfer. Show me where you would find its reference and what you would submit.”
-3. “The page says it is checking your reference. Tell me whether payment is confirmed.”
-4. “Save the recovery code in a way you trust. Now reload the page and find this order again.”
-5. “After approval appears, download all five guides. Show me where you would find one of them on this phone.”
-6. “If you become stuck, show me where you would get help.”
+1. Ask the participant to enter synthetic details and create the order.
+2. Before payment, ask them to save the order number and recovery code using their preferred private method.
+3. Have them copy both together, then copy the fictional payment number. Ask them what changed and whether the copy message proves the details were saved.
+4. Ask them to switch to the fictional payment-app simulation and return to the browser.
+5. Close or reload browser state. Ask them to recover the pending order with the saved order number and recovery code before continuing.
+6. Present a fictional transfer-completed scenario. Ask them where they would find the transaction reference, then submit a synthetic claim.
+7. Ask whether the submitted reference means payment is confirmed. Run pending, rejected/not-matched, and founder-approved scenarios separately.
+8. After approval, ask them to download guides 00–04, starting with 00 — ከዚህ ይጀምሩ. Ask where they would find the first file on Android.
+9. Simulate a brief network interruption and retry the status refresh. Then explain a revoked or unavailable download.
+10. Ask them to find optional official Telegram support.
 
-Use a scripted fictional settlement in the founder simulator. Do not solicit any real transfer.
+## Observe and record
 
-## Record for each participant
+For each task, record completion, elapsed time, assistance, pauses, repeated taps, errors, recovery success, accessibility barriers and any low-bandwidth issues. Note whether the participant:
 
-- Completion without assistance (yes/no) and total elapsed time.
-- Every hesitation, backtrack, repeated click, error, or request for help.
-- Whether the participant can explain that submitting a reference is only a claim and payment remains pending.
-- Whether the recovery code is saved and successfully reentered after reload, without storing it in browser storage.
-- Whether all five downloads complete and the participant can find/open a PDF.
-- Whether the participant can find official Telegram support.
-- Any accessibility barrier, lost connection or low-bandwidth problem.
-
-Use participant labels P1–P5. Do not include names, phone numbers, account details, actual recovery codes or recordings in the report.
+- Understands that a reference is a claim, not confirmation.
+- Understands the account-number copy replaces previously copied order details.
+- Saves and reenters both recovery details after losing page state.
+- Knows not to pay again while a submitted claim is pending or not matched.
+- Finds all five guide downloads and locates a downloaded PDF.
+- Can identify the support path and explain a revoked-access message.
 
 ## Acceptance targets
 
-- At least 4 of 5 finish the simulated purchase without assistance.
-- All 5 correctly understand that a submitted reference does not confirm payment.
-- All 5 find the support option.
-- No critical security or payment-understanding failure.
-- Record download and recovery success separately; unresolved failures require a fix and retest.
+- At least 4 of 5 complete the simulated journey without facilitator assistance.
+- All 5 understand that a submitted reference is not payment confirmation.
+- All 5 save and recover an order after page state is lost, and find support.
+- No critical privacy, payment or authorization misunderstanding.
+- Record every failure and assistance honestly; fix critical problems and retest before claiming usability acceptance.
 
-Report results as observed, including failures and assistance. Do not adjust the record to meet the target. A usability pass does not replace security testing, native Amharic approval, payment reconciliation, or production readiness.
+This study does not verify provider behavior, payment reconciliation, production security, native copy quality outside the reviewed version or production readiness.

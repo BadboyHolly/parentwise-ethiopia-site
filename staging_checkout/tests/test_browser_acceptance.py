@@ -98,28 +98,44 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
         page = context.new_page()
         code = order_through_review(page, label=label)
         assert page.locator("#account-number").inner_text() == "QA-TELEBIRR-ONLY"
+        details = page.locator("#stage-order-recovery").input_value()
+        assert "Order number: " + code in details
+        recovery_code = details.split("Private recovery code: ", 1)[1]
+        assert len(recovery_code) == 43
+        assert recovery_code not in page.url
+        assert page.evaluate("sessionStorage.length + localStorage.length") == 0
+        customer = {"code": code, "token": recovery_code}
         page.evaluate("""() => { window.__copiedText=""; Object.defineProperty(navigator,"clipboard",{configurable:true,value:{writeText:async v=>{window.__copiedText=v}}}) }""")
+        page.locator("#stage-copy-order-details").click()
+        assert page.evaluate("window.__copiedText") == details
         page.locator("#copy-number").click()
         assert page.evaluate("window.__copiedText") == "QA-TELEBIRR-ONLY"
+        assert "Copy Payment Number replaces anything copied before" in page.locator("#staging-payment").inner_text()
+        # A separate page simulates switching to a payment app; no provider is contacted.
+        payment_app = context.new_page()
+        payment_app.set_content("<title>Fictional payment app simulation</title><p>QA only — no transfer</p>")
+        assert "Fictional payment app simulation" in payment_app.title()
+        payment_app.close()
+        assert page.locator("#stage-order-recovery").input_value() == details
+        page.reload(wait_until="domcontentloaded")
+        assert page.evaluate("sessionStorage.length + localStorage.length") == 0
+        page.locator("#stage-existing-order summary").click()
+        page.locator("#stage-recovery-order").fill(code)
+        page.locator("#stage-recovery-code-input").fill(recovery_code)
+        page.locator("#stage-recovery-form button[type=submit]").click()
+        page.get_by_text("Awaiting Payment", exact=True).wait_for()
+        assert page.locator("#stage-order-code").inner_text() == code
         assert "0912910693" not in page.content()
         assert "10002230019327" not in page.content()
         assert "Kidus Elias" not in page.content()
         assert no_horizontal_overflow(page, width), page.evaluate("""() => ({viewport: innerWidth, document: document.documentElement.scrollWidth, offenders: [...document.querySelectorAll("*")].map(e => ({tag:e.tagName,id:e.id,cls:typeof e.className==="string"?e.className:"",left:Math.round(e.getBoundingClientRect().left),right:Math.round(e.getBoundingClientRect().right),width:Math.round(e.getBoundingClientRect().width)})).filter(x => x.right > innerWidth + 1 || x.left < -1).slice(0,20)})""")
 
-        # Authorization is retained in memory only; customers reenter it after reload.
-        recovery_code = page.locator("#stage-recovery-code").input_value()
-        assert len(recovery_code) == 43
-        assert recovery_code not in page.url
-        assert page.evaluate("sessionStorage.length + localStorage.length") == 0
-        customer = {"code": code, "token": recovery_code}
         page.evaluate("""() => Object.defineProperty(navigator, "clipboard", {
           configurable: true, value: {writeText: () => Promise.reject(new Error("denied"))}
         })""")
-        page.locator("#stage-copy-recovery").click()
+        page.locator("#stage-copy-order-details").click()
         assert "Clipboard unavailable" in page.locator("#stage-recovery-save-message").inner_text()
-        assert page.locator("#stage-recovery-code").evaluate(
-            "(el) => el.selectionStart === 0 && el.selectionEnd === el.value.length"
-        )
+        assert page.locator("#stage-order-recovery").evaluate("(el) => el.selectionStart === 0 && el.selectionEnd === el.value.length")
         assert page.locator("#copy-number").evaluate("(el) => parseFloat(getComputedStyle(el).minHeight) >= 44")
         reference = "SIM-BROWSER" + label
         set_reference_and_claim(page, reference)
@@ -132,6 +148,7 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
         assert duplicate_claim == 409
         page.locator("#stage-refresh").click()
         assert page.locator("#stage-status").inner_text() == "Under Review"
+        assert "We’re checking your payment" in page.locator("#stage-status-message").inner_text()
         assert page.evaluate("""async (s) => (await fetch('/api/v1/orders/' + s.code +
           '/downloads/part-1',{headers:{Authorization:'Bearer '+s.token}})).status""", customer) == 403
         assert page.evaluate("""async (s) => (await fetch('/api/v1/orders/' + s.code +
@@ -154,6 +171,7 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
                               full_page=True)
         founder.locator("#order-code").fill(code)
         founder.locator("#stage-approve").click()
+        founder.get_by_text("Dummy access approved.", exact=True).wait_for()
         page.locator("#stage-refresh").click()
         page.get_by_text("Ready to Download", exact=True).wait_for()
         assert page.locator("#stage-claim-form").is_hidden()
@@ -170,11 +188,14 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
         page.locator("#stage-recovery-form button[type=submit]").click()
         page.get_by_text("Ready to Download", exact=True).wait_for()
 
-        for part in range(1, 6):
+        assert page.locator('[data-guide-number="00"]').inner_text().startswith("00 — ከዚህ ይጀምሩ")
+        assert "Recommended first guide" in page.locator('[data-guide-number="00"]').inner_text()
+        for index, part in enumerate(range(1, 6)):
+            number = f"{index:02d}"
             with page.expect_download() as event:
-                page.get_by_role("button", name="Download guide " + str(part)).click()
+                page.locator('[data-guide-number="' + number + '"]').click()
             download = event.value
-            path = OUT / "downloads" / (label + "-part-" + str(part) + ".pdf")
+            path = OUT / "downloads" / (label + "-part-" + number + ".pdf")
             download.save_as(str(path))
             data = path.read_bytes()
             assert data.startswith(b"%PDF-1.4")
@@ -206,7 +227,7 @@ def test_cbe_card_uses_only_fictional_recipient_details():
         assert page.locator("#account-number").inner_text() == "QA-CBE-ONLY"
         assert page.locator("#account-method").inner_text() == "CBE ባንክ"
         page.evaluate("""() => { window.__copiedText=""; Object.defineProperty(navigator,"clipboard",{configurable:true,value:{writeText:async v=>{window.__copiedText=v}}}) }""")
-        assert "Copy Number" in page.locator("#copy-number").inner_text()
+        assert "Copy Payment Number" in page.locator("#copy-number").inner_text()
         page.locator("#copy-number").click()
         assert page.evaluate("window.__copiedText") == "QA-CBE-ONLY"
         assert page.locator("#account-number").inner_text() == "QA-CBE-ONLY"
@@ -286,7 +307,31 @@ def test_third_party_payer_mismatch_is_denied_then_claim_can_be_rejected():
         founder.locator("#stage-reject").click()
         page.locator("#stage-refresh").click()
         page.get_by_text("Awaiting Payment", exact=True).wait_for()
+        assert "We couldn’t verify your transfer" in page.locator("#stage-status-message").inner_text()
         browser.close()
+
+def test_status_refresh_recovers_after_interrupted_network():
+    reset_database()
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        context = browser.new_context(ignore_https_errors=True)
+        page = context.new_page()
+        code = order_through_review(page, label="offline-refresh")
+        details = page.locator("#stage-order-recovery").input_value()
+        token = details.split("Private recovery code: ", 1)[1]
+        customer = {"code": code, "token": token}
+        set_reference_and_claim(page, "SIM-OFFLINEREF01")
+        page.route("**/checkout-status", lambda route: route.abort("failed"))
+        page.locator("#stage-refresh").click()
+        page.get_by_text("Status refresh failed", exact=False).wait_for()
+        page.unroute("**/checkout-status")
+        page.locator("#stage-refresh").click()
+        page.get_by_text("We’re checking your payment", exact=False).wait_for()
+        assert page.locator("#stage-status").inner_text() == "Under Review"
+        assert "We’re checking your payment" in page.locator("#stage-status-message").inner_text()
+        assert page.evaluate("sessionStorage.length + localStorage.length") == 0
+        browser.close()
+
 
 def test_keyboard_can_reach_primary_checkout_controls():
     with sync_playwright() as p:
