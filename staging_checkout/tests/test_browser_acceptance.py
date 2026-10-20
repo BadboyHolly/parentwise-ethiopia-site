@@ -112,6 +112,17 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
         page.evaluate("""() => { window.__copiedText=""; Object.defineProperty(navigator,"clipboard",{configurable:true,value:{writeText:async v=>{window.__copiedText=v}}}) }""")
         page.locator("#stage-copy-order-details").click()
         assert page.evaluate("window.__copiedText") == details
+        page.locator("#stage-hide-recovery").click()
+        assert page.locator("#stage-recovery-code-panel").is_hidden()
+        assert page.locator("#stage-order-recovery").input_value() == ""
+        assert page.locator("#stage-show-recovery").is_visible()
+        page.screenshot(path=str(OUT / "screenshots" / ("step-6-4a-5-" + label + "-details-hidden.png")), full_page=True)
+        page.locator("#stage-show-recovery").click()
+        assert page.locator("#stage-recovery-code-panel").is_visible()
+        assert page.locator("#stage-order-recovery").input_value() == details
+        page.screenshot(path=str(OUT / "screenshots" / ("step-6-4a-5-" + label + "-details-revealed.png")), full_page=True)
+        page.locator("#stage-copy-order-details").click()
+        assert page.evaluate("window.__copiedText") == details
         page.locator("#copy-number").click()
         assert page.evaluate("window.__copiedText") == "QA-TELEBIRR-ONLY"
         assert "Copying the payment number replaces the copied order details" in page.locator("#staging-payment").inner_text()
@@ -128,6 +139,15 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
         page.locator("#stage-recovery-form button[type=submit]").click()
         page.get_by_text("Awaiting Payment", exact=True).wait_for()
         assert page.locator("#stage-order-code").inner_text() == code
+        assert page.locator("#stage-existing-order").evaluate("(el) => !el.open")
+        assert page.locator("#stage-recovery-paste").input_value() == ""
+        assert page.locator("#stage-recovery-order").input_value() == ""
+        assert page.locator("#stage-recovery-code-input").input_value() == ""
+        assert page.locator("#stage-order-recovery").input_value() == ""
+        assert page.locator("#stage-recovery-code-panel").is_hidden()
+        assert page.locator("#stage-show-recovery").is_visible()
+        assert not page.locator("#staging-payment").evaluate("(el, token) => el.innerText.includes(token)", recovery_code)
+        page.screenshot(path=str(OUT / "screenshots" / ("step-6-4a-5-" + label + "-pending-recovered.png")), full_page=True)
         assert page.locator("#payment-details").is_hidden()
         page.locator("#stage-continue-payment").click()
         page.locator("#payment-details").wait_for(state="visible")
@@ -198,9 +218,24 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
         page.reload(wait_until="domcontentloaded")
         assert page.evaluate("sessionStorage.length + localStorage.length") == 0
         page.locator("#stage-existing-order > summary").click()
-        page.locator("#stage-recovery-paste").fill(details)
+        # Existing saved blocks remain valid; parsing ignores human-readable labels.
+        label_independent_block = "My saved order details\n" + code + "\nKeep this private\n" + recovery_code
+        page.locator("#stage-recovery-paste").fill(label_independent_block)
         page.locator("#stage-recovery-form button[type=submit]").click()
         page.get_by_text("Ready to Download", exact=True).wait_for()
+        assert page.locator("#stage-existing-order").evaluate("(el) => !el.open")
+        assert page.locator("#stage-recovery-paste").input_value() == ""
+        assert page.locator("#stage-order-recovery").input_value() == ""
+        assert page.locator("#stage-recovery-code-panel").is_hidden()
+        assert not page.locator("#staging-payment").evaluate("(el, token) => el.innerText.includes(token)", recovery_code)
+        assert page.locator("#stage-existing-order").evaluate("(el) => !el.open")
+        assert page.locator("#stage-recovery-paste").input_value() == ""
+        assert page.locator("#stage-recovery-order").input_value() == ""
+        assert page.locator("#stage-recovery-code-input").input_value() == ""
+        assert page.locator("#stage-order-recovery").input_value() == ""
+        assert page.locator("#stage-recovery-code-panel").is_hidden()
+        assert page.locator("#stage-show-recovery").is_visible()
+        assert not page.locator("#staging-payment").evaluate("(el, token) => el.innerText.includes(token)", recovery_code)
 
         assert page.locator('[data-guide-number="00"]').inner_text().startswith("00 — ከዚህ ይጀምሩ")
         assert "Recommended first guide" in page.locator('[data-guide-number="00"]').inner_text()
@@ -347,6 +382,71 @@ def test_status_refresh_recovers_after_interrupted_network():
         assert page.locator("#stage-status").inner_text() == "Under Review"
         assert "We’re checking your payment" in page.locator("#stage-status-message").inner_text()
         assert page.evaluate("sessionStorage.length + localStorage.length") == 0
+        browser.close()
+
+
+def test_recovery_parser_is_label_independent_validated_and_supports_separate_fields():
+    reset_database()
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page(ignore_https_errors=True)
+        code = order_through_review(page, label="recovery-formats")
+        saved = page.locator("#stage-order-recovery").input_value()
+        token = saved.split("Private recovery code: ", 1)[1]
+        page.reload(wait_until="domcontentloaded")
+        page.locator("#stage-existing-order > summary").click()
+
+        malformed_blocks = [
+            "Order ID: " + code,
+            code + "\n" + token[:-1],
+            code + "\n" + token + "\n" + token,
+            code + "\n" + code + "\n" + token,
+        ]
+        for malformed in malformed_blocks:
+            page.locator("#stage-recovery-paste").fill(malformed)
+            page.locator("#stage-recovery-form button[type=submit]").click()
+            assert "Order could not be recovered" in page.locator("#stage-recovery-message").inner_text()
+            assert page.locator("#stage-recovery-paste").input_value() == malformed
+            assert page.locator("#stage-existing-order").evaluate("(el) => el.open")
+
+        # A server/authentication failure must not clear entered credentials.
+        block = "Saved order\n" + code + "\nPrivate details\n" + token
+        page.locator("#stage-recovery-paste").fill(block)
+        page.route("**/api/v1/orders/" + code, lambda route: route.abort("failed"))
+        page.locator("#stage-recovery-form button[type=submit]").click()
+        assert "Order could not be recovered" in page.locator("#stage-recovery-message").inner_text()
+        assert page.locator("#stage-recovery-paste").input_value() == block
+        assert page.locator("#stage-existing-order").evaluate("(el) => el.open")
+        page.unroute("**/api/v1/orders/" + code)
+
+        alpha_index = next(index for index, char in enumerate(token) if char.isalpha())
+        wrong_char = token[alpha_index].swapcase()
+        wrong_case_token = token[:alpha_index] + wrong_char + token[alpha_index + 1:]
+        wrong_case_block = "Saved order\n" + code + "\nPrivate details\n" + wrong_case_token
+        page.locator("#stage-recovery-paste").fill(wrong_case_block)
+        page.locator("#stage-recovery-form button[type=submit]").click()
+        assert "Order could not be recovered" in page.locator("#stage-recovery-message").inner_text()
+        assert page.locator("#stage-recovery-paste").input_value() == wrong_case_block
+
+        page.locator("#stage-recovery-paste").fill(block)
+        page.locator("#stage-recovery-form button[type=submit]").click()
+        page.get_by_text("Awaiting Payment", exact=True).wait_for()
+        assert page.locator("#stage-existing-order").evaluate("(el) => !el.open")
+        assert page.locator("#stage-recovery-paste").input_value() == ""
+        assert page.locator("#stage-order-recovery").input_value() == ""
+        assert page.locator("#stage-recovery-code-panel").is_hidden()
+
+        # The separate-field path remains available and retains exact token case.
+        page.reload(wait_until="domcontentloaded")
+        page.locator("#stage-existing-order > summary").click()
+        page.locator("#stage-existing-order details > summary").click()
+        page.locator("#stage-recovery-order").fill(code)
+        page.locator("#stage-recovery-code-input").fill(token)
+        page.locator("#stage-recovery-form button[type=submit]").click()
+        page.get_by_text("Awaiting Payment", exact=True).wait_for()
+        assert page.locator("#stage-existing-order").evaluate("(el) => !el.open")
+        assert page.locator("#stage-recovery-order").input_value() == ""
+        assert page.locator("#stage-recovery-code-input").input_value() == ""
         browser.close()
 
 
