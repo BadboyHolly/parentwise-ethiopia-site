@@ -45,10 +45,10 @@ remove the old key only after a full inventory confirms no ciphertext references
 it and protected backups are also rotated. Never overwrite key material under
 an existing key ID.
 
-The order API's existing claim service still has no customer-facing claim route.
-The new founder composition encrypts before calling that service. A future
-customer claim endpoint must call `encrypt_claim_reference` before persistence;
-it must not accept an `enc:` envelope from a customer.
+No customer-facing claim route is added in STEP 6.2. A future claim endpoint
+must call `encrypt_claim_reference` before persistence; it must not accept an
+`enc:` envelope supplied by a customer. Password provisioning must enforce at
+least 12 characters and store only the resulting Argon2id hash.
 
 ## Review and approval sequence
 
