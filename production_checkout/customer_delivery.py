@@ -105,7 +105,7 @@ def create_customer_delivery_router(
         return ("Payment Confirmed", "Payment is confirmed, but download access is currently unavailable. Contact ParentWise support.")
 
     @router.post("/payment-claims", status_code=202)
-    def submit_claim(code: str, body: ClaimInput = Body(...), request: Request,
+    def submit_claim(code: str, request: Request, body: ClaimInput = Body(...),
                      authorization: str = Header(default="")):
         token = authorize_token(code, authorization)
         try:
