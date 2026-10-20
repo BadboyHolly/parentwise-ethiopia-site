@@ -6,6 +6,7 @@ on:
       - dev/staging-checkout-security-20261020
       - dev/staging-checkout-ux-20261020
       - dev/staging-checkout-final-simplicity-20261020
+      - dev/staging-checkout-buyer-first-ux-20261020
     paths:
       - 'production_checkout/**'
       - 'staging_checkout/**'
