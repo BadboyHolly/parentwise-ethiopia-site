@@ -44,4 +44,6 @@ For every item below, approve the meaning, then obtain native Amharic review bef
 - Confirm no message implies “I have paid” or a submitted reference confirms payment.
 - Confirm recipient instructions correspond to the production payment method and account before production copy is enabled.
 - Keep stage-only English, fictional recipients and dummy downloads out of production.
-\n\n## Additional temporary system messages\n\nThe staging page also presents a temporary test-order success notice, submission/network retry notices, recovery success/failure notices, and a generic download failure message. Have the founder and native reviewer approve meaning and tone for each; keep them out of production until localized. The backend status values shown in the checkout (Awaiting Payment, Under Review, Payment Confirmed, Ready to Download) also require approved Amharic labels.\n
+
+
+## Additional temporary system messages\n\nThe staging page also presents a temporary test-order success notice, submission/network retry notices, recovery success/failure notices, and a generic download failure message. Have the founder and native reviewer approve meaning and tone for each; keep them out of production until localized. The backend status values shown in the checkout (Awaiting Payment, Under Review, Payment Confirmed, Ready to Download) also require approved Amharic labels.
