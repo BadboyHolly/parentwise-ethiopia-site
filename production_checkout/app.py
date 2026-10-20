@@ -289,9 +289,44 @@ def from_environment() -> FastAPI:
         raise RuntimeError("Founder approval requires authenticated founder sessions")
     app.state.founder_auth_enabled = founder_auth_enabled
     app.state.founder_approval_enabled = False
+    app.state.customer_claims_enabled = False
+    app.state.secure_delivery_enabled = False
+    founder_config = None
     if founder_auth_enabled:
         from .founder_security import FounderConfig, create_founder_router
         founder_config = FounderConfig.from_environment(payment_accounts=accounts)
+        app.state.founder_config = founder_config
         app.include_router(create_founder_router(app.state.sessions, founder_config))
         app.state.founder_approval_enabled = founder_config.approvals_enabled
+
+    # The production customer workflow is fail-closed. It is mounted only when
+    # every independently controlled gate is explicitly enabled and the founder
+    # workflow is authenticated and approval-capable. No QA settlement adapter
+    # or credentials are imported here.
+    claims_enabled = os.getenv("CUSTOMER_PAYMENT_CLAIMS_ENABLED", "false").lower() == "true"
+    delivery_enabled = os.getenv("SECURE_PDF_DELIVERY_ENABLED", "false").lower() == "true"
+    if claims_enabled or delivery_enabled:
+        if not (claims_enabled and delivery_enabled and founder_config
+                and founder_config.approvals_enabled):
+            raise RuntimeError("Customer claims and delivery require both gates and founder approval")
+        from .customer_delivery import CustomerDeliveryConfig, create_customer_delivery_router
+        from .private_storage import ProductManifest, R2PrivateObjectStore, R2Settings
+        manifest_raw = os.getenv("PRODUCT_PDF_MANIFEST_JSON", "")
+        manifest = ProductManifest.from_json(manifest_raw)
+        r2_settings = R2Settings.from_environment()
+        object_store = R2PrivateObjectStore.from_environment()
+        app.include_router(create_customer_delivery_router(
+            app.state.sessions,
+            CustomerDeliveryConfig(
+                token_secret=os.getenv("ORDER_TOKEN_KEY", ""),
+                rate_key=os.getenv("CUSTOMER_RATE_LIMIT_KEY", ""),
+                founder_config=founder_config,
+                bucket=r2_settings.bucket,
+                manifest=manifest,
+                object_store=object_store,
+                max_object_bytes=r2_settings.max_object_bytes,
+            ),
+        ))
+        app.state.customer_claims_enabled = True
+        app.state.secure_delivery_enabled = True
     return app
