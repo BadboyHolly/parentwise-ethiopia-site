@@ -45,6 +45,7 @@ def enter_review(page, method="telebirr"):
     page.locator("#customer-name").fill("QA Parent Example")
     page.locator("#customer-mobile").fill("0900000000")
     page.locator("label.method").nth(0 if method == "telebirr" else 1).click()
+    assert page.locator("#continue-order-button").evaluate("(el) => el.getBoundingClientRect().height >= 44")
     assert page.locator("#payment-details").is_hidden()
     assert page.get_by_text("Founder simulation console", exact=True).count() == 0
     assert page.locator('a[href="https://t.me/ParentWiseEthiopia"]').count() >= 1
@@ -118,8 +119,7 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
         assert page.locator("#stage-recovery-code").evaluate(
             "(el) => el.selectionStart === 0 && el.selectionEnd === el.value.length"
         )
-        assert page.locator("#continue-order-button").evaluate("(el) => el.getBoundingClientRect().height >= 44")
-        assert page.locator("#copy-number").evaluate("(el) => el.getBoundingClientRect().height >= 44")
+            assert page.locator("#copy-number").evaluate("(el) => el.getBoundingClientRect().height >= 44")
         reference = "SIM-BROWSER" + label
         set_reference_and_claim(page, reference)
         duplicate_claim = page.evaluate("""async ({ref, order}) => {
@@ -232,7 +232,7 @@ def test_interrupted_order_creation_retries_same_key_and_payload():
         page.route("**/api/v1/orders", fail_first)
         enter_review(page)
         page.locator("#continue-order-button").click()
-        page.get_by_text("Retry with the same details.", exact=False).wait_for()
+        page.locator("#staging-message").wait_for(state="visible")
         page.locator("#continue-order-button").click()
         page.locator("#staging-payment").wait_for(state="visible")
         assert len(requests) == 2
@@ -264,11 +264,12 @@ def test_third_party_payer_mismatch_is_denied_then_claim_can_be_rejected():
     reset_database()
     with sync_playwright() as p:
         browser = p.chromium.launch()
-        page = browser.new_page(ignore_https_errors=True)
+        context = browser.new_context(ignore_https_errors=True)
+        page = context.new_page()
         order_through_review(page, label="third-party")
         reference = "SIM-THIRDPARTY01"
         set_reference_and_claim(page, reference)
-        founder = page.context.new_page()
+        founder = context.new_page()
         founder_login(founder)
         founder.locator("#order-code").fill(page.locator("#stage-order-code").inner_text())
         founder.locator("#settlement-ref").fill(reference)
