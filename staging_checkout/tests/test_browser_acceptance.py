@@ -188,6 +188,7 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
         founder_login(founder)
         founder.locator("#order-code").fill(code)
         founder.locator("#stage-revoke").click()
+        page.locator("#stage-refresh").click()
         page.get_by_text("Payment Confirmed", exact=True).wait_for()
         assert page.evaluate("""async (s) => (await fetch('/api/v1/orders/' + s.code +
           '/downloads/part-1',{headers:{Authorization:'Bearer '+s.token}})).status""",
