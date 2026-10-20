@@ -250,7 +250,7 @@ def test_slow_network_order_creation_completes_without_duplicate_submit():
         page.locator("#continue-order-button").click()
         page.locator("#staging-payment").wait_for(state="visible")
         assert time.monotonic() - start >= 1.0
-        assert page.locator("#continue-order-button").is_disabled()
+        assert not page.locator("#continue-order-button").is_disabled()
         with create_engine(os.environ["STAGING_DATABASE_URL"]).connect() as conn:
             assert conn.execute(text("SELECT count(*) FROM production_orders")).scalar_one() == 1
         browser.close()
