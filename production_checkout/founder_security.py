@@ -318,6 +318,11 @@ def create_founder_router(sessions: sessionmaker, cfg: FounderConfig) -> APIRout
     def login(body: LoginInput, request: Request, response: Response):
         if request.headers.get("origin", "") not in cfg.allowed_origins:
             raise HTTPException(403, "Request origin is not allowed")
+        # Consume the source and account budgets in a committed transaction
+        # before invoking memory-hard Argon2id. Concurrent attempts serialize on
+        # both bucket rows, so excess requests do not spend Argon2 resources.
+        with sessions.begin() as db:
+            source_hash = _consume_rate_limit(db, cfg, request, body.username)
         now = int(time.time())
         candidate_step = _totp_counter(cfg.totp_secret, body.totp, now)
         password_ok = False
@@ -326,9 +331,7 @@ def create_founder_router(sessions: sessionmaker, cfg: FounderConfig) -> APIRout
         except (VerifyMismatchError, InvalidHashError, ValueError):
             pass
         username_ok = hmac.compare_digest(body.username.encode(), cfg.username.encode())
-        source_hash = None
         with sessions.begin() as db:
-            source_hash = _consume_rate_limit(db, cfg, request, body.username)
             control = db.execute(text("SELECT last_totp_step FROM production_founder_auth_control WHERE singleton_id=1 FOR UPDATE")).one()
             valid = password_ok and username_ok and candidate_step is not None and candidate_step > control.last_totp_step
             if valid:
