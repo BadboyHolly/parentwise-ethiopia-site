@@ -66,7 +66,7 @@ def check_viewport(page, width):
     page.locator("#paid-action").click()
     assert page.locator("#telegram-section").is_visible()
     assert page.locator("#payment-section").is_hidden()
-    assert page.locator("#label-telegram").get_attribute("class") == "active"
+    assert "active" in page.locator("#label-telegram").get_attribute("class").split()
     note=page.locator("#confirmation-message").inner_text()
     assert "Demo Parent" in note and "0900000000" in note
     assert "Telebirr" in note and "1,500 ETB" in note
