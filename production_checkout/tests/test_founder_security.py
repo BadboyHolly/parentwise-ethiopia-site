@@ -170,3 +170,44 @@ def test_totp_parser_rejects_invalid_codes():
     assert _totp_counter(TOTP_SECRET,totp(TOTP_SECRET),int(time.time())) is not None
     assert _totp_counter(TOTP_SECRET,"12x456") is None
 
+
+
+def test_login_rate_limit_is_consumed_before_argon_verification(founder_app, monkeypatch):
+    from production_checkout import founder_security
+    calls=[]
+    monkeypatch.setattr(founder_security._ARGON, "verify",
+                        lambda *args, **kwargs: calls.append(1) or False)
+    with TestClient(founder_app, base_url="https://founder.example") as client:
+        statuses=[]
+        for _ in range(8):
+            response=client.post("/api/v1/founder/session",
+                headers={"Origin":"https://founder.example"},
+                json={"username":"founder-primary","password":"wrong password value",
+                      "totp":"000000"})
+            statuses.append(response.status_code)
+    assert statuses[:5] == [401]*5
+    assert statuses[5:] == [429]*3
+    assert len(calls) == 5
+
+
+def test_concurrent_login_abuse_is_limited_before_argon_work(founder_app, monkeypatch):
+    from production_checkout import founder_security
+    from threading import Lock
+    guard=Lock()
+    calls=[]
+    def verify(*args, **kwargs):
+        with guard:
+            calls.append(1)
+        return False
+    monkeypatch.setattr(founder_security._ARGON, "verify", verify)
+    def attempt(_):
+        with TestClient(founder_app, base_url="https://founder.example") as client:
+            return client.post("/api/v1/founder/session",
+                headers={"Origin":"https://founder.example"},
+                json={"username":"founder-primary","password":"wrong password value",
+                      "totp":"000000"}).status_code
+    with ThreadPoolExecutor(max_workers=10) as pool:
+        statuses=list(pool.map(attempt,range(10)))
+    assert statuses.count(401) == 5
+    assert statuses.count(429) == 5
+    assert len(calls) == 5
