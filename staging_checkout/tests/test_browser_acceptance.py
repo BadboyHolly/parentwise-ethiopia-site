@@ -47,6 +47,7 @@ def enter_review(page, method="telebirr"):
     page.locator("label.method").nth(0 if method == "telebirr" else 1).click()
     assert page.locator("#payment-details").is_hidden()
     assert page.get_by_text("Founder simulation console", exact=True).count() == 0
+    assert page.locator('a[href="https://t.me/ParentWiseEthiopia"]').count() >= 1
     assert page_errors == []
 
 def create_staging_order(page):
@@ -67,6 +68,7 @@ def order_through_review(page, method="telebirr", label="review"):
 
 def set_reference_and_claim(page, reference):
     page.locator("#stage-ive-paid").click()
+    assert page.locator("#stage-status").inner_text() == "Awaiting Payment"
     page.locator("#stage-reference").fill(reference)
     page.locator("#stage-claim-form button[type=submit]").click()
     page.get_by_text("Under Review", exact=True).wait_for()
@@ -116,6 +118,8 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
         assert page.locator("#stage-recovery-code").evaluate(
             "(el) => el.selectionStart === 0 && el.selectionEnd === el.value.length"
         )
+        assert page.locator("#continue-order-button").evaluate("(el) => el.getBoundingClientRect().height >= 44")
+        assert page.locator("#copy-number").evaluate("(el) => el.getBoundingClientRect().height >= 44")
         reference = "SIM-BROWSER" + label
         set_reference_and_claim(page, reference)
         duplicate_claim = page.evaluate("""async ({ref, order}) => {
