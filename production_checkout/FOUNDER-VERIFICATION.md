@@ -56,8 +56,9 @@ it must not accept an `enc:` envelope from a customer.
 2. Founder reviews a pending claim and its decrypted reference in the private
    founder API.
 3. Founder independently checks the Telebirr portal or CBE statement. The
-   recipient is derived from protected server configuration. The founder must
-   affirm recipient match; the request cannot provide a recipient number/name.
+   expected recipient is derived from the same protected account number and
+   holder values used by the order API. The founder must affirm recipient
+   match; the request cannot provide a recipient number/name.
 4. Founder records the observed reference, payment method, amount, currency,
    payer mobile where visible, and source record. Evidence recording does not
    approve a claim.
@@ -108,8 +109,9 @@ No MFA enrollment endpoint exposes a seed, and no recovery route bypasses TOTP.
 `FOUNDER_RATE_LIMIT_KEY`, `PAYMENT_DATA_KEYRING`,
 `PAYMENT_DATA_ACTIVE_KEY_ID`, `ORDER_TOKEN_KEY`,
 `PAYMENT_REFERENCE_HASH_KEY`, `PAYER_IDENTITY_HASH_KEY`,
-`PAYMENT_RECIPIENT_HASH_KEY`, `TELEBIRR_RECIPIENT_CANONICAL`,
-`CBE_RECIPIENT_CANONICAL`, and `FOUNDER_ALLOWED_ORIGINS`.
+`PAYMENT_RECIPIENT_HASH_KEY`, and `FOUNDER_ALLOWED_ORIGINS`. Recipient values
+are derived from the server-only Telebirr/CBE account number and account-holder
+configuration already consumed by order instructions.
 
 Do not set these values in this branch or GitHub Actions. Production order
 intake, founder approval and download delivery remain disabled. The test suite
