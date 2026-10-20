@@ -253,6 +253,7 @@ def create_founder_router(sessions: sessionmaker, cfg: FounderConfig) -> APIRout
         amount_etb: int = Field(ge=0, le=10_000_000)
         currency: str = Field(min_length=3, max_length=3)
         recipient_confirmed: bool
+        manual_reconciliation_completed: bool
         payer_mobile: str = Field(pattern=r"^\+251[97][0-9]{8}$")
         evidence_source: str = Field(pattern=r"^(TELEBIRR_PORTAL|BANK_STATEMENT)$")
         settled_at: datetime
@@ -318,6 +319,11 @@ def create_founder_router(sessions: sessionmaker, cfg: FounderConfig) -> APIRout
     def login(body: LoginInput, request: Request, response: Response):
         if request.headers.get("origin", "") not in cfg.allowed_origins:
             raise HTTPException(403, "Request origin is not allowed")
+        # Consume the source and account budgets in a committed transaction
+        # before invoking memory-hard Argon2id. Concurrent attempts serialize on
+        # both bucket rows, so excess requests do not spend Argon2 resources.
+        with sessions.begin() as db:
+            source_hash = _consume_rate_limit(db, cfg, request, body.username)
         now = int(time.time())
         candidate_step = _totp_counter(cfg.totp_secret, body.totp, now)
         password_ok = False
@@ -326,9 +332,7 @@ def create_founder_router(sessions: sessionmaker, cfg: FounderConfig) -> APIRout
         except (VerifyMismatchError, InvalidHashError, ValueError):
             pass
         username_ok = hmac.compare_digest(body.username.encode(), cfg.username.encode())
-        source_hash = None
         with sessions.begin() as db:
-            source_hash = _consume_rate_limit(db, cfg, request, body.username)
             control = db.execute(text("SELECT last_totp_step FROM production_founder_auth_control WHERE singleton_id=1 FOR UPDATE")).one()
             valid = password_ok and username_ok and candidate_step is not None and candidate_step > control.last_totp_step
             if valid:
@@ -399,6 +403,8 @@ def create_founder_router(sessions: sessionmaker, cfg: FounderConfig) -> APIRout
         from .payment_state import record_settlement_evidence, transaction_reference_digest
         if not body.recipient_confirmed:
             raise HTTPException(409, "Recipient must be independently confirmed")
+        if not body.manual_reconciliation_completed:
+            raise HTTPException(409, "Complete the independent manual reconciliation checklist first")
         canonical_recipient = cfg.telebirr_recipient if body.payment_method == "telebirr" else cfg.bank_recipient
         recipient_digest = hmac.new(cfg.recipient_hash_secret.encode(), ("recipient:v1:"+canonical_recipient).encode(), hashlib.sha256).hexdigest()
         ref_digest = transaction_reference_digest(cfg.reference_hash_secret, body.observed_reference)

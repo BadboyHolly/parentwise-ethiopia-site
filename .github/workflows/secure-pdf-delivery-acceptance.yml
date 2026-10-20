@@ -1,0 +1,104 @@
+name: ParentWise Secure PDF Delivery Acceptance
+
+on:
+  pull_request:
+    branches:
+      - dev/founder-payment-verification-20261020
+    paths:
+      - 'production_checkout/**'
+      - 'staging_checkout/**'
+      - '.github/workflows/secure-pdf-delivery-acceptance.yml'
+  push:
+    branches:
+      - dev/secure-pdf-delivery-20261020
+    paths:
+      - 'production_checkout/**'
+      - 'staging_checkout/**'
+      - '.github/workflows/secure-pdf-delivery-acceptance.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  secure-customer-delivery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: parentwise_ci
+          POSTGRES_PASSWORD: disposable_only_password
+          POSTGRES_DB: pw_production_disposable
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U parentwise_ci -d pw_production_disposable"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      APP_MODE: staging
+      PAYMENTS_ENABLED: 'false'
+      ORDER_INTAKE_ENABLED: 'false'
+      STAGING_ORDER_INTAKE_ENABLED: 'true'
+      CUSTOMER_PAYMENT_CLAIMS_ENABLED: 'false'
+      SECURE_PDF_DELIVERY_ENABLED: 'false'
+      FOUNDER_AUTH_ENABLED: 'false'
+      FOUNDER_APPROVAL_ENABLED: 'false'
+      TEST_DATABASE_URL: postgresql+psycopg://parentwise_ci:disposable_only_password@127.0.0.1:5432/pw_production_disposable
+      STAGING_DATABASE_URL: postgresql+psycopg://parentwise_ci:disposable_only_password@127.0.0.1:5432/pw_staging_disposable
+      STAGING_ALLOWED_ORIGINS: https://staging.example.invalid
+      TEST_CUSTOMER_RATE_LIMIT: '100'
+      PGPASSWORD: disposable_only_password
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install backend and test dependencies
+        run: python -m pip install -r production_checkout/requirements.txt 'pytest>=8,<10' 'httpx>=0.27,<1'
+      - name: Generate synthetic staging founder factors
+        run: |
+          python - <<'PY'
+          import base64, os, secrets
+          from argon2 import PasswordHasher
+          password = secrets.token_urlsafe(32)
+          totp = base64.b32encode(secrets.token_bytes(20)).decode().rstrip("=")
+          values = {
+              "STAGING_ORDER_TOKEN_KEY": secrets.token_urlsafe(48),
+              "STAGING_FOUNDER_USERNAME": "ci-founder-" + secrets.token_hex(4),
+              "STAGING_FOUNDER_PASSWORD": password,
+              "STAGING_FOUNDER_PASSWORD_HASH": PasswordHasher().hash(password),
+              "STAGING_FOUNDER_TOTP_SECRET": totp,
+          }
+          with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as env_file:
+              for key, value in values.items():
+                  print("::add-mask::" + value)
+                  env_file.write(f"{key}={value}\n")
+          PY
+      - name: Create separate staging database
+        run: createdb -h 127.0.0.1 -U parentwise_ci pw_staging_disposable
+      - name: Apply production and staging migrations
+        run: |
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U parentwise_ci -d pw_production_disposable -f production_checkout/migrations/0001_create_orders.sql
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U parentwise_ci -d pw_production_disposable -f production_checkout/migrations/0002_create_payment_delivery_state.sql
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U parentwise_ci -d pw_production_disposable -f production_checkout/migrations/0003_create_founder_security.sql
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U parentwise_ci -d pw_production_disposable -f production_checkout/migrations/0004_create_customer_rate_limits.sql
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U parentwise_ci -d pw_staging_disposable -f production_checkout/migrations/0001_create_orders.sql
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U parentwise_ci -d pw_staging_disposable -f staging_checkout/migrations/0001_stage_sidecar.sql
+      - name: Compile production and staging code
+        run: python -m compileall -q production_checkout staging_checkout
+      - name: Run complete production and staging regression suite
+        run: python -m pytest -q production_checkout/tests staging_checkout/tests/test_journey.py
+      - name: Roll back customer and founder migrations
+        run: |
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U parentwise_ci -d pw_production_disposable -f production_checkout/migrations/0004_rollback_customer_rate_limits.sql
+          test "$(psql -At -h 127.0.0.1 -U parentwise_ci -d pw_production_disposable -c "SELECT to_regclass('production_customer_rate_limits') IS NULL")" = "t"
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U parentwise_ci -d pw_production_disposable -f production_checkout/migrations/0003_rollback_founder_security.sql
+          test "$(psql -At -h 127.0.0.1 -U parentwise_ci -d pw_production_disposable -c "SELECT to_regclass('production_orders') IS NOT NULL AND to_regclass('production_payment_fulfillment_state') IS NOT NULL AND to_regclass('production_founder_sessions') IS NULL")" = "t"
+      - name: Re-upgrade schema and verify readiness
+        run: |
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U parentwise_ci -d pw_production_disposable -f production_checkout/migrations/0003_create_founder_security.sql
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U parentwise_ci -d pw_production_disposable -f production_checkout/migrations/0004_create_customer_rate_limits.sql
+          test "$(psql -At -h 127.0.0.1 -U parentwise_ci -d pw_production_disposable -c "SELECT to_regclass('production_founder_sessions') IS NOT NULL AND to_regclass('production_customer_rate_limits') IS NOT NULL")" = "t"
