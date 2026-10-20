@@ -72,7 +72,7 @@ def build_staging_app(*, database_url: str, order_token_secret: str,
         payment_accounts=FICTIONAL_RECIPIENTS)
     @app.middleware("http")
     async def staging_checkout_policy(request: Request, call_next):
-        nonce = secrets.token_urlsafe(18) if request.url.path in {"/staging/checkout", "/staging/checkout-amharic"} else ""
+        nonce = secrets.token_urlsafe(18) if request.url.path in {"/staging/checkout", "/staging/checkout-amharic", "/staging/founder-simulation"} else ""
         if nonce:
             request.state.staging_csp_nonce = nonce
         response = await call_next(request)
