@@ -386,3 +386,23 @@ def test_recovery_separate_field_fallback_remains_available():
         page.get_by_text("Awaiting Payment", exact=True).wait_for()
         assert page.locator("#stage-continue-payment").is_visible()
         browser.close()
+
+
+
+def test_backend_ready_label_without_active_grant_is_not_shown_as_ready():
+    reset_database()
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page(ignore_https_errors=True)
+        code = order_through_review(page, label="ready-without-grant")
+        page.route("**/checkout-status", lambda route: route.fulfill(
+            status=200, content_type="application/json",
+            body='{"status":"Ready to Download","downloads_ready":false,"download_access_revoked":false}'
+        ))
+        page.locator("#stage-refresh").click()
+        page.get_by_text("download access is unavailable", exact=False).wait_for()
+        assert page.locator("#stage-status").inner_text() == "Payment Confirmed"
+        assert page.get_by_text("Ready to Download", exact=True).count() == 0
+        assert page.locator("#stage-download-panel").is_hidden()
+        page.unroute("**/checkout-status")
+        browser.close()
