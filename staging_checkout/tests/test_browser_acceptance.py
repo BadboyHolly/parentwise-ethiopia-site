@@ -119,7 +119,7 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
         assert page.locator("#stage-recovery-code").evaluate(
             "(el) => el.selectionStart === 0 && el.selectionEnd === el.value.length"
         )
-            assert page.locator("#copy-number").evaluate("(el) => el.getBoundingClientRect().height >= 44")
+        assert page.locator("#copy-number").evaluate("(el) => el.getBoundingClientRect().height >= 44")
         reference = "SIM-BROWSER" + label
         set_reference_and_claim(page, reference)
         duplicate_claim = page.evaluate("""async ({ref, order}) => {
