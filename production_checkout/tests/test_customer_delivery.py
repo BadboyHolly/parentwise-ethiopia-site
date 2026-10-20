@@ -218,7 +218,7 @@ def test_founder_http_rejection_is_audited_and_never_unlocks_download(qa):
             "reason":"Independent settlement could not be verified"})
         assert rejected.status_code==200,rejected.text
         assert client.get(f"/api/v1/orders/{code}/checkout-status",
-            headers={"Authorization":"Bearer "+token}).json()["status"]=="Payment Confirmed"
+            headers={"Authorization":"Bearer "+token}).json()["status"]=="Awaiting Payment"
         assert client.get(f"/api/v1/orders/{code}/downloads/part-1.pdf",
             headers={"Authorization":"Bearer "+token}).status_code==404
         with app.state.engine.connect() as db:
