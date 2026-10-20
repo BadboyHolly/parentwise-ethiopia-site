@@ -380,7 +380,8 @@ label.fieldlabel{margin-bottom:7px;font-weight:700;color:#2d4637}
 </details>
 <section id="staging-payment" class="checkout-review" hidden aria-labelledby="staging-payment-title" tabindex="-1">
   <div class="review-top"><span class="panelnum">TEMPORARY ENGLISH STAGING PLACEHOLDER</span><h2 class="paneltitle" id="staging-payment-title">Fictional payment instructions</h2><p>Founder review required for this new message. Do not send money.</p></div>
-  <div class="review-list"><div><dt>Order ID</dt><dd id="stage-order-code"></dd></div><div><dt>Fictional recipient</dt><dd id="stage-recipient"></dd></div><div><dt>Amount</dt><dd>1,500 ETB</dd></div><div><dt>Status</dt><dd id="stage-status">Awaiting Payment</dd></div><div><dt>Buyer phone</dt><dd id="stage-buyer-phone"></dd></div></div>
+  <div class="staging-placeholder" style="padding:14px 0"><strong>Temporary English staging placeholder — founder review required</strong><p>Pay exactly 1,500 ETB to the fictional recipient below. After sending the transfer, tap “I have paid” and enter the transaction reference. This is an isolated test; do not send real money.</p></div>
+  <div class="review-list"><div><dt>Order ID</dt><dd id="stage-order-code"></dd></div><div><dt>Fictional recipient</dt><dd id="stage-recipient"></dd></div><div><dt>Account holder</dt><dd>FICTIONAL QA</dd></div><div><dt>Amount</dt><dd>1,500 ETB</dd></div><div><dt>Status</dt><dd id="stage-status">Awaiting Payment</dd></div></div>
   <div id="stage-recovery-code-panel" class="staging-placeholder" hidden style="margin:14px 0;padding:14px;border:1px dashed #7A2E3E;border-radius:12px">
     <strong>Temporary English staging placeholder — founder review required</strong>
     <p>This recovery code is private and held only in this page's memory. Save it in a password manager you control or write it down and keep it secure; do not leave it on a shared device.</p>
@@ -391,33 +392,20 @@ label.fieldlabel{margin-bottom:7px;font-weight:700;color:#2d4637}
   </div>
   <p id="stage-status-message" role="status" aria-live="polite"></p>
   <button type="button" class="copy-btn" id="stage-copy-recipient">Copy fictional recipient</button><p id="stage-copy-message" role="status" aria-live="polite"></p>
-  <form id="stage-claim-form" class="staging-placeholder" style="margin-top:16px;padding:14px;border:1px dashed #7A2E3E;border-radius:12px">
+  <button type="button" class="checkoutaction staging-placeholder" id="stage-ive-paid">Temporary English staging placeholder — founder review required: I have paid</button><p class="staging-placeholder">Temporary English staging placeholder — founder review required: Find the transaction reference in your payment SMS or bank transaction details. If you cannot find it, contact ParentWise on Telegram for help.</p>
+  <form id="stage-claim-form" hidden class="staging-placeholder" style="margin-top:16px;padding:14px;border:1px dashed #7A2E3E;border-radius:12px">
     <strong>Temporary English staging placeholder — founder review required</strong>
     <label for="stage-reference">Fictional transaction reference</label><input id="stage-reference" autocomplete="off" placeholder="SIM-..." required>
-    <button type="submit" class="checkoutaction">Submit fictional payment claim</button>
-    <p>A reference is only a claim. It does not confirm payment.</p>
+    <button type="submit" class="checkoutaction">Temporary English staging placeholder — founder review required: Submit reference for checking</button>
+    <p>Temporary English staging placeholder — founder review required: A reference asks us to check the transfer. It does not confirm payment.</p>
   </form>
   <div style="margin-top:14px"><button type="button" class="review-back" id="stage-refresh">Refresh order status</button><span id="stage-downloads" hidden></span></div>
   <div id="stage-download-panel" class="staging-placeholder" hidden style="margin-top:14px;padding:14px;border:1px dashed #7A2E3E;border-radius:12px">
     <strong>Temporary English staging placeholder — founder review required</strong>
-    <p>Five dummy QA PDFs are available after simulated founder approval.</p><div id="stage-download-list"></div>
+    <p>Temporary English staging placeholder — founder review required: After approval, tap Download. On Android, find the file in Downloads or open it from the download notification.</p><div id="stage-download-list"></div>
   </div>
 </section>
-<section id="staging-founder" class="checkout-review staging-placeholder" hidden style="margin-top:18px;padding:18px;border:1px dashed #7A2E3E;border-radius:12px">
-  <strong>Temporary English staging placeholder — founder review required</strong><h2>Founder simulation console</h2>
-  <form id="stage-founder-login"><label for="stage-founder-user">Synthetic founder username</label><input id="stage-founder-user" autocomplete="off" required><label for="stage-founder-password">Synthetic password</label><input id="stage-founder-password" type="password" autocomplete="off" required><label for="stage-founder-totp">Synthetic TOTP</label><input id="stage-founder-totp" inputmode="numeric" required><button type="submit" class="checkoutaction">Sign in to simulation</button></form>
-  <div id="stage-founder-actions" hidden>
-    <label for="stage-settlement-ref">Settlement reference</label><input id="stage-settlement-ref">
-    <label for="stage-settlement-amount">Settled amount ETB</label><input id="stage-settlement-amount" value="1500">
-    <label for="stage-settlement-method">Settlement method</label><select id="stage-settlement-method"><option value="telebirr">Telebirr</option><option value="bank">CBE bank transfer</option></select>
-    <label for="stage-settlement-payer">Payer phone (must match buyer phone)</label><input id="stage-settlement-payer">
-    <button type="button" class="review-back" id="stage-record">Record fictional settlement</button>
-    <button type="button" class="review-back" id="stage-verify">Verify settlement match</button>
-    <button type="button" class="checkoutaction" id="stage-approve">Approve and grant dummy access</button>
-    <button type="button" class="review-back" id="stage-reject">Reject claim for retry</button>
-    <button type="button" class="review-back" id="stage-revoke">Revoke dummy downloads</button>
-  </div>
-</section>
+
   </section>
   <aside aria-label="የትዕዛዝ ማጠቃለያ">
     <div class="panel summary">
@@ -471,17 +459,10 @@ label.fieldlabel{margin-bottom:7px;font-weight:700;color:#2d4637}
   $('create-staging-order').addEventListener('click',createOrder);
   $('stage-copy-recipient').addEventListener('click',async()=>{const text=$('stage-recipient').textContent;try{await navigator.clipboard.writeText(text);say($('stage-copy-message'),'Fictional recipient copied.')}catch{say($('stage-copy-message'),'Clipboard unavailable; select the fictional recipient manually.')}});
   $('stage-claim-form').addEventListener('submit',async e=>{e.preventDefault();const ref=$('stage-reference').value.trim().toUpperCase();$('stage-reference').value=ref;$('stage-settlement-ref').value=ref;try{await request('/api/v1/orders/'+state.code+'/payment-claims',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},auth()),body:JSON.stringify({test_reference:ref,reported_amount_etb:1500,currency:'ETB'})});say($('stage-status'),'Under Review');say($('stage-payment-title'),'Payment claim submitted — not confirmation');await refreshStatus()}catch(err){say($('stage-status-message'),err.message)}});
-  async function refreshStatus(){if(!state.code)return;try{const data=await request('/api/v1/orders/'+state.code+'/checkout-status',{headers:auth()});say($('stage-status'),data.status);$('stage-download-panel').hidden=!data.downloads_ready;if(data.downloads_ready)renderDownloads()}catch(e){say($('stage-status-message'),'Status refresh failed: '+e.message)}}
+  async function refreshStatus(){if(!state.code)return;try{const data=await request('/api/v1/orders/'+state.code+'/checkout-status',{headers:auth()});say($('stage-status'),data.status);const approved=data.status==='Payment Confirmed'||data.status==='Ready to Download';$('stage-download-panel').hidden=!data.downloads_ready;$('stage-claim-form').hidden=data.status!=='Awaiting Payment';$('stage-ive-paid').hidden=data.status!=='Awaiting Payment';if(data.status==='Under Review')$('stage-status-message').textContent='Temporary English staging placeholder — founder review required: Your reference is being checked. Payment is not confirmed yet.';else if(approved){step(2);$('stage-claim-form').hidden=true;$('stage-ive-paid').hidden=true;$('stage-status-message').textContent='Temporary English staging placeholder — founder review required: Payment confirmed. Your guides are ready.'}else if(data.status==='Awaiting Payment')$('stage-status-message').textContent='Temporary English staging placeholder — founder review required: No payment confirmation yet. If your last claim was rejected, you may try again after checking the details.';if(data.downloads_ready)renderDownloads()}catch(e){say($('stage-status-message'),'Status refresh failed: '+e.message)}}
   $('stage-refresh').addEventListener('click',refreshStatus);
+  $('stage-ive-paid').addEventListener('click',()=>{$('stage-ive-paid').hidden=true;$('stage-claim-form').hidden=false;$('stage-reference').focus()});
   function renderDownloads(){const list=$('stage-download-list');list.innerHTML='';for(let i=1;i<=5;i++){const b=document.createElement('button');b.type='button';b.className='review-back';b.textContent='Download dummy PDF '+i;b.addEventListener('click',async()=>{try{const r=await fetch('/api/v1/orders/'+state.code+'/downloads/part-'+i,{headers:auth()});if(!r.ok)throw new Error('Download denied ('+r.status+')');const blob=await r.blob(),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='qa-demo-part-'+i+'.pdf';a.click();setTimeout(()=>URL.revokeObjectURL(url),30000)}catch(e){say($('stage-status-message'),e.message)}});list.appendChild(b)}}
-  $('stage-founder-login').addEventListener('submit',async e=>{e.preventDefault();try{const d=await request('/founder/session',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:$('stage-founder-user').value,password:$('stage-founder-password').value,totp:$('stage-founder-totp').value})});state.csrf=d.csrf_token;$('stage-founder-actions').hidden=false;say($('stage-status-message'),'Synthetic founder session authenticated.')}catch(err){say($('stage-status-message'),err.message)}});
-  function founderHeaders(){return {'Content-Type':'application/json','X-CSRF-Token':state.csrf}}
-  function settlement(){return {test_reference:$('stage-settlement-ref').value,payment_method:$('stage-settlement-method').value,amount_etb:Number($('stage-settlement-amount').value),currency:'ETB',recipient_code:$('stage-settlement-method').value==='telebirr'?'QA-TELEBIRR-ONLY':'QA-CBE-ONLY',payer_mobile:$('stage-settlement-payer').value}}
-  $('stage-record').addEventListener('click',async()=>{try{await request('/founder/api/simulated-settlements',{method:'POST',headers:founderHeaders(),body:JSON.stringify(settlement())});say($('stage-status-message'),'Fictional settlement recorded.')}catch(e){say($('stage-status-message'),e.message)}});
-  $('stage-verify').addEventListener('click',async()=>{try{const d=await request('/founder/api/orders/'+state.code+'/verify',{method:'POST',headers:founderHeaders(),body:'{}'});say($('stage-status-message'),d.matched?'Fictional settlement matched. Founder approval is still required.':'Settlement did not match. Check amount, reference, method, and payer identity.')}catch(e){say($('stage-status-message'),e.message)}});
-  $('stage-approve').addEventListener('click',async()=>{try{await request('/founder/api/orders/'+state.code+'/approve',{method:'POST',headers:founderHeaders(),body:JSON.stringify({reason:'Synthetic browser acceptance approval'})});await refreshStatus()}catch(e){say($('stage-status-message'),e.message)}});
-  $('stage-reject').addEventListener('click',async()=>{try{await request('/founder/api/orders/'+state.code+'/reject',{method:'POST',headers:founderHeaders(),body:JSON.stringify({reason:'Synthetic browser rejection'})});await refreshStatus()}catch(e){say($('stage-status-message'),e.message)}});
-  $('stage-revoke').addEventListener('click',async()=>{try{await request('/founder/api/orders/'+state.code+'/downloads/revoke',{method:'POST',headers:founderHeaders(),body:JSON.stringify({reason:'Synthetic browser revocation'})});await refreshStatus()}catch(e){say($('stage-status-message'),e.message)}});
   $('stage-recovery-form').addEventListener('submit',async e=>{e.preventDefault();state.code=$('stage-recovery-order').value.trim();state.token=$('stage-recovery-code-input').value.trim();if(!/^PW-[0-9A-F]{24}$/.test(state.code)||!/^[A-Za-z0-9_-]{43}$/.test(state.token)){say($('stage-recovery-message'),'Enter the complete order ID and recovery code.');return}try{const details=await request('/api/v1/orders/'+state.code,{headers:auth()});state.method=details.order.payment_method;state.phone='';showOrder();await refreshStatus();say($('stage-recovery-message'),'Order recovered. Keep the code private.')}catch(err){say($('stage-recovery-message'),'Order could not be recovered. Check the ID and code.')}});
   $('stage-copy-recovery').addEventListener('click',async()=>{const input=$('stage-recovery-code');try{await navigator.clipboard.writeText(input.value);say($('stage-recovery-save-message'),'Recovery code copied. Keep it private.')}catch{say($('stage-recovery-save-message'),'Clipboard unavailable. Select and save the complete code manually.');input.focus();input.select()}});
   $('stage-hide-recovery').addEventListener('click',()=>{$('stage-recovery-code').value='';$('stage-recovery-code-panel').hidden=true});
