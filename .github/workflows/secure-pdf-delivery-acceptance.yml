@@ -75,7 +75,7 @@ jobs:
           with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as env_file:
               for key, value in values.items():
                   print("::add-mask::" + value)
-                  env_file.write(f"{key}={value}\\n")
+                  env_file.write(f"{key}={value}\n")
           PY
       - name: Create separate staging database
         run: createdb -h 127.0.0.1 -U parentwise_ci pw_staging_disposable
