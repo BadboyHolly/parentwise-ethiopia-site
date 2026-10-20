@@ -291,7 +291,7 @@ def from_environment() -> FastAPI:
     app.state.founder_approval_enabled = False
     if founder_auth_enabled:
         from .founder_security import FounderConfig, create_founder_router
-        founder_config = FounderConfig.from_environment()
+        founder_config = FounderConfig.from_environment(payment_accounts=accounts)
         app.include_router(create_founder_router(app.state.sessions, founder_config))
         app.state.founder_approval_enabled = founder_config.approvals_enabled
     return app
