@@ -56,9 +56,9 @@ def qa(password_hash):
         for n in range(1,6)])
     app.include_router(create_founder_router(app.state.sessions,cfg))
     app.state.test_store=MockObjectStore(blobs)
-    app.include_router(create_customer_delivery_router(app.state.sessions,
-        CustomerDeliveryConfig(TOKEN_SECRET,"q"*48,cfg,BUCKET,manifest,
-                               app.state.test_store,rate_limit=100)))
+    app.state.customer_config=CustomerDeliveryConfig(
+        TOKEN_SECRET,"q"*48,cfg,BUCKET,manifest,app.state.test_store,rate_limit=100)
+    app.include_router(create_customer_delivery_router(app.state.sessions,app.state.customer_config))
     with app.state.engine.begin() as db:
         db.execute(text("TRUNCATE production_orders CASCADE"))
         db.execute(text("TRUNCATE production_customer_rate_limits, production_founder_sessions, production_founder_rate_limits, production_founder_security_events"))
@@ -231,3 +231,16 @@ def test_founder_http_rejection_is_audited_and_never_unlocks_download(qa):
         with app.state.engine.connect() as db:
             assert db.execute(text("SELECT count(*) FROM production_payment_audit_events WHERE order_id=(SELECT id FROM production_orders WHERE code=:code) AND event_type='PAYMENT_REJECTED'"),
                               {"code":code}).scalar_one()==1
+
+
+def test_customer_status_rate_limit_applies_before_repeated_access(qa):
+    app,_=qa
+    code,token=make_order(app)
+    object.__setattr__(app.state.customer_config,"rate_limit",2)
+    with TestClient(app,base_url=ORIGIN) as client:
+        headers={"Authorization":"Bearer "+token}
+        assert client.get(f"/api/v1/orders/{code}/checkout-status",headers=headers).status_code==200
+        assert client.get(f"/api/v1/orders/{code}/checkout-status",headers=headers).status_code==200
+        limited=client.get(f"/api/v1/orders/{code}/checkout-status",headers=headers)
+        assert limited.status_code==429
+        assert limited.headers["retry-after"]=="60"
