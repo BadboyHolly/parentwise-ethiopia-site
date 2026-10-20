@@ -93,8 +93,9 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
     (OUT / "downloads").mkdir(parents=True, exist_ok=True)
     with sync_playwright() as p:
         browser = p.chromium.launch()
-        page = browser.new_page(viewport={"width": width, "height": height},
-                                ignore_https_errors=True, accept_downloads=True)
+        context = browser.new_context(viewport={"width": width, "height": height},
+                                      ignore_https_errors=True, accept_downloads=True)
+        page = context.new_page()
         code = order_through_review(page, label=label)
         assert page.locator("#account-number").inner_text() == "QA-TELEBIRR-ONLY"
         page.evaluate("""() => { window.__copiedText=""; Object.defineProperty(navigator,"clipboard",{configurable:true,value:{writeText:async v=>{window.__copiedText=v}}}) }""")
@@ -119,7 +120,7 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
         assert page.locator("#stage-recovery-code").evaluate(
             "(el) => el.selectionStart === 0 && el.selectionEnd === el.value.length"
         )
-        assert page.locator("#copy-number").evaluate("(el) => el.getBoundingClientRect().height >= 44")
+        assert page.locator("#copy-number").evaluate("(el) => parseFloat(getComputedStyle(el).minHeight) >= 44")
         reference = "SIM-BROWSER" + label
         set_reference_and_claim(page, reference)
         duplicate_claim = page.evaluate("""async ({ref, order}) => {
@@ -137,7 +138,7 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
           '/downloads/part-1',{headers:{Authorization:'Bearer '+'Z'.repeat(43)}})).status""",
           customer) == 404
 
-        founder = page.context.new_page()
+        founder = context.new_page()
         founder_totp = founder_login(founder)
         founder.locator("#order-code").fill(code)
         founder.locator("#settlement-ref").fill(reference)
@@ -198,7 +199,8 @@ def test_cbe_card_uses_only_fictional_recipient_details():
     reset_database()
     with sync_playwright() as p:
         browser = p.chromium.launch()
-        page = browser.new_page(ignore_https_errors=True)
+        context = browser.new_context(ignore_https_errors=True)
+        page = context.new_page()
         order_through_review(page, method="bank", label="cbe")
         assert page.locator("#account-number").inner_text() == "QA-CBE-ONLY"
         assert page.locator("#account-method").inner_text() == "CBE ባንክ"
