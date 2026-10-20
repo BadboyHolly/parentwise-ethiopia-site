@@ -23,6 +23,13 @@ def check_viewport(page, width):
     assert page.locator("#customer-name").input_value() == ""
     assert page.locator("#customer-mobile").input_value() == ""
     assert page.locator("#recipient-number").is_hidden()
+    if width <= 390:
+        assert page.locator(".mobile-product").is_visible()
+        assert page.locator(".contents-peek").is_visible()
+        page.locator(".contents-peek summary").click()
+        assert page.locator(".contents-peek li").count() == 5
+        assert page.locator("body").inner_text().count("Child Behavior & Discipline System") >= 1
+        page.locator(".contents-peek summary").click()
     assert page.evaluate("(w) => document.documentElement.scrollWidth <= w + 1", width)
     for path in ["assets/logo-reversed.webp", "assets/telebirr-mark.svg", "assets/cbe-bank-logo.png", "assets/product-workbook.webp"]:
         img=page.locator('img[src="'+path+'"]').first
@@ -39,6 +46,10 @@ def check_viewport(page, width):
     assert page.locator("#details-section").is_hidden()
     assert page.locator("#recipient-number").inner_text() == "QA-CBE-ONLY"
     assert page.locator("#selected-method").inner_text() == "CBE Bank"
+    assert page.locator("#review-customer-name").inner_text() == "Demo Parent"
+    assert page.locator("#review-customer-phone").inner_text() == "0900000000"
+    assert page.locator("#change-method").is_visible()
+    assert page.locator("#payment-section #recipient-number").count() == 1
     assert page.locator("#recipient-holder").inner_text() == "DEMO RECIPIENT — NOT REAL"
     assert page.locator("#paid-action").is_enabled()
     page.screenshot(path=str(OUTPUT / f"v1-{width}-02-cbe-payment.png"), full_page=True, animations="disabled")
@@ -49,6 +60,8 @@ def check_viewport(page, width):
     page.locator("#continue-payment").click()
     assert page.locator("#recipient-number").inner_text() == "QA-TELEBIRR-ONLY"
     assert page.locator("#selected-method").inner_text() == "Telebirr"
+    assert page.locator("#recipient-holder").inner_text() == "DEMO RECIPIENT — NOT REAL"
+    assert page.locator("#payment-section #recipient-number").count() == 1
     page.screenshot(path=str(OUTPUT / f"v1-{width}-02-telebirr-payment.png"), full_page=True, animations="disabled")
     page.locator("#paid-action").click()
     assert page.locator("#telegram-section").is_visible()
