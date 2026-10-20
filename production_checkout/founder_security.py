@@ -3,8 +3,6 @@
 No routes are mounted by default. Password hashes, TOTP seeds, session keys,
 and encryption keys are supplied by a managed secret store at process start.
 """
-from __future__ import annotations
-
 import base64
 import hashlib
 import hmac
