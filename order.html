@@ -1,680 +1,242 @@
-<!-- Static buyer-first mobile demonstration of STEP 6.4A.5, no backend or real payment. -->
 <!doctype html>
 <html lang="am">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="robots" content="noindex,nofollow">
+<meta name="robots" content="noindex,nofollow,noarchive">
 <meta name="referrer" content="no-referrer">
-<title>ትዕዛዝዎን ያስገቡ | ParentWise Ethiopia</title>
+<title>ትዕዛዝዎን ያጠናቅቁ | ParentWise Ethiopia V1 Preview</title>
 <style>
-/* SurGraphics files here are identical (Git blob SHA) to the three supplied originals.
-   Typeface by Surafel Fitsum; permission for personal and commercial use accompanies source. */
-@font-face{font-family:"SurGraphics";src:url("https://cdn.jsdelivr.net/gh/geezorg/legally-free-geez-fonts@main/FreeToRedistribute/SurGraphics/SurGraphics%20Regular.ttf") format("truetype");font-style:normal;font-weight:400;font-display:swap}
-@font-face{font-family:"SurGraphics";src:url("https://cdn.jsdelivr.net/gh/geezorg/legally-free-geez-fonts@main/FreeToRedistribute/SurGraphics/SurGraphics%20Bold.ttf") format("truetype");font-style:normal;font-weight:700;font-display:swap}
-@font-face{font-family:"SurGraphics";src:url("https://cdn.jsdelivr.net/gh/geezorg/legally-free-geez-fonts@main/FreeToRedistribute/SurGraphics/SurGraphics%20ExtraBold.ttf") format("truetype");font-style:normal;font-weight:800;font-display:swap}
-:root{--green:#1F4D3A;--deep:#143a2c;--paper:#fffefa;--ivory:#f8f4ec;--wine:#7A2E3E;--ink:#24352c;--muted:#58675f;--line:#e4ddd1;--pale:#f2ede4}
+@font-face{font-family:SurGraphics;src:url("https://cdn.jsdelivr.net/gh/geezorg/legally-free-geez-fonts@main/FreeToRedistribute/SurGraphics/SurGraphics%20Regular.ttf") format("truetype");font-weight:400;font-display:swap}
+@font-face{font-family:SurGraphics;src:url("https://cdn.jsdelivr.net/gh/geezorg/legally-free-geez-fonts@main/FreeToRedistribute/SurGraphics/SurGraphics%20Bold.ttf") format("truetype");font-weight:700;font-display:swap}
+@font-face{font-family:SurGraphics;src:url("https://cdn.jsdelivr.net/gh/geezorg/legally-free-geez-fonts@main/FreeToRedistribute/SurGraphics/SurGraphics%20ExtraBold.ttf") format("truetype");font-weight:800;font-display:swap}
+:root{--forest:#1f4d3a;--deep:#103a2b;--ivory:#f8f4ec;--paper:#fffcf7;--ink:#263b2f;--wine:#7a2e3e;--muted:#637166;--line:#e3ddd1;--sage:#e9eee6}
 *{box-sizing:border-box}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;text-size-adjust:100%}
-body{margin:0;background:var(--ivory);color:var(--ink);font-family:"SurGraphics","Noto Sans Ethiopic",sans-serif;font-weight:400;line-height:1.68;-webkit-font-smoothing:antialiased}
-button,input,a{font:inherit}
-button,input{color:inherit}
-a{color:inherit}
-a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid #b77987;outline-offset:3px}
-.shell{width:min(100% - 44px,1080px);margin:auto}
-.topbar{background:var(--deep);color:#f8f4ec}
-.nav{min-height:78px;display:flex;align-items:center;gap:24px;justify-content:space-between}
-.brand{display:inline-flex;align-items:center;min-height:50px;text-decoration:none}.brand img{width:150px;max-height:48px;object-fit:contain;object-position:left center}
-.navlinks{display:flex;align-items:center;gap:22px}
-.navlinks a{color:#f6f6f1;font-size:14px;text-decoration:none;border-bottom:1px solid transparent;padding:9px 0}
-.navlinks a:hover{border-color:#fff}
-main{padding:53px 0 90px}
-.heading{display:flex;align-items:start;justify-content:space-between;gap:24px;margin:0 0 32px}
-.eyebrow{font-size:13px;letter-spacing:.04em;font-weight:700;color:var(--wine);margin:0 0 8px}
-h1{font-size:clamp(31px,4.5vw,43px);line-height:1.38;font-weight:800;margin:0 0 9px;letter-spacing:0}
-.subtitle{font-size:17px;color:var(--muted);line-height:1.8;margin:0;max-width:650px}
-.pricechip{border:1px solid #d3c6b4;background:#fdfbf6;border-radius:16px;min-width:176px;padding:16px 19px;text-align:center;white-space:nowrap}
-.pricechip span{display:block;font-size:12px;color:var(--muted)}
-.pricechip b{font-size:25px;font-weight:800;line-height:1.45;color:var(--green)}
-.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-bottom:26px}
-.step{display:flex;align-items:center;gap:10px;padding:13px 16px;border:1px solid var(--line);border-radius:14px;color:#718177;font-size:15px;background:#f9f6f0}
-.step b{font-family:Arial,sans-serif;display:grid;place-items:center;width:30px;height:30px;flex:none;border-radius:50%;border:1px solid #d1d8d1;font-size:12px;color:#506057}
-.step.current{color:var(--deep);border-color:#a6bdb0;background:#eaf1ea;font-weight:700}
-.step.current b{background:var(--green);color:white;border-color:var(--green)}
-.layout{display:grid;grid-template-columns:minmax(0,1.38fr) minmax(290px,.9fr);gap:25px;align-items:start}
-.panel{background:var(--paper);border:1px solid var(--line);border-radius:24px;box-shadow:0 12px 35px rgba(23,54,41,.055)}
-.formpanel{padding:32px}
-.paneltitle{font-size:22px;line-height:1.4;font-weight:800;margin:0 0 7px}
-.panelintro{font-size:15px;line-height:1.8;color:var(--muted);margin:0 0 24px}
-.field{margin-bottom:21px}
-label.fieldlabel{display:block;font-size:16px;font-weight:700;line-height:1.6;margin:0 0 9px}
-.field input[type=text],.field input[type=tel]{width:100%;min-height:56px;background:#fff;color:#24352c;font-size:16px;padding:13px 15px;border:1px solid #c9d0c5;border-radius:12px;transition:border-color .2s}
-.field input::placeholder{color:#748078;opacity:1}
-.field input:focus{border-color:var(--green);outline:3px solid rgba(31,77,58,.14)}
-.fieldhint{font-size:13px;color:var(--muted);margin:7px 0 0;line-height:1.6}
-.paymentheading{margin:27px 0 10px;padding-top:25px;border-top:1px solid var(--line);font-size:19px;font-weight:800}
-.paymethods{display:grid;grid-template-columns:1fr 1fr;gap:11px}
-.method{display:block;position:relative;cursor:pointer}
-.method input{position:absolute;opacity:0;width:1px;height:1px}
-.methodcontent{min-height:83px;display:flex;align-items:center;gap:10px;padding:13px;border:1.5px solid #d8d6cc;background:#fff;border-radius:14px;transition:background .15s,border-color .15s}
-.radioicon{width:19px;height:19px;flex:none;border:2px solid #a6b4a9;border-radius:50%;display:grid;place-items:center}
-.radioicon:after{content:"";height:9px;width:9px;background:var(--green);border-radius:50%;transform:scale(0)}
-.methodname{font-family:"SurGraphics","Noto Sans Ethiopic",sans-serif;font-weight:700;font-size:15px}
-.methodsub{display:block;color:var(--muted);font-weight:400;font-size:12px;line-height:1.4;margin-top:2px}
-.method input:checked + .methodcontent{background:#edf5ed;border-color:var(--green);box-shadow:0 0 0 1px var(--green)}
-.method input:checked + .methodcontent .radioicon{border-color:var(--green)}
-.method input:checked + .methodcontent .radioicon:after{transform:scale(1)}
-.method input:focus-visible + .methodcontent{outline:3px solid #b77987;outline-offset:3px}
-.checkoutaction{width:100%;border:0;border-radius:13px;min-height:58px;margin:26px 0 9px;background:var(--green);color:white;padding:13px 17px;font-size:16px;line-height:1.5;font-weight:800;text-align:center}
-.checkoutaction:disabled{opacity:.60;cursor:not-allowed}
-.availability{font-size:14px;line-height:1.75;text-align:center;color:var(--wine);margin:4px 0 0}
-.privacy{font-size:13px;color:#65746c;line-height:1.7;margin:16px 0 0}
-.summary{padding:27px;position:sticky;top:24px}
-.summaryhead{font-size:20px;line-height:1.4;font-weight:800;margin:0 0 22px}
-.product{display:flex;align-items:center;gap:14px;padding-bottom:22px;border-bottom:1px solid var(--line)}
-.producticon{display:grid;place-items:center;flex:none;width:66px;height:72px;background:#e8eadd;border-radius:12px;box-shadow:5px 6px 0 #d8d5c7;overflow:hidden}.producticon img{width:100%;height:100%;object-fit:cover}
-.productname{font-size:16px;line-height:1.45;font-weight:800}
-.productdesc{font-size:13px;line-height:1.6;color:var(--muted);margin:4px 0 0}
-.sumrow{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:20px 0;border-bottom:1px solid var(--line);font-size:15px}
-.sumrow.total{font-size:18px;font-weight:800;color:var(--deep)}
-.sumrow.total strong{font-size:23px;font-weight:800;white-space:nowrap}
-.included{padding:22px 0 0}
-.included h3{font-size:17px;margin:0 0 11px;font-weight:800}
-.included ul{list-style:none;padding:0;margin:0;display:grid;gap:8px}
-.included li{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.55;color:#4c5d52}
-.included li:before{content:"✓";font-family:Arial,sans-serif;color:var(--green);font-weight:bold;flex:none}
-.help{margin-top:18px;padding:19px;border-radius:15px;background:#eff2eb;border:1px solid #dfe7d8}
-.help strong{display:block;font-size:16px;margin-bottom:6px;font-weight:800}
-.help p{margin:0 0 8px;font-size:14px;color:var(--muted);line-height:1.65}
-.help a{font-size:14px;color:var(--green);font-weight:800;text-decoration:underline;text-underline-offset:3px}
-.footer{font-size:12px;color:#6a776d;text-align:center;margin:34px 0 0}
-@media(max-width:850px){.layout{grid-template-columns:1fr}.summary{position:static}.heading{margin-bottom:24px}.shell{width:min(100% - 32px,710px)}}
-@media(max-width:550px){.shell{width:calc(100% - 26px)}.nav{min-height:67px}.brand img{width:130px}.navlinks{gap:10px}.navlinks a{font-size:12px;line-height:1.4}.navlinks a:first-child{display:none}main{padding:29px 0 55px}.heading{display:block}.heading h1{font-size:31px;line-height:1.38}.subtitle{font-size:15px}.pricechip{margin-top:18px;min-width:0;text-align:left;padding:12px 15px;display:inline-flex;align-items:center;gap:9px}.pricechip span{font-size:12px}.pricechip b{font-size:21px}.steps{gap:5px;margin-bottom:15px}.step{display:flex;flex-direction:column;justify-content:center;padding:9px 4px;gap:5px;min-height:75px;font-size:12px;line-height:1.3;text-align:center}.step b{width:25px;height:25px;font-size:11px}.layout{gap:15px}.panel{border-radius:18px}.formpanel,.summary{padding:20px}.paneltitle{font-size:21px}.paymethods{gap:8px}.methodcontent{padding:10px;gap:7px;min-height:85px}.methodname{font-size:14px}.methodsub{font-size:11px}.producticon{width:59px;height:66px}.summaryhead{margin-bottom:14px}.footer{margin-top:26px}}
-@media(max-width:340px){.paymethods{grid-template-columns:1fr}.methodcontent{min-height:62px}.navlinks a{font-size:11px}}
-
-/* Final customer-facing presentation refinement */
-body{background:radial-gradient(1100px 520px at 85% -110px,rgba(207,193,166,.21),transparent 65%),var(--ivory)}
-main.shell{max-width:1120px}
-.heading{padding:3px 0 5px;margin-bottom:30px}
-.eyebrow{display:flex;align-items:center;gap:9px;font-size:12px;letter-spacing:.075em;font-weight:800}
-.eyebrow-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#8f4656}
-.headingcopy{max-width:690px}
-h1{font-size:clamp(34px,4.4vw,47px);line-height:1.25;margin:0 0 14px}
-.headline-accent{color:var(--wine)}
-.subtitle{color:#5d695e;font-size:16px;max-width:610px;line-height:1.8}
-.microtrust{display:flex;align-items:center;gap:11px;flex-wrap:wrap;margin-top:17px;font-size:13px;color:#4b6757;font-weight:700}
-.microtrust i{height:4px;width:4px;border-radius:50%;background:#aebcb0}
-.pricechip{background:linear-gradient(160deg,#fcfbf7,#f2ebdb);border:1px solid #dbd1be;box-shadow:0 10px 24px rgba(75,62,40,.045);padding:17px 23px}
-.pricechip b{display:block;line-height:1.25;font-size:29px}
-.pricechip small{display:block;color:#6b756c;font-size:12px;margin-top:2px}
-.steps{gap:0;margin-bottom:22px;padding:7px;background:#f1ede4;border:1px solid #e6dfd2;border-radius:16px}
-.step{border:0;background:transparent;border-radius:11px;min-height:52px;justify-content:center;font-size:14px}
-.step.current{box-shadow:0 3px 12px rgba(31,77,58,.07);border:1px solid #d1dfd3;background:white}
-.step.current b{background:var(--deep)}
-.statusbar{display:flex;align-items:flex-start;gap:12px;margin-bottom:24px;padding:15px 18px;background:#fcf6ed;border:1px solid #d9c4a0;border-left:3px solid #9b7548;border-radius:13px;color:#77583c}
-.statusbar p{margin:0;font-size:14px;line-height:1.75}
-.statusbar strong{font-weight:800}
-.status-icon{flex:none;width:25px;height:25px;display:grid;place-items:center;border-radius:50%;background:#e5d4b8;font-family:Arial,sans-serif;font-size:15px;font-weight:700;margin-top:2px;color:#6e512c}
-.layout{gap:27px}
-.panel{border-color:#e7ded1;box-shadow:0 15px 45px rgba(32,59,41,.055)}
-.formpanel{padding:30px 34px 29px}
-.panelheading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:24px}
-.panelheading-text{min-width:0}
-.panelnum{display:block;margin-bottom:5px;color:#996074;font:800 12px/1.5 Arial,sans-serif;letter-spacing:.11em}
-.paneltitle{font-size:23px;line-height:1.3;margin-bottom:4px}
-.panelintro{margin:0;font-size:13px;color:#69756b}
-.heading-symbol{display:grid;place-items:center;flex:none;width:44px;height:44px;color:#a37f88;background:#f6f0ed;border-radius:14px;font-size:20px}
-.field{margin-bottom:19px}
-label.fieldlabel{margin-bottom:7px;font-weight:700;color:#2d4637}
-.field input[type=text],.field input[type=tel]{background:#fffefc;border-color:#d3d2c8;border-radius:12px}
-.paysection-head{margin:27px 0 15px;padding-top:22px;border-top:1px solid #e9e2d8}
-.paysection-head .panelnum{margin-bottom:2px}
-.paymentheading{font-size:20px;margin:0 0 4px;padding:0;border:0}
-.paysection-head p{font-size:13px;margin:0;color:#677469;line-height:1.6}
-.paymethods{gap:11px}
-.methodcontent{border-radius:13px;border-color:#d9ddd4;min-height:87px}
-.method input:checked + .methodcontent{background:#f0f6ef;border-color:var(--green)}
-.account-details{margin-top:17px;background:linear-gradient(155deg,#f9f9f3,#f3f3e9);border:1px solid #d7e1d4;border-radius:17px;padding:22px 23px;transition:background .2s}
-.account-kicker{font-size:12px;letter-spacing:.035em;color:#728074;font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:15px}
-.account-kicker-line{width:17px;height:2px;background:#9cbaa4;border-radius:4px}
-.account-top{display:flex;align-items:center;gap:12px;padding-bottom:17px;border-bottom:1px solid #dbe3d8}
-.account-symbol{width:42px;height:42px;flex:none;display:grid;place-items:center;color:white;background:var(--green);border-radius:13px;font:800 21px/1 Arial,sans-serif}
-.account-symbol.is-cbe{background:#7a3444}
-.account-method{display:block;color:var(--deep);font-size:18px;line-height:1.35}
-.account-method-sub{display:block;font-size:12px;color:#6f7d71;margin-top:1px}
-.account-meta{padding-top:18px}
-.account-meta>span,.account-beneficiary>span{display:block;color:#69796d;font-size:13px;line-height:1.55}
-.account-value-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:5px}
-.account-number{font:800 clamp(19px,2.35vw,25px)/1.4 Arial,sans-serif;color:#1f4d3a;letter-spacing:.02em;overflow-wrap:anywhere}
-.copy-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;background:white;color:var(--green);border:1px solid #afc7b3;min-height:48px;padding:9px 11px;border-radius:10px;white-space:nowrap;cursor:pointer;font-size:13px;font-weight:800}
-.copy-btn:hover{background:#e8f0e8}
-.copy-btn:active{transform:translateY(1px)}
-.copy-btn svg{flex:none}
-.account-beneficiary{display:flex;align-items:baseline;justify-content:space-between;gap:11px;border-top:1px solid #dbe3d8;margin-top:16px;padding-top:14px}
-.account-beneficiary strong{color:#244a36;font-size:15px;letter-spacing:.01em;font-weight:800}
-.copy-message{min-height:1px;color:#236343;font-size:12px;margin:6px 0 0;font-weight:700;line-height:1.6}
-.checkoutaction{margin-top:23px}
-.checkoutaction:disabled{opacity:1;background:#abb9ac;color:#fff;box-shadow:none}
-.availability{color:#88515e}
-.privacy{margin-top:15px}
-.summary{padding:27px 28px}
-.summary-topline{display:flex;align-items:center;justify-content:space-between;gap:9px;font:800 11px/1.3 Arial,sans-serif;letter-spacing:.13em;color:#818b81;margin-bottom:10px}
-.summary-pill{font-size:10px;padding:6px 9px;background:#edf3eb;border-radius:20px;color:#2e6042}
-.summaryhead{font-size:22px;margin-bottom:21px}
-.sumrow.total{padding-bottom:7px;border:0}
-.included{padding-top:19px}
-.included ul{gap:10px}
-.help{display:flex;align-items:flex-start;gap:12px;background:#eff3ed;border-color:#dfe8dc;padding:19px 20px;margin-top:16px}
-.help-icon{flex:none;display:grid;place-items:center;width:34px;height:34px;font:800 17px Arial,sans-serif;color:#396449;border:1px solid #b7d1bb;border-radius:50%}
-.help strong{margin:0 0 3px}
-.help p{margin-bottom:10px}
-@media(max-width:850px){.heading{margin-bottom:21px}.pricechip{flex:none}}
-@media(max-width:550px){
-  .heading{margin:0 0 19px}
-  h1{font-size:33px;line-height:1.29}
-  .subtitle{font-size:15px}
-  .microtrust{font-size:12px;gap:7px;margin-top:13px}
-  .pricechip{display:flex;align-items:center;gap:9px;padding:10px 14px;margin-top:18px}
-  .pricechip b{font-size:21px}
-  .pricechip small{display:none}
-  .steps{padding:5px;gap:4px;margin-bottom:13px}
-  .step{padding:7px 4px;min-height:65px;font-size:12px}
-  .statusbar{padding:12px 13px;gap:10px;margin-bottom:14px}
-  .statusbar p{font-size:13px}
-  .status-icon{width:22px;height:22px}
-  .formpanel,.summary{padding:20px}
-  .panelheading{margin-bottom:21px}
-  .heading-symbol{width:39px;height:39px}
-  .paysection-head{margin-top:26px}
-  .methodcontent{min-height:85px}
-  .account-details{padding:18px 15px;border-radius:14px}
-  .account-value-row{gap:7px}
-  .account-number{font-size:clamp(18px,5vw,23px);letter-spacing:0}
-  .copy-btn{font-size:12px;padding:9px 9px;gap:5px;min-height:48px}
-  .copy-btn svg{width:15px;height:15px}
-  .account-beneficiary{align-items:flex-start;flex-direction:column;gap:1px}
-  .help{padding:17px}
-}
-@media(max-width:360px){.account-value-row{flex-wrap:wrap}.copy-btn{margin-left:auto}}
-
-
-/* Checkout V4.14 sales-page continuity: forest-green cinematic hero, ivory canvas,
-   soft card overlap, burgundy accents, authentic payment marks and mobile-first steps. */
-.checkout-main{padding:0 0 58px}
-.checkout-hero{position:relative;overflow:hidden;color:#fff;background:
-  radial-gradient(circle at 77% 8%,rgba(122,46,62,.25),transparent 33%),
-  radial-gradient(circle at 15% 40%,rgba(255,255,255,.055),transparent 26%),
-  linear-gradient(145deg,#11342a,#1F4D3A 65%,#1b4736);
-  padding:55px 0 88px}
-.checkout-hero:before{content:"";position:absolute;inset:0;pointer-events:none;background-image:
-  linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),
-  linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:48px 48px;mask-image:linear-gradient(to bottom,rgba(0,0,0,.65),transparent 88%)}
-.checkout-hero:after{content:"";position:absolute;left:-4%;right:-4%;bottom:-51px;height:84px;border-radius:50% 50% 0 0/100% 100% 0 0;background:var(--ivory);pointer-events:none}
-.checkout-hero .shell{position:relative;z-index:1}
-.checkout-hero .heading{margin:0;align-items:center;gap:35px}
-.checkout-hero .eyebrow{color:#dabec5;margin-bottom:11px;font-size:11px;letter-spacing:.09em}
-.checkout-hero .eyebrow-dot{background:#e9bac3}
-.checkout-hero h1{color:#fff;font-size:clamp(35px,4.6vw,51px);line-height:1.22}
-.checkout-hero .headline-accent{color:#e3a2b3}
-.checkout-hero .subtitle{color:#dce8e1;max-width:600px;font-size:17px;line-height:1.78}
-.checkout-hero .pricechip{background:rgba(248,244,236,.075);border-color:rgba(248,244,236,.25);color:#f7f4ee;box-shadow:0 12px 28px rgba(0,0,0,.07);backdrop-filter:blur(10px);padding:22px 27px}
-.checkout-hero .pricechip span,.checkout-hero .pricechip small{color:#dce8e1}
-.checkout-hero .pricechip b{color:#fff;font-size:31px}
-.checkout-body{position:relative;margin-top:-18px}
-.checkout-body .steps{position:relative;z-index:2;background:#fffdf8;border:1px solid #e2ddd2;box-shadow:0 15px 32px rgba(24,63,46,.045)}
-.checkout-body .step.current{background:#eaf1ea;border-color:#c9dbca;box-shadow:none}
-.checkout-body .statusbar{background:#f8f2e9;color:#715d45;border-color:#e1d2b7;border-left-color:#967142}
-.method{min-width:0}
-.methodcontent{position:relative;gap:12px;min-height:95px;padding:14px 13px;overflow:hidden}
-.method-logo-wrap{flex:none;display:grid;place-items:center;width:56px;height:56px;border:1px solid #e6e9e1;border-radius:12px;background:white;overflow:hidden}
-.method-logo{display:block;width:49px;height:49px;object-fit:contain;object-position:center}
-.method-logo-telebirr{padding:5px}
-.method-logo-cbe{padding:2px}
-.method-label{min-width:0;flex:1;line-height:1.5}
-.method-check{flex:none;display:grid;place-items:center;width:22px;height:22px;border-radius:50%;border:1px solid #b5c3b9;background:#fff;color:transparent;font:800 13px/1 Arial,sans-serif}
-.method input:checked + .methodcontent .method-check{background:#1F4D3A;border-color:#1F4D3A;color:#fff}
-.method input:checked + .methodcontent{background:#f1f7f0;border-color:#739c7d;box-shadow:0 0 0 1px #739c7d}
-.account-symbol{background:white;border:1px solid #dfe4de;overflow:hidden;width:54px;height:54px;border-radius:14px}
-.account-symbol.is-cbe{background:white}
-.account-symbol img{display:block;width:48px;height:48px;object-fit:contain;padding:4px}
-.copy-btn{border-color:#b5cbbb;box-shadow:0 1px 0 rgba(24,60,38,.025);font-family:Arial,sans-serif;font-weight:700;letter-spacing:.005em;padding-inline:13px}
-.copy-btn:hover{background:#e8efe7}
-@media(max-width:850px){
- .checkout-hero{padding:45px 0 75px}
- .checkout-hero .heading{gap:23px}
- .checkout-hero .pricechip{padding:17px 20px}
- .checkout-hero .pricechip b{font-size:26px}
-}
-@media(max-width:550px){
- .checkout-hero{padding:31px 0 68px}
- .checkout-hero:after{bottom:-46px;height:69px}
- .checkout-hero .heading{display:block}
- .checkout-hero .eyebrow{font-size:10px}
- .checkout-hero h1{font-size:35px}
- .checkout-hero .subtitle{font-size:15px}
- .checkout-hero .pricechip{display:inline-flex;gap:9px;margin-top:21px;background:rgba(255,255,255,.09);padding:12px 16px}
- .checkout-hero .pricechip b{font-size:21px}
- .checkout-body{margin-top:-19px}
- .checkout-body .steps{margin-bottom:16px}
- .methodcontent{min-height:89px;padding:10px 9px;gap:8px}
- .method-logo-wrap{width:44px;height:44px;border-radius:10px}
- .method-logo{width:39px;height:39px}
- .method-logo-telebirr{padding:4px}
- .method-logo-cbe{padding:2px}
- .methodname{font-size:14px}
- .methodsub{font-size:11px;line-height:1.3}
- .method-check{position:absolute;right:6px;top:7px;width:17px;height:17px;font-size:10px}
- .account-symbol{width:49px;height:49px}
- .account-symbol img{width:44px;height:44px}
-}
-@media(max-width:365px){
- .methodcontent{padding:9px 6px;gap:6px}
- .method-logo-wrap{width:40px;height:42px}
- .method-logo{width:36px;height:38px}
- .methodname{font-size:12px}
- .methodsub{font-size:10px}
- .method-check{right:3px;top:3px;width:15px;height:15px}
-}
-
-
-/* Readable, working pre-launch review step; no order POST from this page. */
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;color:var(--ink);background:var(--ivory);font:400 16px/1.62 SurGraphics,"Noto Sans Ethiopic",Arial,sans-serif}
+button,input{font:inherit}button,a{-webkit-tap-highlight-color:transparent}
+a{color:inherit}button{cursor:pointer}button:disabled{opacity:.6;cursor:default}
+:focus-visible{outline:3px solid #b47886;outline-offset:3px}
 [hidden]{display:none!important}
-.checkoutaction{display:flex;align-items:center;justify-content:center;gap:9px;cursor:pointer;transition:background .18s,transform .18s,box-shadow .18s}
-.checkoutaction:not(:disabled){background:var(--green);box-shadow:0 9px 24px rgba(31,77,58,.13)}
-.checkoutaction:not(:disabled):hover{background:#153b2c;transform:translateY(-1px)}
-.checkoutaction span{font-family:Arial,sans-serif;font-size:20px;line-height:1}
-.field-error{border:1px solid #e4a9b1;background:#fcf1f2;padding:11px 13px;border-radius:12px;color:#792e3d;font-size:14px;line-height:1.5;margin:12px 0}
-.checkout-review{padding:3px 0}
-.review-top h2{font-size:23px;line-height:1.4;margin:5px 0 5px}
-.review-top p{margin:0;color:#677268;font-size:15px}
-.review-list{margin:22px 0 0;display:grid;gap:0}
-.review-list>div{padding:14px 0;border-bottom:1px solid #e8e4da;display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
-.review-list dt{font-size:14px;color:#65776b}
-.review-list dd{margin:0;text-align:right;font-size:16px;color:#243b2b;font-weight:800;overflow-wrap:anywhere}
-.review-unavailable{padding:15px 17px;border:1px solid #dac7aa;background:#fcf7ef;border-radius:13px;font-size:14px;line-height:1.7;color:#785b3c;margin:24px 0}
-.review-unavailable strong{display:block}
-.review-back{display:block;background:#f0f4ee;color:var(--green);width:100%;min-height:54px;padding:12px 18px;border:1px solid #bfd3c0;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer}
-.review-back:hover{background:#e3eee3}
-@media(max-width:390px){.review-list>div{gap:9px}.review-list dd{font-size:15px;max-width:60%}}
-
-
-/* Keep the isolated staging controls contained at narrow mobile widths. */
-@media(max-width:850px){.layout>.panel{min-width:0}}
-#staging-payment,#staging-founder,.staging-placeholder{min-width:0;max-width:100%;width:100%;overflow-wrap:anywhere}
-.staging-placeholder *{min-width:0;max-width:100%;overflow-wrap:anywhere}
-#stage-download-list{display:grid;gap:10px;margin-top:12px}
-#stage-download-list .guide-recommended{border:2px solid #1F4D3A;background:#f0f6ef}
-.guide-badge{display:block;margin-top:4px;color:#7A2E3E;font-size:12px}
-.guide-download-label{display:block;margin-top:7px;text-decoration:underline;text-underline-offset:3px}
+.wrap{width:min(1100px,calc(100% - 44px));margin:auto}
+.top{background:var(--deep);color:#fff}
+.top-inner{min-height:73px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.logo{display:inline-flex;align-items:center;min-width:0}
+.logo img{width:149px;max-height:51px;object-fit:contain}
+.top-link{font-size:13px;color:#e1e6e1;text-decoration:none;white-space:nowrap}
+.top-link:hover{text-decoration:underline}
+.hero{position:relative;overflow:hidden;background:radial-gradient(ellipse at 87% 0%,rgba(167,88,103,.34),transparent 36%),radial-gradient(ellipse at 0% 95%,rgba(147,172,142,.15),transparent 45%),linear-gradient(135deg,#103a2b,#1c4938);color:#fff;padding:45px 0 67px}
+.hero:after{content:"";position:absolute;bottom:-37px;left:-5%;width:110%;height:55px;border-radius:50% 50% 0 0;background:var(--ivory)}
+.hero-inner{display:grid;grid-template-columns:1fr auto;align-items:center;gap:26px}
+.eyebrow{text-transform:uppercase;letter-spacing:.13em;font:700 10px/1.5 Arial,sans-serif;color:#e5acbd;margin:0 0 10px}
+.hero h1{font-size:clamp(30px,4vw,44px);line-height:1.22;letter-spacing:-.015em;margin:0 0 8px;font-weight:800}
+.hero p.sub{font-size:15px;color:#e4ebe4;margin:0;max-width:470px}
+.price{border:1px solid #789282;background:rgba(255,255,255,.07);border-radius:18px;padding:15px 21px;min-width:175px}
+.price span,.price small{display:block;font-size:12px;color:#dce5df}
+.price strong{display:block;font:800 29px/1.45 SurGraphics,sans-serif;color:#fff;font-variant-numeric:tabular-nums}
+.content{display:grid;grid-template-columns:minmax(0,640px) minmax(260px,1fr);gap:26px;align-items:start;margin-top:-18px;padding-bottom:70px;position:relative;z-index:1}
+.main-card,.side-card{background:var(--paper);border:1px solid #e4ded4;border-radius:22px;box-shadow:0 18px 42px rgba(14,49,33,.07)}
+.main-card{padding:25px 26px 29px}
+.side-card{padding:24px}
+.preview{display:flex;align-items:center;gap:9px;padding:11px 13px;margin-bottom:22px;background:#faf0e9;color:#7f4f32;border:1px solid #e8d5bf;border-radius:12px;font:700 12px/1.5 Arial,sans-serif}
+.preview .dot{width:8px;height:8px;flex:none;background:#ad583b;border-radius:50%}
+.trail{display:flex;align-items:center;gap:8px;color:#748176;margin:0 0 22px;font-size:12px}
+.trail .active{font-weight:800;color:var(--forest)}
+.trail .sep{width:20px;height:1px;background:#b7c4b9}
+.section-kicker{font:700 11px/1.4 Arial,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--wine);margin:0 0 5px}
+h2{font-size:24px;line-height:1.35;margin:0 0 5px;font-weight:800}
+.section-description{font-size:14px;color:var(--muted);margin:0 0 18px}
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field label{font-size:13px;font-weight:800;display:block;margin:0 0 6px}
+.field input{display:block;width:100%;height:50px;border-radius:11px;background:#fff;border:1px solid #cdd5cb;outline-offset:2px;padding:0 13px;font-size:15px;color:var(--ink)}
+.field input:focus{border-color:var(--forest);box-shadow:0 0 0 3px #dce9df}
+.hint{font-size:12px;color:var(--muted);margin:9px 0 0}
+.division{height:1px;background:var(--line);margin:22px 0}
+.method-title{font-size:16px;font-weight:800;margin:0 0 11px}
+.method-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.method{position:relative;display:flex;gap:11px;align-items:center;min-height:72px;border:1px solid #d4ded4;background:#fff;padding:13px 12px;border-radius:13px;cursor:pointer}
+.method:has(input:checked){border-color:var(--forest);background:#edf3ec;box-shadow:0 0 0 1px var(--forest)}
+.method input{position:absolute;opacity:0;width:1px;height:1px}
+.method:has(input:focus-visible){outline:3px solid #b47886}
+.method img{width:44px;height:44px;object-fit:contain;border-radius:9px;background:#fff;padding:3px;border:1px solid #ebeee9}
+.method .name{font-size:14px;font-weight:800}
+.method .desc{font-size:11px;color:var(--muted)}
+.method .check{margin-left:auto;color:var(--forest);font-size:17px;font-weight:800;opacity:0}
+.method:has(input:checked) .check{opacity:1}
+.prepay{padding:15px 16px;background:var(--sage);border-radius:13px;border:1px solid #d6e0d3;margin:19px 0 16px}
+.prepay strong{display:block;font-size:14px}
+.prepay p{font-size:13px;line-height:1.6;margin:3px 0 7px;color:#405549}
+.prepay a{display:inline-flex;align-items:center;gap:4px;font-size:13px;color:var(--forest);font-weight:800;text-underline-offset:3px}
+.prepay .caution{display:block;margin-top:9px;font-size:12px;color:#75523f}
+.primary{width:100%;min-height:56px;border:0;border-radius:12px;padding:12px 18px;background:var(--forest);color:#fff;font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center;gap:9px;box-shadow:0 8px 18px rgba(26,79,54,.12);text-align:center;text-decoration:none}
+.primary:hover{background:var(--deep)}
+.secondary{border:1px solid #bdd0c1;border-radius:10px;background:#f5f9f3;color:var(--forest);padding:10px 13px;font-weight:800;font-size:13px}
+.small-link{font-size:12px;color:var(--forest);font-weight:800}
+.error{color:#933d3f;border:1px solid #e7bdb8;background:#fff5f2;padding:9px 12px;font-size:13px;border-radius:10px;margin:11px 0 0}
+.pay-card{padding:16px;background:#edf2eb;border:1px solid #cfddce;border-radius:15px;margin:16px 0}
+.pay-top{display:flex;align-items:center;gap:10px}
+.pay-top img{width:43px;height:43px;object-fit:contain;background:#fff;border-radius:9px;padding:4px}
+.pay-top strong{font-size:16px}
+.pay-top span{display:block;font-size:12px;color:var(--muted)}
+.transfer{display:flex;justify-content:space-between;align-items:end;gap:12px;margin:16px 0 8px;padding-bottom:15px;border-bottom:1px solid #d6e0d4}
+.transfer small,.recipient small{display:block;font-size:12px;color:var(--muted)}
+.transfer strong{display:block;font:800 clamp(17px,4vw,24px)/1.4 SurGraphics,sans-serif;overflow-wrap:anywhere;color:var(--deep)}
+.recipient strong{font-size:15px}
+.amount{text-align:center;background:#fff;border-radius:12px;border:1px solid #e1e7dd;padding:9px 11px;margin-top:15px;font-size:13px}
+.amount strong{font-size:22px;color:var(--forest)}
+.guide{font-size:13px;color:#516259;line-height:1.72;margin:15px 0}
+.pay-actions{display:grid;gap:10px}
+.linklike{font-size:13px;font-weight:700;color:var(--forest);background:transparent;border:0;text-decoration:underline;text-underline-offset:3px;padding:8px}
+.confirm-box{border:1px solid #d9dacc;background:#fff;border-radius:16px;padding:18px;margin-top:17px}
+.confirm-box h3{font-size:19px;line-height:1.35;margin:0 0 8px}
+.confirm-box p{font-size:13px;margin:0 0 10px;color:var(--muted)}
+.message{white-space:pre-line;overflow-wrap:anywhere;background:#f5f5ef;border:1px solid #dfe2d7;padding:12px;border-radius:11px;font-size:13px;line-height:1.7;margin:0 0 12px}
+.status{font-size:13px;margin:9px 0 0;color:var(--forest)}
+.assurance{margin:13px 0 0;color:#53675b;font-size:12px;line-height:1.6}
+.side-header{display:flex;align-items:center;justify-content:space-between;gap:5px;margin-bottom:17px}
+.side-header h3{margin:0;font-size:16px}
+.side-badge{border-radius:30px;background:#eaf0e7;color:#476d51;padding:3px 9px;font:700 10px Arial,sans-serif}
+.side-product{display:flex;align-items:center;gap:14px;padding-bottom:17px;border-bottom:1px solid var(--line)}
+.side-product img{width:67px;height:90px;object-fit:cover;border-radius:6px;box-shadow:4px 7px 15px #14372520}
+.side-product strong{display:block;font-size:15px}.side-product p{margin:3px 0 0;color:var(--muted);font-size:12px}
+.sumrow{display:flex;justify-content:space-between;gap:12px;padding:15px 0;border-bottom:1px solid var(--line);font-size:13px}
+.sumrow strong{white-space:nowrap;font-size:15px;color:var(--forest)}
+.included{padding-top:17px}.included h4{font-size:13px;margin:0 0 7px}.included ul{margin:0;padding-left:20px;font-size:13px;color:var(--muted);line-height:1.9}
+.side-foot{padding:15px;border-radius:12px;background:#f3efe7;font-size:12px;margin-top:17px;color:#51665a}
+.footer{font-size:12px;color:#6b746c;text-align:center;padding:0 0 28px}
+@media(max-width:820px){.content{grid-template-columns:1fr}.side-card{display:none}}
+@media(max-width:600px){.wrap{width:calc(100% - 28px)}.top-inner{min-height:62px}.logo img{width:128px;max-height:42px}.top-link{font-size:11px}.hero{padding:24px 0 52px}.hero-inner{grid-template-columns:1fr;gap:9px}.hero h1{font-size:30px}.hero p.sub{font-size:13px}.price{display:flex;align-items:center;gap:12px;min-width:0;padding:6px 11px;width:max-content;border-radius:11px}.price span{display:none}.price strong{font-size:19px}.price small{font-size:11px}.content{margin-top:-20px;padding-bottom:35px;gap:0}.main-card{padding:17px 15px 20px;border-radius:17px}.preview{margin-bottom:14px}.trail{font-size:11px;gap:6px;margin-bottom:15px}.trail .sep{width:10px}h2{font-size:22px}.field-grid{grid-template-columns:1fr;gap:10px}.method-grid{gap:8px}.method{min-height:68px;padding:9px;gap:8px}.method img{width:35px;height:35px}.method .name{font-size:13px}.method .desc{font-size:10px}.prepay{padding:12px;margin:14px 0}.division{margin:17px 0}.transfer{align-items:center}.transfer strong{font-size:19px}.footer{padding-bottom:19px}}
+@media(max-width:350px){.hero h1{font-size:27px}.method .desc{display:none}.method img{width:31px;height:31px}.main-card{padding:14px 11px}}
 </style>
 </head>
 <body>
-<header class="topbar">
- <div class="shell nav">
-   <a class="brand" href="https://parentwise-ethiopia-qa.onrender.com/" aria-label="ParentWise Ethiopia ዋና ገጽ"><img src="assets/logo-reversed.webp" alt="ParentWise Ethiopia" width="150" height="48"></a>
-   <nav class="navlinks" aria-label="መመሪያ እና ድጋፍ">
-     <a href="https://parentwise-ethiopia-qa.onrender.com/">← ወደ ዋናው ገጽ</a>
-     <a href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">እገዛ ይፈልጋሉ?</a>
-   </nav>
- </div>
-</header>
-<main class="checkout-main">
- <section class="checkout-hero" aria-labelledby="checkout-heading">
-  <div class="shell">
- <div class="heading">
-  <div class="headingcopy">
-    <p class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span> PARENTWISE ETHIOPIA · የግዢ ገጽ</p>
-    <h1 id="checkout-heading">ትዕዛዝዎን ያጠናቅቁ<span class="headline-accent">.</span></h1>
-    <p class="subtitle">ልጅዎን በተሻለ ሁኔታ ለመረዳትና ለማሳደግ የሚረዳዎትን የParentWise ሙሉ ፕሮግራም ያግኙ።</p>
-  </div>
-  <div class="pricechip"><span>ጠቅላላ ዋጋ</span><b>1,500 ብር</b><small>አንድ ጊዜ ብቻ</small></div>
- </div>
-  </div>
- </section>
- <div class="shell checkout-body">
- <div class="steps" aria-label="የግዢ ደረጃዎች">
-    <div class="step current" aria-current="step"><b>01</b><span>የእርስዎ መረጃ</span></div>
-    <div class="step"><b>02</b><span>ክፍያ</span></div>
-    <div class="step"><b>03</b><span>ማረጋገጫ</span></div>
- </div>
- <div class="statusbar staging-placeholder" role="note"><span class="status-icon" aria-hidden="true">!</span><p><strong>Temporary English staging placeholder — founder review required</strong><br>This is an isolated test. Use fictional details only. Do not send money.</p></div>
- <div class="layout">
-  <section class="panel formpanel" aria-labelledby="detail-title">
-   <div class="panelheading"><div class="panelheading-text"><h2 class="paneltitle" id="detail-title">የእርስዎ መረጃ</h2><p class="panelintro">የትዕዛዝ መቀበል ሲጀመር የሚያስፈልገው መረጃ</p></div><span class="heading-symbol" aria-hidden="true">✦</span></div>
-   <form id="order-form" autocomplete="off" novalidate>
-    <div class="field">
-      <label class="fieldlabel" for="customer-name">ሙሉ ስም</label>
-      <input id="customer-name" name="name" type="text" maxlength="100" placeholder="ሙሉ ስምዎን ያስገቡ" autocomplete="off">
-    </div>
-    <div class="field">
-      <label class="fieldlabel" for="customer-mobile">ስልክ ቁጥር</label>
-      <input id="customer-mobile" name="mobile" type="tel" inputmode="tel" maxlength="13" placeholder="09XXXXXXXX" autocomplete="off">
-      <p class="fieldhint">የኢትዮጵያ ስልክ ቁጥር</p>
-    </div>
-    <div class="paysection-head"><h3 class="paymentheading">የክፍያ ዘዴ ይምረጡ</h3><p>በሚመርጡት የክፍያ ዘዴ መሠረት የሂሳብ መረጃው ይታያል።</p></div>
-    <div class="paymethods" role="group" aria-label="የክፍያ አማራጮች">
-      <label class="method">
-        <input type="radio" name="payment" value="telebirr" checked>
-        <span class="methodcontent"><span class="method-logo-wrap"><img class="method-logo method-logo-telebirr" src="assets/telebirr-mark.svg" width="50" height="50" alt="Telebirr official mark" loading="eager"></span><span class="method-label"><strong class="methodname">Telebirr</strong><small class="methodsub">የሞባይል ክፍያ</small></span><span class="method-check" aria-hidden="true">✓</span></span>
-      </label>
-      <label class="method">
-        <input type="radio" name="payment" value="bank">
-        <span class="methodcontent"><span class="method-logo-wrap"><img class="method-logo method-logo-cbe" src="assets/cbe-bank-logo.png" width="50" height="50" alt="Commercial Bank of Ethiopia official logo" loading="eager"></span><span class="method-label"><strong class="methodname">CBE ባንክ</strong><small class="methodsub">የባንክ ዝውውር</small></span><span class="method-check" aria-hidden="true">✓</span></span>
-      </label>
-    </div>
-    <div class="account-details" id="payment-details" hidden aria-label="የተመረጠ የክፍያ መረጃ">
-      <div class="account-kicker"><span class="account-kicker-line"></span> የተመረጠው የክፍያ መረጃ</div>
-      <div class="account-top"><span class="account-symbol" id="account-symbol"><img id="account-logo" src="assets/telebirr-mark.svg" width="46" height="46" alt="Telebirr logo"></span><div><strong class="account-method" id="account-method">Telebirr</strong><span class="account-method-sub" id="account-method-sub">የሞባይል ክፍያ</span></div></div>
-      <div class="account-meta"><span id="account-number-label">የTelebirr ቁጥር</span><div class="account-value-row"><strong class="account-number" id="account-number">QA-TELEBIRR-ONLY</strong><button class="copy-btn" type="button" id="copy-number" aria-label="የTelebirr ቁጥር ይቅዱ"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span id="copy-label">Copy Payment Number</span></button></div></div>
-      <div class="account-beneficiary"><span>የሂሳብ ባለቤት</span><strong id="account-holder">FICTIONAL QA</strong></div>
-      <p class="copy-message" id="copy-message" role="status" aria-live="polite"></p><p class="staging-placeholder" style="font-size:12px;line-height:1.6;margin:8px 0 0">Temporary English staging placeholder — founder review required: Copy Payment Number replaces anything copied before. Save your order details privately first.</p>
-    </div>
-    <p id="staging-message" role="status" aria-live="polite"></p><button type="submit" class="checkoutaction" id="continue-order-button">ወደ ቀጣይ ይሂዱ <span aria-hidden="true">→</span></button>
-    <p class="availability" id="order-unavailable" role="status">መረጃዎን ማስተካከል ይችላሉ። ገንዘብ አይላኩ።</p>
-    
-   </form>
-<details id="stage-existing-order" class="staging-placeholder" style="margin:18px 0;padding:14px;border:1px dashed #7A2E3E;border-radius:12px">
-  <summary>Temporary English staging placeholder — founder review required: Recover an existing order</summary>
-  <form id="stage-recovery-form">
-    <label for="stage-recovery-paste">Paste your complete saved order details</label>
-    <textarea id="stage-recovery-paste" rows="3" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Order number: …&#10;Private recovery code: …" style="width:100%;min-height:96px;padding:12px;border:1px solid #c9d0c5;border-radius:10px;background:#fff;font:14px/1.6 ui-monospace,monospace"></textarea>
-    <details style="margin-top:10px"><summary style="min-height:44px;padding:10px 2px;cursor:pointer">Enter the two details separately</summary>
-      <label for="stage-recovery-order">Order number</label><input id="stage-recovery-order" autocomplete="off">
-      <label for="stage-recovery-code-input">Private recovery code</label><input id="stage-recovery-code-input" autocomplete="off" autocapitalize="off" spellcheck="false">
-    </details>
-    <button type="submit" class="review-back" style="margin-top:12px">Recover order</button>
-    <p id="stage-recovery-message" role="status" aria-live="polite"></p>
-  </form>
-</details>
-<section id="staging-payment" class="checkout-review" hidden aria-labelledby="staging-payment-title" tabindex="-1">
-  <div class="review-top"><span class="panelnum">TEMPORARY ENGLISH STAGING PLACEHOLDER</span><h2 class="paneltitle" id="staging-payment-title">Fictional payment instructions</h2><p>Founder review required for this new message. Do not send money.</p></div>
-  <div id="stage-payment-instructions" class="staging-placeholder" style="padding:14px 0"><strong>Temporary English staging placeholder — founder review required</strong><p>Pay exactly 1,500 ETB to the selected fictional recipient shown below. This is an isolated test. Do not send real money.</p></div>
-  <div class="review-list"><div><dt>Order ID</dt><dd id="stage-order-code"></dd></div><div><dt>Status</dt><dd id="stage-status">Awaiting Payment</dd></div></div>
-  <div id="stage-recovery-code-panel" class="staging-placeholder" hidden style="margin:14px 0;padding:16px;border:1px solid #d8c6a6;border-radius:14px;background:#fcf8ef">
-    <strong class="staging-placeholder">Temporary English staging placeholder — founder review required: Save your order details</strong>
-    <p>Temporary English staging placeholder — founder review required: Before opening your payment app, save your order number and private recovery code somewhere private. Copy both together, write them down privately, or use a password manager you control. Copying does not confirm that they were saved.</p>
-    <label for="stage-order-recovery">Order number and private recovery code</label>
-    <textarea id="stage-order-recovery" readonly rows="3" autocomplete="off" autocapitalize="off" spellcheck="false" style="width:100%;min-height:96px;padding:12px;border:1px solid #c9d0c5;border-radius:10px;background:#fff;font:14px/1.6 ui-monospace,monospace"></textarea>
-    <button type="button" class="review-back" id="stage-copy-order-details">Copy Order Details</button>
-    <button type="button" class="review-back" id="stage-hide-recovery">Hide details</button>
-    <p id="stage-recovery-save-message" role="status" aria-live="polite"></p>
-    <p class="staging-placeholder">Temporary English staging placeholder — founder review required: Copying the payment number replaces the copied order details. Save the details privately first, or write them down.</p>
-  </div>
-  <button type="button" class="review-back" id="stage-show-recovery" hidden>Show saved order details</button>
-  <button type="button" class="checkoutaction staging-placeholder" id="stage-continue-payment">Temporary English staging placeholder — founder review required: Continue to Payment</button>
-  <p id="stage-status-message" role="status" aria-live="polite"></p>
-  
-  <button type="button" class="checkoutaction staging-placeholder" id="stage-ive-paid">Temporary English staging placeholder — founder review required: I have paid</button><p id="stage-reference-help" class="staging-placeholder">Temporary English staging placeholder — founder review required: Find the transaction reference in your payment SMS or bank transaction details. If you cannot find it, contact ParentWise on Telegram for help. <a href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Temporary English staging placeholder — founder review required: Open official Telegram support</a></p>
-  <form id="stage-claim-form" hidden class="staging-placeholder" style="margin-top:16px;padding:14px;border:1px dashed #7A2E3E;border-radius:12px">
-    <strong>Temporary English staging placeholder — founder review required</strong>
-    <label for="stage-reference">Fictional transaction reference</label><input id="stage-reference" autocomplete="off" placeholder="" required>
-    <button type="submit" class="checkoutaction">Temporary English staging placeholder — founder review required: Submit reference for checking</button>
-    <p>Temporary English staging placeholder — founder review required: A reference asks us to check the transfer. It does not confirm payment.</p>
-  </form>
-  <div style="margin-top:14px"><button type="button" class="review-back" id="stage-refresh">Refresh order status</button><span id="stage-downloads" hidden></span></div>
-  <div id="stage-download-panel" class="staging-placeholder" hidden style="margin-top:14px;padding:14px;border:1px dashed #7A2E3E;border-radius:12px">
-    <strong>Temporary English staging placeholder — founder review required</strong>
-    <p>Temporary English staging placeholder — founder review required: After approval, tap Download. On Android, open the download notification or Files > Downloads.</p><div id="stage-download-list"></div>
-  </div>
-</section>
-
+<header class="top"><div class="wrap top-inner"><a class="logo" href="https://parentwise-ethiopia-qa.onrender.com/" aria-label="ParentWise Ethiopia home"><img src="assets/logo-reversed.webp" alt="ParentWise Ethiopia"></a><a class="top-link" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Support / እገዛ ↗</a></div></header>
+<section class="hero"><div class="wrap hero-inner"><div><p class="eyebrow">ParentWise Ethiopia · V1 preview</p><h1>ትዕዛዝዎን ያጠናቅቁ<span style="color:#e6b0bf">.</span></h1><p class="sub">የParentWise ሙሉ ፕሮግራም · Five digital guides</p></div><div class="price"><span>ጠቅላላ ዋጋ</span><strong>1,500 ETB</strong><small>አንድ ጊዜ ብቻ</small></div></div></section>
+<main class="wrap content">
+  <section class="main-card" aria-label="Checkout preview">
+    <div class="preview"><span class="dot"></span> DEMO ONLY · DO NOT SEND MONEY · No real order is created</div>
+    <div class="trail" aria-label="Purchase steps"><span class="active" id="label-details">01 Details</span><span class="sep"></span><span id="label-payment">02 Payment</span><span class="sep"></span><span id="label-telegram">03 Telegram delivery</span></div>
+    <section id="details-section">
+      <p class="section-kicker">01 · Your details</p><h2>የእርስዎ መረጃ</h2><p class="section-description">Enter your name and phone before viewing payment instructions.</p>
+      <form id="checkout-form" novalidate>
+        <div class="field-grid"><div class="field"><label for="customer-name">ሙሉ ስም</label><input id="customer-name" name="name" type="text" maxlength="100" required autocomplete="off" placeholder="ሙሉ ስምዎን ያስገቡ"></div><div class="field"><label for="customer-mobile">ስልክ ቁጥር</label><input id="customer-mobile" name="phone" type="tel" inputmode="tel" maxlength="13" required autocomplete="off" placeholder="09XXXXXXXX"></div></div>
+        <div class="division"></div>
+        <p class="method-title">የክፍያ ዘዴ ይምረጡ</p>
+        <div class="method-grid" role="radiogroup" aria-label="Choose payment method">
+          <label class="method"><input type="radio" name="payment" value="telebirr" checked><img src="assets/telebirr-mark.svg" alt="Telebirr logo"><span><span class="name">Telebirr</span><br><span class="desc">የሞባይል ክፍያ</span></span><span class="check" aria-hidden="true">✓</span></label>
+          <label class="method"><input type="radio" name="payment" value="bank"><img src="assets/cbe-bank-logo.png" alt="CBE logo"><span><span class="name">CBE Bank</span><br><span class="desc">የባንክ ዝውውር</span></span><span class="check" aria-hidden="true">✓</span></label>
+        </div>
+        <div class="prepay"><strong>Delivery is through Telegram after payment verification.</strong><p>Before paying, confirm that you can privately message ParentWise and receive documents.</p><a id="prepay-telegram" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Check ParentWise Telegram ↗</a><span class="caution">No Telegram or cannot message us? Do not pay until another delivery arrangement is confirmed.</span></div>
+        <button id="continue-payment" class="primary" type="submit">Show Payment Details →</button>
+        <p id="validation-error" role="alert" class="error" hidden></p>
+      </form>
+      <p class="assurance">Your details are for order verification and support. This DEMO does not save or transmit them. Native Amharic review is pending for new English instructions.</p>
+    </section>
+    <section id="payment-section" hidden tabindex="-1">
+      <p class="section-kicker">02 · Make payment</p><h2>Payment Instructions</h2><p class="section-description">Choose your method on the previous screen. Use only the fictional details in this demonstration.</p>
+      <div class="pay-card">
+        <div class="pay-top"><img id="selected-mark" src="assets/telebirr-mark.svg" alt="Selected payment provider"><div><strong id="selected-method">Telebirr</strong><span>Fictional demonstration recipient</span></div></div>
+        <div class="amount"><span>Transfer amount: </span><strong>1,500 ETB</strong></div>
+        <div class="transfer"><div><small id="recipient-label">Telebirr number</small><strong id="recipient-number">QA-TELEBIRR-ONLY</strong></div><button class="secondary" type="button" id="copy-recipient">Copy</button></div>
+        <div class="recipient"><small>Account holder</small><strong id="recipient-holder">DEMO RECIPIENT — NOT REAL</strong></div>
+      </div>
+      <p id="copy-status" class="status" role="status" aria-live="polite"></p>
+      <p class="guide">In the real checkout, transfer exactly the displayed amount, then return and tap the button below. This preview has no live payment functionality.</p>
+      <div class="pay-actions"><button id="paid-action" class="primary" type="button">I've Paid — Continue to Telegram →</button><button id="change-method" class="linklike" type="button">← Edit name, phone or payment method</button></div>
+      <p class="assurance">A screenshot or reference is only a payment claim. ParentWise must independently verify the funds before sending the five guides.</p>
+    </section>
+    <section id="telegram-section" hidden tabindex="-1">
+      <p class="section-kicker">03 · Confirmation & delivery</p><h2>Confirm on Telegram</h2><p class="section-description">Your PDFs will arrive in the same private Telegram conversation after our team verifies the payment. Delivery is not instant.</p>
+      <div class="confirm-box">
+        <h3>1. Copy your details</h3>
+        <p>Paste these details into your private Telegram message, then add your payment screenshot or transaction reference. Do not send your PIN, OTP or banking password.</p>
+        <div id="confirmation-message" class="message" role="textbox" aria-label="Prepared Telegram confirmation message">ParentWise payment confirmation</div>
+        <button id="copy-confirmation" class="secondary" type="button">Copy My Details</button><p id="confirmation-status" class="status" role="status" aria-live="polite"></p>
+      </div>
+      <div class="confirm-box">
+        <h3>2. Message ParentWise</h3><p>Open the official chat, paste the details and attach your payment evidence. Stay in that chat to receive your five guides.</p>
+        <a id="telegram-handoff" class="primary" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Open Telegram — Send Confirmation ↗</a>
+        <p class="assurance">If the destination does not accept private messages, do not make a payment. A usable alternative contact method must be confirmed before launch.</p>
+      </div>
+      <button class="linklike" id="back-payment" type="button">← Back to payment instructions</button>
+      <div class="prepay"><strong>What happens next?</strong><p>1. ParentWise checks the actual incoming transfer. 2. Once verified, we send all five PDFs in this Telegram conversation. 3. Open Guide 00 first. If you've already transferred, don't pay again.</p></div>
+    </section>
   </section>
-  <aside aria-label="የትዕዛዝ ማጠቃለያ">
-    <div class="panel summary">
-      <div class="summary-topline"><span>YOUR ORDER</span><span class="summary-pill">DIGITAL</span></div><h2 class="summaryhead">የትዕዛዝ ማጠቃለያ</h2>
-      <div class="product">
-        <div class="producticon"><img src="assets/product-workbook.webp" alt="የParentWise የተግባር መመሪያ" width="66" height="72"></div>
-        <div><div class="productname">ParentWise Ethiopia</div><p class="productdesc">የልጆች ባህሪ እና አስተዳደግ የወላጆች መመሪያ</p></div>
-      </div>
-      <div class="sumrow"><span>የፕሮግራሙ ዋጋ</span><strong>1,500 ብር</strong></div>
-      <div class="sumrow total"><span>ጠቅላላ</span><strong>1,500 ብር</strong></div>
-      <div class="included">
-        <h3>በፕሮግራሙ ውስጥ የሚካተቱት</h3>
-        <ul>
-          <li>ከዚህ ይጀምሩ</li>
-          <li>የልጅ ባህሪ መመሪያ</li>
-          <li>የተግባር ደብተር</li>
-          <li>ፈጣን እርዳታ</li>
-          <li>የ30 ቀን ልምምድ</li>
-        </ul>
-      </div>
-    </div>
-    <div class="help"><div class="help-icon" aria-hidden="true">?</div><div><strong>ጥያቄ አለዎት?</strong><p>ስለ ፕሮግራሙ፣ የክፍያ መረጃው ወይም የግዢ ሂደቱ እገዛ ያግኙ።</p><a href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">ኦፊሴላዊ የTelegram ድጋፍ →</a></div></div>
+  <aside class="side-card" aria-label="Your ParentWise order">
+    <div class="side-header"><h3>የትዕዛዝ ማጠቃለያ</h3><span class="side-badge">5 PDF GUIDES</span></div>
+    <div class="side-product"><img src="assets/product-workbook.webp" alt="ParentWise workbook cover"><div><strong>ParentWise Ethiopia</strong><p>Child Behavior & Discipline System for Ethiopian parents</p></div></div>
+    <div class="sumrow"><span>One-time payment</span><strong>1,500 ETB</strong></div>
+    <div class="included"><h4>Included in your system</h4><ul><li>ከዚህ ይጀምሩ</li><li>የልጅ ባህሪ መመሪያ</li><li>የተግባር ደብተር</li><li>ፈጣን እርዳታ</li><li>የ30 ቀን ልምምድ</li></ul></div>
+    <div class="side-foot">After independently verified payment, all five PDF documents are delivered in your private Telegram chat.</div>
   </aside>
- </div>
- <p class="footer">© ParentWise Ethiopia</p>
- </div>
 </main>
+<footer class="wrap footer">© ParentWise Ethiopia · Visual-only preview · No payment or data collection</footer>
 <script>
-/* VISUAL-ONLY PARENTWISE DEMO. Never sends requests, creates orders, or handles real payments. */
 (() => {
   'use strict';
-  const $ = id => document.getElementById(id);
-  const form = $('order-form'), steps = Array.from(document.querySelectorAll('.steps .step'));
-  const name = $('customer-name'), phone = $('customer-mobile');
-  const account = {
-    telebirr: {label:'Telebirr', sub:'የሞባይል ክፍያ', number:'QA-TELEBIRR-ONLY', numberLabel:'የTelebirr ቁጥር', logo:'assets/telebirr-mark.svg'},
-    bank: {label:'CBE ባንክ', sub:'የባንክ ዝውውር', number:'QA-CBE-ONLY', numberLabel:'የCBE ሂሳብ ቁጥር', logo:'assets/cbe-bank-logo.png'}
+  const $=id=>document.getElementById(id);
+  const methods={
+    telebirr:{title:'Telebirr',number:'QA-TELEBIRR-ONLY',label:'Telebirr number',logo:'assets/telebirr-mark.svg'},
+    bank:{title:'CBE Bank',number:'QA-CBE-ONLY',label:'CBE account number',logo:'assets/cbe-bank-logo.png'}
   };
-  const state = {code:'',token:'',method:'telebirr',mode:0,paymentVisible:false,hasClaim:false,approved:false};
-  const labels = ['00 — ከዚህ ይጀምሩ','01 — የልጅ ባህሪ መመሪያ','02 — የተግባር ደብተር','03 — ፈጣን እርዳታ','04 — የ30 ቀን ልምምድ'];
-  const warning = 'DEMO ONLY — ይህ ለማሳያ ብቻ ነው። እውነተኛ ገንዘብ አይላኩ። ትዕዛዝ አይፈጠርም።';
-  const setText = (id,s) => {$(id).textContent=s};
-  const q = (sel,root=document) => root.querySelector(sel);
-  const selected = () => q('input[name="payment"]:checked')?.value || 'telebirr';
-  const copy = async s => {if (!navigator.clipboard?.writeText) throw Error('clipboard disabled'); await navigator.clipboard.writeText(s)};
-  const savedBlock = () => 'Order number: '+state.code+'\nPrivate recovery code: '+state.token;
-  const scrollPanel = () => {try{window.scrollTo({top:0,behavior:'smooth'})}catch{window.scrollTo(0,0)}};
-  function stage(n){
-    state.mode=n;
-    steps.forEach((el,i)=>{el.classList.toggle('current',i===n);i===n?el.setAttribute('aria-current','step'):el.removeAttribute('aria-current')});
-    form.hidden=n!==0;
-    $('stage-existing-order').hidden=n!==0;
-    $('staging-payment').hidden=n===0;
-    const aside=q('.layout > aside');if(aside)aside.hidden=n!==0;
-    scrollPanel();
-  }
-  function method(){
-    const a=account[state.code?state.method:selected()];
-    setText('account-method',a.label);setText('account-method-sub',a.sub);
-    setText('account-number-label',a.numberLabel);setText('account-number',a.number);
-    setText('account-holder','DEMO ONLY — NOT A REAL RECIPIENT');
-    $('account-logo').src=a.logo;$('account-logo').alt=a.label;
-    $('account-symbol').classList.toggle('is-cbe',(state.code?state.method:selected())==='bank');
-    setText('copy-label','Copy Number');
-  }
-  function fakeKeys(){
-    const a=crypto.getRandomValues(new Uint8Array(12));
-    const b=crypto.getRandomValues(new Uint8Array(32));
-    state.code='PW-'+Array.from(a,v=>v.toString(16).padStart(2,'0')).join('').toUpperCase();
-    state.token=btoa(String.fromCharCode(...b)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
-  }
-  function hiddenDetails(){
-    $('stage-order-recovery').value='';
-    $('stage-recovery-code-panel').hidden=true;
-    $('stage-show-recovery').hidden=false;
-  }
-  function shownDetails(){
-    $('stage-order-recovery').value=savedBlock();
-    $('stage-recovery-code-panel').hidden=false;
-    $('stage-show-recovery').hidden=true;
-  }
-  function showPayment(){
-    state.paymentVisible=true;
-    $('stage-continue-payment').hidden=true;
-    $('payment-details').hidden=false;
-    $('stage-ive-paid').hidden=false;
-    $('demo-skip').hidden=false;
-    setText('stage-status','Demo: Awaiting Payment');
-    setText('stage-status-message','DEMO: No payment was made. Use a fictional reference to continue, or preview Step 3 directly.');
-    $('payment-details').scrollIntoView({behavior:'smooth',block:'center'});
-  }
-  function newOrder(){
-    fakeKeys();state.method=selected();state.paymentVisible=false;state.hasClaim=false;state.approved=false;
-    method();
-    // Source checkout keeps payment details inside the details form; move them into Stage 2 before hiding that form.
-    $('staging-payment').insertBefore($('payment-details'),$('stage-status-message'));
-    stage(1);shownDetails();
-    $('payment-details').hidden=true;
-    $('stage-continue-payment').hidden=false;
-    $('stage-ive-paid').hidden=true;
-    $('stage-reference-help').hidden=true;
-    $('stage-claim-form').hidden=true;
-    $('demo-next').hidden=true;$('demo-skip').hidden=true;
-    $('stage-download-panel').hidden=true;
-    $('stage-payment-instructions').hidden=false;
-    setText('stage-order-code',state.code);
-    setText('stage-status','DEMO — No payment');
-    setText('stage-status-message','Sample order created in this page only. No real order exists.');
-    setText('staging-payment-title','02 — ክፍያ · Payment Preview');
-  }
-  function pdfBlob(i){
-    const body = 'BT /F1 20 Tf 45 750 Td (ParentWise Ethiopia - DEMO ONLY) Tj 0 -40 Td /F1 12 Tf (Guide '+i+' - sample placeholder, not the paid parenting guide.) Tj ET';
-    const objs=[
-      '<< /Type /Catalog /Pages 2 0 R >>',
-      '<< /Type /Pages /Count 1 /Kids [3 0 R] >>',
-      '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>',
-      '<< /Length '+body.length+' >>\nstream\n'+body+'\nendstream',
-      '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>'
-    ];
-    let file='%PDF-1.4\n',positions=[0];
-    objs.forEach((obj,n)=>{positions.push(file.length);file+=(n+1)+' 0 obj\n'+obj+'\nendobj\n'});
-    const xref=file.length;
-    file+='xref\n0 6\n0000000000 65535 f \n';
-    positions.slice(1).forEach(n=>{file+=String(n).padStart(10,'0')+' 00000 n \n'});
-    file+='trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n'+xref+'\n%%EOF';
-    return new Blob([file],{type:'application/pdf'});
-  }
-  function renderDownloads(){
-    const list=$('stage-download-list');
-    list.replaceChildren();
-    labels.forEach((label,i)=>{
-      const btn=document.createElement('button');
-      btn.type='button';btn.className='review-back'+(i===0?' guide-recommended':'');
-      btn.style.marginBottom='12px';
-      btn.textContent=label+' — Download DEMO PDF'+(i===0?' · Start first':'');
-      btn.addEventListener('click',()=>{
-        const blob=pdfBlob(i);
-        const link=document.createElement('a'),url=URL.createObjectURL(blob);
-        link.href=url;link.download='PARENTWISE-DEMO-'+String(i).padStart(2,'0')+'.pdf';
-        document.body.appendChild(link);link.click();link.remove();
-        setTimeout(()=>URL.revokeObjectURL(url),30000);
-        setText('stage-status-message','Downloaded a sample DEMO PDF only. The real guides are not on this preview.');
-      });
-      list.appendChild(btn);
-    });
-  }
-  function previewReady(){
-    state.approved=true;state.hasClaim=true;
-    stage(2);
-    $('stage-recovery-code-panel').hidden=true;
-    $('stage-show-recovery').hidden=true;
-    $('stage-continue-payment').hidden=true;
-    $('payment-details').hidden=true;
-    $('stage-ive-paid').hidden=true;
-    $('stage-reference-help').hidden=true;
-    $('stage-claim-form').hidden=true;
-    $('stage-payment-instructions').hidden=true;
-    $('demo-next').hidden=true;$('demo-skip').hidden=true;
-    $('stage-refresh').hidden=true;
-    $('stage-download-panel').hidden=false;
-    setText('staging-payment-title','03 — መመሪያዎቹን ያግኙ · Demo Guides');
-    setText('stage-status','DEMO — Simulated approval');
-    setText('stage-status-message','DEMO ONLY: Approval is simulated. No money received, no real order created, and no paid files unlocked.');
-    renderDownloads();
-  }
-  // Every customer-facing interactive element in this preview is local to the page.
-  q('.statusbar').innerHTML='<span class="status-icon" aria-hidden="true">!</span><p><strong>DEMO · ለማሳያ ብቻ</strong> — የግዢውን 3 ደረጃዎች ለመመልከት ነው። <strong>እውነተኛ ክፍያ አይፈጽሙ።</strong> No accounts, payments or orders are processed.</p>';
-  q('.steps .step:nth-child(3) span').textContent='መመሪያዎች';
-  setText('continue-order-button','ይቀጥሉ →');
-  setText('order-unavailable','DEMO ONLY · የሙከራ መረጃ ብቻ ያስገቡ። ምንም መረጃ ወደ ሰርቨር አይላክም።');
-  q('#stage-existing-order > summary').textContent='Return to sample order (current tab only)';
-  q('#stage-recovery-code-panel strong').textContent='Save Your Demo Order Details';
-  q('#stage-recovery-code-panel p').textContent='Keep your order number and private code before opening your payment app. Copying is not the same as saving. This visual demo resets on refresh.';
-  q('#stage-recovery-code-panel p:last-child').textContent='Copying the payment number overwrites your clipboard. Keep the order details private first.';
-  setText('stage-copy-order-details','Copy Order Details');
-  setText('stage-hide-recovery','Hide Details');
-  setText('stage-show-recovery','Show Order Details');
-  setText('stage-continue-payment','Continue to Payment →');
-  q('#staging-payment .review-top .panelnum').textContent='INTERACTIVE DESIGN DEMO';
-  q('#staging-payment .review-top p').textContent=warning;
-  $('stage-payment-instructions').innerHTML='<p>Amount shown: <strong>1,500 ETB</strong>. Recipient below is fictional and cannot receive money. <strong>Do not pay.</strong></p>';
-  q('#payment-details p.staging-placeholder').textContent='Copy Number is a demo action. Save your private order details first; copying a new number replaces the previous clipboard contents.';
-  setText('stage-ive-paid',"I've Paid — DEMO");
-  $('stage-reference-help').innerHTML='In real use, the reference comes from your payment confirmation SMS or bank transaction details. <strong>For this demo, use SIM-DEMO-123.</strong>';
-  q('#stage-claim-form strong').textContent='Demo Transaction Reference';
-  q('#stage-claim-form label').textContent='Fictional reference (SIM-...)';
-  q('#stage-claim-form button[type="submit"]').textContent='Submit Demo Reference';
-  q('#stage-claim-form p').textContent='DEMO: Sending a reference is not proof of payment. Simulated approval is separate.';
-  setText('stage-refresh','View Demo Status');
-  q('#stage-download-panel strong').textContent='Five guides — Demo Download Screen';
-  q('#stage-download-panel p').textContent='Tap a guide to download a dummy PDF. Real ParentWise PDFs are not included. On Android, check Files > Downloads.';
-  q('#stage-recovery-form label').textContent='Paste sample order number and private code';
-  $('stage-reference').value='SIM-DEMO-123';
-  name.value='Demo Parent';phone.value='0900000000';
-  q('#stage-existing-order').insertAdjacentHTML('beforeend','<p class="fieldhint">DEMO recovery works only while this page remains open. No credentials are saved by this preview.</p>');
-  $('stage-claim-form').insertAdjacentHTML('afterend','<div id="demo-next" hidden style="margin:20px 0;padding:16px;background:#e9f0e7;border-radius:12px"><strong>DEMO: Payment is not confirmed.</strong><p>To see Step 3 without transferring money, simulate the approval below.</p><button type="button" class="checkoutaction" id="demo-approve">Preview Step 3 — Simulate Approval</button></div><button type="button" class="review-back" id="demo-skip" hidden style="margin-top:12px">Skip to Step 3 (Demo Only)</button>');
-  form.addEventListener('submit',e=>{
-    e.preventDefault();
-    if(name.value.trim().length<2){setText('staging-message','Enter a demo name.');name.focus();return}
-    if(!/^(0[97][0-9]{8}|\+251[97][0-9]{8})$/.test(phone.value.trim())){setText('staging-message','Enter a sample Ethiopian-format phone number.');phone.focus();return}
-    setText('staging-message','');newOrder();
-  });
-  q('input[name="payment"][value="telebirr"]').addEventListener('change',method);
-  q('input[name="payment"][value="bank"]').addEventListener('change',method);
-  $('stage-copy-order-details').addEventListener('click',async()=>{
-    try{await copy(savedBlock());setText('stage-recovery-save-message','Copied. Save it privately before copying the payment number.')}
-    catch{setText('stage-recovery-save-message','Clipboard unavailable. Select both details manually.');$('stage-order-recovery').focus();$('stage-order-recovery').select()}
-  });
-  $('stage-hide-recovery').addEventListener('click',hiddenDetails);
-  $('stage-show-recovery').addEventListener('click',shownDetails);
-  $('stage-continue-payment').addEventListener('click',showPayment);
-  $('copy-number').addEventListener('click',async()=>{
-    try{await copy(account[state.method].number);setText('copy-message','Copied DEMO recipient. No transfer should be made.')}
-    catch{setText('copy-message','Clipboard unavailable. Fictional number shown above.')}
-  });
-  $('stage-ive-paid').addEventListener('click',()=>{
-    $('stage-ive-paid').hidden=true;
-    $('stage-claim-form').hidden=false;
-    $('stage-reference-help').hidden=false;
-    $('stage-reference').focus();
-  });
-  $('stage-claim-form').addEventListener('submit',e=>{
-    e.preventDefault();
-    const ref=$('stage-reference').value.trim();
-    if(!/^SIM-[A-Za-z0-9-]{3,40}$/.test(ref)){setText('stage-status-message','Use a demo-only SIM- reference.');$('stage-reference').focus();return}
-    state.hasClaim=true;
-    $('stage-claim-form').hidden=true;
-    $('payment-details').hidden=true;
-    $('stage-reference-help').hidden=true;
-    $('demo-next').hidden=false;
-    $('demo-skip').hidden=true;
-    setText('staging-payment-title','02 — ክፍያ በማረጋገጥ ላይ · Demo Pending');
-    setText('stage-status','DEMO — Under Review');
-    setText('stage-status-message','Demo reference recorded in this page only. No payment is confirmed. Do not send money.');
-  });
-  $('stage-refresh').addEventListener('click',()=>{setText('stage-status-message',state.approved?'DEMO approval only. No real payment.':state.hasClaim?'DEMO: Reference under review. No payment confirmed.':'DEMO: No payment and no claim.');});
-  $('demo-approve').addEventListener('click',previewReady);
-  $('demo-skip').addEventListener('click',previewReady);
-  function parseBlock(s){
-    const a=s.match(/(?<![A-Za-z0-9-])PW-[A-F0-9]{24}(?![A-Za-z0-9-])/g)||[];
-    const b=s.match(/(?<![A-Za-z0-9_-])[A-Za-z0-9_-]{43}(?![A-Za-z0-9_-])/g)||[];
-    return a.length===1&&b.length===1?{code:a[0],token:b[0]}:null;
-  }
-  $('stage-recovery-form').addEventListener('submit',e=>{
-    e.preventDefault();
-    const combined=parseBlock($('stage-recovery-paste').value);
-    const code=combined?.code||$('stage-recovery-order').value.trim();
-    const token=combined?.token||$('stage-recovery-code-input').value.trim();
-    if(code!==state.code||token!==state.token||!state.code){
-      setText('stage-recovery-message','This is a visual-only demo. Recovery works only for the sample order created in this open tab.');return;
+  let method='telebirr';
+  const current=()=>document.querySelector('input[name="payment"]:checked').value;
+  const data={name:'',phone:''};
+  const stage=n=>{
+    $('details-section').hidden=n!==1;
+    $('payment-section').hidden=n!==2;
+    $('telegram-section').hidden=n!==3;
+    for(let i=1;i<=3;i++)$('label-'+['details','payment','telegram'][i-1]).classList.toggle('active',i===n);
+    if(n!==1){
+      const section=$(n===2?'payment-section':'telegram-section');
+      section.focus({preventScroll:true});
     }
-    $('stage-recovery-paste').value='';$('stage-recovery-order').value='';$('stage-recovery-code-input').value='';
-    $('stage-existing-order').open=false;hiddenDetails();
-    state.approved?previewReady():stage(1);
-    setText('stage-recovery-message','Demo order restored in this tab. No server or real access involved.');
+    window.scrollTo({top:0,behavior:'instant'});
+  };
+  const buildMessage=()=>[
+    'ParentWise Ethiopia — Payment confirmation',
+    'Full name: '+data.name,
+    'Phone: '+data.phone,
+    'Method: '+methods[method].title,
+    'Amount: 1,500 ETB',
+    'Payment screenshot or transaction reference: [attach or add here]'
+  ].join('\n');
+  $('checkout-form').addEventListener('submit',event=>{
+    event.preventDefault();
+    const name=$('customer-name').value.trim();
+    const phone=$('customer-mobile').value.trim();
+    $('validation-error').hidden=true;
+    if(name.length<2||name.length>100||!Array.from(name).some(ch=>/[^0-9\s]/.test(ch))){
+      $('validation-error').textContent='Please enter a valid full name.';$('validation-error').hidden=false;$('customer-name').focus();return;
+    }
+    if(!/^(0[97][0-9]{8}|\+251[97][0-9]{8})$/.test(phone)){
+      $('validation-error').textContent='Please enter a valid Ethiopian phone number.';$('validation-error').hidden=false;$('customer-mobile').focus();return;
+    }
+    data.name=name;data.phone=phone;method=current();
+    const m=methods[method];$('selected-method').textContent=m.title;$('selected-mark').src=m.logo;$('selected-mark').alt=m.title;
+    $('recipient-number').textContent=m.number;$('recipient-label').textContent=m.label;
+    $('copy-status').textContent='';$('confirmation-status').textContent='';
+    stage(2);
   });
-  method();stage(0);
+  $('change-method').addEventListener('click',()=>stage(1));
+  $('back-payment').addEventListener('click',()=>stage(2));
+  $('paid-action').addEventListener('click',()=>{
+    $('confirmation-message').textContent=buildMessage();
+    stage(3);
+  });
+  const copy=async value=>{
+    if(!navigator.clipboard?.writeText)throw Error('Clipboard unavailable');
+    await navigator.clipboard.writeText(value);
+  };
+  $('copy-recipient').addEventListener('click',async()=>{
+    try{await copy(methods[method].number);$('copy-status').textContent='Copied fictional recipient number.';}
+    catch{$('copy-status').textContent='Clipboard unavailable. Select the fictional number manually.';const el=$('recipient-number');const range=document.createRange();range.selectNodeContents(el);const selection=window.getSelection();selection.removeAllRanges();selection.addRange(range);}
+  });
+  $('copy-confirmation').addEventListener('click',async()=>{
+    try{await copy(buildMessage());$('confirmation-status').textContent='Details copied. Paste them in the Telegram chat and add your payment evidence.';}
+    catch{$('confirmation-status').textContent='Copy unavailable. Please use the visible details above when messaging ParentWise.';}
+  });
+  stage(1);
 })();
 </script>
 </body>
