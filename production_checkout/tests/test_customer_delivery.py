@@ -1,6 +1,7 @@
 """HTTP customer-to-founder acceptance against disposable PostgreSQL only."""
 from __future__ import annotations
 import base64, hashlib, hmac, os, secrets, struct, time
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from uuid import uuid4
 
@@ -54,9 +55,10 @@ def qa(password_hash):
         ProductFile(n,f"releases/qa-release/part-{n}.pdf",hashlib.sha256(FILES[n]).hexdigest())
         for n in range(1,6)])
     app.include_router(create_founder_router(app.state.sessions,cfg))
+    app.state.test_store=MockObjectStore(blobs)
     app.include_router(create_customer_delivery_router(app.state.sessions,
         CustomerDeliveryConfig(TOKEN_SECRET,"q"*48,cfg,BUCKET,manifest,
-                               MockObjectStore(blobs),rate_limit=100)))
+                               app.state.test_store,rate_limit=100)))
     with app.state.engine.begin() as db:
         db.execute(text("TRUNCATE production_orders CASCADE"))
         db.execute(text("TRUNCATE production_customer_rate_limits, production_founder_sessions, production_founder_rate_limits, production_founder_security_events"))
@@ -132,13 +134,25 @@ def test_complete_claim_approval_five_downloads_and_revocation(qa):
         assert approved.status_code==200,approved.text
         assert client.get(f"/api/v1/orders/{code}/checkout-status",
             headers={"Authorization":"Bearer "+token}).json()["status"]=="Ready to Download"
-        for part in range(1,6):
-            got=client.get(f"/api/v1/orders/{code}/downloads/part-{part}.pdf",
-                headers={"Authorization":"Bearer "+token})
-            assert got.status_code==200,(part,got.text)
+        def fetch(part):
+            with TestClient(app,base_url=ORIGIN) as concurrent_client:
+                return concurrent_client.get(f"/api/v1/orders/{code}/downloads/part-{part}.pdf",
+                    headers={"Authorization":"Bearer "+token})
+        with ThreadPoolExecutor(max_workers=5) as pool:
+            concurrent=list(pool.map(fetch,range(1,6)))
+        assert all(result.status_code==200 for result in concurrent)
+        for part,got in enumerate(concurrent,1):
             assert got.content==FILES[part]
             assert got.headers["cache-control"]=="private, no-store, max-age=0"
             assert "attachment" in got.headers["content-disposition"]
+        app.state.test_store._objects.pop((BUCKET,"releases/qa-release/part-3.pdf"))
+        missing=client.get(f"/api/v1/orders/{code}/downloads/part-3.pdf",
+            headers={"Authorization":"Bearer "+token})
+        assert missing.status_code==503
+        app.state.test_store._objects[(BUCKET,"releases/qa-release/part-3.pdf")]=b"altered bytes"
+        corrupted=client.get(f"/api/v1/orders/{code}/downloads/part-3.pdf",
+            headers={"Authorization":"Bearer "+token})
+        assert corrupted.status_code==503
         assert client.get(f"/api/v1/orders/{code}/downloads/part-1.pdf",
             headers={"Authorization":"Bearer "+secrets.token_urlsafe(32)}).status_code==404
         revoked=client.post("/api/v1/founder/grants/revoke",headers=headers,json={
@@ -189,3 +203,24 @@ def test_customer_reference_is_globally_unique_and_invalid_token_never_accesses_
         assert submit_claim(client,code2,token2,ref.lower()).status_code==409
         assert client.get(f"/api/v1/orders/{code1}/checkout-status",
             headers={"Authorization":"Bearer "+secrets.token_urlsafe(32)}).status_code==404
+
+
+def test_founder_http_rejection_is_audited_and_never_unlocks_download(qa):
+    app,_=qa
+    code,token=make_order(app)
+    with TestClient(app,base_url=ORIGIN) as client:
+        claimed=submit_claim(client,code,token,"SIM-REJECT-"+secrets.token_hex(5).upper())
+        assert claimed.status_code==202
+        claim_id=claimed.json()["claim_id"]
+        headers=founder_login(client)
+        rejected=client.post("/api/v1/founder/reject",headers=headers,json={
+            "order_id":code,"claim_id":claim_id,
+            "reason":"Independent settlement could not be verified"})
+        assert rejected.status_code==200,rejected.text
+        assert client.get(f"/api/v1/orders/{code}/checkout-status",
+            headers={"Authorization":"Bearer "+token}).json()["status"]=="Payment Confirmed"
+        assert client.get(f"/api/v1/orders/{code}/downloads/part-1.pdf",
+            headers={"Authorization":"Bearer "+token}).status_code==404
+        with app.state.engine.connect() as db:
+            assert db.execute(text("SELECT count(*) FROM production_payment_audit_events WHERE order_id=(SELECT id FROM production_orders WHERE code=:code) AND event_type='PAYMENT_REJECTED'"),
+                              {"code":code}).scalar_one()==1
