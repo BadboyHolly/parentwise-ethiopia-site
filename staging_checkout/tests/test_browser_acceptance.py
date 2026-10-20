@@ -59,7 +59,11 @@ def order_through_review(page, method="telebirr", label="review"):
     enter_review(page, method)
     (OUT / "screenshots").mkdir(parents=True, exist_ok=True)
     page.screenshot(path=str(OUT / "screenshots" / ("am-checkout-" + label + "-details.png")), full_page=True)
-    return create_staging_order(page)
+    code = create_staging_order(page)
+    page.locator("#stage-recovery-code-panel").evaluate("(node) => node.hidden=true")
+    page.screenshot(path=str(OUT / "screenshots" / ("am-checkout-" + label + "-payment.png")), full_page=True)
+    page.locator("#stage-recovery-code-panel").evaluate("(node) => node.hidden=false")
+    return code
 
 def set_reference_and_claim(page, reference):
     page.locator("#stage-ive-paid").click()
@@ -89,7 +93,10 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
         page = browser.new_page(viewport={"width": width, "height": height},
                                 ignore_https_errors=True, accept_downloads=True)
         code = order_through_review(page, label=label)
-        assert page.locator("#stage-recipient").inner_text() == "QA-TELEBIRR-ONLY"
+        assert page.locator("#account-number").inner_text() == "QA-TELEBIRR-ONLY"
+        page.evaluate("""() => { window.__copiedText=""; Object.defineProperty(navigator,"clipboard",{configurable:true,value:{writeText:async v=>{window.__copiedText=v}}}) }""")
+        page.locator("#copy-number").click()
+        assert page.evaluate("window.__copiedText") == "QA-TELEBIRR-ONLY"
         assert "0912910693" not in page.content()
         assert "10002230019327" not in page.content()
         assert "Kidus Elias" not in page.content()
@@ -137,12 +144,15 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
         founder.get_by_text("Explicit approval is still required.").wait_for()
         page.locator("#stage-refresh").click()
         assert page.locator("#stage-status").inner_text() == "Under Review"
+        page.locator("#stage-recovery-code-panel").evaluate("(node) => node.hidden=true")
         page.screenshot(path=str(OUT / "screenshots" / ("am-checkout-" + label + "-pending.png")),
                               full_page=True)
         founder.locator("#order-code").fill(code)
         founder.locator("#stage-approve").click()
+        page.locator("#stage-refresh").click()
         page.get_by_text("Ready to Download", exact=True).wait_for()
         assert no_horizontal_overflow(page, width)
+        page.locator("#stage-recovery-code-panel").evaluate("(node) => node.hidden=true")
         page.screenshot(path=str(OUT / "screenshots" / ("am-checkout-" + label + "-ready.png")),
                               full_page=True)
         page.reload(wait_until="domcontentloaded")
@@ -184,8 +194,11 @@ def test_cbe_card_uses_only_fictional_recipient_details():
         browser = p.chromium.launch()
         page = browser.new_page(ignore_https_errors=True)
         order_through_review(page, method="bank", label="cbe")
-        assert page.locator("#stage-recipient").inner_text() == "QA-CBE-ONLY"
+        assert page.locator("#account-number").inner_text() == "QA-CBE-ONLY"
         assert page.locator("#account-method").inner_text() == "CBE ባንክ"
+        page.evaluate("""() => { window.__copiedText=""; Object.defineProperty(navigator,"clipboard",{configurable:true,value:{writeText:async v=>{window.__copiedText=v}}}) }""")
+        page.locator("#copy-number").click()
+        assert page.evaluate("window.__copiedText") == "QA-CBE-ONLY"
         assert page.locator("#account-number").inner_text() == "QA-CBE-ONLY"
         assert "Copy Number" in page.locator("#copy-number").inner_text()
         assert "10002230019327" not in page.content()
