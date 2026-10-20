@@ -117,6 +117,14 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
         assert "Fictional payment app simulation" in payment_app.title()
         payment_app.close()
         assert page.locator("#stage-order-recovery").input_value() == details
+        page.reload(wait_until="domcontentloaded")
+        assert page.evaluate("sessionStorage.length + localStorage.length") == 0
+        page.locator("#stage-existing-order summary").click()
+        page.locator("#stage-recovery-order").fill(code)
+        page.locator("#stage-recovery-code-input").fill(recovery_code)
+        page.locator("#stage-recovery-form button[type=submit]").click()
+        page.get_by_text("Awaiting Payment", exact=True).wait_for()
+        assert page.locator("#stage-order-code").inner_text() == code
         assert "0912910693" not in page.content()
         assert "10002230019327" not in page.content()
         assert "Kidus Elias" not in page.content()
@@ -218,7 +226,7 @@ def test_cbe_card_uses_only_fictional_recipient_details():
         assert page.locator("#account-number").inner_text() == "QA-CBE-ONLY"
         assert page.locator("#account-method").inner_text() == "CBE ባንክ"
         page.evaluate("""() => { window.__copiedText=""; Object.defineProperty(navigator,"clipboard",{configurable:true,value:{writeText:async v=>{window.__copiedText=v}}}) }""")
-        assert "Copy Number" in page.locator("#copy-number").inner_text()
+        assert "Copy Payment Number" in page.locator("#copy-number").inner_text()
         page.locator("#copy-number").click()
         assert page.evaluate("window.__copiedText") == "QA-CBE-ONLY"
         assert page.locator("#account-number").inner_text() == "QA-CBE-ONLY"
