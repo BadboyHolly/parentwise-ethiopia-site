@@ -107,6 +107,125 @@ h2{font-size:24px;line-height:1.35;margin:0 0 5px;font-weight:800}
 @media(max-width:820px){.content{grid-template-columns:1fr}.side-card{display:none}}
 @media(max-width:600px){.wrap{width:calc(100% - 28px)}.top-inner{min-height:62px}.logo img{width:128px;max-height:42px}.top-link{font-size:11px}.hero{padding:24px 0 52px}.hero-inner{grid-template-columns:1fr;gap:9px}.hero h1{font-size:30px}.hero p.sub{font-size:13px}.price{display:flex;align-items:center;gap:12px;min-width:0;padding:6px 11px;width:max-content;border-radius:11px}.price span{display:none}.price strong{font-size:19px}.price small{font-size:11px}.content{margin-top:-20px;padding-bottom:35px;gap:0}.main-card{padding:17px 15px 20px;border-radius:17px}.preview{margin-bottom:14px}.trail{font-size:11px;gap:6px;margin-bottom:15px}.trail .sep{width:10px}h2{font-size:22px}.field-grid{grid-template-columns:1fr;gap:10px}.method-grid{gap:8px}.method{min-height:68px;padding:9px;gap:8px}.method img{width:35px;height:35px}.method .name{font-size:13px}.method .desc{font-size:10px}.prepay{padding:12px;margin:14px 0}.division{margin:17px 0}.transfer{align-items:center}.transfer strong{font-size:19px}.footer{padding-bottom:19px}}
 @media(max-width:350px){.hero h1{font-size:27px}.method .desc{display:none}.method img{width:31px;height:31px}.main-card{padding:14px 11px}}
+
+/* V1 premium mobile refinement — visual-only, no checkout or payments activated. */
+body{background:linear-gradient(180deg,#f8f4ec 0%,#faf7f1 64%,#f2eee4 100%)}
+.top{position:relative;z-index:4}
+.top-inner{min-height:68px}
+.hero{padding-top:39px;padding-bottom:71px;background:
+radial-gradient(ellipse 500px 350px at 88% -37%,rgba(127,50,70,.53),transparent 75%),
+radial-gradient(ellipse 350px 270px at -3% 130%,rgba(161,194,158,.18),transparent 75%),
+linear-gradient(123deg,#103a2b 2%,#1e503c 68%,#244c3d)}
+.hero:before{content:"";position:absolute;width:400px;height:400px;top:-240px;right:-190px;border:1px solid rgba(255,255,255,.09);border-radius:50%;box-shadow:0 0 0 53px rgba(255,255,255,.018),0 0 0 110px rgba(255,255,255,.012);pointer-events:none}
+.hero h1{letter-spacing:-.028em}
+.hero p.sub{max-width:610px}
+.content{grid-template-columns:minmax(0,655px) minmax(270px,1fr);gap:23px}
+.main-card{border:1px solid #e2ded4;box-shadow:0 24px 48px rgba(15,51,32,.085);padding:29px 29px 34px}
+.preview{font-family:Arial,sans-serif;font-size:11px;font-weight:750;letter-spacing:.025em;line-height:1.45;background:#f9eee5;border-color:#ebd9c9;margin-bottom:21px;padding:10px 13px}
+.trail{display:flex;align-items:center;justify-content:space-between;gap:7px;background:#f4f0e9;border:1px solid #ece6da;border-radius:12px;padding:10px 13px;margin-bottom:28px;font-size:12px}
+.trail span[id]{white-space:nowrap;transition:color .2s}
+.trail .active{color:var(--forest)}
+.trail .sep{flex:1;max-width:none;background:#c8d0c7}
+.section-kicker{letter-spacing:.13em;font-size:10px;color:#904958;margin-bottom:9px}
+h2{font-size:26px;letter-spacing:-.018em;line-height:1.32}
+.section-description{margin:7px 0 22px;color:#5c6b61}
+.field input{min-height:54px;height:54px;background:#fffdf8;border-color:#d5d9d0}
+.field input::placeholder{color:#a5aba2}
+.field-grid{gap:14px}
+.method-title{font-size:16px;margin-bottom:13px}
+.method{min-height:77px;border-color:#e1e0d9;border-radius:14px;background:#fffefa;transition:border-color .15s,background .15s,box-shadow .15s}
+.method:has(input:checked){background:#eff5ee;border-color:#47775b;box-shadow:inset 0 0 0 1px #47775b,0 6px 16px rgba(20,67,38,.055)}
+.method .check{display:grid;place-items:center;width:21px;height:21px;border:1px solid #cbdbcb;border-radius:50%;font-size:12px}
+.method:has(input:checked) .check{background:var(--forest);color:#fff;border-color:var(--forest)}
+.prepay{background:#f1f5ec;border-color:#dbe7d5;border-left:3px solid #6f9471;border-radius:10px;margin:20px 0 18px}
+.prepay strong{font-size:14px}
+.prepay .caution{color:#75614d;font-size:12px}
+.primary{min-height:58px;letter-spacing:.007em;border-radius:12px;box-shadow:0 9px 22px rgba(20,62,40,.17);transition:background .2s,transform .2s}
+.primary:active{transform:scale(.993)}
+.pay-layout{overflow:hidden;position:relative;background:#fcfbf7;border:1px solid #d6ded3;border-radius:17px;margin:17px 0 15px;box-shadow:0 14px 32px rgba(20,55,34,.055)}
+.pay-banner{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:14px 17px;background:linear-gradient(115deg,#eff3eb,#f9f8f1);border-bottom:1px solid #dbe2d9}
+.pay-brand{display:flex;align-items:center;gap:10px;min-width:0}
+.pay-brand img{width:45px;height:45px;object-fit:contain;border-radius:11px;border:1px solid #e6e8e0;background:#fff;padding:5px}
+.pay-brand strong{display:block;font-size:16px;line-height:1.2}
+.pay-brand span{display:block;font-size:11px;color:var(--muted)}
+.pay-amount{display:flex;align-items:end;justify-content:space-between;gap:10px;margin:0;padding:15px 19px 10px}
+.pay-amount span{display:block;font-size:12px;color:#637168}
+.pay-amount strong{display:block;font:800 27px/1.25 SurGraphics,sans-serif;color:var(--forest);white-space:nowrap}
+.account-region{padding:10px 19px 18px}
+.account-number-panel{background:linear-gradient(145deg,#153c2d,#20513d);border-radius:13px;color:#fff;padding:17px 17px 15px;box-shadow:0 11px 24px rgba(18,67,43,.17)}
+.account-number-panel small{display:block;font-size:11px;color:#d0ddd2;line-height:1.4}
+.account-number-row{display:flex;justify-content:space-between;align-items:center;gap:9px;margin-top:6px}
+.account-number-row strong{font:800 clamp(18px,3.2vw,23px)/1.35 SurGraphics,sans-serif;letter-spacing:.012em;overflow-wrap:anywhere;color:#fff;max-width:calc(100% - 95px)}
+.copy-account{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:46px;min-width:83px;padding:8px 12px;background:#f8f4ec;color:#133d2a;border:1px solid rgba(255,255,255,.6);border-radius:9px;font-weight:800;font-size:12px;flex:none}
+.copy-account svg{width:16px;height:16px;flex:none}
+.account-holder-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 2px 2px;margin-top:12px;border-top:1px solid #e2e5dd}
+.account-holder-row small{font-size:12px;color:var(--muted)}
+.account-holder-row strong{font-size:13px;color:#293f30;text-align:right;overflow-wrap:anywhere}
+.payment-instruction{font-size:13px;color:#53665a;line-height:1.64;margin:14px 2px 16px}
+.payment-instruction b{color:var(--forest)}
+.pay-next{position:relative}
+.pay-next .primary{margin-top:7px}
+.inset-note{margin-top:11px;font-size:12px;color:#788179;text-align:center}
+.status{font-size:12px;margin:8px 2px;color:#2c6744;font-weight:700}
+.change-link{display:inline-flex;align-items:center;font-size:13px;padding:9px 4px;margin-top:11px;color:var(--forest)}
+.confirm-heading{display:flex;align-items:start;gap:10px;margin-bottom:12px}
+.confirm-index{display:grid;place-items:center;border-radius:50%;width:30px;height:30px;background:var(--forest);color:white;font:700 12px Arial;flex:none}
+.confirm-heading h3{font-size:17px;margin:0 0 3px}
+.confirm-heading p{margin:0}
+.confirm-box{background:transparent;border:0;border-top:1px solid #e6e3da;border-radius:0;padding:19px 0 4px;margin:0}
+.confirm-box:first-of-type{border:0;padding-top:6px}
+.confirm-box .secondary{min-height:46px}
+.confirm-box .primary{margin-top:12px}
+.message{background:#f8f7f1;border:1px solid #e6e5dc;line-height:1.63;border-radius:10px;font-size:12px;padding:13px 15px;margin:12px 0}
+.timeline{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin:16px 0 5px}
+.timeline-item{border-top:2px solid #d7ddd3;padding-top:8px}
+.timeline-item b{display:block;font-size:12px}
+.timeline-item span{display:block;font-size:11px;color:#68766b}
+.finish-note{background:#f0f4eb;border-left:3px solid #7c9975;padding:12px 14px;border-radius:9px;margin-top:23px;font-size:13px;color:#405e49}
+.finish-note strong{display:block;margin-bottom:4px}
+.support-link{display:block;text-align:center;font-weight:800;font-size:12px;margin-top:15px;text-underline-offset:3px}
+.side-card{border-radius:19px;box-shadow:0 12px 28px rgba(26,55,32,.05)}
+.side-product img{width:65px;height:84px}
+@media(max-width:820px){.content{grid-template-columns:1fr}.side-card{display:none}}
+@media(max-width:600px){
+ .wrap{width:calc(100% - 26px)}
+ .top-inner{min-height:58px}
+ .logo img{width:132px}
+ .hero{padding:24px 0 55px}
+ .hero h1{font-size:30px}
+ .hero p.sub{font-size:13px}
+ .hero-inner{grid-template-columns:1fr;gap:9px}
+ .price{display:flex;align-items:center;gap:8px;padding:6px 11px}
+ .price strong{font-size:19px}
+ .main-card{padding:17px 16px 23px;border-radius:18px}
+ .content{margin-top:-21px}
+ .preview{padding:9px 10px;font-size:10px;margin-bottom:14px}
+ .trail{font-size:11px;padding:9px 8px;margin-bottom:20px;gap:5px}
+ .trail .sep{min-width:9px}
+ h2{font-size:23px}
+ .section-description{margin-bottom:16px}
+ .field-grid{grid-template-columns:1fr;gap:12px}
+ .field input{height:52px;min-height:52px}
+ .division{margin:19px 0}
+ .method{min-height:69px;padding:10px 8px;gap:8px}
+ .method img{width:37px;height:37px}
+ .prepay{margin:17px 0 15px;padding:12px 13px}
+ .pay-layout{margin-top:15px}
+ .pay-brand img{width:39px;height:39px}
+ .pay-banner{padding:12px 14px}
+ .account-region{padding:9px 13px 16px}
+ .pay-amount{padding:14px 14px 7px}
+ .pay-amount strong{font-size:23px}
+ .account-number-panel{padding:14px 12px}
+ .account-number-row strong{font-size:18px;max-width:calc(100% - 85px)}
+ .copy-account{padding:8px 9px;min-width:78px}
+ .account-holder-row{align-items:start}
+ .account-holder-row strong{max-width:61%;font-size:12px}
+ .confirm-box{padding:17px 0 4px}
+ .message{font-size:12px}
+ .timeline{gap:8px}
+}
+@media(max-width:350px){.main-card{padding:15px 12px}.method .desc{display:none}.method .name{font-size:12px}.trail{font-size:10px}.account-number-row strong{font-size:16px}.copy-account{min-width:75px}}
 </style>
 </head>
 <body>
@@ -114,10 +233,10 @@ h2{font-size:24px;line-height:1.35;margin:0 0 5px;font-weight:800}
 <section class="hero"><div class="wrap hero-inner"><div><p class="eyebrow">ParentWise Ethiopia · V1 preview</p><h1>ትዕዛዝዎን ያጠናቅቁ<span style="color:#e6b0bf">.</span></h1><p class="sub">የParentWise ሙሉ ፕሮግራም · Five digital guides</p></div><div class="price"><span>ጠቅላላ ዋጋ</span><strong>1,500 ETB</strong><small>አንድ ጊዜ ብቻ</small></div></div></section>
 <main class="wrap content">
   <section class="main-card" aria-label="Checkout preview">
-    <div class="preview"><span class="dot"></span> DEMO ONLY · DO NOT SEND MONEY · No real order is created</div>
+    <div class="preview"><span class="dot"></span> DEMO ONLY · NOT PAYABLE · No real orders or transfers</div>
     <div class="trail" aria-label="Purchase steps"><span class="active" id="label-details">01 Details</span><span class="sep"></span><span id="label-payment">02 Payment</span><span class="sep"></span><span id="label-telegram">03 Telegram delivery</span></div>
     <section id="details-section">
-      <p class="section-kicker">01 · Your details</p><h2>የእርስዎ መረጃ</h2><p class="section-description">Enter your name and phone before viewing payment instructions.</p>
+      <p class="section-kicker">01 · Your details</p><h2>የእርስዎ መረጃ</h2><p class="section-description">Two details, then your preferred payment method.</p>
       <form id="checkout-form" novalidate>
         <div class="field-grid"><div class="field"><label for="customer-name">ሙሉ ስም</label><input id="customer-name" name="name" type="text" maxlength="100" required autocomplete="off" placeholder="ሙሉ ስምዎን ያስገቡ"></div><div class="field"><label for="customer-mobile">ስልክ ቁጥር</label><input id="customer-mobile" name="phone" type="tel" inputmode="tel" maxlength="13" required autocomplete="off" placeholder="09XXXXXXXX"></div></div>
         <div class="division"></div>
@@ -126,40 +245,60 @@ h2{font-size:24px;line-height:1.35;margin:0 0 5px;font-weight:800}
           <label class="method"><input type="radio" name="payment" value="telebirr" checked><img src="assets/telebirr-mark.svg" alt="Telebirr logo"><span><span class="name">Telebirr</span><br><span class="desc">የሞባይል ክፍያ</span></span><span class="check" aria-hidden="true">✓</span></label>
           <label class="method"><input type="radio" name="payment" value="bank"><img src="assets/cbe-bank-logo.png" alt="CBE logo"><span><span class="name">CBE Bank</span><br><span class="desc">የባንክ ዝውውር</span></span><span class="check" aria-hidden="true">✓</span></label>
         </div>
-        <div class="prepay"><strong>Delivery is through Telegram after payment verification.</strong><p>Before paying, confirm that you can privately message ParentWise and receive documents.</p><a id="prepay-telegram" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Check ParentWise Telegram ↗</a><span class="caution">No Telegram or cannot message us? Do not pay until another delivery arrangement is confirmed.</span></div>
-        <button id="continue-payment" class="primary" type="submit">Show Payment Details →</button>
+        <div class="prepay"><strong>Your five guides arrive in your private Telegram chat.</strong><p>Check that you can message ParentWise before making any payment.</p><a id="prepay-telegram" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Check ParentWise Telegram ↗</a><span class="caution">Cannot access Telegram? Arrange another delivery method with ParentWise before paying.</span></div>
+        <button id="continue-payment" class="primary" type="submit">Continue to Payment →</button>
         <p id="validation-error" role="alert" class="error" hidden></p>
       </form>
       <p class="assurance">Your details are for order verification and support. This DEMO does not save or transmit them. Native Amharic review is pending for new English instructions.</p>
     </section>
     <section id="payment-section" hidden tabindex="-1">
-      <p class="section-kicker">02 · Make payment</p><h2>Payment Instructions</h2><p class="section-description">Choose your method on the previous screen. Use only the fictional details in this demonstration.</p>
-      <div class="pay-card">
-        <div class="pay-top"><img id="selected-mark" src="assets/telebirr-mark.svg" alt="Selected payment provider"><div><strong id="selected-method">Telebirr</strong><span>Fictional demonstration recipient</span></div></div>
-        <div class="amount"><span>Transfer amount: </span><strong>1,500 ETB</strong></div>
-        <div class="transfer"><div><small id="recipient-label">Telebirr number</small><strong id="recipient-number">QA-TELEBIRR-ONLY</strong></div><button class="secondary" type="button" id="copy-recipient">Copy</button></div>
-        <div class="recipient"><small>Account holder</small><strong id="recipient-holder">DEMO RECIPIENT — NOT REAL</strong></div>
+      <p class="section-kicker">02 / 03 · Payment</p>
+      <h2>Payment Details</h2>
+      <p class="section-description">Confirm the recipient and amount before transferring. Your selected payment details appear only here.</p>
+      <div class="pay-layout">
+        <div class="pay-banner">
+          <div class="pay-brand"><img id="selected-mark" src="assets/telebirr-mark.svg" alt="Selected payment provider"><div><strong id="selected-method">Telebirr</strong><span>Selected payment method</span></div></div>
+          <span style="font:800 10px Arial;color:#79593f;border:1px solid #dacbb5;border-radius:30px;padding:5px 8px;background:#fffcf4">DEMO</span>
+        </div>
+        <div class="pay-amount"><span>Total transfer amount</span><strong>1,500 ETB</strong></div>
+        <div class="account-region">
+          <div class="account-number-panel">
+            <small id="recipient-label">Telebirr recipient number</small>
+            <div class="account-number-row">
+              <strong id="recipient-number">QA-TELEBIRR-ONLY</strong>
+              <button class="copy-account" id="copy-recipient" type="button" aria-label="Copy recipient number"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span id="copy-account-label">Copy</span></button>
+            </div>
+          </div>
+          <div class="account-holder-row"><small>Recipient / Account holder</small><strong id="recipient-holder">DEMO RECIPIENT — NOT REAL</strong></div>
+          <p id="copy-status" class="status" role="status" aria-live="polite"></p>
+        </div>
       </div>
-      <p id="copy-status" class="status" role="status" aria-live="polite"></p>
-      <p class="guide">In the real checkout, transfer exactly the displayed amount, then return and tap the button below. This preview has no live payment functionality.</p>
-      <div class="pay-actions"><button id="paid-action" class="primary" type="button">I've Paid — Continue to Telegram →</button><button id="change-method" class="linklike" type="button">← Edit name, phone or payment method</button></div>
-      <p class="assurance">A screenshot or reference is only a payment claim. ParentWise must independently verify the funds before sending the five guides.</p>
+      <p class="payment-instruction"><b>How it works:</b> In the real checkout, send 1,500 ETB using Telebirr or CBE and return here. <strong>Do not send money using this public demo.</strong></p>
+      <div class="pay-next">
+        <button id="paid-action" class="primary" type="button">I've Paid — Continue to Telegram <span aria-hidden="true">↗</span></button>
+        <p class="inset-note">Next: send your transaction reference or screenshot privately.</p>
+      </div>
+      <button id="change-method" class="linklike change-link" type="button">← Change details or payment method</button>
     </section>
     <section id="telegram-section" hidden tabindex="-1">
-      <p class="section-kicker">03 · Confirmation & delivery</p><h2>Confirm on Telegram</h2><p class="section-description">Your PDFs will arrive in the same private Telegram conversation after our team verifies the payment. Delivery is not instant.</p>
+      <p class="section-kicker">03 / 03 · Confirmation</p>
+      <h2>Confirm on Telegram</h2>
+      <p class="section-description">Your receipt is checked manually. After verification, all five PDFs will be sent in the same Telegram conversation.</p>
       <div class="confirm-box">
-        <h3>1. Copy your details</h3>
-        <p>Paste these details into your private Telegram message, then add your payment screenshot or transaction reference. Do not send your PIN, OTP or banking password.</p>
+        <div class="confirm-heading"><span class="confirm-index">1</span><div><h3>Copy your information</h3><p>Use the details you entered on the previous screen. Add the payment receipt or transaction reference in Telegram.</p></div></div>
         <div id="confirmation-message" class="message" role="textbox" aria-label="Prepared Telegram confirmation message">ParentWise payment confirmation</div>
-        <button id="copy-confirmation" class="secondary" type="button">Copy My Details</button><p id="confirmation-status" class="status" role="status" aria-live="polite"></p>
+        <button id="copy-confirmation" class="secondary" type="button">Copy Details</button>
+        <p id="confirmation-status" class="status" role="status" aria-live="polite"></p>
       </div>
       <div class="confirm-box">
-        <h3>2. Message ParentWise</h3><p>Open the official chat, paste the details and attach your payment evidence. Stay in that chat to receive your five guides.</p>
+        <div class="confirm-heading"><span class="confirm-index">2</span><div><h3>Open the official Telegram chat</h3><p>Paste your details, attach the receipt or enter the transfer reference, and send the message privately.</p></div></div>
         <a id="telegram-handoff" class="primary" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Open Telegram — Send Confirmation ↗</a>
-        <p class="assurance">If the destination does not accept private messages, do not make a payment. A usable alternative contact method must be confirmed before launch.</p>
+        <p class="inset-note">Keep this conversation — your five guides will arrive there after verification.</p>
       </div>
-      <button class="linklike" id="back-payment" type="button">← Back to payment instructions</button>
-      <div class="prepay"><strong>What happens next?</strong><p>1. ParentWise checks the actual incoming transfer. 2. Once verified, we send all five PDFs in this Telegram conversation. 3. Open Guide 00 first. If you've already transferred, don't pay again.</p></div>
+      <div class="finish-note"><strong>What happens after you send?</strong>ParentWise checks the actual transfer before sending the PDFs. Confirmation is not proof of payment. If you already paid, do not pay again.</div>
+      <div class="timeline"><div class="timeline-item"><b>Payment under review</b><span>Checked manually</span></div><div class="timeline-item"><b>Five PDF guides</b><span>Delivered after verification</span></div></div>
+      <button class="linklike change-link" id="back-payment" type="button">← Back to payment details</button>
+      <a href="https://t.me/ParentWiseEthiopia" class="support-link" target="_blank" rel="noopener noreferrer">Need help? Contact ParentWise ↗</a>
     </section>
   </section>
   <aside class="side-card" aria-label="Your ParentWise order">
@@ -191,7 +330,7 @@ h2{font-size:24px;line-height:1.35;margin:0 0 5px;font-weight:800}
       const section=$(n===2?'payment-section':'telegram-section');
       section.focus({preventScroll:true});
     }
-    window.scrollTo({top:0,behavior:'instant'});
+    requestAnimationFrame(()=>{const top=document.querySelector('.content').getBoundingClientRect().top+window.scrollY-10;window.scrollTo({top:Math.max(0,top),behavior:'instant'});});
   };
   const buildMessage=()=>[
     'ParentWise Ethiopia — Payment confirmation',
@@ -215,7 +354,7 @@ h2{font-size:24px;line-height:1.35;margin:0 0 5px;font-weight:800}
     data.name=name;data.phone=phone;method=current();
     const m=methods[method];$('selected-method').textContent=m.title;$('selected-mark').src=m.logo;$('selected-mark').alt=m.title;
     $('recipient-number').textContent=m.number;$('recipient-label').textContent=m.label;
-    $('copy-status').textContent='';$('confirmation-status').textContent='';
+    $('copy-status').textContent='';$('confirmation-status').textContent='';$('copy-account-label').textContent='Copy';
     stage(2);
   });
   $('change-method').addEventListener('click',()=>stage(1));
@@ -229,7 +368,7 @@ h2{font-size:24px;line-height:1.35;margin:0 0 5px;font-weight:800}
     await navigator.clipboard.writeText(value);
   };
   $('copy-recipient').addEventListener('click',async()=>{
-    try{await copy(methods[method].number);$('copy-status').textContent='Copied fictional recipient number.';}
+    try{await copy(methods[method].number);$('copy-account-label').textContent='Copied';$('copy-status').textContent='Demo number copied — do not transfer money.';}
     catch{$('copy-status').textContent='Clipboard unavailable. Select the fictional number manually.';const el=$('recipient-number');const range=document.createRange();range.selectNodeContents(el);const selection=window.getSelection();selection.removeAllRanges();selection.addRange(range);}
   });
   $('copy-confirmation').addEventListener('click',async()=>{
