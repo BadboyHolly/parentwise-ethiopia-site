@@ -132,27 +132,21 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
         founder.locator("#settlement-ref").fill(reference)
         founder.locator("#settlement-payer").fill("+251900000000")
         founder.locator("#stage-record").click()
-        page.get_by_text("Fictional settlement recorded.").wait_for()
+        founder.get_by_text("Fictional settlement recorded.").wait_for()
         founder.locator("#stage-verify").click()
-        page.get_by_text("Founder approval is still required.").wait_for()
+        founder.get_by_text("Explicit approval is still required.").wait_for()
         page.locator("#stage-refresh").click()
         assert page.locator("#stage-status").inner_text() == "Under Review"
-        page.locator("#stage-recovery-code-panel").evaluate("(node) => node.hidden=true")
         page.screenshot(path=str(OUT / "screenshots" / ("am-checkout-" + label + "-pending.png")),
                               full_page=True)
         founder.locator("#order-code").fill(code)
         founder.locator("#stage-approve").click()
         page.get_by_text("Ready to Download", exact=True).wait_for()
         assert no_horizontal_overflow(page, width)
-        page.locator("#staging-founder").evaluate("(node) => node.style.display='none'")
-        page.locator("#stage-recovery-code-panel").evaluate("(node) => node.hidden=true")
         page.screenshot(path=str(OUT / "screenshots" / ("am-checkout-" + label + "-ready.png")),
                               full_page=True)
-        page.locator("#staging-founder").evaluate("(node) => node.style.display=''")
-        page.locator("#stage-recovery-code-panel").evaluate("(node) => node.hidden=true")
         page.reload(wait_until="domcontentloaded")
         assert page.evaluate("sessionStorage.length + localStorage.length") == 0
-        page.locator("#stage-recovery-code-panel").wait_for(state="hidden")
         page.locator("#stage-existing-order summary").click()
         page.locator("#stage-recovery-order").fill(code)
         page.locator("#stage-recovery-code-input").fill(recovery_code)
@@ -161,7 +155,7 @@ def test_amharic_checkout_complete_order_to_five_dummy_downloads(width, height, 
 
         for part in range(1, 6):
             with page.expect_download() as event:
-                page.get_by_role("button", name="Download dummy PDF " + str(part)).click()
+                page.get_by_role("button", name="Download guide " + str(part)).click()
             download = event.value
             path = OUT / "downloads" / (label + "-part-" + str(part) + ".pdf")
             download.save_as(str(path))
@@ -192,6 +186,8 @@ def test_cbe_card_uses_only_fictional_recipient_details():
         order_through_review(page, method="bank", label="cbe")
         assert page.locator("#stage-recipient").inner_text() == "QA-CBE-ONLY"
         assert page.locator("#account-method").inner_text() == "CBE ባንክ"
+        assert page.locator("#account-number").inner_text() == "QA-CBE-ONLY"
+        assert "Copy Number" in page.locator("#copy-number").inner_text()
         assert "10002230019327" not in page.content()
         assert "Kidus Elias" not in page.content()
         browser.close()
@@ -218,7 +214,7 @@ def test_interrupted_order_creation_retries_same_key_and_payload():
         enter_review(page)
         page.locator("#continue-order-button").click()
         page.get_by_text("Retry with the same details.", exact=False).wait_for()
-        page.locator("#create-staging-order").click()
+        page.locator("#continue-order-button").click()
         page.locator("#staging-payment").wait_for(state="visible")
         assert len(requests) == 2
         assert requests[0] == requests[1]
@@ -247,6 +243,7 @@ def test_third_party_payer_mismatch_is_denied_then_claim_can_be_rejected():
         assert page.locator("#stage-status").inner_text() == "Under Review"
         assert page.locator("#stage-download-panel").is_hidden()
         founder.locator("#stage-reject").click()
+        page.locator("#stage-refresh").click()
         page.get_by_text("Awaiting Payment", exact=True).wait_for()
         browser.close()
 
