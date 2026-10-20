@@ -237,9 +237,9 @@ def test_third_party_payer_mismatch_is_denied_then_claim_can_be_rejected():
         founder.locator("#settlement-ref").fill(reference)
         founder.locator("#settlement-payer").fill("+251911111111")
         founder.locator("#stage-record").click()
-        page.get_by_text("Fictional settlement recorded.").wait_for()
+        founder.get_by_text("Fictional settlement recorded.").wait_for()
         founder.locator("#stage-verify").click()
-        page.get_by_text("Settlement did not match.", exact=False).wait_for()
+        founder.get_by_text("Settlement did not match.", exact=False).wait_for()
         assert page.locator("#stage-status").inner_text() == "Under Review"
         assert page.locator("#stage-download-panel").is_hidden()
         founder.locator("#stage-reject").click()
