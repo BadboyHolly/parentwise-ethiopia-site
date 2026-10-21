@@ -4,6 +4,31 @@
 
 The independent order API in this directory is separate from `checkout-backend/`. It does not use the QA service or its database at runtime.
 
+## V1 business decision — 21 October 2026 (implementation pending)
+
+The founder has locked a **manual Telegram fulfillment pilot**: collect full name + Ethiopian phone + chosen method; show selected Telebirr/CBE transfer instructions **once**; buyer submits receipt or transaction reference to the official private Telegram conversation; founder independently matches settled funds, records the reviewed transfer, and then sends all five PDFs manually in that same private conversation. Explain the Telegram requirement and a viable non-Telegram alternative **before** requesting payment. Agree on support hours/delivery window before launch. Screenshot alone never proves payment, and duplicate references must not be fulfilled twice. This is a business process decision, **not** production activation.
+
+The historical secure website delivery design below is **retained as deferred infrastructure**. It does not override the locked V1 manual Telegram delivery plan. The existing staging/production code still implements portions of the earlier design and must not be treated as V1-ready by changing account numbers alone.
+
+### Confirmed payment recipient configuration — pending deployment
+
+The founder confirmed exact Telebirr and CBE recipient details and a shared account-holder name on 21 October 2026. **Do not commit live recipient numbers to this repository, its static website, preview branch, CI logs, test fixtures, screenshots or QA/staging environment.** Keep all public preview recipients fictional and obvious. Do not use the earlier superseded CBE account number.
+
+The production order API already supports **private environment variables** supplied to `production_checkout.app.from_environment()`:
+
+| Payment method | Production setting | Purpose |
+|---|---|---|
+| Telebirr | `TELEBIRR_ACCOUNT_NUMBER` | Founder-confirmed Telebirr number |
+| Telebirr | `TELEBIRR_ACCOUNT_HOLDER` | Founder-confirmed account holder |
+| CBE | `CBE_ACCOUNT_NUMBER` | Founder-confirmed bank account |
+| CBE | `CBE_ACCOUNT_HOLDER` | Founder-confirmed account holder |
+
+The production operator must enter the four actual values privately in the eventual production service settings, independently check recipient ownership in the corresponding financial apps, and verify their correct pairing in a private pre-launch acceptance test. The holder must match what the payment app actually displays; if it differs, **stop**, do not collect money. `APP_MODE=production`, `PAYMENTS_ENABLED=false`, `ORDER_INTAKE_ENABLED=false`, `CUSTOMER_PAYMENT_CLAIMS_ENABLED=false`, `FOUNDER_APPROVAL_ENABLED=false` and `SECURE_PDF_DELIVERY_ENABLED=false` remain the safe default. **Do not activate any gate or deploy a production service from this branch.**
+
+### Release validation required for the manual Telegram V1
+
+Confirm the official Telegram destination accepts private messages; rehearse the Meta/Facebook in-app browser → payment app → Telegram return; match one synthetic claim to one independent synthetic settlement record; reject reused references; log founder verification; test all five PDF documents received and reopened on typical Android phones; define refund, privacy/consent, support and delivery policies. Store customer names and phone numbers only in an authorized secure backend with an approved retention plan, not analytics or public query strings. No live transaction may proceed before an approved release decision.
+
 ## Order intake
 
 - `POST /api/v1/orders` creates a server-priced 1,500 ETB order in `AWAITING_PAYMENT` and returns a private recovery token.
