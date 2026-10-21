@@ -79,6 +79,38 @@ def test_create_persists_server_price_and_payment_instructions(intake):
         assert access != row.access_hash
 
 
+
+def test_recipient_configuration_is_injected_per_method_without_enabling_verification(tmp_path):
+    """Synthetic account configuration maps to the correct method; it never approves payment."""
+    from production_checkout.app import PRICE_ETB
+
+    sample_accounts = {
+        "telebirr": {"name": "Telebirr", "number": "QA-MOBILE-NUMBER", "holder": "QA-HOLDER"},
+        "bank": {"name": "Commercial Bank of Ethiopia", "number": "QA-BANK-ACCOUNT", "holder": "QA-HOLDER"},
+    }
+    app = build_app(
+        database_url="sqlite:///" + str(tmp_path / "recipient_mapping.db"),
+        token_secret=SECRET,
+        allowed_origins=["http://localhost:3000"],
+        allow_sqlite_for_tests=True,
+        intake_enabled=True,
+        payment_accounts=sample_accounts,
+    )
+    Base.metadata.create_all(app.state.engine)
+    try:
+        with TestClient(app) as client:
+            for method in ("telebirr", "bank"):
+                response = post(client, payment_method=method)
+                assert response.status_code == 201, response.text
+                details = response.json()["order"]["payment_instructions"]
+                assert details == {**sample_accounts[method], "amount_etb": PRICE_ETB, "currency": "ETB"}
+                assert details["number"] != sample_accounts["bank" if method == "telebirr" else "telebirr"]["number"]
+            assert client.get("/healthz").json()["payment_verification_enabled"] is False
+            assert client.post("/api/v1/payments/verify").status_code == 404
+    finally:
+        Base.metadata.drop_all(app.state.engine)
+        app.state.engine.dispose()
+
 def test_bank_and_normalization(intake):
     client, app, *_ = intake
     r = post(client, payment_method="bank", mobile="+251712345678")
