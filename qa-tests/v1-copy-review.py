@@ -1,5 +1,6 @@
 """Copy-only sales-to-checkout review: synthetic data and no payment writes."""
 from pathlib import Path
+import re
 from playwright.sync_api import sync_playwright
 
 ROOT = "http://127.0.0.1:8765"
@@ -129,6 +130,14 @@ if __name__ == "__main__":
     checkout = Path("order.html").read_text(encoding="utf-8")
     assert len(sale) > 2000000
     assert "QA TEST ONLY" in sale
+    section09_start = sale.index('id="section-09"')
+    section09 = sale[sale.rfind("<section", 0, section09_start):sale.index("</section>", section09_start)]
+    portrait_sources = re.findall(
+        r'<div class="pw9-review-portrait"><img\\b[^>]*src="([^"]+)"',
+        section09,
+    )
+    assert len(portrait_sources) == 2
+    assert all(src.startswith("data:image/webp;base64,") for src in portrait_sources)
     assert "የትዕዛዝ ቁጥር ይሰጥዎታል" not in sale
     assert "የከፈሉትን 1,500 ብር ሙሉ በሙሉ" not in sale
     assert "QA-TELEBIRR-ONLY" in checkout and "QA-CBE-ONLY" in checkout
