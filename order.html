@@ -260,7 +260,7 @@ h1{font-size:37px;line-height:1.27;font-weight:800;letter-spacing:-.035em;margin
       <section id="details-section" class="screen">
         <p class="section-id">01 · Your Details</p>
         <h2 class="screen-title">የእርስዎ መረጃ</h2>
-        <p class="screen-sub">Enter your name and phone number to continue with payment.</p>
+        <p class="screen-sub">ለመቀጠል ሙሉ ስምዎንና የስልክ ቁጥርዎን ያስገቡ።</p>
         <form id="checkout-form" novalidate>
           <div class="form-fields">
             <div class="field">
@@ -281,17 +281,17 @@ h1{font-size:37px;line-height:1.27;font-weight:800;letter-spacing:-.035em;margin
           </div>
           <div class="delivery-warning">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m21.5 3.5-19 8 8 3 3 8 8-19ZM10.5 14.5l11-11"/></svg>
-            <div><strong>Receive your five guides in Telegram</strong><p>Check that you can send ParentWise a private message before paying.</p><a id="prepay-telegram" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Check official Telegram ↗</a><span class="caution">No Telegram? Arrange alternative delivery with us first; do not pay yet.</span></div>
+            <div><strong>አምስቱን PDF ፋይሎች በTelegram ይቀበሉ</strong><p>ክፍያ ከመፈጸምዎ በፊት በTelegram በግል መልእክት ሊያነጋግሩን እንደሚችሉ ያረጋግጡ።</p><a id="prepay-telegram" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Telegram ያረጋግጡ ↗</a><span class="caution">Telegram መጠቀም ካልቻሉ፣ ክፍያ ከመፈጸምዎ በፊት አማራጭ የመቀበያ መንገድ ለመስማማት ያነጋግሩን።</span></div>
           </div>
           <button id="continue-payment" class="primary" type="submit">Continue to Payment <span aria-hidden="true">→</span></button>
           <p id="validation-error" class="error" role="alert" hidden></p>
-          <p class="subtle-note">Your details are used for order support. This preview does not save or transmit information.</p>
+          <p class="subtle-note">ይህ የንድፍ ሙከራ ነው። ያስገቡት መረጃ አይመዘገብም ወይም አይላክም።</p>
         </form>
       </section>
       <section id="payment-section" class="screen" hidden tabindex="-1">
         <p class="section-id">02 · Payment</p>
-        <h2 class="screen-title">Payment Details</h2>
-        <p class="screen-sub">Transfer only to the verified account holder displayed for your selected payment method.</p>
+        <h2 class="screen-title">የክፍያ መረጃ</h2>
+        <p class="screen-sub">የመረጡትን የክፍያ ዘዴ፣ የሂሳብ ቁጥርና የሂሳብ ባለቤት ያረጋግጡ። ይህ የሙከራ ገጽ ነው።</p>
         <div class="checkout-customer-review" aria-label="Review your details">
           <div class="review-lines"><small>YOUR DETAILS</small><strong id="review-customer-name">—</strong><span id="review-customer-phone">—</span></div>
           <button type="button" class="secondary review-edit" id="change-method">Edit</button>
@@ -301,7 +301,7 @@ h1{font-size:37px;line-height:1.27;font-weight:800;letter-spacing:-.035em;margin
             <div class="pay-brand"><img src="assets/telebirr-mark.svg" id="selected-mark" alt="Selected payment provider"><div><strong id="selected-method">Telebirr</strong><span>Selected payment method</span></div></div>
             <span class="demo-pill">DEMO</span>
           </div>
-          <div class="pay-amount"><span>Amount to transfer</span><strong>1,500 ETB</strong></div>
+          <div class="pay-amount"><span>የክፍያ መጠን</span><strong>1,500 ETB</strong></div>
           <div class="account-region">
             <div class="account-number-panel">
               <small id="recipient-label">Telebirr number</small>
@@ -310,29 +310,29 @@ h1{font-size:37px;line-height:1.27;font-weight:800;letter-spacing:-.035em;margin
                 <button class="copy-account" type="button" id="copy-recipient" aria-label="Copy recipient number"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span id="copy-account-label">Copy</span></button>
               </div>
             </div>
-            <div class="account-holder-row"><small>Recipient / Account holder</small><strong id="recipient-holder">DEMO RECIPIENT — NOT REAL</strong></div>
+            <div class="account-holder-row"><small>የሂሳብ ባለቤት</small><strong id="recipient-holder">DEMO RECIPIENT — NOT REAL</strong></div>
             <p id="copy-status" role="status" aria-live="polite" class="status"></p>
           </div>
         </div>
-        <p class="payment-instruction"><b>How to pay:</b> In the real checkout, transfer 1,500 ETB via the selected method, then return to confirm. <strong>This is a demonstration. Do not send money.</strong></p>
-        <div class="pay-next"><button id="paid-action" class="primary" type="button">I've Paid — Confirm in Telegram ↗</button><p class="inset-note">Next: send your payment receipt or transaction reference.</p></div>
-        <p class="payment-safety">Check the recipient name inside your payment app. Questions? <a href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Official ParentWise help ↗</a></p>
+        <p class="payment-instruction"><b>እንዴት ይከፍላሉ?</b> በእውነተኛው የግዢ ገጽ 1,500 ብር በመረጡት ዘዴ ከከፈሉ በኋላ ተመልሰው ያረጋግጣሉ። <strong>ይህ የሙከራ ገጽ ነው። ገንዘብ አይላኩ።</strong></p>
+        <div class="pay-next"><button id="paid-action" class="primary" type="button">I've Paid — Confirm in Telegram ↗</button><p class="inset-note">ቀጥሎ፦ በTelegram የክፍያ ማስረጃዎን ወይም የዝውውር ማጣቀሻ ቁጥርዎን ይላኩ።</p></div>
+        <p class="payment-safety">በክፍያ መተግበሪያዎ የሂሳብ ባለቤቱን ስም ያረጋግጡ። ጥያቄ አለዎት? <a href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Official ParentWise help ↗</a></p>
       </section>
       <section id="telegram-section" class="screen" hidden tabindex="-1">
         <p class="section-id">03 · Payment confirmation</p>
         <h2 class="screen-title">Confirm on Telegram</h2>
-        <p class="screen-sub">We verify the payment manually, then deliver your five PDFs in the same Telegram conversation.</p>
+        <p class="screen-sub">ክፍያዎን ካረጋገጥን በኋላ አምስቱ የParentWise PDF ፋይሎች በዚያው የTelegram ውይይት ይላኩልዎታል።</p>
         <div class="confirm-box">
-          <div class="confirm-heading"><span class="confirm-index">1</span><div><h3>Copy your details</h3><p>Include your name and phone number so we can match your order.</p></div></div>
+          <div class="confirm-heading"><span class="confirm-index">1</span><div><h3>Copy your details</h3><p>ክፍያዎን ከስምዎና ከስልክ ቁጥርዎ ጋር ለማዛመድ መረጃዎን ይቅዱ።</p></div></div>
           <div id="confirmation-message" class="message" role="textbox" aria-label="Prepared Telegram confirmation message">ParentWise payment confirmation</div>
           <button id="copy-confirmation" class="secondary" type="button">Copy Details</button><p id="confirmation-status" role="status" aria-live="polite" class="status"></p>
         </div>
         <div class="confirm-box">
-          <div class="confirm-heading"><span class="confirm-index">2</span><div><h3>Send your payment evidence</h3><p>Open the private chat. Paste your details and add your screenshot or transaction reference.</p></div></div>
+          <div class="confirm-heading"><span class="confirm-index">2</span><div><h3>Send your payment evidence</h3><p>የTelegram የግል ውይይቱን ይክፈቱ፤ መረጃዎን ይለጥፉና የክፍያ ማስረጃ ወይም የዝውውር ማጣቀሻ ቁጥር ያክሉ።</p></div></div>
           <a class="primary" id="telegram-handoff" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Open Telegram — Send Confirmation ↗</a>
-          <p class="inset-note">Keep this chat. Your documents will arrive there after verification.</p>
+          <p class="inset-note">ይህን ውይይት ያስቀምጡ። ከማረጋገጫ በኋላ ፋይሎቹ በዚያው ይላኩልዎታል።</p>
         </div>
-        <div class="finish-note"><strong>After you send</strong>ParentWise checks the actual incoming transaction before delivering the five guides. A screenshot alone is not proof of payment. Never share OTPs or PINs.</div>
+        <div class="finish-note"><strong>After you send</strong>ParentWise አምስቱን PDF ፋይሎች ከመላኩ በፊት የገባውን ክፍያ በራሱ ያረጋግጣል። ማስረጃ ፎቶ ብቻ ክፍያን አያረጋግጥም። PIN ወይም OTP አይላኩ።</div>
         <div class="timeline"><div class="timeline-item"><b>Payment verification</b><span>Checked manually</span></div><div class="timeline-item"><b>Five PDF guides</b><span>Sent in this Telegram chat</span></div></div>
         <button class="linklike" id="back-payment" type="button">← Back to payment instructions</button>
         <a href="https://t.me/ParentWiseEthiopia" class="support-link" target="_blank" rel="noopener noreferrer">Need help? Contact ParentWise ↗</a>
@@ -371,12 +371,12 @@ h1{font-size:37px;line-height:1.27;font-weight:800;letter-spacing:-.035em;margin
     requestAnimationFrame(()=>{const top=document.querySelector('.content').getBoundingClientRect().top+window.scrollY-10;window.scrollTo({top:Math.max(0,top),behavior:'instant'});});
   };
   const buildMessage=()=>[
-    'ParentWise Ethiopia — Payment confirmation',
-    'Full name: '+data.name,
-    'Phone: '+data.phone,
-    'Method: '+methods[method].title,
-    'Amount: 1,500 ETB',
-    'Payment screenshot or transaction reference: [attach or add here]'
+    'ParentWise Ethiopia — የክፍያ ማረጋገጫ',
+    'ሙሉ ስም: '+data.name,
+    'ስልክ: '+data.phone,
+    'የክፍያ ዘዴ: '+methods[method].title,
+    'መጠን: 1,500 ETB',
+    'የክፍያ ማስረጃ ወይም የዝውውር ማጣቀሻ: [attach or add here]'
   ].join('\n');
   $('checkout-form').addEventListener('submit',event=>{
     event.preventDefault();
@@ -384,10 +384,10 @@ h1{font-size:37px;line-height:1.27;font-weight:800;letter-spacing:-.035em;margin
     const phone=$('customer-mobile').value.trim();
     $('validation-error').hidden=true;
     if(name.length<2||name.length>100||!Array.from(name).some(ch=>/[^0-9\s]/.test(ch))){
-      $('validation-error').textContent='Please enter a valid full name.';$('validation-error').hidden=false;$('customer-name').focus();return;
+      $('validation-error').textContent='እባክዎ ትክክለኛ ሙሉ ስም ያስገቡ።';$('validation-error').hidden=false;$('customer-name').focus();return;
     }
     if(!/^(0[97][0-9]{8}|\+251[97][0-9]{8})$/.test(phone)){
-      $('validation-error').textContent='Please enter a valid Ethiopian phone number.';$('validation-error').hidden=false;$('customer-mobile').focus();return;
+      $('validation-error').textContent='እባክዎ ትክክለኛ የኢትዮጵያ ስልክ ቁጥር ያስገቡ።';$('validation-error').hidden=false;$('customer-mobile').focus();return;
     }
     data.name=name;data.phone=phone;method=current();
     const m=methods[method];$('selected-method').textContent=m.title;$('selected-mark').src=m.logo;$('selected-mark').alt=m.title;
