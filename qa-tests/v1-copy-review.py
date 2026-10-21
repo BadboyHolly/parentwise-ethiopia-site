@@ -125,6 +125,13 @@ def run(browser, width):
     )
 
 
+def fnv1a32(value):
+    result = 0x811C9DC5
+    for character in value:
+        result = ((result ^ ord(character)) * 0x01000193) & 0xFFFFFFFF
+    return f"{result:08x}"
+
+
 if __name__ == "__main__":
     sale = Path("index.html").read_text(encoding="utf-8")
     checkout = Path("order.html").read_text(encoding="utf-8")
@@ -144,6 +151,9 @@ if __name__ == "__main__":
     assert "0912910693" not in sale + checkout
     assert "1000223019327" not in sale + checkout
     assert "10002230019327" not in sale + checkout
+    assert "KIDUS ELIAS" not in sale + checkout
+    assert [len(src) for src in portrait_sources] == [30191, 62667]
+    assert [fnv1a32(src) for src in portrait_sources] == ["8b613057", "40c5e307"]
     assert "fetch(" not in checkout and "XMLHttpRequest" not in checkout
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(headless=True)
