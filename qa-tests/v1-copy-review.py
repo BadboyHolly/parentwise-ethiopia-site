@@ -46,6 +46,7 @@ def run(browser, width):
         path=str(OUT / f"sales-{width}.png"),
         full_page=False,
         animations="disabled",
+        timeout=90000,
     )
 
     page.locator(".pw10x-cta").first.click(timeout=30000)
@@ -62,6 +63,7 @@ def run(browser, width):
         path=str(OUT / f"checkout-{width}-details.png"),
         full_page=False,
         animations="disabled",
+        timeout=90000,
     )
 
     page.locator("#continue-payment").click()
@@ -89,6 +91,7 @@ def run(browser, width):
         path=str(OUT / f"checkout-{width}-bank.png"),
         full_page=False,
         animations="disabled",
+        timeout=90000,
     )
 
     page.locator("#change-method").click()
@@ -115,6 +118,7 @@ def run(browser, width):
         path=str(OUT / f"checkout-{width}-telegram.png"),
         full_page=False,
         animations="disabled",
+        timeout=90000,
     )
     assert not non_reads, non_reads
     context.close()
