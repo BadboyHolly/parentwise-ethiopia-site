@@ -4,6 +4,8 @@ on:
     branches: [dev/v1-pending-order-integration-20261021]
     paths:
       - 'production_checkout/**'
+      - 'v1_checkout/**'
+      - 'qa-tests/v1-manual-checkout-api-integration.py'
       - '.github/workflows/v1-manual-pending-order-safety.yml'
   workflow_dispatch:
 permissions:
@@ -30,3 +32,26 @@ jobs:
         run: python -m compileall -q production_checkout
       - name: Run synthetic V1 order/no-payment tests
         run: python -m pytest -q production_checkout/tests/test_v1_manual_customer_journey.py
+      - name: Install isolated Playwright Chromium
+        run: |
+          python -m pip install 'playwright==1.56.0'
+          python -m playwright install --with-deps chromium
+      - name: Start localhost-only fake account intake server
+        env:
+          V1_SYNTHETIC_CI: 'true'
+        run: |
+          uvicorn v1_checkout.ci_server:app --host 127.0.0.1 --port 8765 >/tmp/pw-v1-ci.log 2>&1 &
+          for i in $(seq 1 35); do
+            if curl -fsS http://127.0.0.1:8765/healthz -o /dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/pw-v1-ci.log
+          exit 1
+      - name: Verify form submission and pending order persistence
+        run: python qa-tests/v1-manual-checkout-api-integration.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v1-synthetic-pending-order-screenshots
+          path: qa-artifacts/v1-pending-intake/*.png
+          retention-days: 5
