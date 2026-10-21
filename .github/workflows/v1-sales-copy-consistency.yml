@@ -1,0 +1,22 @@
+name: V1 sales copy only — isolated acceptance
+on:
+  push:
+    branches: ['review/v1-sales-copy-consistency-20261021']
+    paths:
+      - 'index.html'
+      - 'public/index.html'
+      - 'qa-tests/v1-sales-copy-consistency.py'
+      - '.github/workflows/v1-sales-copy-consistency.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sales-copy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify V1 sales copy without serving or deploying
+        run: python qa-tests/v1-sales-copy-consistency.py
