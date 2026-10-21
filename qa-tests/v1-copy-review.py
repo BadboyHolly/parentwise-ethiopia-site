@@ -48,6 +48,8 @@ def run(browser, width):
     assert page.locator("#payment-section").is_visible()
     assert page.locator("#recipient-number").inner_text() == "QA-CBE-ONLY"
     assert page.locator("#recipient-holder").inner_text() == "DEMO RECIPIENT — NOT REAL"
+    assert page.locator("#selected-mark").evaluate("(img)=>img.decode().then(()=>img.naturalWidth>0)")
+    assert page.locator(".method img").evaluate_all("(images)=>images.every(img=>img.complete && img.naturalWidth>0)")
     assert page.locator("#review-customer-name").inner_text() == "QA Test Parent"
     assert page.locator("#review-customer-phone").inner_text() == "0912345678"
     assert page.locator("#paid-action").is_enabled()
