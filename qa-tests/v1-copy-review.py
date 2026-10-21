@@ -133,7 +133,7 @@ if __name__ == "__main__":
     section09_start = sale.index('id="section-09"')
     section09 = sale[sale.rfind("<section", 0, section09_start):sale.index("</section>", section09_start)]
     portrait_sources = re.findall(
-        r'<div class="pw9-review-portrait"><img\\b[^>]*src="([^"]+)"',
+        r'<div class="pw9-review-portrait"><img\b[^>]*src="([^"]+)"',
         section09,
     )
     assert len(portrait_sources) == 2
