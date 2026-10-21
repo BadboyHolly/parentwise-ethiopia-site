@@ -380,6 +380,12 @@ h1{font-size:37px;line-height:1.27;font-weight:800;letter-spacing:-.035em;margin
     'Payment screenshot or transaction reference: [attach or add here]'
   ].join('\n');
   // CI-only integration: ephemeral synthetic orders. No production service or payments.
+  // API requires 32 random bytes as canonical, unpadded 43-char base64url.
+  // crypto.randomUUID() is only 36 characters and fails with HTTP 400.
+  const newIdempotencyKey=()=>{
+    const bytes=crypto.getRandomValues(new Uint8Array(32));
+    return btoa(String.fromCharCode(...bytes)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  };
   let pendingKey='',pendingPayload='';
   $('checkout-form').addEventListener('submit',async event=>{
     event.preventDefault();
@@ -394,7 +400,7 @@ h1{font-size:37px;line-height:1.27;font-weight:800;letter-spacing:-.035em;margin
     }
     data.name=name;data.phone=phone;method=current();
     const payload=JSON.stringify({customer_name:name,mobile:phone,payment_method:method});
-    if(payload!==pendingPayload){pendingKey=crypto.randomUUID();pendingPayload=payload;}
+    if(payload!==pendingPayload){pendingKey=newIdempotencyKey();pendingPayload=payload;}
     const button=$('continue-payment');
     button.disabled=true;button.setAttribute('aria-busy','true');
     try{
