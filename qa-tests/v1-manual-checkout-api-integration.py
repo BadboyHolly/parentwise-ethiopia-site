@@ -31,13 +31,21 @@ def check(browser, width):
     page.locator("#customer-mobile").fill("0912345678")
     page.locator('input[value="telebirr"]').check()
     page.locator("#continue-payment").click()
-    assert page.locator("#payment-section").is_visible()
+    try:
+        page.locator("#payment-section").wait_for(state="visible",timeout=10000)
+    except Exception:
+        print("PAYMENT STAGE ERROR:", page.locator("#validation-error").inner_text() if page.locator("#validation-error").is_visible() else "No visible form error", flush=True)
+        raise
     assert page.locator("#recipient-number").inner_text() == "QA-TELEBIRR-ONLY"
     assert page.locator("#recipient-holder").inner_text() == "DEMO RECIPIENT — NOT REAL"
     assert count_orders() == before + 1
     page.locator("#change-method").click()
     page.locator("#continue-payment").click()
-    assert page.locator("#payment-section").is_visible()
+    try:
+        page.locator("#payment-section").wait_for(state="visible",timeout=10000)
+    except Exception:
+        print("PAYMENT STAGE ERROR:", page.locator("#validation-error").inner_text() if page.locator("#validation-error").is_visible() else "No visible form error", flush=True)
+        raise
     assert count_orders() == before + 1, "An unchanged retry must not create another order"
     page.locator("#paid-action").click()
     assert page.locator("#telegram-section").is_visible()
