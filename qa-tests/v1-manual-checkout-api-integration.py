@@ -69,6 +69,42 @@ def check(browser, width):
     print(f"PASS {width}px: persisted synthetic order, idempotent retry, private Telegram handoff",flush=True)
 
 
+def check_sales_to_api(browser):
+    """Exercise a reviewed sales CTA through a real synthetic saved order."""
+    context=browser.new_context(viewport={"width":390,"height":850},
+                                is_mobile=True,has_touch=True,device_scale_factor=1)
+    page=context.new_page()
+    writes=[]
+    page.on("request",lambda req: writes.append((req.method,req.url))
+            if req.method not in ("GET","HEAD") else None)
+    page.goto(ROOT+"/index.html",wait_until="domcontentloaded",timeout=45000)
+    assert page.locator("#hero").count()==1
+    assert page.locator(".pw10x-cta").count()>0
+    page.locator(".pw10x-cta").first.click(timeout=30000)
+    page.wait_for_url("**/order.html",timeout=30000)
+    assert "CI DEMO ONLY" in page.locator(".demo-alert").inner_text()
+    before=count_orders()
+    page.locator("#customer-name").fill("Synthetic CTA Parent")
+    page.locator("#customer-mobile").fill("0972345678")
+    page.locator('input[value="bank"]').check()
+    page.locator("#continue-payment").click()
+    page.locator("#payment-section").wait_for(state="visible",timeout=10000)
+    assert page.locator("#recipient-number").inner_text()=="QA-CBE-ONLY"
+    assert count_orders()==before+1
+    page.locator("#paid-action").click()
+    assert page.locator("#telegram-section").is_visible()
+    message=page.locator("#confirmation-message").inner_text()
+    assert "Synthetic CTA Parent" in message
+    assert "Order reference: PW-" in message
+    assert "access_token" not in message
+    assert page.locator("#telegram-handoff").get_attribute("href")=="https://t.me/ParentWiseEthiopia"
+    assert writes==[("POST",ROOT+"/api/v1/orders")], writes
+    page.screenshot(path=str(OUT/"v1-sales-to-order-390.png"),
+                    full_page=False,animations="disabled")
+    context.close()
+    print("PASS 390px reviewed sales CTA -> isolated pending order -> Telegram handoff",flush=True)
+
+
 def check_failure(browser):
     context=browser.new_context(viewport={"width":390,"height":850})
     page=context.new_page()
@@ -90,10 +126,11 @@ if __name__ == "__main__":
         browser=p.chromium.launch(headless=True)
         for width in (320,360,390,768,1280):
             check(browser,width)
+        check_sales_to_api(browser)
         check_failure(browser)
         browser.close()
     with sqlite3.connect(DB) as db:
         rows=db.execute("SELECT status, amount_etb, currency FROM production_orders").fetchall()
-        assert len(rows)==5
+        assert len(rows)==6
         assert all(status=="AWAITING_PAYMENT" and amount==1500 and currency=="ETB" for status,amount,currency in rows)
     print("PASS isolated V1 pending-order integration; no real payments or delivery",flush=True)
