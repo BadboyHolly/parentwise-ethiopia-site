@@ -34,6 +34,23 @@ app = build_app(
     },
 )
 Base.metadata.create_all(app.state.engine)
+
+# The independent order API intentionally uses CSP default-src 'none'.
+# The isolated CI HTML fixture alone needs scripts and local assets.
+# Never weaken the /api or production response policy.
+@app.middleware("http")
+async def ci_html_only_content_policy(request, call_next):
+    response = await call_next(request)
+    if request.url.path.startswith("/v1_checkout/"):
+        response.headers["Content-Security-Policy"] = (
+            "default-src 'self'; script-src 'self' 'unsafe-inline'; "
+            "style-src 'self' 'unsafe-inline'; "
+            "img-src 'self' data:; "
+            "font-src 'self' https://cdn.jsdelivr.net; "
+            "connect-src 'self'; frame-ancestors 'none'"
+        )
+    return response
+
 app.mount("/v1_checkout/assets", StaticFiles(directory=str(ROOT / "assets")), name="ci_assets")
 
 @app.get("/v1_checkout/ci-only-order.html")
