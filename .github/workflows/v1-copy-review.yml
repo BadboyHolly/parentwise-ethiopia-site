@@ -6,6 +6,8 @@ on:
     paths:
       - index.html
       - order.html
+      - assets/cbe-bank-logo.png
+      - assets/telebirr-mark.svg
       - qa-tests/v1-copy-review.py
       - .github/workflows/v1-copy-review.yml
   workflow_dispatch:
