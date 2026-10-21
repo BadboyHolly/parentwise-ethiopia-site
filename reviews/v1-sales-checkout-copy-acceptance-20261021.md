@@ -22,7 +22,7 @@
 ## Acceptance evidence
 
 - Github Actions workflow `V1 sales and checkout copy review — isolated synthetic browser acceptance` (latest run `39582945249`): **PASS**.
-- Viewports: **320 / 390 / 768 / 1280 px**. Tests cover CTA handoff, form validation, Telebirr/CBE method selection, fictional account matching, customer review, Telegram confirmation and no non-GET requests.
+- Viewports: **320 / 360 / 390 / 768 / 1280 px**. Tests cover CTA handoff, form validation, Telebirr/CBE selection, recipient-to-method matching, both payment-recipient copy buttons, customer review, prepared Telegram confirmation copy, and no non-GET requests. The workflow saved responsive screenshots as artifact `parentwise-v1-copy-review-screenshots` (ID `12344276425`, available for seven days).
 - Both selected logos loaded from local static assets. Real recipient numbers do not appear in review `index.html` or `order.html`.
 - Production branch `main` remained unchanged at `4250e3c669a51b4d464cd026020549d5e9329cd4` when checked. No Render deployments, production modifications, real payments or order writes.
 
