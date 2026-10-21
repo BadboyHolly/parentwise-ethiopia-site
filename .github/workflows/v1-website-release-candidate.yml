@@ -1,0 +1,109 @@
+name: ParentWise V1 website release candidate — isolated acceptance
+
+on:
+  push:
+    branches: [finalize/v1-website-candidate-20261021]
+    paths:
+      - 'index.html'
+      - 'public/index.html'
+      - 'order.html'
+      - 'qa-tests/v1-copy-review.py'
+      - 'qa-tests/v1-manual-checkout-api-integration.py'
+      - 'production_checkout/**'
+      - 'v1_checkout/**'
+      - 'assets/**'
+      - '.github/workflows/v1-website-release-candidate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sales-and-checkout-copy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check frozen copy source pairing
+        run: |
+          cmp index.html public/index.html
+          python - <<'PY'
+          from pathlib import Path
+          s=Path("order.html").read_text(encoding="utf8")
+          i=Path("index.html").read_text(encoding="utf8")
+          assert "QA-CBE-ONLY" in s and "QA-TELEBIRR-ONLY" in s
+          assert "DEMO RECIPIENT" in s
+          assert "0912910693" not in s and "1000223019327" not in s
+          assert 'href="order.html"' in i
+          assert "https://t.me/ParentWiseEthiopia" in s
+          print("PASS paired frozen sales/checkout files remain fictional")
+          PY
+      - name: Install test browser
+        run: |
+          python -m pip install 'playwright==1.56.0'
+          python -m playwright install --with-deps chromium
+      - name: Start local preview, no backend
+        run: |
+          python -m http.server 8765 --bind 127.0.0.1 >/tmp/pw-v1-static.log 2>&1 &
+          for i in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:8765/index.html -o /dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/pw-v1-static.log
+          exit 1
+      - name: Verify sales page to V1 demo and no write requests at 5 widths
+        run: python qa-tests/v1-copy-review.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: parentwise-v1-candidate-static-screenshots
+          path: qa-artifacts/v1-copy-review/*.png
+          retention-days: 7
+          if-no-files-found: ignore
+
+  pending-order-and-telegram:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    env:
+      APP_MODE: staging
+      PAYMENTS_ENABLED: 'false'
+      ORDER_INTAKE_ENABLED: 'false'
+      CUSTOMER_PAYMENT_CLAIMS_ENABLED: 'false'
+      FOUNDER_APPROVAL_ENABLED: 'false'
+      SECURE_PDF_DELIVERY_ENABLED: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install backend and browser test dependencies
+        run: |
+          python -m pip install -r production_checkout/requirements.txt 'pytest>=8,<10' 'httpx>=0.27,<1' 'playwright==1.56.0'
+          python -m playwright install --with-deps chromium
+      - name: Run isolated order and payment-off tests
+        run: |
+          python -m compileall -q production_checkout v1_checkout
+          python -m pytest -q production_checkout/tests/test_v1_manual_customer_journey.py
+      - name: Start localhost-only synthetic server
+        env:
+          V1_SYNTHETIC_CI: 'true'
+        run: |
+          uvicorn v1_checkout.ci_server:app --host 127.0.0.1 --port 8765 >/tmp/pw-v1-api.log 2>&1 &
+          for i in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:8765/healthz -o /dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/pw-v1-api.log
+          exit 1
+      - name: Test synthetic pending orders and Telegram prep at 5 widths
+        run: python qa-tests/v1-manual-checkout-api-integration.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: parentwise-v1-candidate-order-screenshots
+          path: qa-artifacts/v1-pending-intake/*.png
+          retention-days: 7
+          if-no-files-found: ignore
