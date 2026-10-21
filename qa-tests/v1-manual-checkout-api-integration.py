@@ -88,12 +88,12 @@ def check_failure(browser):
 if __name__ == "__main__":
     with sync_playwright() as p:
         browser=p.chromium.launch(headless=True)
-        for width in (320,390,768):
+        for width in (320,360,390,768,1280):
             check(browser,width)
         check_failure(browser)
         browser.close()
     with sqlite3.connect(DB) as db:
         rows=db.execute("SELECT status, amount_etb, currency FROM production_orders").fetchall()
-        assert len(rows)==3
+        assert len(rows)==5
         assert all(status=="AWAITING_PAYMENT" and amount==1500 and currency=="ETB" for status,amount,currency in rows)
     print("PASS isolated V1 pending-order integration; no real payments or delivery",flush=True)
