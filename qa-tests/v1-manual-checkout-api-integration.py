@@ -77,8 +77,10 @@ def check_failure(browser):
     page.locator("#customer-name").fill("Synthetic Parent")
     page.locator("#customer-mobile").fill("0912345678")
     page.locator("#continue-payment").click()
-    assert page.locator("#validation-error").is_visible()
+    # Network failure is handled asynchronously; wait for the visible result.
+    page.locator("#validation-error").wait_for(state="visible", timeout=10000)
     assert page.locator("#payment-section").is_hidden(), "Never show payable instructions without saved order"
+    assert not page.locator("#continue-payment").is_disabled(), "Retry must remain possible"
     context.close()
     print("PASS simulated DB/API failure blocks payment instructions",flush=True)
 
