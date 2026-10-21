@@ -20,6 +20,8 @@ def check(browser, width):
     context = browser.new_context(viewport={"width": width, "height": 850}, is_mobile=width < 500,
                                   has_touch=width < 500, device_scale_factor=1)
     page = context.new_page()
+    page_errors=[]
+    page.on("pageerror",lambda exc: page_errors.append(str(exc)))
     writes = []
     page.on("request", lambda r: writes.append((r.method, r.url)) if r.method not in ("GET", "HEAD") else None)
     page.goto(ROOT+"/v1_checkout/ci-only-order.html", wait_until="domcontentloaded", timeout=45000)
@@ -35,6 +37,8 @@ def check(browser, width):
         page.locator("#payment-section").wait_for(state="visible",timeout=10000)
     except Exception:
         print("PAYMENT STAGE ERROR:", page.locator("#validation-error").inner_text() if page.locator("#validation-error").is_visible() else "No visible form error", flush=True)
+        print("JS ERRORS:",page_errors,"POSTs:",writes,"URL:",page.url,"DB_COUNT:",count_orders(),flush=True)
+        print("Form HTML:",page.locator("#checkout-form").evaluate("(e)=>e.outerHTML.slice(0,400)"),flush=True)
         raise
     assert page.locator("#recipient-number").inner_text() == "QA-TELEBIRR-ONLY"
     assert page.locator("#recipient-holder").inner_text() == "DEMO RECIPIENT — NOT REAL"
