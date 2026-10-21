@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="am">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="referrer" content="no-referrer">
+<title>ትዕዛዝዎን ያጠናቅቁ | ParentWise Ethiopia V1 Preview</title>
+<style>
+@font-face{font-family:SurGraphics;src:url("https://cdn.jsdelivr.net/gh/geezorg/legally-free-geez-fonts@main/FreeToRedistribute/SurGraphics/SurGraphics%20Regular.ttf") format("truetype");font-weight:400;font-display:swap}
+@font-face{font-family:SurGraphics;src:url("https://cdn.jsdelivr.net/gh/geezorg/legally-free-geez-fonts@main/FreeToRedistribute/SurGraphics/SurGraphics%20Bold.ttf") format("truetype");font-weight:700;font-display:swap}
+@font-face{font-family:SurGraphics;src:url("https://cdn.jsdelivr.net/gh/geezorg/legally-free-geez-fonts@main/FreeToRedistribute/SurGraphics/SurGraphics%20ExtraBold.ttf") format("truetype");font-weight:800;font-display:swap}
+:root{--green:#1e4b38;--green-dark:#103727;--green-soft:#eef3eb;--wine:#7e3444;--ivory:#f7f3ec;--paper:#fffcf7;--white:#fff;--text:#26382c;--muted:#617066;--line:#e3e0d5;--shadow:0 14px 42px rgba(18,53,36,.07)}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;background:var(--ivory);color:var(--text);font:400 15px/1.65 SurGraphics,"Noto Sans Ethiopic",sans-serif}
+a{color:inherit}button,input{font:inherit}button{cursor:pointer}
+[hidden]{display:none!important}
+:focus-visible{outline:3px solid #a8697a;outline-offset:3px}
+button:disabled{opacity:.6;cursor:default}
+.site-container{width:min(1040px,calc(100% - 40px));margin-inline:auto}
+.header{height:69px;background:#113929;color:#fff;position:relative;z-index:4}
+.nav{display:flex;align-items:center;justify-content:space-between;height:100%;gap:18px}
+.brand{display:inline-flex;align-items:center}
+.brand img{display:block;width:160px;height:auto;max-height:52px;object-fit:contain}
+.help-top{font-size:12px;font-weight:700;text-decoration:none;color:#e7eee9;display:inline-flex;align-items:center;gap:8px}
+.help-top:hover{text-decoration:underline;text-underline-offset:4px}
+.help-top svg{height:15px;width:15px}
+.intro{position:relative;overflow:hidden;color:white;background:radial-gradient(ellipse 470px 290px at 98% -38%,rgba(147,72,90,.44),transparent 76%),linear-gradient(120deg,#123b2b,#1c4936 80%);padding:31px 0 71px}
+.intro:after{content:"";position:absolute;right:-135px;top:-180px;height:400px;width:400px;border:1px solid rgba(241,246,238,.12);border-radius:50%;box-shadow:0 0 0 50px rgba(255,255,255,.021),0 0 0 110px rgba(255,255,255,.013);pointer-events:none}
+.intro-content{display:flex;justify-content:space-between;align-items:center;gap:24px;position:relative;z-index:1}
+.eyebrow{font:700 10px/1.5 Arial,sans-serif;letter-spacing:.17em;text-transform:uppercase;color:#e0b7bc;margin:0 0 8px}
+h1{font-size:37px;line-height:1.27;font-weight:800;letter-spacing:-.035em;margin:0 0 8px}
+.intro-sub{font-size:14px;color:#e1e9df;line-height:1.75;margin:0;max-width:580px}
+.price-chip{white-space:nowrap;background:rgba(255,255,255,.08);border:1px solid rgba(241,247,233,.3);border-radius:14px;padding:14px 20px;min-width:170px;backdrop-filter:blur(6px)}
+.price-chip span,.price-chip small{display:block;color:#dce6dc;font-size:11px}
+.price-chip strong{display:block;color:#fff;font:800 26px/1.5 SurGraphics,sans-serif;font-variant-numeric:tabular-nums}
+.checkout-shell{display:grid;grid-template-columns:minmax(0,650px) minmax(270px,1fr);gap:23px;position:relative;z-index:2;margin-top:-36px;padding-bottom:66px;align-items:start}
+.checkout-left{min-width:0}
+.checkout-card{background:var(--paper);box-shadow:var(--shadow);border:1px solid #e7e2d8;border-radius:20px;padding:24px 28px 30px}
+.demo-alert{background:#fff1e6;color:#81543d;border:1px solid #ecd6c1;padding:10px 13px;display:flex;align-items:center;gap:9px;border-radius:10px;font:700 11px/1.5 Arial,sans-serif;margin-bottom:20px}
+.demo-indicator{background:#a75d3f;height:8px;width:8px;border-radius:50%;flex:none}
+.stepper{display:grid;grid-template-columns:1fr 19px 1fr 19px 1fr;align-items:center;gap:8px;padding:0 2px 18px;border-bottom:1px solid var(--line);margin-bottom:24px}
+.step{text-align:center;display:flex;align-items:center;justify-content:center;gap:6px;color:#879387;font-size:11px;white-space:nowrap}
+.step-mark{display:grid;place-items:center;width:25px;height:25px;border-radius:50%;border:1px solid #d5dcd1;color:#768579;font:700 11px Arial,sans-serif;background:#faf9f4}
+.step.active{color:var(--green);font-weight:800}
+.step.active .step-mark{background:var(--green);color:#fff;border-color:var(--green)}
+.step-sep{height:1px;background:#d5dcd1}
+.screen{outline:0}
+.section-id{display:flex;align-items:center;gap:9px;color:var(--wine);font:700 10px/1.5 Arial,sans-serif;letter-spacing:.14em;margin-bottom:7px;text-transform:uppercase}
+.section-id:before{content:"";width:20px;height:2px;background:var(--wine)}
+.screen-title{font-size:25px;font-weight:800;letter-spacing:-.025em;line-height:1.37;margin:0 0 5px}
+.screen-sub{margin:0 0 18px;color:var(--muted);font-size:13px;line-height:1.65}
+.form-fields{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.field{min-width:0}
+.field label{display:block;font-size:13px;font-weight:800;margin:0 0 7px}
+.field input{display:block;border:1px solid #d5dcd3;border-radius:11px;background:#fff;width:100%;height:54px;padding:0 13px;color:var(--text);font-size:14px}
+.field input:focus{outline:0;border-color:#528663;box-shadow:0 0 0 3px #e5f0e3}
+.field input::placeholder{color:#a6aea6}
+.field small{display:block;margin-top:5px;font-size:11px;color:#7b877a}
+.section-break{margin:23px 0 20px;border:0;height:1px;background:var(--line)}
+.section-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.section-heading strong{font-size:15px}
+.section-heading small{font-size:11px;color:#879588}
+.method-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.method{position:relative;display:flex;align-items:center;gap:11px;padding:12px;min-height:75px;border:1px solid #dfe5dc;border-radius:13px;background:#fff;cursor:pointer;transition:border-color .16s,background .16s}
+.method:has(input:checked){border-color:#3b7153;background:#edf5ec;box-shadow:inset 0 0 0 1px #3b7153}
+.method:has(input:focus-visible){outline:3px solid #a8697a;outline-offset:2px}
+.method input{position:absolute;opacity:0;width:1px;height:1px}
+.method img{display:block;background:white;border:1px solid #ecede8;border-radius:9px;padding:4px;width:44px;height:44px;object-fit:contain}
+.method-name{font-size:14px;font-weight:800;display:block;line-height:1.4}
+.method-sub{display:block;color:#778779;font-size:11px}
+.method-check{margin-left:auto;border:1px solid #c9d9c8;color:transparent;border-radius:50%;height:20px;width:20px;display:grid;place-items:center;font:700 12px Arial}
+.method:has(input:checked) .method-check{background:var(--green);color:white;border-color:var(--green)}
+.delivery-warning{margin:18px 0 17px;display:flex;align-items:start;gap:11px;border-radius:11px;background:#f1f4ed;border-left:3px solid #7a9a7b;padding:13px 15px}
+.delivery-warning svg{height:21px;width:21px;color:var(--green);flex:none;margin-top:2px}
+.delivery-warning strong{display:block;font-size:13px;line-height:1.6}
+.delivery-warning p{font-size:12px;color:#5a6b5d;margin:2px 0 3px;line-height:1.55}
+.delivery-warning a{font-size:12px;color:var(--green);font-weight:800;text-decoration:underline;text-underline-offset:3px}
+.delivery-warning .caution{display:block;font-size:11px;color:#80654f;line-height:1.55;margin-top:5px}
+.primary{border:0;width:100%;min-height:55px;border-radius:12px;display:flex;justify-content:center;align-items:center;gap:9px;padding:11px 18px;background:var(--green);color:white;font-size:14px;font-weight:800;text-decoration:none;box-shadow:0 9px 19px rgba(23,69,44,.15);transition:background .2s,transform .2s}
+.primary:hover{background:var(--green-dark)}
+.primary:active{transform:scale(.992)}
+.secondary{border:1px solid #cddbd0;border-radius:10px;background:#fbfdf8;color:var(--green);font-size:12px;font-weight:800;padding:10px 14px;min-height:42px;display:inline-flex;justify-content:center;align-items:center;gap:6px}
+.subtle-note{font-size:11px;line-height:1.6;color:#748077;margin:10px 0 0}
+.error{font-size:12px;line-height:1.55;background:#fff2f0;border:1px solid #e4c1bb;color:#923d42;border-radius:10px;padding:9px 12px;margin-top:10px}
+.product-mobile{display:none}
+.product-mobile img{width:53px;height:72px;object-fit:cover;border-radius:6px;box-shadow:2px 6px 14px #112d1d20}
+.product-mobile-copy{min-width:0;flex:1}
+.product-mobile-copy strong{display:block;font-size:14px;line-height:1.35}
+.product-mobile-copy>span{display:block;color:#647569;font-size:11px;line-height:1.5}
+.contents-peek summary{cursor:pointer;list-style:none;font-size:12px;color:var(--green);font-weight:800;text-decoration:underline;text-underline-offset:3px;margin-top:6px}
+.contents-peek summary::-webkit-details-marker{display:none}
+.contents-peek ol{margin:8px 0 0;padding-left:19px;font-size:12px;color:#4e6656;line-height:1.9}
+.side{background:var(--paper);border:1px solid #e9e2d8;box-shadow:0 14px 34px rgba(18,50,33,.045);border-radius:19px;padding:22px;position:sticky;top:18px}
+.side-kicker{font:800 10px/1.5 Arial,sans-serif;letter-spacing:.1em;color:#8f5763;text-transform:uppercase;margin:0 0 14px}
+.side-visual{display:flex;align-items:center;gap:15px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+.side-visual img{width:71px;height:95px;object-fit:cover;border-radius:7px;box-shadow:5px 9px 15px #153e291f;flex:none}
+.side-visual strong{font-size:15px;line-height:1.5}
+.side-visual p{font-size:12px;line-height:1.5;color:#758175;margin:3px 0 0}
+.side-price{display:flex;align-items:center;justify-content:space-between;margin:18px 0 12px}
+.side-price span{font-size:13px;color:#68786c}
+.side-price strong{font-size:21px;font-weight:800;color:var(--green)}
+.side-includes{border-top:1px solid var(--line);padding-top:15px}
+.side-includes h3{font-size:13px;margin:0 0 7px}
+.side-includes ol{padding-left:18px;margin:0;color:#69766b;font-size:12px;line-height:2}
+.side-footer{border-top:1px solid var(--line);margin-top:15px;padding-top:14px;font-size:12px;line-height:1.6;color:#566d5d}
+.side-footer svg{height:15px;width:15px;vertical-align:middle;color:#446d52;margin-right:6px}
+.checkout-customer-review{display:flex;align-items:center;justify-content:space-between;gap:13px;background:#f3f5ef;border:1px solid #dde5db;border-radius:12px;padding:11px 14px;margin:0 0 16px}
+.review-lines{min-width:0;line-height:1.5}
+.review-lines small{display:block;font:700 10px/1.5 Arial,sans-serif;letter-spacing:.08em;color:#718074}
+.review-lines strong{font-size:13px;display:block;overflow-wrap:anywhere}
+.review-lines span{font-size:12px;color:#68776d}
+.review-edit{flex:none}
+.pay-layout{border:1px solid #d9dfd4;border-radius:17px;overflow:hidden;background:white;box-shadow:0 8px 22px rgba(17,63,37,.045)}
+.pay-banner{background:#f4f6f1;padding:13px 17px;display:flex;align-items:center;justify-content:space-between;gap:9px;border-bottom:1px solid #dde5da}
+.pay-brand{display:flex;align-items:center;gap:10px}
+.pay-brand img{object-fit:contain;width:44px;height:44px;padding:5px;background:#fff;border:1px solid #e3e6de;border-radius:10px}
+.pay-brand strong{display:block;font-size:16px;line-height:1.4}
+.pay-brand span{font-size:11px;color:#728072}
+.demo-pill{font:800 10px Arial,sans-serif;border:1px solid #e3c7ae;background:#fff7ee;color:#98643f;border-radius:30px;padding:6px 9px;white-space:nowrap}
+.pay-amount{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:15px 18px 14px}
+.pay-amount span{color:#657568;font-size:12px}
+.pay-amount strong{font-size:23px;line-height:1.35;color:var(--green);white-space:nowrap}
+.account-region{padding:0 15px 14px}
+.account-number-panel{border:1px solid #315d45;background:linear-gradient(125deg,#17432f,#205039);border-radius:13px;padding:16px;color:white}
+.account-number-panel small{color:#cbdbce;font-size:11px}
+.account-number-row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:5px}
+.account-number-row strong{color:white;font:800 clamp(16px,3vw,22px)/1.45 SurGraphics,sans-serif;overflow-wrap:anywhere;max-width:calc(100% - 90px);letter-spacing:.01em}
+.copy-account{min-width:82px;min-height:44px;padding:9px 10px;display:flex;align-items:center;gap:6px;justify-content:center;border:0;border-radius:9px;background:#fffaf0;color:#244a33;font-size:12px;font-weight:800;flex:none}
+.copy-account svg{height:16px;width:16px}
+.account-holder-row{display:flex;gap:10px;align-items:start;justify-content:space-between;padding:13px 2px 1px}
+.account-holder-row small{color:#738073;font-size:11px}
+.account-holder-row strong{font-size:13px;text-align:right;overflow-wrap:anywhere}
+.status{font-size:12px;color:#316442;margin:7px 2px 0}
+.payment-instruction{font-size:13px;color:#516356;line-height:1.7;margin:15px 0}
+.payment-instruction b{color:var(--green)}
+.pay-next .primary{margin-top:6px}
+.inset-note{text-align:center;color:#738074;font-size:11px;margin:10px 0 0}
+.payment-safety{color:#65786a;font-size:11px;line-height:1.7;margin:13px 0 0}
+.payment-safety a{font-weight:800;color:var(--green);text-underline-offset:3px}
+.confirm-box{padding:14px 0;border-top:1px solid var(--line)}
+.confirm-box:first-of-type{border:0;padding-top:4px}
+.confirm-heading{display:flex;align-items:start;gap:11px}
+.confirm-index{flex:none;display:grid;place-items:center;background:var(--green);color:white;border-radius:50%;height:30px;width:30px;font:800 12px Arial,sans-serif}
+.confirm-heading h3{font-size:16px;margin:0 0 3px;line-height:1.4}
+.confirm-heading p{color:var(--muted);font-size:12px;line-height:1.6;margin:0}
+.message{background:#f7f7f1;border:1px solid #e4e5dc;border-radius:11px;padding:13px 14px;font-size:12px;line-height:1.75;white-space:pre-line;overflow-wrap:anywhere;margin:13px 0 11px}
+.finish-note{border-left:3px solid #7d9e80;background:#f1f5ee;border-radius:10px;padding:12px 14px;margin:14px 0;font-size:12px;line-height:1.7;color:#516a55}
+.finish-note strong{font-size:13px;display:block;margin-bottom:2px}
+.timeline{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:17px 0}
+.timeline-item{border-top:2px solid #d8e0d7;padding-top:7px}
+.timeline-item b{display:block;font-size:12px}
+.timeline-item span{display:block;font-size:11px;color:#758477}
+.linklike{background:none;border:0;color:var(--green);font-weight:800;font-size:12px;text-decoration:underline;text-underline-offset:3px;display:block;margin:6px auto 0;padding:10px}
+.support-link{display:block;font-size:12px;font-weight:800;text-align:center;margin-top:8px;text-underline-offset:3px}
+.site-footer{color:#758177;font-size:11px;text-align:center;padding:0 0 28px}
+@media(max-width:800px){
+ .checkout-shell{grid-template-columns:1fr}
+ .side{display:none}
+ .product-mobile{display:flex;gap:13px;align-items:center;border:1px solid #e2e5db;background:#fafaf5;border-radius:13px;padding:11px 13px;margin-bottom:19px}
+}
+@media(max-width:600px){
+ .site-container{width:calc(100% - 28px)}
+ .header{height:57px}
+ .brand img{width:135px;max-height:45px}
+ .help-top{font-size:11px}
+ .intro{padding:24px 0 59px}
+ h1{font-size:28px;margin-bottom:5px}
+ .intro-sub{font-size:12px;line-height:1.6;max-width:380px}
+ .intro-content{display:block}
+ .price-chip{display:flex;align-items:center;gap:8px;margin-top:14px;padding:6px 10px;width:max-content;min-width:unset;border-radius:9px}
+ .price-chip span{display:none}
+ .price-chip strong{font-size:18px}
+ .price-chip small{font-size:10px}
+ .checkout-shell{margin-top:-30px;padding-bottom:27px}
+ .checkout-card{padding:15px 15px 19px;border-radius:17px}
+ .demo-alert{font-size:10px;line-height:1.4;padding:9px;margin-bottom:16px}
+ .stepper{gap:5px;padding-bottom:14px;margin-bottom:16px;grid-template-columns:1fr 11px 1fr 11px 1fr}
+ .step{font-size:10px;gap:4px}
+ .step-mark{height:23px;width:23px;font-size:10px}
+ .product-mobile{padding:9px 10px;margin-bottom:19px;gap:11px}
+ .product-mobile img{width:49px;height:67px}
+ .product-mobile-copy strong{font-size:13px}
+ .section-id{font-size:9px;margin-bottom:7px}
+ .screen-title{font-size:23px}
+ .screen-sub{font-size:12px;line-height:1.6;margin-bottom:17px}
+ .form-fields{grid-template-columns:1fr;gap:13px}
+ .field input{height:52px}
+ .section-break{margin:19px 0 17px}
+ .section-heading small{display:none}
+ .method-grid{gap:9px}
+ .method{min-height:68px;gap:8px;padding:9px}
+ .method img{width:38px;height:38px}
+ .method-name{font-size:13px}
+ .method-sub{font-size:10px}
+ .method-check{height:18px;width:18px;font-size:11px}
+ .delivery-warning{margin:16px 0;padding:11px;gap:9px}
+ .primary{min-height:54px}
+ .checkout-customer-review{padding:10px 12px}
+ .pay-banner{padding:12px 14px}
+ .pay-amount{padding:13px 14px}
+ .pay-amount strong{font-size:22px}
+ .account-region{padding:0 12px 13px}
+ .account-number-panel{padding:14px 12px}
+ .account-number-row strong{font-size:17px}
+ .copy-account{min-width:80px}
+ .account-holder-row strong{max-width:60%;font-size:12px}
+}
+@media(max-width:350px){
+ .checkout-card{padding:14px 11px 17px}
+ .step{font-size:9px;gap:2px}
+ .method img{width:32px;height:32px}
+ .method-name{font-size:12px}
+ .method-sub{display:none}
+ .account-number-row strong{font-size:15px}
+ .copy-account{min-width:75px;padding:7px}
+}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="site-container nav">
+    <a class="brand" href="https://parentwise-ethiopia-qa.onrender.com/" aria-label="ParentWise Ethiopia"><img src="assets/logo-reversed.webp" alt="ParentWise Ethiopia"></a>
+    <a class="help-top" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Help / እገዛ <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+  </div>
+</header>
+<section class="intro">
+  <div class="site-container intro-content">
+    <div>
+      <p class="eyebrow">ParentWise Ethiopia · Checkout</p>
+      <h1>ትዕዛዝዎን ያጠናቅቁ<span style="color:#e2b0b7">.</span></h1>
+      <p class="intro-sub">ልጅዎን በተሻለ ሁኔታ ለመረዳትና ለማሳደግ የሚረዳዎትን የParentWise ሙሉ ፕሮግራም ያግኙ።</p>
+    </div>
+    <div class="price-chip"><span>ጠቅላላ ዋጋ</span><strong>1,500 ETB</strong><small>አንድ ጊዜ ብቻ</small></div>
+  </div>
+</section>
+<main class="site-container checkout-shell">
+  <div class="checkout-left">
+    <div class="checkout-card">
+      <div class="demo-alert" role="note"><span class="demo-indicator"></span> CI DEMO ONLY · የሐሰት ትዕዛዝ ብቻ · እውነተኛ ክፍያ አይፈጽሙ</div>
+      <div class="stepper" aria-label="Purchase progress">
+        <span id="label-details" class="step active"><span class="step-mark">1</span><span>መረጃ</span></span>
+        <span class="step-sep" aria-hidden="true"></span>
+        <span id="label-payment" class="step"><span class="step-mark">2</span><span>ክፍያ</span></span>
+        <span class="step-sep" aria-hidden="true"></span>
+        <span id="label-telegram" class="step"><span class="step-mark">3</span><span>Telegram</span></span>
+      </div>
+      <div class="product-mobile mobile-product" aria-label="Your ParentWise product">
+        <img src="assets/product-workbook.webp" alt="ParentWise action workbook cover">
+        <div class="product-mobile-copy">
+          <strong>ParentWise Ethiopia</strong>
+          <span>Child Behavior & Discipline System · 5 PDF guides</span>
+          <details class="contents-peek"><summary>በፕሮግራሙ ውስጥ የሚካተቱት <span aria-hidden="true">⌄</span></summary>
+            <ol><li>ከዚህ ይጀምሩ</li><li>የልጅ ባህሪ መመሪያ</li><li>የተግባር ደብተር</li><li>ፈጣን እርዳታ</li><li>የ30 ቀን ልምምድ</li></ol>
+          </details>
+        </div>
+      </div>
+      <section id="details-section" class="screen">
+        <p class="section-id">01 · Your Details</p>
+        <h2 class="screen-title">የእርስዎ መረጃ</h2>
+        <p class="screen-sub">ሙሉ ስምዎንና ስልክ ቁጥርዎን ያስገቡ፤ ከዚያ የክፍያ ዘዴ ይምረጡ።</p>
+        <form id="checkout-form" novalidate>
+          <div class="form-fields">
+            <div class="field">
+              <label for="customer-name">ሙሉ ስም</label>
+              <input id="customer-name" name="name" type="text" autocomplete="off" placeholder="ሙሉ ስምዎን ያስገቡ" maxlength="100" required>
+            </div>
+            <div class="field">
+              <label for="customer-mobile">ስልክ ቁጥር</label>
+              <input id="customer-mobile" name="phone" type="tel" inputmode="tel" autocomplete="off" placeholder="09XXXXXXXX" maxlength="13" required>
+              <small>የኢትዮጵያ ስልክ ቁጥር</small>
+            </div>
+          </div>
+          <hr class="section-break">
+          <div class="section-heading"><strong>የክፍያ ዘዴ ይምረጡ</strong><small>Choose one</small></div>
+          <div class="method-grid" role="radiogroup" aria-label="Choose payment method">
+            <label class="method"><input name="payment" type="radio" value="telebirr" checked><img src="assets/telebirr-mark.svg" alt="Telebirr logo"><span><span class="method-name">Telebirr</span><span class="method-sub">የሞባይል ክፍያ</span></span><span class="method-check" aria-hidden="true">✓</span></label>
+            <label class="method"><input name="payment" type="radio" value="bank"><img src="assets/cbe-bank-logo.png" alt="CBE bank logo"><span><span class="method-name">CBE Bank</span><span class="method-sub">የባንክ ዝውውር</span></span><span class="method-check" aria-hidden="true">✓</span></label>
+          </div>
+          <div class="delivery-warning">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m21.5 3.5-19 8 8 3 3 8 8-19ZM10.5 14.5l11-11"/></svg>
+            <div><strong>አምስቱንም PDF ፋይሎች በTelegram ይቀበሉ</strong><p>ክፍያ ከመፈጸምዎ በፊት ለParentWise በግል Telegram መልዕክት መላክ እንደሚችሉ ያረጋግጡ።</p><a id="prepay-telegram" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Telegram ይመልከቱ ↗</a><span class="caution">Telegram መጠቀም አይችሉም? ከመክፈልዎ በፊት ሌላ የመቀበያ መንገድ ከParentWise ጋር ያረጋግጡ።</span></div>
+          </div>
+          <button id="continue-payment" class="primary" type="submit">ወደ ክፍያ ይቀጥሉ <span aria-hidden="true">→</span></button>
+          <p id="validation-error" class="error" role="alert" hidden></p>
+          <p class="subtle-note">የእርስዎ መረጃ ለትዕዛዝ ማረጋገጫና ድጋፍ ብቻ ነው። ይህ የCI ሙከራ ገጽ የሐሰት ትዕዛዝን በጊዜያዊ ማከማቻ ይመዘግባል። እውነተኛ የግል መረጃ አያስገቡ።</p>
+        </form>
+      </section>
+      <section id="payment-section" class="screen" hidden tabindex="-1">
+        <p class="section-id">02 · Payment</p>
+        <h2 class="screen-title">የክፍያ መረጃ</h2>
+        <p class="screen-sub">ከመክፈልዎ በፊት የተመረጠውን ሂሳብ ቁጥርና የባለቤቱን ስም በክፍያ መተግበሪያዎ ያረጋግጡ።</p>
+        <div class="checkout-customer-review" aria-label="Review your details">
+          <div class="review-lines"><small>የእርስዎ መረጃ</small><strong id="review-customer-name">—</strong><span id="review-customer-phone">—</span></div>
+          <button type="button" class="secondary review-edit" id="change-method">Edit ያድርጉ</button>
+        </div>
+        <div class="pay-layout">
+          <div class="pay-banner">
+            <div class="pay-brand"><img src="assets/telebirr-mark.svg" id="selected-mark" alt="Selected payment provider"><div><strong id="selected-method">Telebirr</strong><span>የመረጡት የክፍያ ዘዴ</span></div></div>
+            <span class="demo-pill">DEMO</span>
+          </div>
+          <div class="pay-amount"><span>የሚከፈለው ገንዘብ</span><strong>1,500 ETB</strong></div>
+          <div class="account-region">
+            <div class="account-number-panel">
+              <small id="recipient-label">Telebirr number</small>
+              <div class="account-number-row">
+                <strong id="recipient-number">QA-TELEBIRR-ONLY</strong>
+                <button class="copy-account" type="button" id="copy-recipient" aria-label="Copy recipient number"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span id="copy-account-label">Copy</span></button>
+              </div>
+            </div>
+            <div class="account-holder-row"><small>የሂሳብ ባለቤት</small><strong id="recipient-holder">DEMO RECIPIENT — NOT REAL</strong></div>
+            <p id="copy-status" role="status" aria-live="polite" class="status"></p>
+          </div>
+        </div>
+        <p class="payment-instruction"><b>እንዴት ይከፍላሉ?</b> በእውነተኛው ገጽ 1,500 ብር በመረጡት ዘዴ ይላኩ። ከዚያ ወደዚህ ገጽ ተመልሰው በTelegram ያረጋግጡ። <strong>ይህ ሙከራ ነው፤ ገንዘብ አይላኩ።</strong></p>
+        <div class="pay-next"><button id="paid-action" class="primary" type="button">ክፍያ ፈጽሜያለሁ — ወደ Telegram ↗</button><p class="inset-note">ቀጣይ፦ የክፍያ ደረሰኝ ወይም የዝውውር መለያ ቁጥር ይላኩ።</p></div>
+        <p class="payment-safety">በክፍያ መተግበሪያዎ የሂሳብ ባለቤቱን ስም ያረጋግጡ። ጥያቄ አለዎት? <a href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">ParentWise ድጋፍ ↗</a></p>
+      </section>
+      <section id="telegram-section" class="screen" hidden tabindex="-1">
+        <p class="section-id">03 · Payment confirmation</p>
+        <h2 class="screen-title">በTelegram ያረጋግጡ</h2>
+        <p class="screen-sub">ክፍያዎ መግባቱን ከተረጋገጠ በኋላ አምስቱንም PDF ፋይሎች በዚያው የTelegram ውይይት እንልካለን።</p>
+        <div class="confirm-box">
+          <div class="confirm-heading"><span class="confirm-index">1</span><div><h3>መረጃዎን Copy ያድርጉ</h3><p>ትዕዛዝዎን ለመለየት ሙሉ ስምዎንና ስልክ ቁጥርዎን ያካትቱ።</p></div></div>
+          <div id="confirmation-message" class="message" role="textbox" aria-label="Prepared Telegram confirmation message">ParentWise payment confirmation</div>
+          <button id="copy-confirmation" class="secondary" type="button">መረጃውን Copy ያድርጉ</button><p id="confirmation-status" role="status" aria-live="polite" class="status"></p>
+        </div>
+        <div class="confirm-box">
+          <div class="confirm-heading"><span class="confirm-index">2</span><div><h3>የክፍያ ማስረጃዎን ይላኩ</h3><p>የግል Telegram ውይይቱን ይክፈቱ። የኮፒ ያደረጉትን መረጃ ያስገቡ፤ የክፍያ ስክሪንሾት ወይም የዝውውር መለያ ቁጥር ያክሉ።</p></div></div>
+          <a class="primary" id="telegram-handoff" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Telegram ይክፈቱ — ማስረጃ ይላኩ ↗</a>
+          <p class="inset-note">ይህን ውይይት ይያዙ። ክፍያው ከተረጋገጠ በኋላ ፋይሎቹ እዚያው ይደርስዎታል።</p>
+        </div>
+        <div class="finish-note"><strong>After you send</strong>ParentWise አምስቱን መመሪያዎች ከመላኩ በፊት ክፍያው በእውነት መግባቱን ያረጋግጣል። ስክሪንሾት ብቻ የክፍያ ማረጋገጫ አይደለም። PIN ወይም OTP አይላኩ።</div>
+        <div class="timeline"><div class="timeline-item"><b>የክፍያ ማረጋገጫ</b><span>በእጅ ይረጋገጣል</span></div><div class="timeline-item"><b>አምስት PDF መመሪያዎች</b><span>እዚያው Telegram ላይ ይላካሉ</span></div></div>
+        <button class="linklike" id="back-payment" type="button">← ወደ ክፍያ መረጃ ይመለሱ</button>
+        <a href="https://t.me/ParentWiseEthiopia" class="support-link" target="_blank" rel="noopener noreferrer">እገዛ ይፈልጋሉ? ParentWise ↗</a>
+      </section>
+    </div>
+  </div>
+  <aside class="side" aria-label="Your ParentWise order">
+    <p class="side-kicker">Your Parenting System · 5 guides</p>
+    <div class="side-visual"><img src="assets/product-workbook.webp" alt="ParentWise action workbook cover"><div><strong>ParentWise Ethiopia</strong><p>Child Behavior & Discipline System for Ethiopian parents</p></div></div>
+    <div class="side-price"><span>One-time payment</span><strong>1,500 ETB</strong></div>
+    <div class="side-includes"><h3>በፕሮግራሙ ውስጥ የሚካተቱት</h3><ol><li>ከዚህ ይጀምሩ</li><li>የልጅ ባህሪ መመሪያ</li><li>የተግባር ደብተር</li><li>ፈጣን እርዳታ</li><li>የ30 ቀን ልምምድ</li></ol></div>
+    <div class="side-footer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m21.5 3.5-19 8 8 3 3 8 8-19ZM10.5 14.5l11-11"/></svg> After verification, all five guides are delivered privately through Telegram.</div>
+  </aside>
+</main>
+<footer class="site-container site-footer">© ParentWise Ethiopia · Isolated CI simulation only · Do not enter real data or send money</footer>
+<script>
+(() => {
+  'use strict';
+  const $=id=>document.getElementById(id);
+  const methods={
+    telebirr:{title:'Telebirr',number:'QA-TELEBIRR-ONLY',label:'የTelebirr ቁጥር',logo:'assets/telebirr-mark.svg'},
+    bank:{title:'CBE Bank',number:'QA-CBE-ONLY',label:'የCBE ሂሳብ ቁጥር',logo:'assets/cbe-bank-logo.png'}
+  };
+  let method='telebirr';
+  const current=()=>document.querySelector('input[name="payment"]:checked').value;
+  const data={name:'',phone:''};
+  const stage=n=>{
+    $('details-section').hidden=n!==1;
+    $('payment-section').hidden=n!==2;
+    $('telegram-section').hidden=n!==3;
+    for(let i=1;i<=3;i++)$('label-'+['details','payment','telegram'][i-1]).classList.toggle('active',i===n);
+    if(n!==1){
+      const section=$(n===2?'payment-section':'telegram-section');
+      section.focus({preventScroll:true});
+    }
+    requestAnimationFrame(()=>{const top=document.querySelector('.content').getBoundingClientRect().top+window.scrollY-10;window.scrollTo({top:Math.max(0,top),behavior:'instant'});});
+  };
+  const buildMessage=()=>[
+    'ParentWise Ethiopia — Payment confirmation',
+    'Full name: '+data.name,
+    'Phone: '+data.phone,
+    'Order reference: '+data.orderRef,
+    'Method: '+methods[method].title,
+    'Amount: 1,500 ETB',
+    'Payment screenshot or transaction reference: [attach or add here]'
+  ].join('\n');
+  // CI-only integration: ephemeral synthetic orders. No production service or payments.
+  let pendingKey='',pendingPayload='';
+  $('checkout-form').addEventListener('submit',async event=>{
+    event.preventDefault();
+    const name=$('customer-name').value.trim();
+    const phone=$('customer-mobile').value.trim();
+    $('validation-error').hidden=true;
+    if(name.length<2||name.length>100||!Array.from(name).some(ch=>/[^0-9\s]/.test(ch))){
+      $('validation-error').textContent='እባክዎ ትክክለኛ ሙሉ ስም ያስገቡ።';$('validation-error').hidden=false;$('customer-name').focus();return;
+    }
+    if(!/^(0[97][0-9]{8}|\+251[97][0-9]{8})$/.test(phone)){
+      $('validation-error').textContent='እባክዎ ትክክለኛ የኢትዮጵያ ስልክ ቁጥር ያስገቡ።';$('validation-error').hidden=false;$('customer-mobile').focus();return;
+    }
+    data.name=name;data.phone=phone;method=current();
+    const payload=JSON.stringify({customer_name:name,mobile:phone,payment_method:method});
+    if(payload!==pendingPayload){pendingKey=crypto.randomUUID();pendingPayload=payload;}
+    const button=$('continue-payment');
+    button.disabled=true;button.setAttribute('aria-busy','true');
+    try{
+      const response=await fetch('/api/v1/orders',{
+        method:'POST',cache:'no-store',credentials:'same-origin',
+        headers:{'Content-Type':'application/json','Idempotency-Key':pendingKey},body:payload
+      });
+      if(!response.ok)throw new Error('Pending order could not be recorded');
+      const json=await response.json();
+      const order=json.order;
+      if(order?.status!=='AWAITING_PAYMENT'||order.amount_etb!==1500||order.currency!=='ETB'||order.payment_method!==method||!/^PW-/.test(order.order_id))
+        throw new Error('Pending order response did not match expected values');
+      if(!json.access_token||!order.payment_instructions||order.payment_instructions.number!==methods[method].number)
+        throw new Error('Synthetic account configuration mismatch');
+      data.orderRef=order.order_id;
+      data.privateToken=json.access_token; // Never share in Telegram, URLs or analytics.
+    }catch(err){
+      $('validation-error').textContent='የሙከራ ትዕዛዙን ማስቀመጥ አልተቻለም። እባክዎ እንደገና ይሞክሩ።';
+      $('validation-error').hidden=false;return;
+    }finally{button.disabled=false;button.removeAttribute('aria-busy');}
+    const m=methods[method];$('selected-method').textContent=m.title;$('selected-mark').src=m.logo;$('selected-mark').alt=m.title;
+    $('recipient-number').textContent=m.number;$('recipient-label').textContent=m.label;$('review-customer-name').textContent=data.name;$('review-customer-phone').textContent=data.phone;
+    $('copy-status').textContent='';$('confirmation-status').textContent='';$('copy-account-label').textContent='Copy';
+    stage(2);
+  });
+  $('change-method').addEventListener('click',()=>stage(1));
+  $('back-payment').addEventListener('click',()=>stage(2));
+  $('paid-action').addEventListener('click',()=>{
+    $('confirmation-message').textContent=buildMessage();
+    stage(3);
+  });
+  const copy=async value=>{
+    if(!navigator.clipboard?.writeText)throw Error('Clipboard unavailable');
+    await navigator.clipboard.writeText(value);
+  };
+  $('copy-recipient').addEventListener('click',async()=>{
+    try{await copy(methods[method].number);$('copy-account-label').textContent='Copied';$('copy-status').textContent='የሙከራ ቁጥሩ Copy ተደርጓል። ገንዘብ አይላኩ።';}
+    catch{$('copy-status').textContent='Copy ማድረግ አልተቻለም። የሙከራውን ቁጥር በእጅ ይምረጡ።';const el=$('recipient-number');const range=document.createRange();range.selectNodeContents(el);const selection=window.getSelection();selection.removeAllRanges();selection.addRange(range);}
+  });
+  $('copy-confirmation').addEventListener('click',async()=>{
+    try{await copy(buildMessage());$('confirmation-status').textContent='መረጃዎ Copy ተደርጓል። በTelegram ውይይት ላይ ያስገቡትና የክፍያ ማስረጃ ያክሉ።';}
+    catch{$('confirmation-status').textContent='Copy ማድረግ አልተቻለም። ለParentWise ሲጽፉ ከላይ ያለውን መረጃ ይጠቀሙ።';}
+  });
+  stage(1);
+})();
+</script>
+</body>
+</html>
