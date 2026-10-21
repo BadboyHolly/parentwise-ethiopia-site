@@ -21,7 +21,7 @@
 
 ## Acceptance evidence
 
-- GitHub Actions workflow `V1 sales and checkout copy review — isolated synthetic browser acceptance` ([latest run `39596228061`](https://github.com/BadboyHolly/parentwise-ethiopia-site/actions/runs/39596228061)): **PASS** on test commit `368a60598b2c7ddb52a9d6805b360fdb00102276`.
+- GitHub Actions workflow `V1 sales and checkout copy review — isolated synthetic browser acceptance` ([latest run `39596935221`](https://github.com/BadboyHolly/parentwise-ethiopia-site/actions/runs/39596935221)): **PASS** on test commit `3886de945383f4f1b3a60d85db5a95f4a97c3bdb`.
 - Viewports: **320 / 360 / 390 / 768 / 1280 px**. Tests cover CTA handoff, form validation, Telebirr/CBE selection, recipient-to-method matching, both payment-recipient copy buttons, customer review, prepared Telegram confirmation copy, and no non-GET requests. The workflow saved responsive screenshots as artifact `parentwise-v1-copy-review-screenshots` (ID `12344276425`, available for seven days).
 - Both selected payment logos loaded from local assets. All 31 sales-page image sources now match `main` byte-for-byte, including the two portraits. Embedded sales-page CSS is byte-for-byte unchanged from `main`; checkout CSS is byte-for-byte unchanged from the approved Amharic preview. Real recipient numbers do not appear in review `index.html` or `order.html`.
 - Production branch `main` remained unchanged at `4250e3c669a51b4d464cd026020549d5e9329cd4` when checked. No Render deployments, production modifications, real payments or order writes.
