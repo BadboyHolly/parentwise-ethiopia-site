@@ -41,7 +41,7 @@ Base.metadata.create_all(app.state.engine)
 @app.middleware("http")
 async def ci_html_only_content_policy(request, call_next):
     response = await call_next(request)
-    if request.url.path.startswith("/v1_checkout/"):
+    if request.url.path.startswith("/v1_checkout/") or request.url.path in ("/index.html", "/order.html"):
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; script-src 'self' 'unsafe-inline'; "
             "style-src 'self' 'unsafe-inline'; "
@@ -52,6 +52,24 @@ async def ci_html_only_content_policy(request, call_next):
     return response
 
 app.mount("/v1_checkout/assets", StaticFiles(directory=str(ROOT / "assets")), name="ci_assets")
+
+# Explicit localhost-only sales-to-checkout test routes.
+# /order.html is the integrated CI buyer screen, not the static non-payable
+# review file in the repository root. No public/production deployment may use
+# this server or its synthetic SQLite records.
+app.mount("/assets", StaticFiles(directory=str(ROOT / "assets")), name="ci_root_assets")
+
+@app.get("/index.html")
+def reviewed_sales_page():
+    response = FileResponse(ROOT / "index.html", media_type="text/html")
+    response.headers["Cache-Control"] = "no-store"
+    response.headers["X-Robots-Tag"] = "noindex, nofollow, noarchive"
+    return response
+
+@app.get("/order.html")
+def integrated_checkout():
+    return demo_checkout()
+
 
 @app.get("/v1_checkout/ci-only-order.html")
 def demo_checkout():
