@@ -23,6 +23,8 @@ def check_viewport(page, width):
     assert page.locator("#customer-name").input_value() == ""
     assert page.locator("#customer-mobile").input_value() == ""
     assert page.locator("#recipient-number").is_hidden()
+    assert page.locator("#checkout-form").is_visible()
+    assert "መልእክት" in page.locator(".delivery-warning").inner_text()
     if width <= 390:
         assert page.locator(".mobile-product").is_visible()
         assert page.locator(".contents-peek").is_visible()
@@ -45,6 +47,7 @@ def check_viewport(page, width):
     assert page.locator("#payment-section").is_visible()
     assert page.locator("#details-section").is_hidden()
     assert page.locator("#recipient-number").inner_text() == "QA-CBE-ONLY"
+    assert "የሂሳብ ባለቤት" in page.locator("#payment-section").inner_text()
     assert page.locator("#selected-method").inner_text() == "CBE Bank"
     assert page.locator("#review-customer-name").inner_text() == "Demo Parent"
     assert page.locator("#review-customer-phone").inner_text() == "0900000000"
@@ -68,9 +71,10 @@ def check_viewport(page, width):
     assert page.locator("#payment-section").is_hidden()
     assert "active" in page.locator("#label-telegram").get_attribute("class").split()
     note=page.locator("#confirmation-message").inner_text()
-    assert "Demo Parent" in note and "0900000000" in note
+    assert "Demo Parent" in note and "0900000000" in note and "ሙሉ ስም" in note
     assert "Telebirr" in note and "1,500 ETB" in note
     assert "[attach or add here]" in note
+    assert "ክፍያዎን ካረጋገጥን" in page.locator("#telegram-section").inner_text()
     assert page.locator("#telegram-handoff").get_attribute("href") == "https://t.me/ParentWiseEthiopia"
     assert page.locator("#telegram-handoff").get_attribute("target") == "_blank"
     assert page.locator("#telegram-handoff").get_attribute("rel") == "noopener noreferrer"
