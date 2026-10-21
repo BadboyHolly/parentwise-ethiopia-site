@@ -2,7 +2,7 @@ name: Checkout preview mobile and safety acceptance
 
 on:
   push:
-    branches: ['preview/checkout-amharic-review-20261019']
+    branches: ['review/v1-checkout-copy-consistency-20261021']
     paths:
       - order.html
       - assets/telebirr-mark.svg
