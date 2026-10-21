@@ -1,0 +1,44 @@
+name: V1 sales and checkout copy review — isolated synthetic browser acceptance
+on:
+  push:
+    branches:
+      - review/v1-sales-checkout-copy-20261021
+    paths:
+      - index.html
+      - order.html
+      - qa-tests/v1-copy-review.py
+      - .github/workflows/v1-copy-review.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser-review:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Playwright Chromium for static local review only
+        run: |
+          python -m pip install --disable-pip-version-check 'playwright==1.56.0'
+          python -m playwright install --with-deps chromium
+      - name: Start local-only static server (no API, no payment)
+        run: |
+          python -m http.server 8765 --bind 127.0.0.1 > /tmp/parentwise-copy-review.log 2>&1 &
+          for i in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:8765/order.html -o /dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/parentwise-copy-review.log
+          exit 1
+      - name: Test sales-to-checkout copy and no-write safety
+        run: python qa-tests/v1-copy-review.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: parentwise-v1-copy-review-screenshots
+          path: qa-artifacts/v1-copy-review/*.png
+          retention-days: 7
+          if-no-files-found: ignore
