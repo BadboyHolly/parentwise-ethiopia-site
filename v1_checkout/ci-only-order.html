@@ -368,7 +368,7 @@ h1{font-size:37px;line-height:1.27;font-weight:800;letter-spacing:-.035em;margin
       const section=$(n===2?'payment-section':'telegram-section');
       section.focus({preventScroll:true});
     }
-    requestAnimationFrame(()=>{const top=document.querySelector('.content').getBoundingClientRect().top+window.scrollY-10;window.scrollTo({top:Math.max(0,top),behavior:'instant'});});
+    requestAnimationFrame(()=>{const top=document.querySelector('.checkout-shell').getBoundingClientRect().top+window.scrollY-10;window.scrollTo({top:Math.max(0,top),behavior:'instant'});});
   };
   const buildMessage=()=>[
     'ParentWise Ethiopia — Payment confirmation',
@@ -402,7 +402,7 @@ h1{font-size:37px;line-height:1.27;font-weight:800;letter-spacing:-.035em;margin
         method:'POST',cache:'no-store',credentials:'same-origin',
         headers:{'Content-Type':'application/json','Idempotency-Key':pendingKey},body:payload
       });
-      if(!response.ok)throw new Error('Pending order could not be recorded');
+      if(!response.ok)throw new Error('Pending order response '+response.status+' '+(await response.text()).slice(0,400));
       const json=await response.json();
       const order=json.order;
       if(order?.status!=='AWAITING_PAYMENT'||order.amount_etb!==1500||order.currency!=='ETB'||order.payment_method!==method||!/^PW-/.test(order.order_id))
@@ -412,6 +412,7 @@ h1{font-size:37px;line-height:1.27;font-weight:800;letter-spacing:-.035em;margin
       data.orderRef=order.order_id;
       data.privateToken=json.access_token; // Never share in Telegram, URLs or analytics.
     }catch(err){
+      console.warn('CI pending-order failure:',err.message);
       $('validation-error').textContent='የሙከራ ትዕዛዙን ማስቀመጥ አልተቻለም። እባክዎ እንደገና ይሞክሩ።';
       $('validation-error').hidden=false;return;
     }finally{button.disabled=false;button.removeAttribute('aria-busy');}
