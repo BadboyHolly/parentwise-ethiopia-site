@@ -22,7 +22,7 @@ jobs:
           BASE: https://parentwise-ethiopia-full-website-preview.onrender.com
         run: |
           set -euo pipefail
-          for path in / /order.html /assets/logo-reversed.webp /assets/telebirr-mark.svg /assets/cbe-bank-logo.png /assets/product-workbook.webp /robots.txt; do
+          for path in / /order.html /assets/logo-reversed.webp /assets/parentwise-primary-horizontal.webp /assets/telebirr-mark.svg /assets/cbe-bank-logo.png /assets/product-workbook.webp /robots.txt; do
             case "$path" in
               /) out=/tmp/pw-home.html ;;
               /order.html) out=/tmp/pw-checkout.html ;;
@@ -62,8 +62,9 @@ jobs:
           assert "WALKTHROUGH_ENABLED = true" in checkout, "Non-payable walkthrough missing"
           assert "ትዕዛዝ መቀበል አልተጀመረም" not in checkout, "Unwanted launch banner visible"
           assert 'id="checkout-availability"' not in checkout, "Legacy banner still present"
-          assert "Payment: Not requested" in checkout, "Review must never imply completed payment"
-          assert "No order was saved" in checkout, "Walkthrough needs payment-stage transparency"
+          assert "ክፍያ: አልተጠየቀም" in checkout, "Review must never imply completed payment"
+          assert "ትዕዛዝ: አልተመዘገበም" in checkout, "Walkthrough needs order-state transparency"
+          assert "ይህ ለግምገማ ብቻ ነው፤ ክፍያ አይፈጽሙ።" in checkout, "Payment-stage safety notice missing"
           assert "QA-TELEBIRR-ONLY" not in checkout and "QA-CBE-ONLY" not in checkout, "Obsolete QA accounts leaked"
           assert 'href="./"' in checkout, "Logo back link must not point to QA"
           assert "https://t.me/ParentWiseEthiopia" in checkout, "Configured Telegram destination missing"
@@ -71,15 +72,23 @@ jobs:
           assert """$('back-payment').addEventListener('click',()=>stage(1))""" in checkout, "Payment back navigation missing"
           assert """$('back-telegram').addEventListener('click',()=>stage(2))""" in checkout, "Telegram back navigation missing"
           assert 'id="back-telegram"' in checkout, "Telegram back button missing"
-          assert "ወደ ክፍያ መረጃ ይቀጥሉ" in checkout, "Amharic checkout action missing"
-          assert "መረጃዎ ለትዕዛዝዎና ለደንበኛ ድጋፍ ብቻ ይውላል" in checkout, "Privacy wording regression"
+          assert "ወደ ክፍያ ይቀጥሉ" in checkout, "Founder-approved Step 1 CTA missing"
+          assert 'class="mini-product"' not in checkout, "Top product summary must be removed"
+          assert 'class="info"' not in checkout, "Step 1 Telegram warning must be removed"
+          assert 'class="subtle-note"' not in checkout, "Unwanted Step 1 privacy line must be removed"
+          assert 'id="payment-fulfillment"' in checkout, "Telegram delivery must be disclosed before payment"
+          assert 'id="order-summary"' in checkout, "Lower-page product recap missing"
+          assert 'id="telegram-step-one">1 · መረጃዎን Copy ያድርጉ' in checkout, "Simple Telegram instructions missing"
+          assert 'id="telegram-step-two">2 · Telegram ይክፈቱ' in checkout, "Second Telegram action missing"
+          assert 'src="assets/parentwise-primary-horizontal.webp"' in checkout, "Founder primary horizontal logo missing"
+          assert "stage(1,false)" in checkout, "Initial checkout must show brand/logo header"
           assert "if(enabled && data.orderRef && n===1)" in checkout, "Registered order edit guard missing"
           assert "if(last.activeStep===3)" in checkout, "Telegram-step recovery missing"
           assert 'id="visible-order-reference"' in checkout, "Visible order ID fallback missing"
           for number in ("0912910693","1000223019327","10002230019327"):
             assert number not in home and number not in checkout, "Real payment account publicly exposed"
           assert "Disallow: /" in robots
-          for path in ("/tmp/pw-logo-reversed.webp","/tmp/pw-telebirr-mark.svg","/tmp/pw-cbe-bank-logo.png","/tmp/pw-product-workbook.webp"):
+          for path in ("/tmp/pw-logo-reversed.webp","/tmp/pw-parentwise-primary-horizontal.webp","/tmp/pw-telebirr-mark.svg","/tmp/pw-cbe-bank-logo.png","/tmp/pw-product-workbook.webp"):
             assert Path(path).stat().st_size > 1000, path
           print("PASS LIVE: full sales page + interactive 3-step visual walkthrough, masked recipients, zero real order intake, no indexing")
           PY
