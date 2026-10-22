@@ -7,6 +7,7 @@ on:
       - checkout/v1-resume-and-release-gates-20261022
       - feature/interactive-checkout-founder-review-20261022
       - deploy/parentwise-full-site-preview-20261021
+      - refine/checkout-copy-ux-safety-20261022
       - fix/checkout-step-navigation-20261022
     paths:
       - 'site-preview/order.html'
