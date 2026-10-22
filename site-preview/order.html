@@ -85,7 +85,7 @@ input[type=text]:focus,input[type=tel]:focus{border-color:#2a6a49;outline:2px so
 .customer{border:1px solid #e3e9df;border-radius:12px;background:#f7f9f4}
 .checkout-guide{display:flex;gap:10px;align-items:flex-start;background:#f5f7f1;border-left:3px solid #a18f6b;border-radius:10px;padding:12px 13px;margin:14px 0 14px;font-size:13px;line-height:1.65;color:#485e4b}
 .checkout-guide svg{flex:none;margin-top:2px}.checkout-guide strong{display:block;font-size:13px;color:#1f4d3a;margin-bottom:2px}
-.checkout-guide p{margin:0}.walkthrough-note{font-size:12px;background:#fbf4e8;color:#6d5635;border-left:3px solid #c9a56e}
+.checkout-guide p{margin:0}.walkthrough-note{font-size:12px;background:#f9f5ea;color:#755a3e;border-left:2px solid #c9a56e;padding:7px 10px;margin:9px 0 12px;line-height:1.5}
 .confirm-box{position:relative;padding:16px;border-radius:15px;border:1px solid #e2e8dd;background:linear-gradient(130deg,#f9faf6,#ffffff);box-shadow:0 4px 16px #20402908}
 .confirm-box h3{font-size:16px;line-height:1.5;margin-bottom:8px;color:#214733}
 .confirm-box:first-of-type{border-top:2px solid #a77c86}
@@ -125,7 +125,7 @@ input[type=text]:focus,input[type=tel]:focus{border-color:#2a6a49;outline:2px so
 
 <button class="primary" id="continue-payment" type="submit">ወደ ክፍያ ይቀጥሉ →</button><p class="form-error" id="validation-error" role="alert" hidden></p></form></section>
 <section id="payment-section" class="screen" hidden tabindex="-1"><p class="kicker">02 · Payment details</p><h2>የክፍያ መረጃ</h2><p class="sub" id="payment-sub">ከታች ያለውን ቁጥር Copy አድርገው 1,500 ብር ይክፈሉ። ከከፈሉ በኋላ ደረሰኝዎን ይዘው ይቀጥሉ።</p>
-<p class="walkthrough-note" id="walkthrough-payment-note" hidden>Checkout review only. Account numbers are hidden here. No order was saved and no money should be transferred.</p>
+<p class="walkthrough-note" id="walkthrough-payment-note" hidden>ይህ ለግምገማ ብቻ ነው፤ ክፍያ አይፈጽሙ።</p>
 <div class="customer"><div><small>የእርስዎ መረጃ</small><strong id="review-customer-name">—</strong><small id="review-customer-phone">—</small></div><button id="change-method" class="back" type="button">Edit</button></div>
 <p class="walkthrough-note" id="edit-order-notice" tabindex="-1" hidden>ትዕዛዝዎ ተመዝግቧል። ድጋሚ ትዕዛዝ እንዳይፈጠር መረጃዎን እዚህ መቀየር አይቻልም። ለማስተካከል <a class="inline-link" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Telegram ድጋፍ</a> ያነጋግሩ።</p>
 <div class="account"><div class="account-head"><span class="meta-box"><img id="selected-mark" src="assets/telebirr-mark.svg" alt="Selected method"><strong id="selected-method">Telebirr</strong></span><span style="font-size:11px;color:#916142;font-weight:800;letter-spacing:.07em">PAYMENT DETAILS</span></div>
@@ -140,7 +140,7 @@ input[type=text]:focus,input[type=tel]:focus{border-color:#2a6a49;outline:2px so
 <button id="paid-action" class="primary" type="button">ክፍያ ፈጽሜያለሁ — ይቀጥሉ →</button><p class="smallnote" id="payment-settlement-note">የክፍያ ማስረጃዎን በቀጣዩ ደረጃ በTelegram ይላኩልን።</p><button id="back-payment" class="back" type="button">← ወደ መረጃዎ ይመለሱ</button></section>
 <section id="telegram-section" class="screen" hidden tabindex="-1">
 <p class="kicker">03 · Payment confirmation</p><h2>በTelegram ያሳውቁን</h2><p class="sub" id="telegram-sub">ክፍያ ከፈጸሙ በኋላ መረጃዎንና የክፍያ ማስረጃዎን በTelegram ይላኩልን።</p>
-<p class="walkthrough-note" id="walkthrough-telegram-note" hidden>Checkout review only. No order was created or payment verified. Do not send a receipt.</p>
+<p class="walkthrough-note" id="walkthrough-telegram-note" hidden>ይህ ለግምገማ ብቻ ነው፤ ደረሰኝ አይላኩ።</p>
 <div class="order-reference" id="order-reference-bar" hidden><small>የትዕዛዝ ቁጥርዎ</small><strong id="visible-order-reference"></strong><button type="button" id="copy-order-reference">Copy Order ID</button><p id="copy-order-reference-status" class="status-clip" role="status" aria-live="polite"></p></div>
 <div class="confirm-box"><h3 id="telegram-step-one">1 · መረጃዎን Copy ያድርጉ</h3><div id="confirmation-message" class="message" role="note" aria-label="የትዕዛዝ መረጃ">ParentWise payment confirmation</div><button id="copy-confirmation" class="secondary" type="button">መረጃውን Copy ያድርጉ</button><p id="confirmation-status" class="status-clip" role="status" aria-live="polite"></p></div>
 <div class="confirm-box"><h3 id="telegram-step-two">2 · Telegram ይክፈቱ</h3><p id="telegram-receipt-hint">መረጃውን Paste ያድርጉ። ከዚያ ደረሰኝዎን ወይም የዝውውር ቁጥርዎን ይላኩ።</p><a class="primary" style="display:grid;place-items:center;text-decoration:none" id="telegram-handoff" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Telegram ይክፈቱ — ማስረጃ ይላኩ ↗</a><p class="telegram-handle">@ParentWiseEthiopia</p></div>
@@ -334,13 +334,13 @@ input[type=text]:focus,input[type=tel]:focus{border-color:#2a6a49;outline:2px so
       $('walkthrough-telegram-note').hidden=false;
       $('telegram-handoff').textContent='Telegram ድጋፍ ↗';
       $('confirmation-message').textContent=[
-        'ParentWise Ethiopia — Checkout review',
+        'ParentWise Ethiopia — የትዕዛዝ መረጃ',
         'ሙሉ ስም: '+data.name,
         'ስልክ ቁጥር: '+data.phone,
         'የክፍያ ዘዴ: '+methods[method].title,
         'የሚከፈለው: 1,500 ETB',
-        'Order: Not created',
-        'Payment: Not requested'
+        'ትዕዛዝ: አልተመዘገበም',
+        'ክፍያ: አልተጠየቀም'
       ].join('\n');
       $('telegram-handoff').href=TG;
       stage(3);
@@ -390,7 +390,7 @@ input[type=text]:focus,input[type=tel]:focus{border-color:#2a6a49;outline:2px so
     if(!data.orderRef&&!previewOnly)return;
     try{
       await copy(previewOnly?$('confirmation-message').textContent:buildMessage());
-      $('confirmation-status').textContent=previewOnly?'Review details copied locally. No order or payment was created.':'መረጃው Copy ተደርጓል። Telegram ላይ Paste አድርገው የክፍያ ደረሰኙን ይላኩ።';
+      $('confirmation-status').textContent=previewOnly?'መረጃው Copy ተደርጓል። ክፍያ አይፈጽሙ።':'መረጃው Copy ተደርጓል። Telegram ላይ Paste አድርገው የክፍያ ደረሰኙን ይላኩ።';
     }catch{
       $('confirmation-status').textContent='መረጃው መቅዳት አልተቻለም። ከላይ ያለውን መረጃ ይጠቀሙ።';
     }
