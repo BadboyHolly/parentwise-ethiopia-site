@@ -16,7 +16,7 @@ button,input{font:inherit}button{cursor:pointer}:focus-visible,a:focus-visible{o
 .price b{font-size:21px}.price small{font-size:11px;color:#dce6dc}
 .shell{max-width:490px;margin:-27px auto 25px;padding:0 13px;position:relative}
 .panel{padding:18px;background:#fffdfa;border:1px solid #e6e3da;box-shadow:0 12px 30px #123a2910;border-radius:18px}
-.notice-open{background:#fff0df;color:#764120;border:1px solid #eed0ad;padding:11px 13px;font-size:12px;font-weight:700;line-height:1.55;margin-bottom:19px;border-radius:10px}
+.walkthrough-note{background:#f1f5ed;border-left:3px solid #8aaf88;color:#465c4e;padding:11px 12px;font-size:12px;line-height:1.65;border-radius:8px;margin:13px 0}.num-row button:disabled{opacity:.65;cursor:not-allowed}
 .progress{display:flex;align-items:center;justify-content:space-around;border-bottom:1px solid var(--line);margin-bottom:17px;padding-bottom:15px;gap:3px;font-size:11px;color:#788a80}
 .step{display:flex;align-items:center;gap:5px;white-space:nowrap}.step em{display:inline-flex;align-items:center;justify-content:center;font:700 11px system-ui;border:1px solid #cfd8d0;width:23px;height:23px;border-radius:50%;font-style:normal}
 .step.active{color:var(--f);font-weight:800}.step.active em{background:var(--f);color:#fff;border-color:var(--f)}
@@ -69,7 +69,6 @@ hr{border:0;border-top:1px solid var(--line);margin:21px 0}
 <h1>ትዕዛዝዎን ያጠናቅቁ</h1><p>የParentWise ሙሉ ፕሮግራም · Five digital guides</p>
 <span class="price"><b>1,500 ETB</b><small>አንድ ጊዜ ብቻ</small></span></div></div>
 <main class="shell checkout-shell"><div class="panel">
-<div class="notice-open" id="checkout-availability" role="status">ትዕዛዝ መቀበል አልተጀመረም። እባክዎ ገንዘብ አይላኩ።</div>
 <div class="progress" aria-label="Checkout steps"><span class="step active" id="label-details"><em>1</em>Details</span><span aria-hidden="true">—</span><span class="step" id="label-payment"><em>2</em>Payment</span><span aria-hidden="true">—</span><span class="step" id="label-telegram"><em>3</em>Telegram</span></div>
 <div class="mini-product"><div class="tile">PW</div><div><b>Child Behavior & Discipline System</b><span>Five guides · Private Telegram delivery after independent payment verification</span></div></div>
 <section id="details-section" class="screen">
@@ -85,19 +84,21 @@ hr{border:0;border-top:1px solid var(--line);margin:21px 0}
 <div class="info"><strong>አምስቱንም PDF ፋይሎች በTelegram ይቀበሉ</strong><p>ከመክፈልዎ በፊት በTelegram የግል መልዕክት መላክ እንደሚችሉ ያረጋግጡ።</p><a href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Telegram ይመልከቱ ↗</a></div>
 <button class="primary" id="continue-payment" type="submit">ወደ ክፍያ ይቀጥሉ →</button><p class="form-error" id="validation-error" role="alert" hidden></p>
 <p class="subtle-note">መረጃዎ ለትዕዛዝዎና ለደንበኛ ድጋፍ ብቻ ይጠቀማል።</p></form></section>
-<section id="payment-section" class="screen" hidden tabindex="-1"><p class="kicker">02 · Payment details</p><h2>የክፍያ መረጃ</h2><p class="sub">ትዕዛዝዎ ከተመዘገበ በኋላ የመረጡትን የመክፈያ መረጃ ይመልከቱ።</p>
+<section id="payment-section" class="screen" hidden tabindex="-1"><p class="kicker">02 · Payment details</p><h2>የክፍያ መረጃ</h2><p class="sub" id="payment-sub">ትዕዛዝዎ ከተመዘገበ በኋላ የመረጡትን የመክፈያ መረጃ ይመልከቱ።</p>
+<p class="walkthrough-note" id="walkthrough-payment-note" hidden>Checkout review only. Account numbers are hidden here. No order was saved and no money should be transferred.</p>
 <div class="customer"><div><small>የእርስዎ መረጃ</small><strong id="review-customer-name">—</strong><small id="review-customer-phone">—</small></div><button id="change-method" class="back" type="button">Edit</button></div>
 <div class="account"><div class="account-head"><span class="meta-box"><img id="selected-mark" src="assets/telebirr-mark.svg" alt="Selected method"><strong id="selected-method">Telebirr</strong></span><span style="font-size:10px;color:#916142;font-weight:800">PAYMENT DETAILS</span></div>
 <div class="amount"><span>የሚከፈለው ገንዘብ</span><b>1,500 ETB</b></div>
 <div class="num-shell"><div class="number-box"><small id="recipient-label">Account number</small><div class="num-row"><strong id="recipient-number">—</strong><button id="copy-recipient" type="button" aria-label="Copy account number"><span id="copy-account-label">Copy</span></button></div></div>
 <div class="holder"><span>የሂሳብ ባለቤት</span><strong id="recipient-holder">—</strong></div><p id="copy-status" class="status-clip" role="status" aria-live="polite"></p></div></div>
-<p class="notice">ከመክፈልዎ በፊት የተቀባዩን ስም በTelebirr ወይም CBE መተግበሪያ ያረጋግጡ።</p>
-<button id="paid-action" class="primary" type="button">ክፍያ ፈጽሜያለሁ — ወደ Telegram ↗</button><p class="smallnote">ክፍያ መፈጸምዎን ከገለጹ በኋላም ክፍያው በግል ይረጋገጣል።</p><button id="back-payment" class="back" type="button">← ወደ ክፍያ መረጃ ይመለሱ</button></section>
+<p class="notice" id="payment-verification-note">ከመክፈልዎ በፊት የተቀባዩን ስም በTelebirr ወይም CBE መተግበሪያ ያረጋግጡ።</p>
+<button id="paid-action" class="primary" type="button">ክፍያ ፈጽሜያለሁ — ወደ Telegram ↗</button><p class="smallnote" id="payment-settlement-note">ክፍያ መፈጸምዎን ከገለጹ በኋላም ክፍያው በግል ይረጋገጣል።</p><button id="back-payment" class="back" type="button">← ወደ ክፍያ መረጃ ይመለሱ</button></section>
 <section id="telegram-section" class="screen" hidden tabindex="-1">
-<p class="kicker">03 · Payment confirmation</p><h2>በTelegram ያረጋግጡ</h2><p class="sub">የክፍያ ማስረጃዎን ከትዕዛዝ ቁጥርዎ ጋር በግል Telegram መልዕክት ይላኩ።</p>
-<div class="confirm-box"><h3>1 · መረጃዎን Copy ያድርጉ</h3><div id="confirmation-message" class="message" role="textbox" aria-label="Prepared payment details">ParentWise payment confirmation</div><button id="copy-confirmation" class="secondary" type="button">መረጃውን Copy ያድርጉ</button><p id="confirmation-status" class="status-clip" role="status" aria-live="polite"></p></div>
-<div class="confirm-box"><h3>2 · የክፍያ ማስረጃዎን ይላኩ</h3><p>የግል Telegram ውይይቱን ይክፈቱ፤ የትዕዛዝ መረጃዎንና የዝውውር ማስረጃ ያክሉ።</p><a class="primary" style="display:grid;place-items:center;text-decoration:none" id="telegram-handoff" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Telegram ይክፈቱ — ማስረጃ ይላኩ ↗</a></div>
-<div class="delivery-tip">ክፍያ ከተረጋገጠ በኋላ አምስቱንም PDF ፋይሎች በዚያው የግል Telegram ውይይት እንልካለን። ስክሪንሾት ብቻ የክፍያ ማረጋገጫ አይደለም፤ PIN ወይም OTP አይላኩ።</div>
+<p class="kicker">03 · Payment confirmation</p><h2>በTelegram ያረጋግጡ</h2><p class="sub" id="telegram-sub">የክፍያ ማስረጃዎን ከትዕዛዝ ቁጥርዎ ጋር በግል Telegram መልዕክት ይላኩ።</p>
+<p class="walkthrough-note" id="walkthrough-telegram-note" hidden>Checkout review only. No order was created or payment verified. Do not send a receipt.</p>
+<div class="confirm-box"><h3 id="telegram-step-one">1 · መረጃዎን Copy ያድርጉ</h3><div id="confirmation-message" class="message" role="textbox" aria-label="Prepared payment details">ParentWise payment confirmation</div><button id="copy-confirmation" class="secondary" type="button">መረጃውን Copy ያድርጉ</button><p id="confirmation-status" class="status-clip" role="status" aria-live="polite"></p></div>
+<div class="confirm-box"><h3 id="telegram-step-two">2 · የክፍያ ማስረጃዎን ይላኩ</h3><p id="telegram-receipt-hint">የግል Telegram ውይይቱን ይክፈቱ፤ የትዕዛዝ መረጃዎንና የዝውውር ማስረጃ ያክሉ።</p><a class="primary" style="display:grid;place-items:center;text-decoration:none" id="telegram-handoff" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Telegram ይክፈቱ — ማስረጃ ይላኩ ↗</a></div>
+<div class="delivery-tip" id="telegram-delivery-tip">ክፍያ ከተረጋገጠ በኋላ አምስቱንም PDF ፋይሎች በዚያው የግል Telegram ውይይት እንልካለን። ስክሪንሾት ብቻ የክፍያ ማረጋገጫ አይደለም፤ PIN ወይም OTP አይላኩ።</div>
 <a class="help-label" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Help / እገዛ ↗</a></section>
 </div></main><footer class="footer">ParentWise Ethiopia · How We Raise Matters.</footer>
 <script>
@@ -107,6 +108,8 @@ hr{border:0;border-top:1px solid var(--line);margin:21px 0}
   // changed after independent production/operational acceptance and founder approval.
   const CHECKOUT_OPEN = false;
   const ORDER_API_ORIGIN = '';
+  // A local, non-payable visual walkthrough. It never calls the order API.
+  const WALKTHROUGH_ENABLED = true;
   const $ = id => document.getElementById(id);
   const TG = 'https://t.me/ParentWiseEthiopia';
   const methods = {
@@ -117,6 +120,7 @@ hr{border:0;border-top:1px solid var(--line);margin:21px 0}
   const storageKey='parentwise-pending-order-v1';
   const requestKey='parentwise-unsure-order-request-v1';
   const enabled = CHECKOUT_OPEN && /^https:\/\/[a-z0-9.-]+(?::443)?$/i.test(ORDER_API_ORIGIN);
+  const previewOnly = !enabled && WALKTHROUGH_ENABLED;
   let method='telebirr', busy=false, pendingKey='', pendingPayload='';
   const selected=()=>document.querySelector('input[name="payment"]:checked').value;
   const error=message=>{
@@ -188,7 +192,7 @@ hr{border:0;border-top:1px solid var(--line);margin:21px 0}
   }
   $('checkout-form').addEventListener('submit',async event=>{
     event.preventDefault();
-    if(!enabled||busy){if(!enabled)error('ትዕዛዝ መቀበል አልተጀመረም።');return;}
+    if((!enabled&&!previewOnly)||busy){return;}
     const name=$('customer-name').value.trim();
     const phone=$('customer-mobile').value.trim();
     $('validation-error').hidden=true;
@@ -199,6 +203,30 @@ hr{border:0;border-top:1px solid var(--line);margin:21px 0}
       error('እባክዎ ትክክለኛ የኢትዮጵያ ስልክ ቁጥር ያስገቡ።');$('customer-mobile').focus();return;
     }
     const requestedMethod=selected();
+    if(previewOnly){
+      // No network, real recipient, order reference, token, or payment confirmation.
+      data.name=name;data.phone=phone;data.orderRef='';data.accessToken='';data.number='';data.holder='';
+      method=requestedMethod;
+      const meta=methods[requestedMethod];
+      $('selected-method').textContent=meta.title;
+      $('selected-mark').src=meta.logo;
+      $('selected-mark').alt=meta.title;
+      $('recipient-label').textContent=meta.label;
+      $('recipient-number').textContent=requestedMethod==='telebirr'?'••••••0693':'•••••••••9327';
+      $('recipient-holder').textContent='Recipient details shown on live orders';
+      $('review-customer-name').textContent=name;
+      $('review-customer-phone').textContent=phone;
+      $('copy-recipient').disabled=true;
+      $('copy-account-label').textContent='Hidden';
+      $('copy-status').textContent='';
+      $('payment-sub').textContent='Check the method, price, and payment layout before your public launch.';
+      $('walkthrough-payment-note').hidden=false;
+      $('payment-verification-note').hidden=true;
+      $('payment-settlement-note').hidden=true;
+      $('paid-action').textContent='ወደ Telegram ይቀጥሉ →';
+      stage(2);
+      return;
+    }
     const payload=JSON.stringify({customer_name:name,mobile:phone,payment_method:requestedMethod});
     if(pendingPayload!==payload){
       const prior=storedAttempt();
@@ -234,6 +262,27 @@ hr{border:0;border-top:1px solid var(--line);margin:21px 0}
   $('change-method').addEventListener('click',()=>stage(1));
   $('back-payment').addEventListener('click',()=>stage(2));
   $('paid-action').addEventListener('click',()=>{
+    if(previewOnly){
+      $('telegram-sub').textContent='Review the final Telegram delivery step below.';
+      $('walkthrough-telegram-note').hidden=false;
+      $('telegram-step-one').textContent='1 · የትዕዛዝ መረጃ ቅርጽ';
+      $('telegram-step-two').textContent='2 · የTelegram ድጋፍ መስመር';
+      $('telegram-receipt-hint').textContent='እዚህ የTelegram ድጋፍ መስመሩን ማየት ይችላሉ። ክፍያ ወይም የክፍያ ማስረጃ አይላኩ።';
+      $('telegram-delivery-tip').textContent='At launch, the five PDFs will be sent privately only after the founder checks the actual settled payment.';
+      $('telegram-handoff').textContent='የTelegram ድጋፍን ይመልከቱ ↗';
+      $('confirmation-message').textContent=[
+        'ParentWise Ethiopia — Checkout review',
+        'Full name: '+data.name,
+        'Phone: '+data.phone,
+        'Method: '+methods[method].title,
+        'Price shown: 1,500 ETB',
+        'Order: Not created',
+        'Payment: Not requested'
+      ].join('\n');
+      $('telegram-handoff').href=TG;
+      stage(3);
+      return;
+    }
     if(!data.orderRef)return;
     $('confirmation-message').textContent=buildMessage();
     $('telegram-handoff').href=TG;
@@ -256,10 +305,10 @@ hr{border:0;border-top:1px solid var(--line);margin:21px 0}
     }
   });
   $('copy-confirmation').addEventListener('click',async()=>{
-    if(!data.orderRef)return;
+    if(!data.orderRef&&!previewOnly)return;
     try{
-      await copy(buildMessage());
-      $('confirmation-status').textContent='መረጃዎ Copy ተደርጓል። በTelegram ውይይት ላይ ያስገቡትና የክፍያ ማስረጃ ያክሉ።';
+      await copy(previewOnly?$('confirmation-message').textContent:buildMessage());
+      $('confirmation-status').textContent=previewOnly?'Review details copied locally. No order or payment was created.':'መረጃዎ Copy ተደርጓል። በTelegram ውይይት ላይ ያስገቡትና የክፍያ ማስረጃ ያክሉ።';
     }catch{
       $('confirmation-status').textContent='Copy ማድረግ አልተቻለም። ከላይ ያለውን መረጃ ይጠቀሙ።';
     }
@@ -285,11 +334,8 @@ hr{border:0;border-top:1px solid var(--line);margin:21px 0}
       present(result.order,instr);
     }catch{/* Keep details screen closed to payment on any recovery error */}
   }
-  if(!enabled){
+  if(!enabled&&!previewOnly){
     $('continue-payment').disabled=true;
-    $('continue-payment').textContent='ትዕዛዝ መቀበል አልተጀመረም';
-  }else{
-    $('checkout-availability').hidden=true;
   }
   // Restore only customer-entered fields after interrupted order submission.
   // Never restore or display bank instructions without a verified server response.
