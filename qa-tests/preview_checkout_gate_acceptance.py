@@ -1,5 +1,6 @@
 """Isolated, fictional checkout acceptance. Never exercises real payment rails."""
 import json
+import shutil
 from pathlib import Path
 from playwright.sync_api import sync_playwright, expect
 
@@ -46,7 +47,7 @@ def fake_api(route, requests, failure=False):
                   content_type="application/json",body=json.dumps(payload(method)))
 
 with sync_playwright() as playwright:
-    browser=playwright.chromium.launch(headless=True)
+    browser=playwright.chromium.launch(headless=True,channel="chrome" if shutil.which("google-chrome") else None,executable_path=shutil.which("chromium") if not shutil.which("google-chrome") else None)
     for width in (320,360,390,768,1280):
         context=browser.new_context(viewport={"width":width,"height":860},permissions=["clipboard-read","clipboard-write"])
         page=context.new_page()
@@ -73,6 +74,20 @@ with sync_playwright() as playwright:
         expect(page.locator("#walkthrough-payment-note")).to_be_visible()
         assert "No order was saved" in page.locator("#walkthrough-payment-note").inner_text()
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth + 2")
+        # Both directions must work, preserving name, phone and selected rail.
+        page.locator("#back-payment").click()
+        expect(page.locator("#details-section")).to_be_visible()
+        expect(page.locator("#payment-section")).to_be_hidden()
+        expect(page.locator("#customer-name")).to_have_value("አባት አለሙ")
+        expect(page.locator("#customer-mobile")).to_have_value("0911111111")
+        if choice=="bank": expect(page.locator('input[name="payment"][value="bank"]')).to_be_checked()
+        page.locator("#continue-payment").click()
+        expect(page.locator("#payment-section")).to_be_visible()
+        page.locator("#paid-action").click()
+        expect(page.locator("#telegram-section")).to_be_visible()
+        page.locator("#back-telegram").click()
+        expect(page.locator("#payment-section")).to_be_visible()
+        expect(page.locator("#telegram-section")).to_be_hidden()
         page.locator("#paid-action").click()
         expect(page.locator("#telegram-section")).to_be_visible()
         expect(page.locator("#walkthrough-telegram-note")).to_be_visible()
@@ -110,11 +125,21 @@ with sync_playwright() as playwright:
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth + 2")
         page.locator("#copy-recipient").click()
         expect(page.locator("#copy-account-label")).to_have_text("Copied")
+        page.locator("#back-payment").click()
+        expect(page.locator("#details-section")).to_be_visible()
+        expect(page.locator("#customer-name")).to_have_value("Synthetic Parent")
+        if method=="bank": expect(page.locator('input[name="payment"][value="bank"]')).to_be_checked()
+        page.locator("#continue-payment").click()
+        expect(page.locator("#payment-section")).to_be_visible()
         page.locator("#paid-action").click()
         expect(page.locator("#telegram-section")).to_be_visible()
         assert ORDER_ID in page.locator("#confirmation-message").inner_text()
         assert page.locator("#telegram-handoff").get_attribute("href")=="https://t.me/ParentWiseEthiopia"
         assert TOKEN not in page.locator("#confirmation-message").inner_text()
+        page.locator("#back-telegram").click()
+        expect(page.locator("#payment-section")).to_be_visible()
+        page.locator("#paid-action").click()
+        expect(page.locator("#telegram-section")).to_be_visible()
         # Mobile payment-app return: reload the same tab; token-based GET restores order.
         page.reload()
         expect(page.locator("#payment-section")).to_be_visible(timeout=10000)
@@ -147,4 +172,4 @@ with sync_playwright() as playwright:
     assert len(keys)==3 and len(keys[0])==43 and len(set(keys))==1, "Cross-reload retry must reuse the original key"
     context.close()
     browser.close()
-print("PASS: public local-only 3-step walkthrough; synthetic live API contract, selection, clipboard, Telegram, recovery, outage and retry at 5 widths")
+print("PASS: all 5 widths; review/live back-forward navigation, both methods, zero real payments, clipboard, Telegram, recovery, outage, duplicate-request prevention")

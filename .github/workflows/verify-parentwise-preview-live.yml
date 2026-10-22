@@ -31,6 +31,22 @@ jobs:
             curl --fail --location --silent --show-error --retry 8 --retry-delay 4 --retry-all-errors --max-time 20 --output "$out" "$BASE$path"
             echo "200 OK $path (bytes: $(wc -c < "$out"))"
           done
+      - name: Wait for the reviewed checkout commit to finish deploying
+        env:
+          BASE: https://parentwise-ethiopia-full-website-preview.onrender.com
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 90); do
+            if curl --fail --location --silent --show-error --max-time 20 "$BASE/order.html?v=$GITHUB_SHA" -o /tmp/pw-checkout.html &&
+               grep -q 'id="back-telegram"' /tmp/pw-checkout.html &&
+               grep -q "back-payment').addEventListener('click',()=>stage(1))" /tmp/pw-checkout.html; then
+              echo "Updated checkout received from deployed Render CDN"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "Render has not served the matching checkout version"
+          exit 1
       - name: Validate full content and no real-payment settings
         run: |
           python - <<'PY'
@@ -51,7 +67,10 @@ jobs:
           assert "QA-TELEBIRR-ONLY" not in checkout and "QA-CBE-ONLY" not in checkout, "Obsolete QA accounts leaked"
           assert 'href="./"' in checkout, "Logo back link must not point to QA"
           assert "https://t.me/ParentWiseEthiopia" in checkout, "Configured Telegram destination missing"
-          assert "if(!enabled||busy)" in checkout, "Client order submission gate missing"
+          assert "if((!enabled&&!previewOnly)||busy)" in checkout, "Safe order-submission gate missing"
+          assert """$('back-payment').addEventListener('click',()=>stage(1))""" in checkout, "Payment back navigation missing"
+          assert """$('back-telegram').addEventListener('click',()=>stage(2))""" in checkout, "Telegram back navigation missing"
+          assert 'id="back-telegram"' in checkout, "Telegram back button missing"
           for number in ("0912910693","1000223019327","10002230019327"):
             assert number not in home and number not in checkout, "Real payment account publicly exposed"
           assert "Disallow: /" in robots
