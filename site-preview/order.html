@@ -433,7 +433,7 @@ h1{font-size:37px;line-height:1.27;font-weight:800;letter-spacing:-.035em;margin
     const name=$('customer-name').value.trim();
     const phone=$('customer-mobile').value.trim();
     $('validation-error').hidden=true;
-    if(name.length<2||name.length>100||!Array.from(name).some(ch=>ch.toLowerCase()!==ch.toUpperCase())){
+    if(name.length<2||name.length>100||!/\p{L}/u.test(name)||/[\u0000-\u001F\u007F]/.test(name)){
       error('እባክዎ ትክክለኛ ሙሉ ስም ያስገቡ።');$('customer-name').focus();return;
     }
     if(!/^(0[97][0-9]{8}|\+251[97][0-9]{8})$/.test(phone)){
