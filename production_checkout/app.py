@@ -249,7 +249,7 @@ def build_app(
                 digest = hmac_digest(token_secret, "stored:v1:" + token)
                 if record is None or not hmac.compare_digest(record.access_hash, digest):
                     raise HTTPException(404, "Order not found")
-                return {"order": summary(record)}
+                return {"order": summary(record, accounts)}
         except HTTPException:
             raise
         except SQLAlchemyError:
