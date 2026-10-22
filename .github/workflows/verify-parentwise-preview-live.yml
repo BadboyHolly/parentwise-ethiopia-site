@@ -41,16 +41,17 @@ jobs:
           assert len(home)>2000000, "Full embedded sales page not present"
           assert 'href="order.html"' in home, "CTA missing relative checkout path"
           assert 'noindex' in home, "Preview indexing blocker missing"
-          assert "DEMO ONLY" in checkout and "No orders" in checkout, "Non-payable disclaimer missing"
-          assert "QA-TELEBIRR-ONLY" in checkout and "QA-CBE-ONLY" in checkout, "Fictional recipients missing"
-          assert "DEMO RECIPIENT — NOT REAL" in checkout, "Fake recipient warning missing"
+          assert "CHECKOUT_OPEN = false" in checkout, "Checkout release gate must be closed"
+          assert "ORDER_API_ORIGIN = ''" in checkout, "Public preview must have no backend target"
+          assert "ትዕዛዝ መቀበል አልተጀመረም" in checkout, "No-orders explanation missing"
+          assert "QA-TELEBIRR-ONLY" not in checkout and "QA-CBE-ONLY" not in checkout, "Obsolete QA accounts leaked"
           assert 'href="./"' in checkout, "Logo back link must not point to QA"
           assert "https://t.me/ParentWiseEthiopia" in checkout, "Configured Telegram destination missing"
-          assert 'fetch(' not in checkout, "Static review checkout must not submit an order"
+          assert "if(!enabled||busy)" in checkout, "Client order submission gate missing"
           for number in ("0912910693","1000223019327","10002230019327"):
             assert number not in home and number not in checkout, "Real payment account publicly exposed"
           assert "Disallow: /" in robots
           for path in ("/tmp/pw-logo-reversed.webp","/tmp/pw-telebirr-mark.svg","/tmp/pw-cbe-bank-logo.png","/tmp/pw-product-workbook.webp"):
             assert Path(path).stat().st_size > 1000, path
-          print("PASS LIVE: complete sales page + linked non-payable checkout + logos, safe recipient placeholders, no order writes, no indexing")
+          print("PASS LIVE: complete sales page + linked non-payable checkout + logos, safe recipient placeholders, intake disabled, no indexing")
           PY
