@@ -64,6 +64,15 @@ jobs:
                   page.wait_for_timeout(1500)
                   data=page.screenshot(type='jpeg',quality=47)
                   print('SCREENSHOT_'+name+'='+base64.b64encode(data).decode())
+              page.goto('http://127.0.0.1:8765/order.html',wait_until='domcontentloaded',timeout=15000)
+              page.locator('#customer-name').fill('አባት አለሙ')
+              page.locator('#customer-mobile').fill('0911111111')
+              page.locator('#continue-payment').click()
+              page.locator('#payment-section').wait_for(state='visible')
+              print('SCREENSHOT_PAYMENT='+base64.b64encode(page.screenshot(type='jpeg',quality=47)).decode())
+              page.locator('#paid-action').click()
+              page.locator('#telegram-section').wait_for(state='visible')
+              print('SCREENSHOT_TELEGRAM='+base64.b64encode(page.screenshot(type='jpeg',quality=47)).decode())
               browser.close()
           PY
 
