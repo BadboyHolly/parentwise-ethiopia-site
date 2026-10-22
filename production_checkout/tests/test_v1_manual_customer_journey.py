@@ -60,6 +60,8 @@ def test_manual_v1_pending_order_created_once_and_not_verified(tmp_path):
             saved = client.get(f"/api/v1/orders/{ref}", headers={"Authorization": "Bearer " + body["access_token"]})
             assert saved.status_code == 200
             assert saved.json()["order"]["status"] == "AWAITING_PAYMENT"
+            assert saved.json()["order"]["payment_instructions"]["number"] == "QA-CBE-ONLY"
+            assert saved.json()["order"]["payment_instructions"]["holder"] == "QA-ONLY"
             assert client.post("/api/v1/payments/verify").status_code == 404
             assert client.post(f"/api/v1/orders/{ref}/payment-claims").status_code == 404
     finally:
