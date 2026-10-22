@@ -57,6 +57,8 @@ with sync_playwright() as playwright:
         page.on("request",lambda req:outgoing.append(req.url) if "/api/v1/orders" in req.url else None)
         page.goto(BASE+"/order.html")
         expect(page.locator("#continue-payment")).to_be_enabled()
+        expect(page.locator(".brand img")).to_have_attribute("src","assets/parentwise-primary-horizontal.webp")
+        assert page.evaluate("window.scrollY <= 3"), "Initial landing must show ParentWise header and logo"
         expect(page.locator("#payment-section")).to_be_hidden()
         expect(page.locator("#recipient-number")).to_have_text("—")
         assert page.locator("#checkout-availability").count()==0
