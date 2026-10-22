@@ -48,7 +48,7 @@ hr{border:0;border-top:1px solid var(--line);margin:21px 0}
 .num-row strong{font-size:clamp(17px,5.4vw,22px);white-space:nowrap;font-variant-numeric:tabular-nums;user-select:all;letter-spacing:.006em}
 .num-row button{background:#fffaf0;color:#17412d;font-weight:800;border:0;border-radius:8px;padding:9px 12px;min-width:76px;font-size:12px;min-height:42px}
 .holder{border-top:1px solid #e1e8de;padding-top:12px;margin-top:12px;display:flex;justify-content:space-between;align-items:center;gap:4px}
-.holder span{color:#687a6d;font-size:13px}.holder strong{font-size:14px}
+.holder span{color:#687a6d;font-size:13px}.holder strong{font-size:14px;min-width:0;overflow-wrap:anywhere;text-align:right}
 .status-clip{min-height:20px;font-size:13px;color:#39784b;margin:5px 0}
 .notice{font-size:14px;color:#6b766d;margin:13px 0}.smallnote,.fieldnote,.subtle-note{font-size:13px;color:#65786d;margin:9px 0}
 .form-error{font-size:12px;background:#fff0ee;border:1px solid #f0c8c8;color:#9d3737;padding:9px 11px;border-radius:9px}
@@ -87,7 +87,7 @@ hr{border:0;border-top:1px solid var(--line);margin:21px 0}
 <section id="payment-section" class="screen" hidden tabindex="-1"><p class="kicker">02 · ክፍያ</p><h2>የክፍያ መረጃ</h2><p class="sub" id="payment-sub">1,500 ብር ለመክፈል ከታች ያለውን ቁጥር ይጠቀሙ። የዝውውር ቁጥርዎን ወይም ደረሰኝዎን ያስቀምጡ።</p>
 <p class="walkthrough-note" id="walkthrough-payment-note" hidden>Checkout review only. Account numbers are hidden here. No order was saved and no money should be transferred.</p>
 <div class="customer"><div><small>የእርስዎ መረጃ</small><strong id="review-customer-name">—</strong><small id="review-customer-phone">—</small></div><button id="change-method" class="back" type="button">ይቀይሩ</button></div>
-<p class="walkthrough-note" id="edit-order-notice" hidden>ትዕዛዝዎ ተመዝግቧል። ድጋሚ ትዕዛዝ እንዳይፈጠር መረጃዎን እዚህ መቀየር አይቻልም። ለማስተካከል <a class="inline-link" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Telegram ድጋፍ</a> ያነጋግሩ።</p>
+<p class="walkthrough-note" id="edit-order-notice" tabindex="-1" hidden>ትዕዛዝዎ ተመዝግቧል። ድጋሚ ትዕዛዝ እንዳይፈጠር መረጃዎን እዚህ መቀየር አይቻልም። ለማስተካከል <a class="inline-link" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Telegram ድጋፍ</a> ያነጋግሩ።</p>
 <div class="account"><div class="account-head"><span class="meta-box"><img id="selected-mark" src="assets/telebirr-mark.svg" alt="Selected method"><strong id="selected-method">Telebirr</strong></span><span style="font-size:13px;color:#916142;font-weight:800">የመክፈያ መረጃ</span></div>
 <div class="amount"><span>የሚከፈለው ገንዘብ</span><b>1,500 ETB</b></div>
 <div class="num-shell"><div class="number-box"><small id="recipient-label">የመክፈያ ቁጥር</small><div class="num-row"><strong id="recipient-number">—</strong><button id="copy-recipient" type="button" aria-label="Copy account number"><span id="copy-account-label">Copy</span></button></div></div>
@@ -141,7 +141,10 @@ hr{border:0;border-top:1px solid var(--line);margin:21px 0}
   const clearAttempt=()=>{try{sessionStorage.removeItem(requestKey)}catch{/* storage may be restricted */}};
   const stage=n=>{
     if(enabled && data.orderRef && n===1){
-      $('edit-order-notice').hidden=false;
+      const notice=$('edit-order-notice');
+      notice.hidden=false;
+      notice.focus({preventScroll:true});
+      notice.scrollIntoView({behavior:'smooth',block:'center'});
       return;
     }
     $('details-section').hidden=n!==1;
