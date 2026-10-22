@@ -217,7 +217,7 @@ input[type=text]:focus,input[type=tel]:focus{border-color:#2a6a49;outline:2px so
     'ስልክ ቁጥር: '+data.phone,
     'የክፍያ ዘዴ: '+methods[method].title,
     'የትዕዛዝ መጠን: 1,500 ETB',
-    'የዝውውር ቁጥር ወይም ደረሰኝ: (እዚህ ያክሉ)'
+    'የክፍያ ማስረጃ: (ስክሪንሾት ያያይዙ ወይም የዝውውር ቁጥር ይጻፉ)'
   ].join('\n');
   function verifiedOrder(order,expectedMethod){
     const instr=order?.payment_instructions;
@@ -285,11 +285,10 @@ input[type=text]:focus,input[type=tel]:focus{border-color:#2a6a49;outline:2px so
       $('copy-recipient').disabled=true;
       $('copy-account-label').textContent='Hidden';
       $('copy-status').textContent='';
-      $('payment-sub').textContent='የተመረጠውን ክፍያ ዘዴ፣ ዋጋ እና የመክፈያ መረጃ አቀማመጥ ይመልከቱ።';
       $('walkthrough-payment-note').hidden=false;
       $('payment-verification-note').hidden=true;
       $('payment-settlement-note').hidden=true;
-      $('paid-action').textContent='ወደ ማረጋገጫ ይቀጥሉ →';
+      $('paid-action').textContent='ወደ ቀጣዩ ደረጃ ይቀጥሉ →';
       stage(2);
       return;
     }
@@ -330,13 +329,8 @@ input[type=text]:focus,input[type=tel]:focus{border-color:#2a6a49;outline:2px so
   $('back-telegram').addEventListener('click',()=>stage(2));
   $('paid-action').addEventListener('click',()=>{
     if(previewOnly){
-      $('telegram-sub').textContent='የTelegram ማረጋገጫ ደረጃ አቀማመጥን ይመልከቱ።';
       $('walkthrough-telegram-note').hidden=false;
-      $('telegram-step-one').textContent='1 · የትዕዛዝ መረጃ ቅርጽ';
-      $('telegram-step-two').textContent='2 · የTelegram ድጋፍ መስመር';
-      $('telegram-receipt-hint').textContent='እዚህ የTelegram ድጋፍ መስመሩን ማየት ይችላሉ። ክፍያ ወይም የክፍያ ማስረጃ አይላኩ።';
-      $('telegram-delivery-tip').textContent='ክፍያው በሂሳባችን መግባቱ ከተረጋገጠ በኋላ 5ቱ የPDF መመሪያዎች በግል Telegram ይላካሉ።';
-      $('telegram-handoff').textContent='የTelegram ድጋፍን ይመልከቱ ↗';
+      $('telegram-handoff').textContent='Telegram ድጋፍ ↗';
       $('confirmation-message').textContent=[
         'ParentWise Ethiopia — Checkout review',
         'ሙሉ ስም: '+data.name,
@@ -394,7 +388,7 @@ input[type=text]:focus,input[type=tel]:focus{border-color:#2a6a49;outline:2px so
     if(!data.orderRef&&!previewOnly)return;
     try{
       await copy(previewOnly?$('confirmation-message').textContent:buildMessage());
-      $('confirmation-status').textContent=previewOnly?'Review details copied locally. No order or payment was created.':'መረጃው ተቀድቷል። በTelegram ውይይት ውስጥ Paste ያድርጉና የክፍያ ማስረጃ ያክሉ።';
+      $('confirmation-status').textContent=previewOnly?'Review details copied locally. No order or payment was created.':'መረጃው Copy ተደርጓል። Telegram ላይ Paste አድርገው የክፍያ ደረሰኙን ይላኩ።';
     }catch{
       $('confirmation-status').textContent='መረጃው መቅዳት አልተቻለም። ከላይ ያለውን መረጃ ይጠቀሙ።';
     }
