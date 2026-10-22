@@ -16,6 +16,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 12
     steps:
+      - uses: actions/checkout@v4
       - name: Fetch deployed preview pages and branding (READ ONLY)
         env:
           BASE: https://parentwise-ethiopia-full-website-preview.onrender.com
@@ -38,14 +39,13 @@ jobs:
           set -euo pipefail
           for attempt in $(seq 1 90); do
             if curl --fail --location --silent --show-error --max-time 20 "$BASE/order.html?v=$GITHUB_SHA" -o /tmp/pw-checkout.html &&
-               grep -q 'id="back-telegram"' /tmp/pw-checkout.html &&
-               grep -q "back-payment').addEventListener('click',()=>stage(1))" /tmp/pw-checkout.html; then
-              echo "Updated checkout received from deployed Render CDN"
+               cmp -s site-preview/order.html /tmp/pw-checkout.html; then
+              echo "Exact checkout HTML for this GitHub commit received from Render"
               exit 0
             fi
             sleep 5
           done
-          echo "Render has not served the matching checkout version"
+          echo "Render has not served the exact checkout HTML for this GitHub commit"
           exit 1
       - name: Validate full content and no real-payment settings
         run: |
