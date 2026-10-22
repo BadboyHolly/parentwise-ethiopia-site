@@ -22,7 +22,7 @@ jobs:
           BASE: https://parentwise-ethiopia-full-website-preview.onrender.com
         run: |
           set -euo pipefail
-          for path in / /order.html /assets/logo-reversed.webp /assets/telebirr-mark.svg /assets/cbe-bank-logo.png /assets/product-workbook.webp /robots.txt; do
+          for path in / /order.html /assets/logo-reversed.webp /assets/parentwise-primary-horizontal.webp /assets/telebirr-mark.svg /assets/cbe-bank-logo.png /assets/product-workbook.webp /robots.txt; do
             case "$path" in
               /) out=/tmp/pw-home.html ;;
               /order.html) out=/tmp/pw-checkout.html ;;
@@ -79,14 +79,15 @@ jobs:
           assert 'id="order-summary"' in checkout, "Lower-page product recap missing"
           assert 'id="telegram-step-one">1 · መረጃዎን Copy ያድርጉ' in checkout, "Simple Telegram instructions missing"
           assert 'id="telegram-step-two">2 · Telegram ይክፈቱ' in checkout, "Second Telegram action missing"
-          assert 'src="assets/logo-reversed.webp"' in checkout, "Brand-approved reversed logo missing"
+          assert 'src="assets/parentwise-primary-horizontal.webp"' in checkout, "Founder primary horizontal logo missing"
+          assert "stage(1,false)" in checkout, "Initial checkout must show brand/logo header"
           assert "if(enabled && data.orderRef && n===1)" in checkout, "Registered order edit guard missing"
           assert "if(last.activeStep===3)" in checkout, "Telegram-step recovery missing"
           assert 'id="visible-order-reference"' in checkout, "Visible order ID fallback missing"
           for number in ("0912910693","1000223019327","10002230019327"):
             assert number not in home and number not in checkout, "Real payment account publicly exposed"
           assert "Disallow: /" in robots
-          for path in ("/tmp/pw-logo-reversed.webp","/tmp/pw-telebirr-mark.svg","/tmp/pw-cbe-bank-logo.png","/tmp/pw-product-workbook.webp"):
+          for path in ("/tmp/pw-logo-reversed.webp","/tmp/pw-parentwise-primary-horizontal.webp","/tmp/pw-telebirr-mark.svg","/tmp/pw-cbe-bank-logo.png","/tmp/pw-product-workbook.webp"):
             assert Path(path).stat().st_size > 1000, path
           print("PASS LIVE: full sales page + interactive 3-step visual walkthrough, masked recipients, zero real order intake, no indexing")
           PY
