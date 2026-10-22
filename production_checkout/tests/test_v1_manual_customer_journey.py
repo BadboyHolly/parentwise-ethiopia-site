@@ -86,3 +86,17 @@ def test_v1_order_intake_stays_closed_without_explicit_test_enable(tmp_path):
     finally:
         Base.metadata.drop_all(app.state.engine)
         app.state.engine.dispose()
+
+
+def test_production_recipient_shape_gate_rejects_superseded_length(monkeypatch):
+    """No live account values are embedded; old 14-digit CBE shape cannot boot."""
+    import pytest
+    from production_checkout.app import from_environment
+    monkeypatch.setenv("APP_MODE", "production")
+    monkeypatch.setenv("PAYMENTS_ENABLED", "false")
+    monkeypatch.setenv("TELEBIRR_ACCOUNT_NUMBER", "0999999999")
+    monkeypatch.setenv("TELEBIRR_ACCOUNT_HOLDER", "SYNTHETIC HOLDER")
+    monkeypatch.setenv("CBE_ACCOUNT_NUMBER", "1"*14)
+    monkeypatch.setenv("CBE_ACCOUNT_HOLDER", "SYNTHETIC HOLDER")
+    with pytest.raises(RuntimeError, match="Invalid payment account format"):
+        from_environment()
