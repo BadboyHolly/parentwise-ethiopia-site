@@ -107,8 +107,15 @@ with sync_playwright() as playwright:
     expect(page.locator("#payment-section")).to_be_hidden()
     page.locator("#continue-payment").click()
     expect(page.locator("#validation-error")).to_be_visible()
+    # A browser restart during a timed-out POST must not duplicate a pending order.
+    page.reload()
+    expect(page.locator("#customer-name")).to_have_value("Synthetic Parent")
+    expect(page.locator("#customer-mobile")).to_have_value("0911111111")
+    expect(page.locator("#payment-section")).to_be_hidden()
+    page.locator("#continue-payment").click()
+    expect(page.locator("#validation-error")).to_be_visible()
     keys=[x["idempotency"] for x in errors if x.get("method")=="POST"]
-    assert len(keys)==2 and len(keys[0])==43 and keys[0]==keys[1]
+    assert len(keys)==3 and len(keys[0])==43 and len(set(keys))==1, "Cross-reload retry must reuse the original key"
     context.close()
     browser.close()
 print("PASS: disabled public preview; synthetic step flow, account selection, clipboard, Telegram, recovery, outage and idempotent retry at 5 widths")

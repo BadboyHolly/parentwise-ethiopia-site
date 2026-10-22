@@ -362,6 +362,7 @@ h1{font-size:37px;line-height:1.27;font-weight:800;letter-spacing:-.035em;margin
   };
   const data={name:'',phone:'',orderRef:'',accessToken:'',number:'',holder:''};
   const storageKey='parentwise-pending-order-v1';
+  const requestKey='parentwise-unsure-order-request-v1';
   const enabled = CHECKOUT_OPEN && /^https:\/\/[a-z0-9.-]+(?::443)?$/i.test(ORDER_API_ORIGIN);
   let method='telebirr', busy=false, pendingKey='', pendingPayload='';
   const selected=()=>document.querySelector('input[name="payment"]:checked').value;
@@ -371,6 +372,11 @@ h1{font-size:37px;line-height:1.27;font-weight:800;letter-spacing:-.035em;margin
   };
   const save=record=>{try{sessionStorage.setItem(storageKey,JSON.stringify(record))}catch{/* storage may be restricted */}};
   const stored=()=>{try{return JSON.parse(sessionStorage.getItem(storageKey)||'null')}catch{return null}};
+  // A timed-out order request might already have committed. Reuse its key after
+  // the tab reloads so the same customer action cannot create a second order.
+  const storedAttempt=()=>{try{return JSON.parse(sessionStorage.getItem(requestKey)||'null')}catch{return null}};
+  const saveAttempt=record=>{try{sessionStorage.setItem(requestKey,JSON.stringify(record))}catch{/* storage may be restricted */}};
+  const clearAttempt=()=>{try{sessionStorage.removeItem(requestKey)}catch{/* storage may be restricted */}};
   const stage=n=>{
     $('details-section').hidden=n!==1;
     $('payment-section').hidden=n!==2;
@@ -441,7 +447,12 @@ h1{font-size:37px;line-height:1.27;font-weight:800;letter-spacing:-.035em;margin
     }
     const requestedMethod=selected();
     const payload=JSON.stringify({customer_name:name,mobile:phone,payment_method:requestedMethod});
-    if(pendingPayload!==payload){pendingKey=newKey();pendingPayload=payload;}
+    if(pendingPayload!==payload){
+      const prior=storedAttempt();
+      pendingKey=prior?.payload===payload && /^[A-Za-z0-9_-]{43}$/.test(prior.key||'') ? prior.key : newKey();
+      pendingPayload=payload;
+      saveAttempt({payload,key:pendingKey});
+    }
     busy=true;
     const button=$('continue-payment');
     button.disabled=true;button.setAttribute('aria-busy','true');
@@ -458,6 +469,7 @@ h1{font-size:37px;line-height:1.27;font-weight:800;letter-spacing:-.035em;margin
       if(!/^[A-Za-z0-9_-]{43}$/.test(result.access_token||''))throw new Error('Missing recovery token');
       data.name=name;data.phone=phone;data.accessToken=result.access_token;
       save({id:order.order_id,token:result.access_token,name,phone,method:requestedMethod});
+      clearAttempt();
       present(order,instr);
     }catch(err){
       // Never show bank details or advance without a confirmed saved order.
@@ -525,6 +537,19 @@ h1{font-size:37px;line-height:1.27;font-weight:800;letter-spacing:-.035em;margin
     $('continue-payment').textContent='ትዕዛዝ መቀበል አልተጀመረም';
   }else{
     $('checkout-availability').hidden=true;
+  }
+  // Restore only customer-entered fields after interrupted order submission.
+  // Never restore or display bank instructions without a verified server response.
+  if(enabled && !stored()){
+    try{
+      const previous=JSON.parse(storedAttempt()?.payload||'null');
+      if(previous?.customer_name && previous?.mobile && methods[previous.payment_method]){
+        $('customer-name').value=previous.customer_name;
+        $('customer-mobile').value=previous.mobile;
+        const radio=document.querySelector('input[name="payment"][value="'+previous.payment_method+'"]');
+        if(radio)radio.checked=true;
+      }
+    }catch{/* User can re-enter details if there is no valid prior attempt */}
   }
   stage(1);
   recover();
