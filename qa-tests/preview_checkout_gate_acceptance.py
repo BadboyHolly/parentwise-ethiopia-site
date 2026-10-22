@@ -89,7 +89,7 @@ with sync_playwright() as playwright:
         expect(page.locator("#payment-fulfillment")).to_be_visible()
         expect(page.locator("#payment-fulfillment")).to_contain_text("Telegram")
         expect(page.locator("#paid-action")).to_contain_text("ወደ ቀጣዩ ደረጃ")
-        assert "No order was saved" in page.locator("#walkthrough-payment-note").inner_text()
+        assert "ክፍያ አይፈጽሙ" in page.locator("#walkthrough-payment-note").inner_text()
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth + 2")
         # Both directions must work, preserving name, phone and selected rail.
         page.locator("#back-payment").click()
@@ -111,12 +111,12 @@ with sync_playwright() as playwright:
         expect(page.locator("#telegram-step-one")).to_have_text("1 · መረጃዎን Copy ያድርጉ")
         expect(page.locator("#telegram-step-two")).to_have_text("2 · Telegram ይክፈቱ")
         expect(page.locator("#telegram-handoff")).to_have_text("Telegram ድጋፍ ↗")
-        assert "Order: Not created" in page.locator("#confirmation-message").inner_text()
-        assert "Payment: Not requested" in page.locator("#confirmation-message").inner_text()
+        assert "ትዕዛዝ: አልተመዘገበም" in page.locator("#confirmation-message").inner_text()
+        assert "ክፍያ: አልተጠየቀም" in page.locator("#confirmation-message").inner_text()
         assert "PW-" not in page.locator("#confirmation-message").inner_text()
         assert page.locator("#telegram-handoff").get_attribute("href")=="https://t.me/ParentWiseEthiopia"
         page.locator("#copy-confirmation").click()
-        expect(page.locator("#confirmation-status")).to_contain_text("copied locally")
+        expect(page.locator("#confirmation-status")).to_contain_text("ክፍያ አይፈጽሙ")
         assert not outgoing, "Public review must not send an order-API request"
         assert page.evaluate("sessionStorage.length")==0, "Public review must not persist buyer data"
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth + 2")
