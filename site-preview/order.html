@@ -63,7 +63,7 @@ hr{border:0;border-top:1px solid var(--line);margin:21px 0}
 
 /* Founder-approved checkout refinement: product and delivery context follow payment intent. */
 .head{background:linear-gradient(110deg,#123827,#194632);border-bottom:1px solid #ffffff24}
-.brand{min-height:86px}.brand img{max-width:168px;max-height:70px;filter:drop-shadow(0 3px 9px #061c1450)}
+.brand{min-height:82px}.brand img{max-width:174px;width:174px;height:auto;max-height:64px;border-radius:9px;background:#f8f3e9;padding:2px;box-shadow:0 3px 10px #031b122b;filter:none}.brand a.help{color:#fff7ed}
 .top{position:relative;isolation:isolate;overflow:hidden;padding:28px 0 68px;background:radial-gradient(ellipse at 100% 5%,#934e5d55,transparent 45%),linear-gradient(115deg,#103825,#24543c)}
 .top:before{content:"";position:absolute;inset:-60px auto auto -110px;height:230px;width:360px;border:1px solid #ffffff16;border-radius:50%;transform:rotate(-27deg);pointer-events:none}
 .top:after{content:"";position:absolute;right:-100px;bottom:-170px;width:270px;height:270px;border:1px solid #e4c9a12a;border-radius:50%;pointer-events:none}
@@ -103,7 +103,7 @@ input[type=text]:focus,input[type=tel]:focus{border-color:#2a6a49;outline:2px so
 @media(max-width:350px){.shell{padding:0 10px}.panel{padding:17px 14px 18px}.progress{padding:10px 7px;font-size:13px}.brand img{max-width:150px}.top{padding-bottom:65px}.num-row{flex-wrap:wrap}.num-row strong{font-size:17px}}
 </style></head><body>
 <header class="head"><div class="container brand">
-  <a href="./" aria-label="ParentWise Ethiopia"><img src="assets/logo-reversed.webp" alt="ParentWise Ethiopia"></a>
+  <a href="./" aria-label="ParentWise Ethiopia"><img src="assets/parentwise-primary-horizontal.webp" alt="ParentWise Ethiopia"></a>
   <a class="help" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">እገዛ ↗</a>
 </div></header>
 <div class="top"><div class="container"><p class="eyebrow">PARENTWISE ETHIOPIA · ትዕዛዝ</p>
@@ -184,7 +184,7 @@ input[type=text]:focus,input[type=tel]:focus{border-color:#2a6a49;outline:2px so
   const storedAttempt=()=>{try{return JSON.parse(sessionStorage.getItem(requestKey)||'null')}catch{return null}};
   const saveAttempt=record=>{try{sessionStorage.setItem(requestKey,JSON.stringify(record))}catch{/* storage may be restricted */}};
   const clearAttempt=()=>{try{sessionStorage.removeItem(requestKey)}catch{/* storage may be restricted */}};
-  const stage=n=>{
+  const stage=(n,shouldScroll=true)=>{
     if(enabled && data.orderRef && n===1){
       const notice=$('edit-order-notice');
       notice.hidden=false;
@@ -201,10 +201,12 @@ input[type=text]:focus,input[type=tel]:focus{border-color:#2a6a49;outline:2px so
       if(previous?.id===data.orderRef)save({...previous,activeStep:n});
     }
     if(n!==1)$(n===2?'payment-section':'telegram-section').focus({preventScroll:true});
-    requestAnimationFrame(()=>{
-      const shell=document.querySelector('.checkout-shell');
-      window.scrollTo({top:Math.max(0,shell.getBoundingClientRect().top+window.scrollY-10),behavior:'instant'});
-    });
+    if(shouldScroll){
+      requestAnimationFrame(()=>{
+        const shell=document.querySelector('.checkout-shell');
+        window.scrollTo({top:Math.max(0,shell.getBoundingClientRect().top+window.scrollY-10),behavior:'instant'});
+      });
+    }
   };
   const newKey=()=>{
     const bytes=crypto.getRandomValues(new Uint8Array(32));
@@ -434,7 +436,8 @@ input[type=text]:focus,input[type=tel]:focus{border-color:#2a6a49;outline:2px so
       }
     }catch{/* User can re-enter details if there is no valid prior attempt */}
   }
-  stage(1);
+  // On initial checkout arrival, preserve the logo/hero rather than auto-scrolling past them.
+  stage(1,false);
   recover();
 })();
 </script>
