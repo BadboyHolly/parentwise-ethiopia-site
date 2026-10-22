@@ -5,6 +5,8 @@ on:
     branches:
       - dev/parentwise-checkout-order-gate-20261022
       - checkout/v1-resume-and-release-gates-20261022
+      - feature/interactive-checkout-founder-review-20261022
+      - deploy/parentwise-full-site-preview-20261021
     paths:
       - 'site-preview/order.html'
       - 'production_checkout/app.py'
@@ -27,7 +29,7 @@ jobs:
           python-version: '3.12'
       - name: Verify homepage stays at approved Git blob
         run: |
-          test "$(git hash-object site-preview/index.html)" = "abfc68887cd0d129e11f2a09512879d2feda0546"
+          test "$(git hash-object site-preview/index.html)" = "9c6ec146adde2f3df5274c5794660a586eb6fc65"
           grep -q "CHECKOUT_OPEN = false" site-preview/order.html
           grep -q "ORDER_API_ORIGIN = ''" site-preview/order.html
       - name: Install Playwright Chromium

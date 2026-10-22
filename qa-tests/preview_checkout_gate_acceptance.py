@@ -50,11 +50,40 @@ with sync_playwright() as playwright:
     for width in (320,360,390,768,1280):
         context=browser.new_context(viewport={"width":width,"height":860},permissions=["clipboard-read","clipboard-write"])
         page=context.new_page()
-        # PUBLIC: fail closed even when the page URL is known and form data is typed.
+        # PUBLIC visual review: complete all three steps without saving an
+        # order, displaying a payable account, or contacting an order API.
+        outgoing=[]
+        page.on("request",lambda req:outgoing.append(req.url) if "/api/v1/orders" in req.url else None)
         page.goto(BASE+"/order.html")
-        expect(page.locator("#continue-payment")).to_be_disabled()
+        expect(page.locator("#continue-payment")).to_be_enabled()
         expect(page.locator("#payment-section")).to_be_hidden()
-        assert page.locator("#recipient-number").inner_text()=="—"
+        expect(page.locator("#recipient-number")).to_have_text("—")
+        assert page.locator("#checkout-availability").count()==0
+        assert page.evaluate("document.documentElement.scrollWidth <= innerWidth + 2")
+        page.locator("#continue-payment").click()
+        expect(page.locator("#validation-error")).to_be_visible()
+        page.locator("#customer-name").fill("አባት አለሙ")
+        page.locator("#customer-mobile").fill("0911111111")
+        choice="bank" if width in (360,768) else "telebirr"
+        if choice=="bank": page.locator('input[name="payment"][value="bank"]').check()
+        page.locator("#continue-payment").click()
+        expect(page.locator("#payment-section")).to_be_visible()
+        expect(page.locator("#recipient-number")).to_have_text("•••••••••9327" if choice=="bank" else "••••••0693")
+        expect(page.locator("#copy-recipient")).to_be_disabled()
+        expect(page.locator("#walkthrough-payment-note")).to_be_visible()
+        assert "No order was saved" in page.locator("#walkthrough-payment-note").inner_text()
+        assert page.evaluate("document.documentElement.scrollWidth <= innerWidth + 2")
+        page.locator("#paid-action").click()
+        expect(page.locator("#telegram-section")).to_be_visible()
+        expect(page.locator("#walkthrough-telegram-note")).to_be_visible()
+        assert "Order: Not created" in page.locator("#confirmation-message").inner_text()
+        assert "Payment: Not requested" in page.locator("#confirmation-message").inner_text()
+        assert "PW-" not in page.locator("#confirmation-message").inner_text()
+        assert page.locator("#telegram-handoff").get_attribute("href")=="https://t.me/ParentWiseEthiopia"
+        page.locator("#copy-confirmation").click()
+        expect(page.locator("#confirmation-status")).to_contain_text("copied locally")
+        assert not outgoing, "Public review must not send an order-API request"
+        assert page.evaluate("sessionStorage.length")==0, "Public review must not persist buyer data"
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth + 2")
         context.close()
 
@@ -118,4 +147,4 @@ with sync_playwright() as playwright:
     assert len(keys)==3 and len(keys[0])==43 and len(set(keys))==1, "Cross-reload retry must reuse the original key"
     context.close()
     browser.close()
-print("PASS: disabled public preview; synthetic step flow, account selection, clipboard, Telegram, recovery, outage and idempotent retry at 5 widths")
+print("PASS: public local-only 3-step walkthrough; synthetic live API contract, selection, clipboard, Telegram, recovery, outage and retry at 5 widths")
