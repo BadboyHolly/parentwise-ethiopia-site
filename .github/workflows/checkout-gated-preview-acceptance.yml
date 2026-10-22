@@ -9,6 +9,7 @@ on:
       - deploy/parentwise-full-site-preview-20261021
       - refine/checkout-copy-ux-safety-20261022
       - fix/checkout-step-navigation-20261022
+      - refine/checkout-founder-simplified-premium-20261022
     paths:
       - 'site-preview/order.html'
       - 'production_checkout/app.py'
