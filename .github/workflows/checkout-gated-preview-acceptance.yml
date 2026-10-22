@@ -5,6 +5,7 @@ on:
     branches:
       - dev/parentwise-checkout-order-gate-20261022
       - checkout/v1-resume-and-release-gates-20261022
+      - fix/founder-v1-checkout-20261022
     paths:
       - 'site-preview/order.html'
       - 'production_checkout/app.py'
