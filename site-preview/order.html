@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow,noarchive">
 <meta name="referrer" content="no-referrer">
-<title>ትዕዛዝዎን ያጠናቅቁ | ParentWise Ethiopia V1 Preview</title>
+<title>ትዕዛዝዎን ያጠናቅቁ | ParentWise Ethiopia</title>
 <style>
 @font-face{font-family:SurGraphics;src:url("https://cdn.jsdelivr.net/gh/geezorg/legally-free-geez-fonts@main/FreeToRedistribute/SurGraphics/SurGraphics%20Regular.ttf") format("truetype");font-weight:400;font-display:swap}
 @font-face{font-family:SurGraphics;src:url("https://cdn.jsdelivr.net/gh/geezorg/legally-free-geez-fonts@main/FreeToRedistribute/SurGraphics/SurGraphics%20Bold.ttf") format("truetype");font-weight:700;font-display:swap}
@@ -239,7 +239,7 @@ h1{font-size:37px;line-height:1.27;font-weight:800;letter-spacing:-.035em;margin
 <main class="site-container checkout-shell">
   <div class="checkout-left">
     <div class="checkout-card">
-      <div class="demo-alert" role="note"><span class="demo-indicator"></span> DEMO ONLY · እውነተኛ ክፍያ አይፈጽሙ · No orders</div>
+      <div class="demo-alert" id="checkout-availability" role="status"><span class="demo-indicator"></span> ትዕዛዝ መቀበል አልተጀመረም። እባክዎ ገንዘብ አይላኩ።</div>
       <div class="stepper" aria-label="Purchase progress">
         <span id="label-details" class="step active"><span class="step-mark">1</span><span>መረጃ</span></span>
         <span class="step-sep" aria-hidden="true"></span>
@@ -285,7 +285,7 @@ h1{font-size:37px;line-height:1.27;font-weight:800;letter-spacing:-.035em;margin
           </div>
           <button id="continue-payment" class="primary" type="submit">ወደ ክፍያ ይቀጥሉ <span aria-hidden="true">→</span></button>
           <p id="validation-error" class="error" role="alert" hidden></p>
-          <p class="subtle-note">የእርስዎ መረጃ ለትዕዛዝ ማረጋገጫና ድጋፍ ብቻ ነው። ይህ የሙከራ ገጽ መረጃዎን አያስቀምጥም ወይም አይልክም።</p>
+          <p class="subtle-note">መረጃዎ የሚጠቀመው ለትዕዛዝ ሂደትና ለደንበኛ ድጋፍ ብቻ ነው።</p>
         </form>
       </section>
       <section id="payment-section" class="screen" hidden tabindex="-1">
@@ -299,22 +299,21 @@ h1{font-size:37px;line-height:1.27;font-weight:800;letter-spacing:-.035em;margin
         <div class="pay-layout">
           <div class="pay-banner">
             <div class="pay-brand"><img src="assets/telebirr-mark.svg" id="selected-mark" alt="Selected payment provider"><div><strong id="selected-method">Telebirr</strong><span>የመረጡት የክፍያ ዘዴ</span></div></div>
-            <span class="demo-pill">DEMO</span>
           </div>
           <div class="pay-amount"><span>የሚከፈለው ገንዘብ</span><strong>1,500 ETB</strong></div>
           <div class="account-region">
             <div class="account-number-panel">
               <small id="recipient-label">Telebirr number</small>
               <div class="account-number-row">
-                <strong id="recipient-number">QA-TELEBIRR-ONLY</strong>
+                <strong id="recipient-number">—</strong>
                 <button class="copy-account" type="button" id="copy-recipient" aria-label="Copy recipient number"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span id="copy-account-label">Copy</span></button>
               </div>
             </div>
-            <div class="account-holder-row"><small>የሂሳብ ባለቤት</small><strong id="recipient-holder">DEMO RECIPIENT — NOT REAL</strong></div>
+            <div class="account-holder-row"><small>የሂሳብ ባለቤት</small><strong id="recipient-holder">—</strong></div>
             <p id="copy-status" role="status" aria-live="polite" class="status"></p>
           </div>
         </div>
-        <p class="payment-instruction"><b>እንዴት ይከፍላሉ?</b> በእውነተኛው ገጽ 1,500 ብር በመረጡት ዘዴ ይላኩ። ከዚያ ወደዚህ ገጽ ተመልሰው በTelegram ያረጋግጡ። <strong>ይህ ሙከራ ነው፤ ገንዘብ አይላኩ።</strong></p>
+        <p class="payment-instruction"><b>እንዴት ይከፍላሉ?</b> ትዕዛዝዎ ከተመዘገበ በኋላ በመረጡት መንገድ 1,500 ብር ይክፈሉ። በክፍያ መተግበሪያዎ የተቀባዩን ስም ያረጋግጡ። ከዚያ ወደዚህ ገጽ ተመልሰው ማስረጃዎን በTelegram ይላኩ።</p>
         <div class="pay-next"><button id="paid-action" class="primary" type="button">ክፍያ ፈጽሜያለሁ — ወደ Telegram ↗</button><p class="inset-note">ቀጣይ፦ የክፍያ ደረሰኝ ወይም የዝውውር መለያ ቁጥር ይላኩ።</p></div>
         <p class="payment-safety">በክፍያ መተግበሪያዎ የሂሳብ ባለቤቱን ስም ያረጋግጡ። ጥያቄ አለዎት? <a href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">ParentWise ድጋፍ ↗</a></p>
       </section>
@@ -347,58 +346,132 @@ h1{font-size:37px;line-height:1.27;font-weight:800;letter-spacing:-.035em;margin
     <div class="side-footer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m21.5 3.5-19 8 8 3 3 8 8-19ZM10.5 14.5l11-11"/></svg> After verification, all five guides are delivered privately through Telegram.</div>
   </aside>
 </main>
-<footer class="site-container site-footer">© ParentWise Ethiopia · Visual-only preview · No payment or data collection</footer>
+<footer class="site-container site-footer">© ParentWise Ethiopia</footer>
 <script>
 (() => {
   'use strict';
-  const $=id=>document.getElementById(id);
-  const methods={
-    telebirr:{title:'Telebirr',number:'QA-TELEBIRR-ONLY',label:'የTelebirr ቁጥር',logo:'assets/telebirr-mark.svg'},
-    bank:{title:'CBE Bank',number:'QA-CBE-ONLY',label:'የCBE ሂሳብ ቁጥር',logo:'assets/cbe-bank-logo.png'}
+  // Intentionally disabled for every public preview. Activation needs both values
+  // changed after independent production/operational acceptance and founder approval.
+  const CHECKOUT_OPEN = false;
+  const ORDER_API_ORIGIN = '';
+  const $ = id => document.getElementById(id);
+  const TG = 'https://t.me/ParentWiseEthiopia';
+  const methods = {
+    telebirr: {title:'Telebirr',label:'የTelebirr ቁጥር',logo:'assets/telebirr-mark.svg'},
+    bank: {title:'CBE Bank',label:'የCBE ሂሳብ ቁጥር',logo:'assets/cbe-bank-logo.png'}
   };
-  let method='telebirr';
-  const current=()=>document.querySelector('input[name="payment"]:checked').value;
-  const data={name:'',phone:''};
+  const data={name:'',phone:'',orderRef:'',accessToken:'',number:'',holder:''};
+  const storageKey='parentwise-pending-order-v1';
+  const enabled = CHECKOUT_OPEN && /^https:\/\/[a-z0-9.-]+(?::443)?$/i.test(ORDER_API_ORIGIN);
+  let method='telebirr', busy=false, pendingKey='', pendingPayload='';
+  const selected=()=>document.querySelector('input[name="payment"]:checked').value;
+  const error=message=>{
+    $('validation-error').textContent=message;
+    $('validation-error').hidden=false;
+  };
+  const save=record=>{try{sessionStorage.setItem(storageKey,JSON.stringify(record))}catch{/* storage may be restricted */}};
+  const stored=()=>{try{return JSON.parse(sessionStorage.getItem(storageKey)||'null')}catch{return null}};
   const stage=n=>{
     $('details-section').hidden=n!==1;
     $('payment-section').hidden=n!==2;
     $('telegram-section').hidden=n!==3;
-    for(let i=1;i<=3;i++)$('label-'+['details','payment','telegram'][i-1]).classList.toggle('active',i===n);
-    if(n!==1){
-      const section=$(n===2?'payment-section':'telegram-section');
-      section.focus({preventScroll:true});
-    }
-    requestAnimationFrame(()=>{const top=document.querySelector('.content').getBoundingClientRect().top+window.scrollY-10;window.scrollTo({top:Math.max(0,top),behavior:'instant'});});
+    ['details','payment','telegram'].forEach((key,i)=>$('label-'+key).classList.toggle('active',i===n-1));
+    if(n!==1)$(n===2?'payment-section':'telegram-section').focus({preventScroll:true});
+    requestAnimationFrame(()=>{
+      const shell=document.querySelector('.checkout-shell');
+      window.scrollTo({top:Math.max(0,shell.getBoundingClientRect().top+window.scrollY-10),behavior:'instant'});
+    });
+  };
+  const newKey=()=>{
+    const bytes=crypto.getRandomValues(new Uint8Array(32));
+    return btoa(String.fromCharCode(...bytes)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
   };
   const buildMessage=()=>[
     'ParentWise Ethiopia — Payment confirmation',
+    'Order reference: '+data.orderRef,
     'Full name: '+data.name,
     'Phone: '+data.phone,
     'Method: '+methods[method].title,
     'Amount: 1,500 ETB',
-    'Payment screenshot or transaction reference: [attach or add here]'
+    'Transaction reference or receipt: [add or attach]'
   ].join('\n');
-  $('checkout-form').addEventListener('submit',event=>{
+  function verifiedOrder(order,expectedMethod){
+    const instr=order?.payment_instructions;
+    if(order?.status!=='AWAITING_PAYMENT'||order.amount_etb!==1500||
+       order.currency!=='ETB'||order.payment_method!==expectedMethod||
+       !/^PW-[0-9A-F]{24}$/.test(order.order_id||'')||
+       !instr||instr.amount_etb!==1500||instr.currency!=='ETB'||
+       !/^[0-9]{10,15}$/.test(instr.number||'')||
+       !instr.holder||instr.holder==='NOT-CONFIGURED'){
+      throw new Error('Invalid or mismatched server payment instructions');
+    }
+    return instr;
+  }
+  function present(order,instr){
+    method=order.payment_method;
+    data.orderRef=order.order_id;
+    data.number=instr.number;
+    data.holder=instr.holder;
+    const meta=methods[method];
+    $('selected-method').textContent=meta.title;
+    $('selected-mark').src=meta.logo;
+    $('selected-mark').alt=meta.title;
+    $('recipient-label').textContent=meta.label;
+    $('recipient-number').textContent=instr.number;
+    $('recipient-holder').textContent=instr.holder;
+    $('review-customer-name').textContent=data.name;
+    $('review-customer-phone').textContent=data.phone;
+    $('confirmation-message').textContent=buildMessage();
+    $('copy-status').textContent='';
+    $('confirmation-status').textContent='';
+    $('copy-account-label').textContent='Copy';
+    stage(2);
+  }
+  $('checkout-form').addEventListener('submit',async event=>{
     event.preventDefault();
+    if(!enabled||busy){if(!enabled)error('ትዕዛዝ መቀበል አልተጀመረም።');return;}
     const name=$('customer-name').value.trim();
     const phone=$('customer-mobile').value.trim();
     $('validation-error').hidden=true;
-    if(name.length<2||name.length>100||!Array.from(name).some(ch=>/[^0-9\s]/.test(ch))){
-      $('validation-error').textContent='እባክዎ ትክክለኛ ሙሉ ስም ያስገቡ።';$('validation-error').hidden=false;$('customer-name').focus();return;
+    if(name.length<2||name.length>100||!Array.from(name).some(ch=>ch.toLowerCase()!==ch.toUpperCase())){
+      error('እባክዎ ትክክለኛ ሙሉ ስም ያስገቡ።');$('customer-name').focus();return;
     }
     if(!/^(0[97][0-9]{8}|\+251[97][0-9]{8})$/.test(phone)){
-      $('validation-error').textContent='እባክዎ ትክክለኛ የኢትዮጵያ ስልክ ቁጥር ያስገቡ።';$('validation-error').hidden=false;$('customer-mobile').focus();return;
+      error('እባክዎ ትክክለኛ የኢትዮጵያ ስልክ ቁጥር ያስገቡ።');$('customer-mobile').focus();return;
     }
-    data.name=name;data.phone=phone;method=current();
-    const m=methods[method];$('selected-method').textContent=m.title;$('selected-mark').src=m.logo;$('selected-mark').alt=m.title;
-    $('recipient-number').textContent=m.number;$('recipient-label').textContent=m.label;$('review-customer-name').textContent=data.name;$('review-customer-phone').textContent=data.phone;
-    $('copy-status').textContent='';$('confirmation-status').textContent='';$('copy-account-label').textContent='Copy';
-    stage(2);
+    const requestedMethod=selected();
+    const payload=JSON.stringify({customer_name:name,mobile:phone,payment_method:requestedMethod});
+    if(pendingPayload!==payload){pendingKey=newKey();pendingPayload=payload;}
+    busy=true;
+    const button=$('continue-payment');
+    button.disabled=true;button.setAttribute('aria-busy','true');
+    try{
+      const response=await fetch(ORDER_API_ORIGIN+'/api/v1/orders',{
+        method:'POST',mode:'cors',credentials:'omit',cache:'no-store',
+        headers:{'Content-Type':'application/json','Idempotency-Key':pendingKey},
+        body:payload
+      });
+      if(!response.ok)throw new Error('Order creation was not accepted');
+      const result=await response.json();
+      const order=result.order;
+      const instr=verifiedOrder(order,requestedMethod);
+      if(!/^[A-Za-z0-9_-]{43}$/.test(result.access_token||''))throw new Error('Missing recovery token');
+      data.name=name;data.phone=phone;data.accessToken=result.access_token;
+      save({id:order.order_id,token:result.access_token,name,phone,method:requestedMethod});
+      present(order,instr);
+    }catch(err){
+      // Never show bank details or advance without a confirmed saved order.
+      error('ትዕዛዝዎን መመዝገብ አልተቻለም። ክፍያ አይፈጽሙ፤ እባክዎ እንደገና ይሞክሩ።');
+    }finally{
+      busy=false;button.disabled=!enabled;button.removeAttribute('aria-busy');
+    }
   });
   $('change-method').addEventListener('click',()=>stage(1));
   $('back-payment').addEventListener('click',()=>stage(2));
   $('paid-action').addEventListener('click',()=>{
+    if(!data.orderRef)return;
     $('confirmation-message').textContent=buildMessage();
+    $('telegram-handoff').href=TG;
     stage(3);
   });
   const copy=async value=>{
@@ -406,14 +479,55 @@ h1{font-size:37px;line-height:1.27;font-weight:800;letter-spacing:-.035em;margin
     await navigator.clipboard.writeText(value);
   };
   $('copy-recipient').addEventListener('click',async()=>{
-    try{await copy(methods[method].number);$('copy-account-label').textContent='Copied';$('copy-status').textContent='የሙከራ ቁጥሩ Copy ተደርጓል። ገንዘብ አይላኩ።';}
-    catch{$('copy-status').textContent='Copy ማድረግ አልተቻለም። የሙከራውን ቁጥር በእጅ ይምረጡ።';const el=$('recipient-number');const range=document.createRange();range.selectNodeContents(el);const selection=window.getSelection();selection.removeAllRanges();selection.addRange(range);}
+    if(!data.orderRef||!data.number)return;
+    try{
+      await copy(data.number);
+      $('copy-account-label').textContent='Copied';
+      $('copy-status').textContent='የሂሳብ ቁጥሩ Copy ተደርጓል።';
+    }catch{
+      $('copy-status').textContent='Copy ማድረግ አልተቻለም። ቁጥሩን በእጅ ይምረጡ።';
+      const range=document.createRange();range.selectNodeContents($('recipient-number'));
+      const selection=window.getSelection();selection.removeAllRanges();selection.addRange(range);
+    }
   });
   $('copy-confirmation').addEventListener('click',async()=>{
-    try{await copy(buildMessage());$('confirmation-status').textContent='መረጃዎ Copy ተደርጓል። በTelegram ውይይት ላይ ያስገቡትና የክፍያ ማስረጃ ያክሉ።';}
-    catch{$('confirmation-status').textContent='Copy ማድረግ አልተቻለም። ለParentWise ሲጽፉ ከላይ ያለውን መረጃ ይጠቀሙ።';}
+    if(!data.orderRef)return;
+    try{
+      await copy(buildMessage());
+      $('confirmation-status').textContent='መረጃዎ Copy ተደርጓል። በTelegram ውይይት ላይ ያስገቡትና የክፍያ ማስረጃ ያክሉ።';
+    }catch{
+      $('confirmation-status').textContent='Copy ማድረግ አልተቻለም። ከላይ ያለውን መረጃ ይጠቀሙ።';
+    }
   });
+  async function recover(){
+    if(!enabled)return;
+    const last=stored();
+    if(!last||!/^PW-[0-9A-F]{24}$/.test(last.id||'')||
+       !/^[A-Za-z0-9_-]{43}$/.test(last.token||'')||!methods[last.method])return;
+    try{
+      const response=await fetch(ORDER_API_ORIGIN+'/api/v1/orders/'+encodeURIComponent(last.id),{
+        method:'GET',mode:'cors',credentials:'omit',cache:'no-store',
+        headers:{Authorization:'Bearer '+last.token}
+      });
+      if(!response.ok)return;
+      const result=await response.json();
+      const instr=verifiedOrder(result.order,last.method);
+      data.name=last.name;data.phone=last.phone;data.accessToken=last.token;
+      $('customer-name').value=last.name;
+      $('customer-mobile').value=last.phone;
+      const input=document.querySelector('input[name="payment"][value="'+last.method+'"]');
+      if(input)input.checked=true;
+      present(result.order,instr);
+    }catch{/* Keep details screen closed to payment on any recovery error */}
+  }
+  if(!enabled){
+    $('continue-payment').disabled=true;
+    $('continue-payment').textContent='ትዕዛዝ መቀበል አልተጀመረም';
+  }else{
+    $('checkout-availability').hidden=true;
+  }
   stage(1);
+  recover();
 })();
 </script>
 </body>
