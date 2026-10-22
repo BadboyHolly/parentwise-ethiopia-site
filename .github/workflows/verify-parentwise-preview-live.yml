@@ -1,4 +1,4 @@
-name: Verify deployed ParentWise full website (non-payable preview)
+name: Verify ParentWise full website — owner account display
 
 on:
   push:
@@ -16,7 +16,22 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 12
     steps:
-      - name: Fetch deployed preview pages and branding (READ ONLY)
+      - name: Wait for Render deployment containing founder-approved details
+        env:
+          BASE: https://parentwise-ethiopia-full-website-preview.onrender.com
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 35); do
+            curl --fail --silent --show-error --location --max-time 15 -o /tmp/pw-checkout.html "$BASE/order.html" || true
+            if grep -q '0912910693' /tmp/pw-checkout.html && grep -q '1000223019327' /tmp/pw-checkout.html; then
+              echo "PASS Render serves updated recipient copy"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "Render did not serve expected checkout revision"
+          exit 1
+      - name: Fetch deployed pages and required assets
         env:
           BASE: https://parentwise-ethiopia-full-website-preview.onrender.com
         run: |
@@ -28,29 +43,33 @@ jobs:
               /robots.txt) out=/tmp/pw-robots.txt ;;
               *) out=/tmp/pw-$(basename "$path") ;;
             esac
-            curl --fail --location --silent --show-error --retry 8 --retry-delay 4 --retry-all-errors --max-time 20 --output "$out" "$BASE$path"
-            echo "200 OK $path (bytes: $(wc -c < "$out"))"
+            curl --fail --location --silent --show-error --max-time 30 -o "$out" "$BASE$path"
+            echo "200 OK $path"
           done
-      - name: Validate full content and no real-payment settings
+      - name: Validate published content, payment accounts and static handoff
         run: |
           python - <<'PY'
           from pathlib import Path
           home=Path("/tmp/pw-home.html").read_text(encoding="utf-8")
           checkout=Path("/tmp/pw-checkout.html").read_text(encoding="utf-8")
           robots=Path("/tmp/pw-robots.txt").read_text(encoding="utf-8")
-          assert len(home)>2000000, "Full embedded sales page not present"
-          assert 'href="order.html"' in home, "CTA missing relative checkout path"
-          assert 'noindex' in home, "Preview indexing blocker missing"
-          assert "DEMO ONLY" in checkout and "No orders" in checkout, "Non-payable disclaimer missing"
-          assert "QA-TELEBIRR-ONLY" in checkout and "QA-CBE-ONLY" in checkout, "Fictional recipients missing"
-          assert "DEMO RECIPIENT — NOT REAL" in checkout, "Fake recipient warning missing"
-          assert 'href="./"' in checkout, "Logo back link must not point to QA"
-          assert "https://t.me/ParentWiseEthiopia" in checkout, "Configured Telegram destination missing"
-          assert 'fetch(' not in checkout, "Static review checkout must not submit an order"
-          for number in ("0912910693","1000223019327","10002230019327"):
-            assert number not in home and number not in checkout, "Real payment account publicly exposed"
-          assert "Disallow: /" in robots
+          assert len(home)>2000000
+          assert 'href="order.html"' in home
+          assert "QA TEST ONLY" not in home
+          assert "እውነተኛ ክፍያ አይፈጽሙ" not in home
+          assert "ParentWise Ethiopia — Child Behavior & Discipline System" in home
+          assert "0912910693" in checkout and "1000223019327" in checkout
+          assert "KIDUS ELIAS" in checkout
+          assert "10002230019327" not in checkout
+          for w in ("DEMO ONLY","QA-TELEBIRR-ONLY","QA-CBE-ONLY","No orders",
+                    "DEMO RECIPIENT","ገንዘብ አይላኩ","የሙከራ ገጽ"):
+            assert w not in checkout, w
+          assert 'href="./"' in checkout
+          assert "https://t.me/ParentWiseEthiopia" in checkout
+          assert 'fetch(' not in checkout, "Unexpected backend connection: site should remain static until integration approved"
+          assert "ይህ ገጽ ብቻውን ትዕዛዝ አያስቀምጥም።" in checkout
+          assert 'noindex' in home and "Disallow: /" in robots
           for path in ("/tmp/pw-logo-reversed.webp","/tmp/pw-telebirr-mark.svg","/tmp/pw-cbe-bank-logo.png","/tmp/pw-product-workbook.webp"):
-            assert Path(path).stat().st_size > 1000, path
-          print("PASS LIVE: complete sales page + linked non-payable checkout + logos, safe recipient placeholders, no order writes, no indexing")
+            assert Path(path).stat().st_size > 1000
+          print("PASS LIVE: full sales page and checkout, correct owner recipient accounts, clean copy, static Telegram handoff, no backend/automatic order intake")
           PY
