@@ -50,6 +50,22 @@ jobs:
           exit 1
       - name: Validate all five widths, synthetic order and recovery
         run: python qa-tests/preview_checkout_gate_acceptance.py
+      - name: Internal founder visual snapshot — feature branch only
+        if: github.ref_name == 'refine/checkout-founder-simplified-premium-20261022'
+        run: |
+          python - <<'PY'
+          from playwright.sync_api import sync_playwright
+          import base64
+          with sync_playwright() as p:
+              browser=p.chromium.launch(headless=True,channel='chrome')
+              page=browser.new_page(viewport={'width':390,'height':844},device_scale_factor=1)
+              for name,path in [('HOME','/'),('CHECKOUT','/order.html')]:
+                  page.goto('http://127.0.0.1:8765'+path)
+                  page.wait_for_timeout(1500)
+                  data=page.screenshot(type='jpeg',quality=47)
+                  print('SCREENSHOT_'+name+'='+base64.b64encode(data).decode())
+              browser.close()
+          PY
 
   api-regression:
     runs-on: ubuntu-24.04
