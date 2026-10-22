@@ -7,6 +7,7 @@ on:
     paths:
       - 'site-preview/order.html'
       - 'production_checkout/app.py'
+      - 'production_checkout/tests/**'
       - 'qa-tests/preview_checkout_gate_acceptance.py'
       - '.github/workflows/checkout-gated-preview-acceptance.yml'
   workflow_dispatch:
