@@ -60,7 +60,7 @@ jobs:
               browser=p.chromium.launch(headless=True,channel='chrome')
               page=browser.new_page(viewport={'width':390,'height':844},device_scale_factor=1)
               for name,path in [('HOME','/'),('CHECKOUT','/order.html')]:
-                  page.goto('http://127.0.0.1:8765'+path)
+                  page.goto('http://127.0.0.1:8765'+path,wait_until='domcontentloaded',timeout=15000)
                   page.wait_for_timeout(1500)
                   data=page.screenshot(type='jpeg',quality=47)
                   print('SCREENSHOT_'+name+'='+base64.b64encode(data).decode())
