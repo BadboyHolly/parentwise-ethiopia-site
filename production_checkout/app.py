@@ -276,6 +276,9 @@ def from_environment() -> FastAPI:
     }
     if any(not value for account in accounts.values() for value in account.values()):
         raise RuntimeError("Private settlement recipient configuration is required")
+    if (not re.fullmatch(r"0[97][0-9]{8}", accounts["telebirr"]["number"])
+            or not re.fullmatch(r"[0-9]{13}", accounts["bank"]["number"])):
+        raise RuntimeError("Invalid payment account format; verify recipients privately")
     app = build_app(
         database_url=database_url,
         token_secret=os.getenv("ORDER_TOKEN_KEY", ""),
