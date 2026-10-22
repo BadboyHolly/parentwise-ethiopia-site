@@ -61,11 +61,18 @@ with sync_playwright() as playwright:
         expect(page.locator("#recipient-number")).to_have_text("—")
         assert page.locator("#checkout-availability").count()==0
         expect(page.locator("#order-reference-bar")).to_be_hidden()
-        expect(page.locator(".subtle-note")).to_contain_text("ይውላል")
+        # Founder direction: no product recap or Telegram warning ahead of details.
+        assert page.locator(".mini-product").count()==0
+        assert page.locator(".info").count()==0
+        assert page.locator(".subtle-note").count()==0
+        expect(page.locator("#order-summary")).to_be_visible()
+        expect(page.locator("#order-summary")).not_to_have_attribute("open","")
+        expect(page.locator("#customer-mobile")).to_have_attribute("placeholder","09XXXXXXXX")
+        expect(page.locator('input[name="payment"][value="bank"] + img')).to_be_visible()
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth + 2")
-        assert page.evaluate("""() => ['.progress','p.sub','.fieldnote','.mini-product span','.info'].every(
+        assert page.evaluate("""() => ['.progress','p.sub','.fieldnote','.checkout-guide','.bottom-order summary'].every(
             selector=>parseFloat(getComputedStyle(document.querySelector(selector)).fontSize)>=13
-        )"""), "Amharic utility text must not be below 13px"
+        )"""), "Checkout helper text must not be below 13px"
         page.locator("#continue-payment").click()
         expect(page.locator("#validation-error")).to_be_visible()
         page.locator("#customer-name").fill("አባት አለሙ")
@@ -77,6 +84,9 @@ with sync_playwright() as playwright:
         expect(page.locator("#recipient-number")).to_have_text("•••••••••9327" if choice=="bank" else "••••••0693")
         expect(page.locator("#copy-recipient")).to_be_disabled()
         expect(page.locator("#walkthrough-payment-note")).to_be_visible()
+        expect(page.locator("#payment-fulfillment")).to_be_visible()
+        expect(page.locator("#payment-fulfillment")).to_contain_text("Telegram")
+        expect(page.locator("#paid-action")).to_contain_text("ወደ ቀጣዩ ደረጃ")
         assert "No order was saved" in page.locator("#walkthrough-payment-note").inner_text()
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth + 2")
         # Both directions must work, preserving name, phone and selected rail.
@@ -96,6 +106,9 @@ with sync_playwright() as playwright:
         page.locator("#paid-action").click()
         expect(page.locator("#telegram-section")).to_be_visible()
         expect(page.locator("#walkthrough-telegram-note")).to_be_visible()
+        expect(page.locator("#telegram-step-one")).to_have_text("1 · መረጃዎን Copy ያድርጉ")
+        expect(page.locator("#telegram-step-two")).to_have_text("2 · Telegram ይክፈቱ")
+        expect(page.locator("#telegram-handoff")).to_have_text("Telegram ድጋፍ ↗")
         assert "Order: Not created" in page.locator("#confirmation-message").inner_text()
         assert "Payment: Not requested" in page.locator("#confirmation-message").inner_text()
         assert "PW-" not in page.locator("#confirmation-message").inner_text()
