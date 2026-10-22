@@ -1,0 +1,45 @@
+name: Founder-directed payment copy — browser acceptance
+
+on:
+  push:
+    branches: [prepare/parentwise-real-payment-copy-20261022]
+    paths:
+      - 'site-preview/**'
+      - 'qa-tests/live-recipient-copy-review.py'
+      - '.github/workflows/founder-payment-copy-browser.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  visual-and-flow:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install browser
+        run: |
+          python -m pip install 'playwright==1.56.0'
+          python -m playwright install --with-deps chromium
+      - name: Run static preview server, no payment or backend
+        run: |
+          python -m http.server 8765 --bind 127.0.0.1 --directory site-preview >/tmp/parentwise-final-payment-copy.log 2>&1 &
+          for i in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:8765/order.html -o /dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/parentwise-final-payment-copy.log
+          exit 1
+      - name: Test complete buyer flow and copy at five viewports
+        run: python qa-tests/live-recipient-copy-review.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: parentwise-founder-payment-copy-browser-shots
+          path: qa-artifacts/real-payment-copy/*.png
+          retention-days: 7
+          if-no-files-found: ignore
