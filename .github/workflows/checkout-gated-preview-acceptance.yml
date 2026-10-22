@@ -7,6 +7,7 @@ on:
       - checkout/v1-resume-and-release-gates-20261022
       - feature/interactive-checkout-founder-review-20261022
       - deploy/parentwise-full-site-preview-20261021
+      - fix/checkout-step-navigation-20261022
     paths:
       - 'site-preview/order.html'
       - 'production_checkout/app.py'
@@ -32,10 +33,10 @@ jobs:
           test "$(git hash-object site-preview/index.html)" = "9c6ec146adde2f3df5274c5794660a586eb6fc65"
           grep -q "CHECKOUT_OPEN = false" site-preview/order.html
           grep -q "ORDER_API_ORIGIN = ''" site-preview/order.html
-      - name: Install Playwright Chromium
+      - name: Install Playwright Python and use runner-provided Chrome
         run: |
           python -m pip install --disable-pip-version-check 'playwright==1.56.0'
-          python -m playwright install --with-deps chromium
+          google-chrome --version
       - name: Start public-preview static fixture only
         run: |
           python -m http.server 8765 --bind 127.0.0.1 --directory site-preview >/tmp/pw-preview.log 2>&1 &
