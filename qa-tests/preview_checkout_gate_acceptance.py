@@ -60,7 +60,12 @@ with sync_playwright() as playwright:
         expect(page.locator("#payment-section")).to_be_hidden()
         expect(page.locator("#recipient-number")).to_have_text("—")
         assert page.locator("#checkout-availability").count()==0
+        expect(page.locator("#order-reference-bar")).to_be_hidden()
+        expect(page.locator(".subtle-note")).to_contain_text("ይውላል")
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth + 2")
+        assert page.evaluate("""() => ['.progress','p.sub','.fieldnote','.mini-product span','.info'].every(
+            selector=>parseFloat(getComputedStyle(document.querySelector(selector)).fontSize)>=13
+        )"""), "Amharic utility text must not be below 13px"
         page.locator("#continue-payment").click()
         expect(page.locator("#validation-error")).to_be_visible()
         page.locator("#customer-name").fill("አባት አለሙ")
@@ -131,6 +136,7 @@ with sync_playwright() as playwright:
         expect(page.locator("#payment-section")).to_be_visible()
         expect(page.locator("#details-section")).to_be_hidden()
         expect(page.locator("#edit-order-notice")).to_be_visible()
+        expect(page.locator("#edit-order-notice")).to_be_focused()
         page.locator("#change-method").click()
         expect(page.locator("#payment-section")).to_be_visible()
         assert sum(1 for r in requests if r.get("method")=="POST")==post_count
@@ -143,6 +149,12 @@ with sync_playwright() as playwright:
         expect(page.locator("#visible-order-reference")).to_have_text(ORDER_ID)
         assert "የትዕዛዝ መጠን: 1,500 ETB" in page.locator("#confirmation-message").inner_text()
         assert "የዝውውር ቁጥር" in page.locator("#confirmation-message").inner_text()
+        # Telegram handoff offers best-effort clipboard copy without opening Telegram here.
+        page.evaluate("""() => {
+            document.getElementById('telegram-handoff').addEventListener('click', ev => ev.preventDefault(), {once:true});
+            document.getElementById('telegram-handoff').click();
+        }""")
+        page.wait_for_function("""async () => (await navigator.clipboard.readText()).includes('የትዕዛዝ ቁጥር:')""")
         page.locator("#copy-order-reference").click()
         expect(page.locator("#copy-order-reference-status")).to_contain_text("ተቀድቷል")
         page.locator("#back-telegram").click()
