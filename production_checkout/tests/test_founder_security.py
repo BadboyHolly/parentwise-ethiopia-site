@@ -145,6 +145,10 @@ def test_approval_gate_and_forged_founder_identity_are_denied(founder_app):
         blocked=client.post("/api/v1/founder/reject",headers=headers,json={
             "order_id":"PW-"+"A"*24,"claim_id":"x","reason":"No evidence supplied"})
         assert blocked.status_code==503
+        claim_blocked=client.post("/api/v1/founder/claims/telegram",headers=headers,json={
+            "order_id":"PW-"+"A"*24,"payment_method":"telebirr",
+            "transaction_reference":"SIM-GATE-CLOSED"})
+        assert claim_blocked.status_code==503
 
 
 def test_founder_metrics_and_manual_delivery_routes_are_authenticated_and_gated(founder_app):
@@ -255,6 +259,7 @@ def _insert_order(app, *, method="telebirr"):
     return code
 
 
+@pytest.mark.parametrize("founder_app", [True], indirect=True)
 def test_telegram_claim_requires_session_csrf_gate_and_matching_order(founder_app):
     code=_insert_order(founder_app,method="bank")
     body={"order_id":code,"payment_method":"telebirr",
