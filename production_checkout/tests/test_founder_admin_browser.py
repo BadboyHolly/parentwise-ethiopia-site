@@ -156,7 +156,7 @@ def test_founder_browser_auth_claim_approval_delivery_and_expiry(running_founder
         def record_delivery(button_name, expected):
             page.locator("#global-message").evaluate("el => { el.textContent=''; el.classList.remove('visible'); }")
             delivery.get_by_role("button",name=button_name).click()
-            page.wait_for_function("expected => document.querySelector('#global-message').textContent.includes(expected)", expected)
+            page.wait_for_function("expected => document.querySelector('#global-message').textContent.includes(expected)", arg=expected)
         record_delivery("Mark preparing","Delivery marked preparing.")
         record_delivery("Mark failed","Delivery marked failed.")
         record_delivery("Mark preparing","Delivery marked preparing.")
