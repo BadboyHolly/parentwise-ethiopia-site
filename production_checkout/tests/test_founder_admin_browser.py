@@ -119,7 +119,7 @@ def test_founder_browser_auth_claim_approval_delivery_and_expiry(running_founder
         page.locator("#username").fill("browser-founder");page.locator("#password").fill(PASSWORD);page.locator("#totp").fill(totp(TOTP_SECRET))
         page.locator("#login-form button").click();page.wait_for_url("**/api/v1/founder/ui")
         page.get_by_role("heading",name="Overview",exact=True).wait_for()
-        page.wait_for_function("document.querySelector('#metric-revenue').textContent !== '—'", timeout=10000)
+        page.locator("#metric-revenue").get_by_text("0 ETB",exact=True).wait_for()
         assert page.locator("#metric-revenue").inner_text()=="0 ETB", page.locator("#global-message").inner_text()
         assert page.locator("#metric-awaiting").inner_text()=="2"
         assert page.evaluate("document.documentElement.scrollWidth <= window.innerWidth")
@@ -139,7 +139,7 @@ def test_founder_browser_auth_claim_approval_delivery_and_expiry(running_founder
         page.locator("#decision-reason").fill("Synthetic receiving account settlement verified")
         page.locator("#approve-payment").click()
         page.get_by_text("Payment approved after independent verification.").wait_for()
-        page.wait_for_function("document.querySelector('#metric-revenue').textContent === '1,500 ETB'", timeout=10000)
+        page.locator("#metric-revenue").get_by_text("1,500 ETB",exact=True).wait_for()
         assert page.locator("#metric-revenue").inner_text()=="1,500 ETB"
         assert page.locator("#metric-paid").inner_text()=="1"
 
@@ -156,11 +156,13 @@ def test_founder_browser_auth_claim_approval_delivery_and_expiry(running_founder
         def record_delivery(button_name, expected):
             page.locator("#global-message").evaluate("el => { el.textContent=''; el.classList.remove('visible'); }")
             delivery.get_by_role("button",name=button_name).click()
-            page.wait_for_function("expected => document.querySelector('#global-message').textContent.includes(expected)", arg=expected)
+            result=page.locator("#global-message.visible").get_by_text(expected,exact=False)
+            result.wait_for()
+            assert expected in result.inner_text()
         record_delivery("Mark preparing","Delivery marked preparing.")
         record_delivery("Mark failed","Delivery marked failed.")
         delivery.get_by_role("button",name="View history").click()
-        page.wait_for_function("document.querySelectorAll('#history-list li').length === 2", timeout=10000)
+        page.locator("#history-list li:nth-child(2)").wait_for()
         assert page.locator("#history-list li").count()==2
         page.get_by_role("button",name="Close history").click()
         record_delivery("Mark preparing","Delivery marked preparing.")
