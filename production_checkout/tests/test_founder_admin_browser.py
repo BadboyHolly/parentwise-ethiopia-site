@@ -118,7 +118,7 @@ def test_founder_browser_auth_claim_approval_delivery_and_expiry(running_founder
         assert page.title()=="Founder sign in · ParentWise Ethiopia"
         page.locator("#username").fill("browser-founder");page.locator("#password").fill(PASSWORD);page.locator("#totp").fill(totp(TOTP_SECRET))
         page.locator("#login-form button").click();page.wait_for_url("**/api/v1/founder/ui")
-        page.get_by_role("heading",name="Overview").wait_for()
+        page.get_by_role("heading",name="Overview",exact=True).wait_for()
         assert page.locator("#metric-revenue").inner_text()=="0 ETB"
         assert page.locator("#metric-awaiting").inner_text()=="2"
         assert page.evaluate("document.documentElement.scrollWidth <= window.innerWidth")

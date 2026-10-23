@@ -122,19 +122,24 @@ def test_origin_and_login_rate_limit_runs_before_argon2(founder_app, monkeypatch
         assert statuses[:5] == [401]*5 and statuses[-1] == 429
         assert len(expensive_checks) == 5
         with founder_app.state.engine.connect() as db:
-            assert db.scalar(text("SELECT count(*) FROM production_founder_security_events WHERE event_type='LOGIN_RATE_LIMITED'")) == 1
+            assert db.scalar(text("SELECT count(*) FROM production_founder_security_events WHERE event_type='LOGIN_FAILED' AND event_data->>'rate_limited'='true'")) == 1
 
 
 def test_expired_session_missing_csrf_and_logout_revoke(founder_app):
     with TestClient(founder_app, base_url="https://founder.example") as client:
-        response=login(client); assert response.status_code==200
+        original_totp=totp(TOTP_SECRET)
+        response=client.post("/api/v1/founder/session",headers={"Origin":"https://founder.example"},
+            json={"username":"founder-primary","password":PASSWORD,"totp":original_totp})
+        assert response.status_code==200
         csrf=response.json()["csrf_token"]
         assert client.delete("/api/v1/founder/session",headers={"Origin":"https://founder.example"}).status_code==403
         assert client.delete("/api/v1/founder/session",headers={"Origin":"https://founder.example","X-CSRF-Token":"wrong"}).status_code==403
         ok=client.delete("/api/v1/founder/session",headers={"Origin":"https://founder.example","X-CSRF-Token":csrf})
         assert ok.status_code==204
         assert client.get("/api/v1/founder/session").status_code==401
-        again=login(client); assert again.status_code==401  # same TOTP step cannot be replayed
+        again=client.post("/api/v1/founder/session",headers={"Origin":"https://founder.example"},
+            json={"username":"founder-primary","password":PASSWORD,"totp":original_totp})
+        assert again.status_code==401  # identical TOTP step cannot be replayed
 
 
 def test_expired_session_denies_requests(founder_app):

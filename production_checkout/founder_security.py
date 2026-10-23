@@ -227,7 +227,7 @@ def _consume_rate_limit(db: Session, cfg: FounderConfig, request: Request, usern
            {"bucket": bucket}).one()
         if current.attempts >= limit and current.window_started_at > now - window:
             source_hash = _digest(cfg.rate_key, "source", ip)
-            _audit(db, "LOGIN_RATE_LIMITED", None, source_hash)
+            _audit(db, "LOGIN_FAILED", None, source_hash, {"rate_limited": True})
             return source_hash, int(window.total_seconds())
         if current.window_started_at <= now - window:
             db.execute(text("UPDATE production_founder_rate_limits SET window_started_at=now(), attempts=1, updated_at=now() WHERE bucket_hash=:bucket"), {"bucket": bucket})
@@ -460,7 +460,7 @@ def create_founder_router(sessions: sessionmaker, cfg: FounderConfig) -> APIRout
         from .founder_encryption import decrypt_claim_reference
         with sessions() as db:
             rows = db.execute(text("""SELECT o.code,o.customer_name,o.mobile_e164,o.method,o.amount_etb,
-                       c.id AS claim_id,c.claim_status,c.reference_ciphertext,c.created_at,e.id AS evidence_id,
+                       c.id AS claim_id,c.claim_status,c.reference_ciphertext,c.submitted_at,e.id AS evidence_id,
                        e.payment_method AS evidence_method,e.amount_etb AS evidence_amount_etb,
                        e.currency AS evidence_currency,e.evidence_source,e.settled_at,e.observed_at,
                        e.payer_identity_digest,x.id AS exception_id
@@ -469,7 +469,7 @@ def create_founder_router(sessions: sessionmaker, cfg: FounderConfig) -> APIRout
                   LEFT JOIN production_settlement_evidence e ON e.claim_id=c.id AND e.order_id=c.order_id
                   LEFT JOIN production_third_party_payer_exceptions x ON x.evidence_id=e.id
                  WHERE c.claim_status IN ('SUBMITTED','EVIDENCE_RECORDED') AND s.payment_status='UNDER_REVIEW'
-                 ORDER BY c.created_at ASC LIMIT 100""")).mappings().all()
+                 ORDER BY c.submitted_at ASC LIMIT 100""")).mappings().all()
         output = []
         for r in rows:
             ref = decrypt_claim_reference(r["reference_ciphertext"], cfg, r["code"])
@@ -479,7 +479,7 @@ def create_founder_router(sessions: sessionmaker, cfg: FounderConfig) -> APIRout
                            "payment_method":r["method"],"amount_etb":r["amount_etb"],"claim_id":str(r["claim_id"]),
                            "claim_status":r["claim_status"],"evidence_id":str(r["evidence_id"]) if r["evidence_id"] else None,
                            "exception_id":str(r["exception_id"]) if r["exception_id"] else None,
-                           "claimed_reference":ref,"submitted_at":r["created_at"].isoformat(),
+                           "claimed_reference":ref,"submitted_at":r["submitted_at"].isoformat(),
                            "evidence":({"payment_method":r["evidence_method"],"amount_etb":r["evidence_amount_etb"],
                                "currency":r["evidence_currency"],"source":r["evidence_source"],
                                "settled_at":r["settled_at"].isoformat(),"observed_at":r["observed_at"].isoformat(),
