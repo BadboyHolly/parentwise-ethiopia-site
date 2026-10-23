@@ -119,6 +119,7 @@ def test_founder_browser_auth_claim_approval_delivery_and_expiry(running_founder
         page.locator("#username").fill("browser-founder");page.locator("#password").fill(PASSWORD);page.locator("#totp").fill(totp(TOTP_SECRET))
         page.locator("#login-form button").click();page.wait_for_url("**/api/v1/founder/ui")
         page.get_by_role("heading",name="Overview",exact=True).wait_for()
+        page.wait_for_function("document.querySelector('#metric-revenue').textContent !== '—'", timeout=10000)
         assert page.locator("#metric-revenue").inner_text()=="0 ETB", page.locator("#global-message").inner_text()
         assert page.locator("#metric-awaiting").inner_text()=="2"
         assert page.evaluate("document.documentElement.scrollWidth <= window.innerWidth")
