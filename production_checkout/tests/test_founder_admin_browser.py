@@ -139,6 +139,7 @@ def test_founder_browser_auth_claim_approval_delivery_and_expiry(running_founder
         page.locator("#decision-reason").fill("Synthetic receiving account settlement verified")
         page.locator("#approve-payment").click()
         page.get_by_text("Payment approved after independent verification.").wait_for()
+        page.wait_for_function("document.querySelector('#metric-revenue').textContent === '1,500 ETB'", timeout=10000)
         assert page.locator("#metric-revenue").inner_text()=="1,500 ETB"
         assert page.locator("#metric-paid").inner_text()=="1"
 

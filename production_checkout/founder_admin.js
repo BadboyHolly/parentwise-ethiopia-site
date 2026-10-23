@@ -134,8 +134,8 @@
     try {
       const body={order_id:state.claim.order_id,claim_id:state.claim.claim_id,evidence_id:approve?state.evidenceId:null,reason}; if(approve&&state.exceptionId)body.third_party_exception_id=state.exceptionId;
       const result=await api(approve?'/approve':'/reject',{method:'POST',body:JSON.stringify(body)});
-      message(approve?`Payment approved after independent verification. Delivery remains ${result.delivery_status||'pending'} and must be recorded manually.`:'Claim rejected and decision recorded.','success');
       state.claim=null; state.evidenceId=null; $('claim-review').hidden=true; await Promise.all([loadMetrics(),loadClaims(),loadDeliveries(),loadOrders()]);
+      message(approve?`Payment approved after independent verification. Delivery remains ${result.delivery_status||'pending'} and must be recorded manually.`:'Claim rejected and decision recorded.','success');
     } catch(error){message(error.message);}
     finally {btn.disabled=false;}
   }
