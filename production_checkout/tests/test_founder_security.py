@@ -46,7 +46,7 @@ def password_hash():
 @pytest.fixture
 def founder_app(password_hash, request):
     app = build_app(database_url=DATABASE_URL, token_secret="t"*48,
-                    allowed_origins=["https://founder.example"], intake_enabled=False)
+                    allowed_origins=["https://founder.example"], intake_enabled=True)
     cfg = FounderConfig(
         username="founder-primary", password_hash=password_hash, totp_secret=TOTP_SECRET,
         session_key=b"s"*32, rate_key=b"r"*32, encryption_keys={"test-k1":KEY},
@@ -167,21 +167,14 @@ def test_founder_metrics_and_manual_delivery_routes_are_authenticated_and_gated(
 @pytest.mark.parametrize("founder_app", [True], indirect=True)
 def test_founder_mfa_approval_and_telegram_delivery_journey(founder_app):
     cfg = founder_app.state.founder_config
-    code = "PW-" + secrets.token_hex(12).upper()
-    order_id = str(uuid4())
-    token = private_token(cfg.token_secret, secrets.token_urlsafe(32))
-    with founder_app.state.engine.begin() as db:
-        db.execute(text("""
-            INSERT INTO production_orders
-              (id,code,customer_name,mobile_e164,method,amount_etb,currency,status,
-               idempotency_hash,request_fingerprint,access_hash,created_at)
-            VALUES (:id,:code,'Synthetic Founder Test','+251912345678','telebirr',1500,
-                    'ETB','AWAITING_PAYMENT',:idem,:fingerprint,:access_hash,now())
-        """), {"id":order_id,"code":code,"idem":secrets.token_hex(32),
-               "fingerprint":secrets.token_hex(32),
-               "access_hash":hmac_digest(cfg.token_secret,"stored:v1:"+token)})
     reference = "SIM-FOUNDER-" + secrets.token_hex(6).upper()
     with TestClient(founder_app, base_url="https://founder.example") as client:
+        order_created=client.post("/api/v1/orders",
+            headers={"Idempotency-Key":base64.urlsafe_b64encode(secrets.token_bytes(32)).decode().rstrip("=")},
+            json={"customer_name":"Synthetic Founder Test","mobile":"+251912345678",
+                  "payment_method":"telebirr"})
+        assert order_created.status_code == 201, order_created.text
+        code=order_created.json()["order"]["order_id"]
         assert client.get("/api/v1/founder/orders/search",
                           params={"q":code}).status_code == 401
         logged = login(client); assert logged.status_code == 200
@@ -237,6 +230,7 @@ def test_founder_mfa_approval_and_telegram_delivery_journey(founder_app):
         assert metrics["verified_revenue_etb"] == 1500
         assert metrics["delivery_delivered"] == 1
     with founder_app.state.engine.connect() as db:
+        order_id=db.scalar(text("SELECT id FROM production_orders WHERE code=:code"),{"code":code})
         assert db.execute(text("SELECT count(*) FROM production_download_grants WHERE order_id=:id"),
                           {"id":order_id}).scalar_one() == 0
 
