@@ -22,8 +22,6 @@ from production_checkout.founder_security import (
     FounderConfig, InvalidCiphertext, create_founder_router, decrypt_sensitive,
     encrypt_sensitive, _totp_counter,
 )
-from production_checkout.founder_encryption import encrypt_claim_reference
-from production_checkout.payment_state import submit_payment_claim
 
 DATABASE_URL = os.getenv("TEST_DATABASE_URL")
 pytestmark = pytest.mark.skipif(not DATABASE_URL, reason="requires disposable PostgreSQL")
@@ -179,17 +177,37 @@ def test_founder_mfa_approval_and_telegram_delivery_journey(founder_app):
                "fingerprint":secrets.token_hex(32),
                "access_hash":hmac_digest(cfg.token_secret,"stored:v1:"+token)})
     reference = "SIM-FOUNDER-" + secrets.token_hex(6).upper()
-    with founder_app.state.sessions() as db:
-        claim_id = submit_payment_claim(
-            db, order_code=code, access_token=token, token_secret=cfg.token_secret,
-            reference_hash_secret=cfg.reference_hash_secret, transaction_reference=reference,
-            reference_ciphertext=encrypt_claim_reference(reference,cfg,code),
-        )
-
     with TestClient(founder_app, base_url="https://founder.example") as client:
+        assert client.get("/api/v1/founder/orders/search",
+                          params={"q":code}).status_code == 401
         logged = login(client); assert logged.status_code == 200
         csrf = logged.json()["csrf_token"]
         headers={"Origin":"https://founder.example","X-CSRF-Token":csrf}
+        lookup=client.get("/api/v1/founder/orders/search",params={"q":code})
+        assert lookup.status_code == 200, lookup.text
+        assert lookup.json()["order"]["payment_status"] == "AWAITING_PAYMENT"
+        claim_response=client.post("/api/v1/founder/claims/telegram",headers=headers,json={
+            "order_id":code,"payment_method":"telebirr","transaction_reference":reference,
+        })
+        assert claim_response.status_code == 201, claim_response.text
+        assert claim_response.json()["status"] == "UNDER_REVIEW_NOT_PAYMENT_CONFIRMATION"
+        claim_id=claim_response.json()["claim_id"]
+        assert client.get("/api/v1/founder/metrics").json()["verified_revenue_etb"] == 0
+        with founder_app.state.engine.connect() as db:
+            stored=db.execute(text("""
+                SELECT c.reference_ciphertext,s.payment_status
+                  FROM production_payment_claims c
+                  JOIN production_payment_fulfillment_state s ON s.order_id=c.order_id
+                 WHERE c.id=:claim
+            """),{"claim":claim_id}).one()
+            audit=db.execute(text("""
+                SELECT actor_type,actor_id,event_data->>'channel'
+                  FROM production_payment_audit_events
+                 WHERE event_type='PAYMENT_CLAIM_RECORDED_TELEGRAM'
+            """)).one()
+        assert reference not in stored.reference_ciphertext
+        assert stored.payment_status == "UNDER_REVIEW"
+        assert audit == ("FOUNDER","founder-primary","TELEGRAM")
         settlement=client.post("/api/v1/founder/settlements",headers=headers,json={
             "order_id":code,"claim_id":claim_id,"observed_reference":reference,
             "payment_method":"telebirr","amount_etb":1500,"currency":"ETB",
@@ -217,6 +235,63 @@ def test_founder_mfa_approval_and_telegram_delivery_journey(founder_app):
     with founder_app.state.engine.connect() as db:
         assert db.execute(text("SELECT count(*) FROM production_download_grants WHERE order_id=:id"),
                           {"id":order_id}).scalar_one() == 0
+
+
+def _insert_order(app, *, method="telebirr"):
+    cfg=app.state.founder_config
+    code="PW-"+secrets.token_hex(12).upper()
+    order_id=str(uuid4())
+    token=private_token(cfg.token_secret,secrets.token_urlsafe(32))
+    with app.state.engine.begin() as db:
+        db.execute(text("""
+            INSERT INTO production_orders
+              (id,code,customer_name,mobile_e164,method,amount_etb,currency,status,
+               idempotency_hash,request_fingerprint,access_hash,created_at)
+            VALUES (:id,:code,'Synthetic Telegram Parent','+251912345678',:method,1500,
+                    'ETB','AWAITING_PAYMENT',:idem,:fingerprint,:access_hash,now())
+        """),{"id":order_id,"code":code,"method":method,"idem":secrets.token_hex(32),
+               "fingerprint":secrets.token_hex(32),
+               "access_hash":hmac_digest(cfg.token_secret,"stored:v1:"+token)})
+    return code
+
+
+def test_telegram_claim_requires_session_csrf_gate_and_matching_order(founder_app):
+    code=_insert_order(founder_app,method="bank")
+    body={"order_id":code,"payment_method":"telebirr",
+          "transaction_reference":"SIM-MISMATCH-"+secrets.token_hex(4).upper()}
+    with TestClient(founder_app,base_url="https://founder.example") as client:
+        assert client.post("/api/v1/founder/claims/telegram",json=body).status_code==401
+        logged=login(client); assert logged.status_code==200
+        headers={"Origin":"https://founder.example"}
+        assert client.post("/api/v1/founder/claims/telegram",headers=headers,json=body).status_code==403
+        headers["X-CSRF-Token"]=logged.json()["csrf_token"]
+        assert client.post("/api/v1/founder/claims/telegram",headers=headers,json=body).status_code==409
+        body["payment_method"]="bank"
+        first=client.post("/api/v1/founder/claims/telegram",headers=headers,json=body)
+        assert first.status_code==201, first.text
+        duplicate=client.post("/api/v1/founder/claims/telegram",headers=headers,json=body)
+        assert duplicate.status_code==409
+        missing={**body,"order_id":"PW-"+"F"*24,
+                 "transaction_reference":"SIM-MISSING-"+secrets.token_hex(4).upper()}
+        assert client.post("/api/v1/founder/claims/telegram",headers=headers,json=missing).status_code==404
+
+
+@pytest.mark.parametrize("founder_app", [True], indirect=True)
+def test_concurrent_telegram_claim_requests_cannot_reuse_reference(founder_app):
+    codes=[_insert_order(founder_app),_insert_order(founder_app)]
+    reference="SIM-CONCURRENT-TG-"+secrets.token_hex(6).upper()
+    with TestClient(founder_app,base_url="https://founder.example") as client:
+        logged=login(client); assert logged.status_code==200
+        headers={"Origin":"https://founder.example","X-CSRF-Token":logged.json()["csrf_token"]}
+        def submit(code):
+            return client.post("/api/v1/founder/claims/telegram",headers=headers,json={
+                "order_id":code,"payment_method":"telebirr","transaction_reference":reference})
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            responses=list(pool.map(submit,codes))
+        assert sorted(response.status_code for response in responses)==[201,409]
+    with founder_app.state.engine.connect() as db:
+        assert db.scalar(text("SELECT count(*) FROM production_payment_claims WHERE reference_digest IS NOT NULL"))==1
+        assert db.scalar(text("SELECT count(*) FROM production_payment_audit_events WHERE event_type='PAYMENT_CLAIM_RECORDED_TELEGRAM'"))==1
 
 
 def test_founder_request_cannot_supply_recipient_configuration(founder_app):

@@ -21,7 +21,7 @@ from argon2 import PasswordHasher, Type, extract_parameters
 from argon2.exceptions import InvalidHashError, VerifyMismatchError
 from cryptography.exceptions import InvalidTag
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-from fastapi import APIRouter, Cookie, Depends, Header, HTTPException, Request, Response
+from fastapi import APIRouter, Cookie, Depends, Header, HTTPException, Query, Request, Response
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from sqlalchemy import text
 from sqlalchemy.orm import Session, sessionmaker
@@ -267,6 +267,12 @@ def create_founder_router(sessions: sessionmaker, cfg: FounderConfig) -> APIRout
                 raise ValueError("Settlement time cannot be in the future")
             return value
 
+    class TelegramClaimInput(BaseModel):
+        model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+        order_id: str = Field(pattern=r"^PW-[0-9A-F]{24}$")
+        payment_method: str = Field(pattern=r"^(telebirr|bank)$")
+        transaction_reference: str = Field(min_length=3, max_length=128)
+
     class ExceptionInput(BaseModel):
         model_config = ConfigDict(extra="forbid")
         order_id: str
@@ -397,6 +403,51 @@ def create_founder_router(sessions: sessionmaker, cfg: FounderConfig) -> APIRout
                            "claim_status":r["claim_status"],"evidence_id":str(r["evidence_id"]) if r["evidence_id"] else None,
                            "claimed_reference":ref,"submitted_at":r["created_at"].isoformat()})
         return {"claims":output}
+
+    @router.get("/orders/search")
+    def search_orders(q: str = Query(min_length=3, max_length=32),
+                      who: dict = Depends(identity)):
+        """Exact founder-only lookup for matching a Telegram claim to an order."""
+        if not re.fullmatch(r"PW-[0-9A-F]{24}", q):
+            raise HTTPException(404, "Order not found")
+        with sessions() as db:
+            row = db.execute(text("""
+                SELECT o.code AS order_id, o.customer_name, o.mobile_e164,
+                       o.method AS payment_method, o.amount_etb, o.currency,
+                       s.payment_status, s.fulfillment_status
+                  FROM production_orders o
+                  JOIN production_payment_fulfillment_state s ON s.order_id=o.id
+                 WHERE o.code=:code
+            """), {"code": q}).mappings().first()
+        if row is None:
+            raise HTTPException(404, "Order not found")
+        return {"order": dict(row)}
+
+    @router.post("/claims/telegram", status_code=201)
+    def record_telegram_claim(body: TelegramClaimInput, request: Request,
+                              x_csrf_token: str | None = Header(default=None),
+                              who: dict = Depends(identity)):
+        require_csrf(request, who, x_csrf_token)
+        decision_enabled()
+        from .founder_encryption import encrypt_claim_reference
+        from .payment_state import record_founder_telegram_claim
+        try:
+            ciphertext = encrypt_claim_reference(
+                body.transaction_reference, cfg, body.order_id)
+            with sessions() as db:
+                claim_id = record_founder_telegram_claim(
+                    db, actor_id=who["founder_id"], order_code=body.order_id,
+                    payment_method=body.payment_method,
+                    reference_hash_secret=cfg.reference_hash_secret,
+                    transaction_reference=body.transaction_reference,
+                    reference_ciphertext=ciphertext,
+                )
+        except ValueError as exc:
+            raise HTTPException(422, str(exc)) from None
+        except Exception as exc:
+            _domain_error(exc)
+        return {"order_id": body.order_id, "claim_id": claim_id,
+                "status": "UNDER_REVIEW_NOT_PAYMENT_CONFIRMATION"}
 
     @router.get("/metrics")
     def metrics(who: dict = Depends(identity)):

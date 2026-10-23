@@ -150,6 +150,58 @@ def submit_payment_claim(
         raise
 
 
+def record_founder_telegram_claim(
+    db: Session, *, actor_id: str | None, order_code: str, payment_method: str,
+    reference_hash_secret: str, transaction_reference: str,
+    reference_ciphertext: str,
+) -> str:
+    """Record a Telegram-reported claim without asserting settlement.
+
+    The founder identity is taken from the authenticated session. The order's
+    configured method and server-priced amount are authoritative; this function
+    only accepts the explicitly matched method and an encrypted reference.
+    """
+    actor = _founder(actor_id)
+    if payment_method not in {"telebirr", "bank"}:
+        raise ValueError("Claim payment method is invalid")
+    if (not isinstance(reference_ciphertext, str) or
+            not reference_ciphertext.startswith("enc:v1:") or
+            not 7 < len(reference_ciphertext) <= 4096):
+        raise ValueError("Transaction reference must be encrypted before storage")
+    ref_digest = transaction_reference_digest(reference_hash_secret, transaction_reference)
+    try:
+        with db.begin():
+            order = _locked_order_state(db, order_code)
+            if order["method"] != payment_method or order["amount_etb"] != 1500 or order["currency"] != "ETB":
+                raise InvalidTransition("Claim details do not match the order")
+            if order["payment_status"] not in {"AWAITING_PAYMENT", "PAYMENT_REJECTED"}:
+                raise InvalidTransition("A claim cannot be recorded in the current state")
+            claim_id = str(uuid.uuid4())
+            db.execute(text("""
+                INSERT INTO production_payment_claims
+                  (id, order_id, payment_method, amount_etb, currency,
+                   reference_digest, reference_ciphertext)
+                VALUES (:id, :order_id, :method, :amount, :currency, :digest, :ciphertext)
+            """), {"id": claim_id, "order_id": order["order_id"],
+                   "method": payment_method, "amount": order["amount_etb"],
+                   "currency": order["currency"], "digest": ref_digest,
+                   "ciphertext": reference_ciphertext})
+            db.execute(text("""
+                UPDATE production_payment_fulfillment_state
+                   SET payment_status = 'UNDER_REVIEW'
+                 WHERE order_id = :order_id
+            """), {"order_id": order["order_id"]})
+            _audit(db, order_id=order["order_id"],
+                   event_type="PAYMENT_CLAIM_RECORDED_TELEGRAM",
+                   actor_type="FOUNDER", actor_id=actor,
+                   event_data={"claim_id": claim_id, "channel": "TELEGRAM"})
+            return claim_id
+    except IntegrityError as exc:
+        if "uq" in str(getattr(exc, "orig", exc)).lower() or "unique" in str(exc).lower():
+            raise DuplicateReference("Transaction reference has already been claimed") from None
+        raise
+
+
 def record_settlement_evidence(
     db: Session, *, actor_id: str | None, order_code: str, claim_id: str,
     reference_digest: str, payment_method: str, amount_etb: int, currency: str,
