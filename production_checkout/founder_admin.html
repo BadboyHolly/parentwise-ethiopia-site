@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>Founder Admin · ParentWise Ethiopia</title>
+  <link rel="stylesheet" href="/api/v1/founder/ui/admin.css">
+  <script defer src="/api/v1/founder/ui/admin.js"></script>
+</head>
+<body data-view="dashboard">
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand-lockup" href="/api/v1/founder/ui" aria-label="ParentWise founder dashboard"><span class="brand-symbol" aria-hidden="true">P</span><span>ParentWise <small>ETHIOPIA</small></span></a>
+      <p class="sidebar-caption">Founder workspace</p>
+      <nav class="side-nav" aria-label="Founder workspace sections">
+        <button type="button" class="nav-item active" data-section="overview"><span aria-hidden="true">◫</span> Overview</button>
+        <button type="button" class="nav-item" data-section="orders"><span aria-hidden="true">▤</span> Orders</button>
+        <button type="button" class="nav-item" data-section="payments"><span aria-hidden="true">◷</span> Payment review</button>
+        <button type="button" class="nav-item" data-section="delivery"><span aria-hidden="true">↗</span> Telegram delivery</button>
+      </nav>
+      <div class="sidebar-note"><span class="status-dot"></span><span>Manual payment workflow<br><small>Orders and payments stay gated</small></span></div>
+      <div class="sidebar-user"><div class="avatar" id="founder-initial">F</div><div><strong id="founder-name">Founder</strong><small>Administrator</small></div><button id="logout" class="icon-button" type="button" aria-label="Sign out" title="Sign out">↗</button></div>
+    </aside>
+    <main class="main-area">
+      <header class="topbar"><div><p class="eyebrow">ParentWise operations</p><h1 id="page-title">Overview</h1></div><div class="top-actions"><span class="secure-label"><span class="status-dot"></span> Secure session</span><button id="refresh-all" class="button button-light" type="button">Refresh data</button><button id="logout-mobile" class="icon-button mobile-logout" type="button" aria-label="Sign out">↗</button></div></header>
+      <div id="global-message" class="global-message" role="status" aria-live="polite"></div>
+      <section id="section-overview" class="page-section active" aria-labelledby="page-title">
+        <div class="section-heading"><div><h2>Business overview</h2><p>Only independently matched and founder-approved payments are counted as revenue.</p></div><span class="period-tag">Last 6 months</span></div>
+        <div class="metric-grid">
+          <article class="metric-card metric-primary"><span class="metric-label">Verified revenue</span><strong id="metric-revenue">—</strong><small>Founder-approved settlement</small></article>
+          <article class="metric-card"><span class="metric-label">Paid orders</span><strong id="metric-paid">—</strong><small>Payment confirmed</small></article>
+          <article class="metric-card"><span class="metric-label">Awaiting payment</span><strong id="metric-awaiting">—</strong><small>Not yet paid</small></article>
+          <article class="metric-card"><span class="metric-label">Claims under review</span><strong id="metric-claims">—</strong><small>Not payment confirmation</small></article>
+          <article class="metric-card"><span class="metric-label">Pending deliveries</span><strong id="metric-deliveries">—</strong><small>Founder action needed</small></article>
+        </div>
+        <div class="panel trend-panel"><div class="panel-heading"><div><h2>Verified revenue trend</h2><p>Monthly ETB totals from approved payments</p></div><span class="chart-key"><i></i> Verified revenue</span></div><div id="revenue-chart" class="revenue-chart" role="img" aria-label="Monthly verified revenue chart"></div></div>
+        <div class="panel note-panel"><span class="note-icon" aria-hidden="true">i</span><p>Customer claims, screenshots, and pending orders are not sales. Revenue appears only after independent settlement verification and founder approval.</p></div>
+      </section>
+      <section id="section-orders" class="page-section" aria-labelledby="orders-title">
+        <div class="section-heading"><div><h2 id="orders-title">Orders</h2><p>Search and filter existing orders. Customer data is available only in this authenticated session.</p></div></div>
+        <div class="panel table-panel">
+          <form id="order-filter" class="filter-row">
+            <label class="search-field"><span class="sr-only">Search order, customer or phone</span><input id="order-query" type="search" placeholder="Order code, customer or phone"></label>
+            <label><span class="sr-only">Filter payment status</span><select id="order-status"><option value="">All payment statuses</option><option value="AWAITING_PAYMENT">Awaiting payment</option><option value="UNDER_REVIEW">Under review</option><option value="PAYMENT_REJECTED">Rejected</option><option value="PAYMENT_CONFIRMED">Payment confirmed</option></select></label>
+            <label><span class="sr-only">Filter payment method</span><select id="order-method"><option value="">All methods</option><option value="telebirr">Telebirr</option><option value="bank">CBE</option></select></label>
+            <button class="button button-primary" type="submit">Search</button>
+          </form>
+          <div class="table-scroll"><table><thead><tr><th>Order</th><th>Customer</th><th>Payment</th><th>Amount</th><th>Delivery</th><th>Created</th></tr></thead><tbody id="orders-body"></tbody></table></div>
+          <div class="table-footer"><span id="orders-count">No orders loaded</span><div class="pagination"><button id="orders-prev" class="button button-light" type="button">Previous</button><button id="orders-next" class="button button-light" type="button">Next</button></div></div>
+        </div>
+      </section>
+      <section id="section-payments" class="page-section" aria-labelledby="payments-title">
+        <div class="section-heading"><div><h2 id="payments-title">Payment review</h2><p>A claim starts review only. Verify settlement independently in the Telebirr or CBE account before approval.</p></div></div>
+        <div class="payment-layout">
+          <div class="panel claim-entry"><div class="panel-heading"><div><h2>Record Telegram claim</h2><p>Enter the order code and reference shared by the customer.</p></div><span class="step-badge">01</span></div>
+            <form id="telegram-claim-form" class="stack-form"><label for="claim-order">Order code</label><div class="inline-field"><input id="claim-order" required pattern="PW-[0-9A-F]{24}" maxlength="27" placeholder="PW-…"><button id="lookup-order" class="button button-light" type="button">Find</button></div><div id="claim-order-summary" class="order-summary" hidden></div>
+              <label for="claim-method">Customer's payment method</label><select id="claim-method" required><option value="">Select method</option><option value="telebirr">Telebirr</option><option value="bank">Commercial Bank of Ethiopia</option></select>
+              <label for="claim-reference">Transaction reference</label><input id="claim-reference" required minlength="3" maxlength="128" autocomplete="off">
+              <p class="form-help">Stored encrypted. This is a customer claim only and does not confirm payment.</p>
+              <button class="button button-primary" type="submit">Record claim for review</button>
+            </form>
+          </div>
+          <div class="panel pending-claims"><div class="panel-heading"><div><h2>Claims awaiting review</h2><p>Submitted references are shown only to the authenticated founder.</p></div><button id="refresh-claims" class="text-button" type="button">Refresh</button></div><div id="claims-list" class="claims-list"><div class="empty-state">Loading claims…</div></div></div>
+        </div>
+        <div id="claim-review" class="panel review-panel" hidden>
+          <div class="panel-heading"><div><p class="eyebrow">Selected payment claim</p><h2 id="review-heading">Independent settlement review</h2><p id="review-subtitle"></p></div><button id="close-review" class="icon-button" type="button" aria-label="Close review">×</button></div>
+          <div class="review-warning"><strong>Do not approve from a receipt image or chat screenshot.</strong> Match the transaction against the receiving account's own transaction history.</div>
+          <div id="evidence-summary" class="evidence-summary" hidden></div>
+          <form id="settlement-form" class="form-grid">
+            <label>Observed transaction reference<input id="observed-reference" required minlength="3" maxlength="128" autocomplete="off"></label>
+            <label>Method<select id="evidence-method" required><option value="telebirr">Telebirr</option><option value="bank">CBE</option></select></label>
+            <label>Amount (ETB)<input id="evidence-amount" type="number" min="1" max="10000000" value="1500" required></label>
+            <label>Currency<input id="evidence-currency" value="ETB" maxlength="3" required></label>
+            <label>Payer mobile<input id="payer-mobile" inputmode="tel" pattern="\+251[97][0-9]{8}" placeholder="+251…" required></label>
+            <label>Observed at<input id="settled-at" type="datetime-local" required></label>
+            <label>Evidence source<select id="evidence-source" required><option value="TELEBIRR_PORTAL">Telebirr account history</option><option value="BANK_STATEMENT">CBE account statement</option></select></label>
+            <label class="check-line"><input id="recipient-confirmed" type="checkbox" required><span>I independently confirmed the receiving account</span></label>
+            <label class="full-width">Private verification note<textarea id="evidence-note" maxlength="512" rows="2" placeholder="Optional; encrypted before storage"></textarea></label>
+            <div class="full-width action-row"><button class="button button-primary" type="submit">Record observed settlement</button><span id="evidence-state" class="form-help">Evidence does not approve payment.</span></div>
+          </form>
+          <form id="exception-form" class="form-grid exception-form" hidden>
+            <div class="full-width"><h3>Document payer mismatch</h3><p class="form-help">Use only when the verified payer differs from the buyer; this does not approve the payment.</p></div>
+            <label>Relationship<select id="exception-relationship"><option value="SPOUSE">Spouse</option><option value="RELATIVE">Relative</option><option value="OTHER">Other</option></select></label>
+            <label class="full-width">Reason<textarea id="exception-rationale" minlength="10" maxlength="512" rows="2" required></textarea></label>
+            <div class="full-width"><button class="button button-light" type="submit">Document payer exception</button><span id="exception-state" class="form-help"></span></div>
+          </form>
+          <form id="decision-form" class="decision-form" hidden>
+            <label for="decision-reason">Founder decision reason</label><textarea id="decision-reason" minlength="10" maxlength="512" rows="2" required placeholder="Explain the decision for the audit history"></textarea>
+            <div class="decision-actions"><button id="approve-payment" class="button button-primary" type="button" disabled>Approve verified payment</button><button id="reject-payment" class="button button-danger" type="button">Reject claim</button><span id="decision-state" class="form-help">Record independent settlement evidence before approving.</span></div>
+          </form>
+        </div>
+      </section>
+      <section id="section-delivery" class="page-section" aria-labelledby="delivery-title">
+        <div class="section-heading"><div><h2 id="delivery-title">Telegram delivery</h2><p>Record manual delivery actions. “Completed” means founder-recorded delivery, not independently confirmed customer receipt.</p></div><button id="refresh-deliveries" class="button button-light" type="button">Refresh queue</button></div>
+        <div id="deliveries-list" class="delivery-list"><div class="empty-state">Loading delivery queue…</div></div>
+        <div id="delivery-history" class="panel history-panel" hidden><div class="panel-heading"><div><h2>Delivery history</h2><p id="history-order"></p></div><button id="close-history" class="icon-button" type="button" aria-label="Close history">×</button></div><ol id="history-list" class="history-list"></ol></div>
+      </section>
+      <footer class="app-footer">ParentWise Ethiopia · Private founder operations · Do not treat claims as confirmed payments</footer>
+    </main>
+  </div>
+</body>
+</html>
