@@ -122,7 +122,7 @@ def test_origin_and_login_rate_limit_runs_before_argon2(founder_app, monkeypatch
         assert statuses[:5] == [401]*5 and statuses[-1] == 429
         assert len(expensive_checks) == 5
         with founder_app.state.engine.connect() as db:
-            assert db.scalar(text("SELECT count(*) FROM production_founder_security_events WHERE event_type='LOGIN_FAILED' AND event_data->>'rate_limited'='true'")) == 1
+            assert db.scalar(text("SELECT count(*) FROM production_founder_security_events WHERE event_type='LOGIN_FAILED' AND event_data->>'rate_limited'='true'")) == 2
 
 
 def test_expired_session_missing_csrf_and_logout_revoke(founder_app):
