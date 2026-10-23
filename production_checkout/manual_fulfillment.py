@@ -68,6 +68,7 @@ def manual_delivery_report(db: Session) -> dict[str, int]:
                count(*) FILTER (WHERE s.payment_status='PAYMENT_REJECTED')::integer AS payment_rejected,
                count(*) FILTER (WHERE s.payment_status='PAYMENT_CONFIRMED')::integer AS payment_verified,
                coalesce(sum(o.amount_etb) FILTER (WHERE s.payment_status='PAYMENT_CONFIRMED'),0)::integer AS verified_revenue_etb,
+               count(*) FILTER (WHERE d.status IN ('PENDING','PREPARING','SENT','FAILED'))::integer AS delivery_unfinished,
                count(*) FILTER (WHERE d.status='PENDING')::integer AS delivery_pending,
                count(*) FILTER (WHERE d.status='PREPARING')::integer AS delivery_preparing,
                count(*) FILTER (WHERE d.status='SENT')::integer AS delivery_sent,

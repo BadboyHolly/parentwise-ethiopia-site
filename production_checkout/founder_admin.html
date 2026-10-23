@@ -32,7 +32,7 @@
           <article class="metric-card"><span class="metric-label">Paid orders</span><strong id="metric-paid">—</strong><small>Payment confirmed</small></article>
           <article class="metric-card"><span class="metric-label">Awaiting payment</span><strong id="metric-awaiting">—</strong><small>Not yet paid</small></article>
           <article class="metric-card"><span class="metric-label">Claims under review</span><strong id="metric-claims">—</strong><small>Not payment confirmation</small></article>
-          <article class="metric-card"><span class="metric-label">Pending deliveries</span><strong id="metric-deliveries">—</strong><small>Founder action needed</small></article>
+          <article class="metric-card"><span class="metric-label">Unfinished deliveries</span><strong id="metric-deliveries">—</strong><small>Pending, preparing, sent or failed</small></article>
         </div>
         <div class="panel trend-panel"><div class="panel-heading"><div><h2>Verified revenue trend</h2><p>Monthly ETB totals from approved payments</p></div><span class="chart-key"><i></i> Verified revenue</span></div><div id="revenue-chart" class="revenue-chart" role="img" aria-label="Monthly verified revenue chart"></div></div>
         <div class="panel note-panel"><span class="note-icon" aria-hidden="true">i</span><p>Customer claims, screenshots, and pending orders are not sales. Revenue appears only after independent settlement verification and founder approval.</p></div>
@@ -94,6 +94,10 @@
       <section id="section-delivery" class="page-section" aria-labelledby="delivery-title">
         <div class="section-heading"><div><h2 id="delivery-title">Telegram delivery</h2><p>Record manual delivery actions. “Completed” means founder-recorded delivery, not independently confirmed customer receipt.</p></div><button id="refresh-deliveries" class="button button-light" type="button">Refresh queue</button></div>
         <div id="deliveries-list" class="delivery-list"><div class="empty-state">Loading delivery queue…</div></div>
+        <div class="section-heading completed-delivery-heading"><div><h2>Completed deliveries</h2><p>Completion is founder-recorded; customer receipt is not independently confirmed.</p></div><button id="refresh-completed-deliveries" class="button button-light" type="button">Refresh history</button></div>
+        <form id="completed-delivery-filter" class="filter-row completed-delivery-filter"><label class="search-field"><span class="sr-only">Search completed deliveries by order, customer or phone</span><input id="completed-delivery-query" type="search" maxlength="120" placeholder="Search order, customer or phone"></label><button class="button button-primary" type="submit">Search</button><span id="completed-deliveries-count" class="form-help"></span></form>
+        <div id="completed-deliveries-list" class="delivery-list"><div class="empty-state">Search to view founder-recorded completed deliveries.</div></div>
+        <button id="completed-deliveries-more" class="button button-light" type="button" hidden>Load more completed deliveries</button>
         <div id="delivery-history" class="panel history-panel" hidden><div class="panel-heading"><div><h2>Delivery history</h2><p id="history-order"></p></div><button id="close-history" class="icon-button" type="button" aria-label="Close history">×</button></div><ol id="history-list" class="history-list"></ol></div>
       </section>
       <footer class="app-footer">ParentWise Ethiopia · Private founder operations · Do not treat claims as confirmed payments</footer>

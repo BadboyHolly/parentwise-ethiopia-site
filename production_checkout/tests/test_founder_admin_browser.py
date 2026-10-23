@@ -172,6 +172,22 @@ def test_founder_browser_auth_claim_approval_delivery_and_expiry(running_founder
         history=page.request.get(origin+f"/api/v1/founder/deliveries/{order_codes[0]}/history")
         assert history.status==200 and len(history.json()["history"])==6
         assert page.locator("#metric-deliveries").inner_text()=="0"
+        completed=page.request.get(origin+"/api/v1/founder/deliveries/completed",params={"q":order_codes[0]})
+        assert completed.status==200 and completed.json()["total"]==1
+        assert completed.json()["deliveries"][0]["updated_by"]=="browser-founder"
+        assert completed.json()["completion_semantics"]=="founder_recorded_not_customer_receipt_confirmed"
+        assert "history" not in completed.json()["deliveries"][0]
+        page.locator("#completed-delivery-query").fill(order_codes[0])
+        page.get_by_role("button",name="Search").last.click()
+        completed_card=page.locator("#completed-deliveries-list .completed-delivery-card").filter(has_text=order_codes[0])
+        completed_card.wait_for()
+        assert "Completed · founder-recorded" in completed_card.inner_text()
+        assert "recorded by browser-founder" in completed_card.inner_text()
+        completed_card.get_by_role("button",name="View audit history").click()
+        page.locator("#history-list li:nth-child(6)").wait_for()
+        assert page.locator("#history-list li").count()==6
+        assert "founder-recorded delivery history" in page.locator("#history-order").inner_text()
+        assert page.evaluate("document.documentElement.scrollWidth <= window.innerWidth")
 
         with app.state.engine.begin() as db:
             db.execute(text("UPDATE production_founder_sessions SET expires_at=now()-interval '1 second'"))

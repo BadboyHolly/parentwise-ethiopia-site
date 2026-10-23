@@ -568,6 +568,33 @@ def create_founder_router(sessions: sessionmaker, cfg: FounderConfig) -> APIRout
             """), {"code":order_id}).mappings().all()
         return {"order_id":order_id,"history":[dict(row) for row in rows]}
 
+    @router.get("/deliveries/completed")
+    def completed_deliveries(q: str = Query(default="", max_length=120),
+                             limit: int = Query(default=50, ge=1, le=100),
+                             offset: int = Query(default=0, ge=0, le=100000),
+                             who: dict = Depends(identity)):
+        search = q.strip()
+        pattern = f"%{search}%"
+        with sessions() as db:
+            total = db.scalar(text("""
+                SELECT count(*) FROM production_manual_deliveries d
+                  JOIN production_orders o ON o.id=d.order_id
+                 WHERE d.status='DELIVERED'
+                   AND (:q='' OR o.code ILIKE :pattern OR o.customer_name ILIKE :pattern OR o.mobile_e164 ILIKE :pattern)
+            """), {"q": search, "pattern": pattern})
+            rows = db.execute(text("""
+                SELECT o.code AS order_id,o.customer_name,o.mobile_e164,d.status,d.updated_by,
+                       d.created_at,d.updated_at,d.sent_at,d.delivered_at
+                  FROM production_manual_deliveries d
+                  JOIN production_orders o ON o.id=d.order_id
+                 WHERE d.status='DELIVERED'
+                   AND (:q='' OR o.code ILIKE :pattern OR o.customer_name ILIKE :pattern OR o.mobile_e164 ILIKE :pattern)
+                 ORDER BY d.delivered_at DESC NULLS LAST,o.code
+                 LIMIT :limit OFFSET :offset
+            """), {"q": search, "pattern": pattern, "limit": limit, "offset": offset}).mappings().all()
+        return {"total": int(total or 0), "deliveries": [dict(row) for row in rows],
+                "completion_semantics": "founder_recorded_not_customer_receipt_confirmed"}
+
     @router.post("/deliveries/status")
     def delivery_status(body: DeliveryInput, request: Request,
                         x_csrf_token: str | None = Header(default=None),

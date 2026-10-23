@@ -1,7 +1,7 @@
 (() => {
   'use strict';
   const root = '/api/v1/founder';
-  const state = { csrf: null, page: 0, pageSize: 25, total: 0, claim: null, evidenceId: null, reviewed: false };
+  const state = { csrf: null, page: 0, pageSize: 25, total: 0, completedOffset: 0, claim: null, evidenceId: null, reviewed: false };
   const $ = (id) => document.getElementById(id);
   const node = (tag, className, value) => { const el = document.createElement(tag); if (className) el.className = className; if (value !== undefined && value !== null) el.textContent = String(value); return el; };
   const money = (n) => `${new Intl.NumberFormat('en-ET', {maximumFractionDigits:0}).format(Number(n || 0))} ETB`;
@@ -50,7 +50,7 @@
     $('metric-paid').textContent = new Intl.NumberFormat().format(report.payment_verified || 0);
     $('metric-awaiting').textContent = new Intl.NumberFormat().format(report.awaiting_payment || 0);
     $('metric-claims').textContent = new Intl.NumberFormat().format(report.under_review || 0);
-    $('metric-deliveries').textContent = new Intl.NumberFormat().format(report.delivery_pending || 0);
+    $('metric-deliveries').textContent = new Intl.NumberFormat().format(report.delivery_unfinished || 0);
     const chart = $('revenue-chart'); chart.replaceChildren();
     const series = Array.isArray(report.revenue_trend) ? report.revenue_trend : [];
     const max = Math.max(1, ...series.map((x) => Number(x.revenue_etb || 0)));
@@ -150,6 +150,23 @@
       const history=node('button','text-button','View history');history.type='button';history.addEventListener('click',()=>loadHistory(item.order_id));actions.append(history);card.append(info,actions);container.append(card);
     });
   }
+  async function loadCompletedDeliveries() {
+    const query=$('completed-delivery-query').value.trim();
+    const result=await api(`/deliveries/completed?q=${encodeURIComponent(query)}&limit=50&offset=${state.completedOffset}`);
+    const container=$('completed-deliveries-list'); if(state.completedOffset===0)container.replaceChildren();
+    $('completed-deliveries-count').textContent=`${result.total} completed delivery${result.total===1?'':'ies'}`;
+    if(!result.deliveries.length&&state.completedOffset===0){empty(container,'No founder-recorded completed deliveries found.');$('completed-deliveries-more').hidden=true;return;}
+    result.deliveries.forEach((item)=>{
+      const card=node('article','delivery-card completed-delivery-card'); const info=node('div');
+      info.append(node('strong','',`${item.order_id} · ${item.customer_name}`),
+        node('p','',`${item.mobile} · ${statusName(item.status)} · recorded by ${item.updated_by}`),
+        node('p','',`Created ${date(item.created_at)} · sent ${date(item.sent_at)} · completion recorded ${date(item.delivered_at)} · updated ${date(item.updated_at)}`));
+      const historyButton=node('button','text-button','View audit history'); historyButton.type='button'; historyButton.addEventListener('click',()=>loadHistory(item.order_id));
+      card.append(info,historyButton); container.append(card);
+    });
+    $('completed-deliveries-more').hidden=state.completedOffset+result.deliveries.length>=result.total;
+    state.completedOffset+=result.deliveries.length;
+  }
   async function loadHistory(orderId){try{const result=await api(`/deliveries/${encodeURIComponent(orderId)}/history`);$('history-order').textContent=`${result.order_id} · founder-recorded delivery history`;const list=$('history-list');list.replaceChildren();result.history.forEach((event)=>{const li=node('li','',`${statusName(event.old_status)} → ${statusName(event.new_status)}`);li.append(node('small','',`${event.actor_id} · ${date(event.occurred_at)}`));list.append(li);});if(!result.history.length)empty(list,'No delivery changes recorded.');$('delivery-history').hidden=false;$('delivery-history').scrollIntoView({behavior:'smooth',block:'start'});}catch(error){message(error.message);}}
   function switchSection(name) { document.querySelectorAll('.page-section').forEach((section)=>section.classList.toggle('active',section.id===`section-${name}`));document.querySelectorAll('.nav-item').forEach((button)=>button.classList.toggle('active',button.dataset.section===name));$('page-title').textContent=({overview:'Overview',orders:'Orders',payments:'Payment review',delivery:'Telegram delivery'})[name]||'Overview';message(''); }
   async function dashboardInit(){
@@ -166,6 +183,9 @@
     $('approve-payment').addEventListener('click',()=>decision(true));$('reject-payment').addEventListener('click',()=>decision(false));
     $('close-review').addEventListener('click',()=>{$('claim-review').hidden=true;state.claim=null;state.evidenceId=null;});
     $('refresh-deliveries').addEventListener('click',()=>loadDeliveries().catch(e=>message(e.message)));
+    $('completed-delivery-filter').addEventListener('submit',async(e)=>{e.preventDefault();state.completedOffset=0;try{await loadCompletedDeliveries();}catch(error){message(error.message);}});
+    $('refresh-completed-deliveries').addEventListener('click',()=>{state.completedOffset=0;loadCompletedDeliveries().catch(e=>message(e.message));});
+    $('completed-deliveries-more').addEventListener('click',()=>loadCompletedDeliveries().catch(e=>message(e.message)));
     $('close-history').addEventListener('click',()=>$('delivery-history').hidden=true);
     $('refresh-all').addEventListener('click',async()=>{try{await Promise.all([loadMetrics(),loadOrders(),loadClaims(),loadDeliveries()]);message('Dashboard refreshed.','success');}catch(e){message(e.message);}});
     async function logout(){try{await api('/session',{method:'DELETE'});}catch(_){}finally{clearSensitive();window.location.replace(`${root}/ui/login`);}}
