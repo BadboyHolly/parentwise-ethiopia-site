@@ -358,12 +358,16 @@ def test_manual_telegram_approval_has_no_download_grant_and_records_delivery(eng
                                           new_status=next_state) == next_state
     with session(engine) as db:
         assert manual_delivery_report(db)["delivery_unfinished"] == 1
+        db.commit()
         assert record_manual_delivery(db, actor_id=FOUNDER, order_code=code, new_status="FAILED") == "FAILED"
         assert manual_delivery_report(db)["delivery_unfinished"] == 1
+        db.commit()
         assert record_manual_delivery(db, actor_id=FOUNDER, order_code=code, new_status="PREPARING") == "PREPARING"
         assert manual_delivery_report(db)["delivery_unfinished"] == 1
+        db.commit()
         assert record_manual_delivery(db, actor_id=FOUNDER, order_code=code, new_status="SENT") == "SENT"
         assert manual_delivery_report(db)["delivery_unfinished"] == 1
+        db.commit()
         assert record_manual_delivery(db, actor_id=FOUNDER, order_code=code, new_status="DELIVERED") == "DELIVERED"
         assert manual_delivery_report(db)["delivery_unfinished"] == 0
     with session(engine) as db:
