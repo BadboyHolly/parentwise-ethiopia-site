@@ -352,10 +352,24 @@ def test_manual_telegram_approval_has_no_download_grant_and_records_delivery(eng
     with session(engine) as db:
         with pytest.raises(DownloadDenied):
             authorize_download(db, order_code=code, access_token=token, token_secret=TOKEN_SECRET)
-    for next_state in ("PREPARING", "SENT", "DELIVERED"):
+    for next_state in ("PREPARING", "SENT"):
         with session(engine) as db:
             assert record_manual_delivery(db, actor_id=FOUNDER, order_code=code,
                                           new_status=next_state) == next_state
+    with session(engine) as db:
+        assert manual_delivery_report(db)["delivery_unfinished"] == 1
+        db.commit()
+        assert record_manual_delivery(db, actor_id=FOUNDER, order_code=code, new_status="FAILED") == "FAILED"
+        assert manual_delivery_report(db)["delivery_unfinished"] == 1
+        db.commit()
+        assert record_manual_delivery(db, actor_id=FOUNDER, order_code=code, new_status="PREPARING") == "PREPARING"
+        assert manual_delivery_report(db)["delivery_unfinished"] == 1
+        db.commit()
+        assert record_manual_delivery(db, actor_id=FOUNDER, order_code=code, new_status="SENT") == "SENT"
+        assert manual_delivery_report(db)["delivery_unfinished"] == 1
+        db.commit()
+        assert record_manual_delivery(db, actor_id=FOUNDER, order_code=code, new_status="DELIVERED") == "DELIVERED"
+        assert manual_delivery_report(db)["delivery_unfinished"] == 0
     with session(engine) as db:
         from production_checkout.manual_fulfillment import ManualDeliveryError
         with pytest.raises(ManualDeliveryError):

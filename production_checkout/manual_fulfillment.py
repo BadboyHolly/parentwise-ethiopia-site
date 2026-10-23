@@ -68,6 +68,7 @@ def manual_delivery_report(db: Session) -> dict[str, int]:
                count(*) FILTER (WHERE s.payment_status='PAYMENT_REJECTED')::integer AS payment_rejected,
                count(*) FILTER (WHERE s.payment_status='PAYMENT_CONFIRMED')::integer AS payment_verified,
                coalesce(sum(o.amount_etb) FILTER (WHERE s.payment_status='PAYMENT_CONFIRMED'),0)::integer AS verified_revenue_etb,
+               count(*) FILTER (WHERE d.status IN ('PENDING','PREPARING','SENT','FAILED'))::integer AS delivery_unfinished,
                count(*) FILTER (WHERE d.status='PENDING')::integer AS delivery_pending,
                count(*) FILTER (WHERE d.status='PREPARING')::integer AS delivery_preparing,
                count(*) FILTER (WHERE d.status='SENT')::integer AS delivery_sent,
@@ -78,3 +79,24 @@ def manual_delivery_report(db: Session) -> dict[str, int]:
           LEFT JOIN production_manual_deliveries d ON d.order_id=o.id
     """)).mappings().one()
     return {key: int(value) for key, value in row.items()}
+
+
+def verified_revenue_trend(db: Session, *, months: int = 6) -> list[dict[str, int | str]]:
+    """Monthly sales derived exclusively from matched, founder-approved orders."""
+    if not 1 <= months <= 24:
+        raise ValueError("Trend range must be between one and 24 months")
+    rows = db.execute(text("""
+        SELECT to_char(date_trunc('month', d.decided_at), 'YYYY-MM') AS month,
+               count(DISTINCT o.id)::integer AS paid_orders,
+               coalesce(sum(o.amount_etb), 0)::integer AS revenue_etb
+          FROM production_founder_approval_decisions d
+          JOIN production_orders o ON o.id=d.order_id
+          JOIN production_payment_fulfillment_state s ON s.order_id=o.id
+         WHERE d.decision='APPROVE'
+           AND s.payment_status='PAYMENT_CONFIRMED'
+           AND d.decided_at >= date_trunc('month', now()) - (:months - 1) * interval '1 month'
+         GROUP BY date_trunc('month', d.decided_at)
+         ORDER BY date_trunc('month', d.decided_at)
+    """), {"months": months}).mappings().all()
+    return [{"month": row["month"], "paid_orders": int(row["paid_orders"]),
+             "revenue_etb": int(row["revenue_etb"])} for row in rows]

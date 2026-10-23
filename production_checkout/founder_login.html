@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>Founder sign in · ParentWise Ethiopia</title>
+  <link rel="stylesheet" href="/api/v1/founder/ui/admin.css">
+  <script defer src="/api/v1/founder/ui/admin.js"></script>
+</head>
+<body data-view="login">
+  <main class="login-wrap">
+    <section class="login-card" aria-labelledby="login-title">
+      <div class="brand-lockup"><span class="brand-symbol" aria-hidden="true">P</span><span>ParentWise <small>ETHIOPIA</small></span></div>
+      <p class="eyebrow">Private founder workspace</p>
+      <h1 id="login-title">Welcome back</h1>
+      <p class="muted">Sign in with your founder password and authenticator code.</p>
+      <form id="login-form" autocomplete="on">
+        <label for="username">Founder username</label>
+        <input id="username" name="username" autocomplete="username" required maxlength="80">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required minlength="12" maxlength="256">
+        <label for="totp">Authenticator code</label>
+        <input id="totp" name="totp" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" minlength="6" maxlength="6" required>
+        <p id="login-message" class="notice" role="status" aria-live="polite"></p>
+        <button class="button button-primary" type="submit">Sign in securely</button>
+      </form>
+      <p class="login-foot">Protected with two-factor authentication · Session expires automatically</p>
+    </section>
+  </main>
+</body>
+</html>

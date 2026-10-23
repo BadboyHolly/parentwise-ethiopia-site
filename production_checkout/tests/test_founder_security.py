@@ -103,7 +103,15 @@ def test_invalid_password_totp_and_replay_are_rejected(founder_app):
             assert db.scalar(text("SELECT count(*) FROM production_founder_security_events WHERE event_type='MFA_REPLAY_BLOCKED'")) == 1
 
 
-def test_origin_and_login_rate_limit(founder_app):
+def test_origin_and_login_rate_limit_runs_before_argon2(founder_app, monkeypatch):
+    from production_checkout import founder_security
+    original_verify = founder_security._ARGON.verify
+    expensive_checks = []
+    class CountingArgon:
+        def verify(self, *args, **kwargs):
+            expensive_checks.append(True)
+            return original_verify(*args, **kwargs)
+    monkeypatch.setattr(founder_security, "_ARGON", CountingArgon())
     with TestClient(founder_app, base_url="https://founder.example") as client:
         denied=client.post("/api/v1/founder/session",json={"username":"founder-primary","password":PASSWORD,"totp":totp(TOTP_SECRET)})
         assert denied.status_code == 403
@@ -112,18 +120,26 @@ def test_origin_and_login_rate_limit(founder_app):
             statuses.append(client.post("/api/v1/founder/session",headers={"Origin":"https://founder.example"},
                 json={"username":"founder-primary","password":"incorrect long password","totp":"000000"}).status_code)
         assert statuses[:5] == [401]*5 and statuses[-1] == 429
+        assert len(expensive_checks) == 5
+        with founder_app.state.engine.connect() as db:
+            assert db.scalar(text("SELECT count(*) FROM production_founder_security_events WHERE event_type='LOGIN_FAILED' AND event_data->>'rate_limited'='true'")) == 2
 
 
 def test_expired_session_missing_csrf_and_logout_revoke(founder_app):
     with TestClient(founder_app, base_url="https://founder.example") as client:
-        response=login(client); assert response.status_code==200
+        original_totp=totp(TOTP_SECRET)
+        response=client.post("/api/v1/founder/session",headers={"Origin":"https://founder.example"},
+            json={"username":"founder-primary","password":PASSWORD,"totp":original_totp})
+        assert response.status_code==200
         csrf=response.json()["csrf_token"]
         assert client.delete("/api/v1/founder/session",headers={"Origin":"https://founder.example"}).status_code==403
         assert client.delete("/api/v1/founder/session",headers={"Origin":"https://founder.example","X-CSRF-Token":"wrong"}).status_code==403
         ok=client.delete("/api/v1/founder/session",headers={"Origin":"https://founder.example","X-CSRF-Token":csrf})
         assert ok.status_code==204
         assert client.get("/api/v1/founder/session").status_code==401
-        again=login(client); assert again.status_code==401  # same TOTP step cannot be replayed
+        again=client.post("/api/v1/founder/session",headers={"Origin":"https://founder.example"},
+            json={"username":"founder-primary","password":PASSWORD,"totp":original_totp})
+        assert again.status_code==401  # identical TOTP step cannot be replayed
 
 
 def test_expired_session_denies_requests(founder_app):
@@ -153,11 +169,23 @@ def test_approval_gate_and_forged_founder_identity_are_denied(founder_app):
 
 def test_founder_metrics_and_manual_delivery_routes_are_authenticated_and_gated(founder_app):
     with TestClient(founder_app, base_url="https://founder.example") as client:
+        login_page=client.get("/api/v1/founder/ui/login")
+        assert login_page.status_code==200 and login_page.headers["cache-control"]=="no-store"
+        assert client.get("/api/v1/founder/ui").status_code==401
         assert client.get("/api/v1/founder/metrics").status_code == 401
         assert client.get("/api/v1/founder/deliveries/pending").status_code == 401
+        assert client.get("/api/v1/founder/deliveries/completed").status_code == 401
         response = login(client); assert response.status_code == 200
+        dashboard=client.get("/api/v1/founder/ui")
+        assert dashboard.status_code==200
+        assert dashboard.headers["content-security-policy"]==("default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data:; font-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'")
+        assert dashboard.headers["cache-control"]=="no-store"
         assert client.get("/api/v1/founder/metrics").status_code == 200
         assert client.get("/api/v1/founder/deliveries/pending").json() == {"deliveries": []}
+        completed = client.get("/api/v1/founder/deliveries/completed")
+        assert completed.status_code == 200
+        assert completed.json() == {"total": 0, "deliveries": [],
+                                    "completion_semantics": "founder_recorded_not_customer_receipt_confirmed"}
         blocked = client.post("/api/v1/founder/deliveries/status",
             headers={"Origin":"https://founder.example","X-CSRF-Token":response.json()["csrf_token"]},
             json={"order_id":"PW-"+"A"*24,"status":"SENT"})
@@ -183,6 +211,8 @@ def test_founder_mfa_approval_and_telegram_delivery_journey(founder_app):
         lookup=client.get("/api/v1/founder/orders/search",params={"q":code})
         assert lookup.status_code == 200, lookup.text
         assert lookup.json()["order"]["payment_status"] == "AWAITING_PAYMENT"
+        listing=client.get("/api/v1/founder/orders",params={"q":code,"limit":1})
+        assert listing.status_code==200 and listing.json()["total"]==1
         claim_response=client.post("/api/v1/founder/claims/telegram",headers=headers,json={
             "order_id":code,"payment_method":"telebirr","transaction_reference":reference,
         })
@@ -213,6 +243,12 @@ def test_founder_mfa_approval_and_telegram_delivery_journey(founder_app):
         })
         assert settlement.status_code == 200, settlement.text
         evidence_id=settlement.json()["evidence_id"]
+        assert settlement.json()["payer_matches_customer"] is True
+        pending=client.get("/api/v1/founder/claims/pending").json()["claims"][0]
+        assert pending["evidence"]["source"]=="TELEBIRR_PORTAL"
+        assert pending["evidence"]["payer_matches_customer"] is True
+        assert not {"reference_ciphertext","evidence_note_ciphertext","payer_identity_digest","recipient_digest"} & set(pending)
+        assert not {"reference_ciphertext","evidence_note_ciphertext","payer_identity_digest","recipient_digest"} & set(pending["evidence"])
         approved=client.post("/api/v1/founder/approve",headers=headers,json={
             "order_id":code,"claim_id":claim_id,"evidence_id":evidence_id,
             "reason":"Synthetic independent settlement verified",
@@ -220,7 +256,10 @@ def test_founder_mfa_approval_and_telegram_delivery_journey(founder_app):
         assert approved.status_code == 200, approved.text
         assert approved.json() == {"grant_id":None,"status":"PAYMENT_CONFIRMED",
                                    "fulfillment_mode":"manual_telegram","delivery_status":"PENDING"}
-        assert client.get("/api/v1/founder/metrics").json()["verified_revenue_etb"] == 1500
+        report=client.get("/api/v1/founder/metrics").json()
+        assert report["verified_revenue_etb"] == 1500
+        assert report["delivery_unfinished"] == 1
+        assert sum(item["revenue_etb"] for item in report["revenue_trend"]) == 1500
         for state in ("PREPARING","SENT","DELIVERED"):
             changed=client.post("/api/v1/founder/deliveries/status",headers=headers,
                                 json={"order_id":code,"status":state})
@@ -229,6 +268,19 @@ def test_founder_mfa_approval_and_telegram_delivery_journey(founder_app):
         assert metrics["payment_verified"] == 1
         assert metrics["verified_revenue_etb"] == 1500
         assert metrics["delivery_delivered"] == 1
+        assert metrics["delivery_unfinished"] == 0
+        completed=client.get("/api/v1/founder/deliveries/completed",params={"q":code})
+        assert completed.status_code == 200
+        assert completed.json()["total"] == 1
+        record=completed.json()["deliveries"][0]
+        assert record["order_id"] == code and record["status"] == "DELIVERED"
+        assert record["updated_by"] == "founder-primary"
+        assert record["sent_at"] and record["delivered_at"] and record["updated_at"]
+        history=client.get(f"/api/v1/founder/deliveries/{code}/history")
+        assert [event["new_status"] for event in history.json()["history"]] == ["PENDING","PREPARING","SENT","DELIVERED"]
+        assert all(event["actor_id"] == "founder-primary" for event in history.json()["history"])
+        assert completed.json()["completion_semantics"] == "founder_recorded_not_customer_receipt_confirmed"
+        assert client.get("/api/v1/founder/deliveries/completed",params={"q":"no-such-order"}).json()["total"] == 0
     with founder_app.state.engine.connect() as db:
         order_id=db.scalar(text("SELECT id FROM production_orders WHERE code=:code"),{"code":code})
         assert db.execute(text("SELECT count(*) FROM production_download_grants WHERE order_id=:id"),
