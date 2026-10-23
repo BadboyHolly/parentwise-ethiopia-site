@@ -12,6 +12,7 @@ import re
 import secrets
 import struct
 import time
+from pathlib import Path as FilePath
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Mapping
@@ -21,7 +22,8 @@ from argon2 import PasswordHasher, Type, extract_parameters
 from argon2.exceptions import InvalidHashError, VerifyMismatchError
 from cryptography.exceptions import InvalidTag
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-from fastapi import APIRouter, Cookie, Depends, Header, HTTPException, Request, Response
+from fastapi import APIRouter, Cookie, Depends, Header, HTTPException, Path as PathParam, Query, Request, Response
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from sqlalchemy import text
 from sqlalchemy.orm import Session, sessionmaker
@@ -208,11 +210,11 @@ def _audit(db: Session, event_type: str, founder_id: str | None, source_hash: st
     })
 
 
-def _consume_rate_limit(db: Session, cfg: FounderConfig, request: Request, username: str) -> str:
+def _consume_rate_limit(db: Session, cfg: FounderConfig, request: Request, username: str) -> tuple[str, int | None]:
     ip = request.client.host if request.client else "unknown"
     now = datetime.now(timezone.utc)
     buckets = sorted((
-        (_digest(cfg.rate_key, "founder-login-ip", username.lower() + "|" + ip), 5, timedelta(minutes=15)),
+        (_digest(cfg.rate_key, "founder-login-ip", ip), 5, timedelta(minutes=15)),
         (_digest(cfg.rate_key, "founder-login-user", username.lower()), 20, timedelta(hours=1)),
     ))
     # Lock both deterministic keys in sorted order to avoid deadlocks under concurrent attempts.
@@ -224,12 +226,14 @@ def _consume_rate_limit(db: Session, cfg: FounderConfig, request: Request, usern
            FROM production_founder_rate_limits WHERE bucket_hash=:bucket FOR UPDATE"""),
            {"bucket": bucket}).one()
         if current.attempts >= limit and current.window_started_at > now - window:
-            raise HTTPException(429, "Too many sign-in attempts. Try again later.", headers={"Retry-After": str(int(window.total_seconds()))})
+            source_hash = _digest(cfg.rate_key, "source", ip)
+            _audit(db, "LOGIN_FAILED", None, source_hash, {"rate_limited": True})
+            return source_hash, int(window.total_seconds())
         if current.window_started_at <= now - window:
             db.execute(text("UPDATE production_founder_rate_limits SET window_started_at=now(), attempts=1, updated_at=now() WHERE bucket_hash=:bucket"), {"bucket": bucket})
         else:
             db.execute(text("UPDATE production_founder_rate_limits SET attempts=attempts+1, updated_at=now() WHERE bucket_hash=:bucket"), {"bucket": bucket})
-    return _digest(cfg.rate_key, "source", ip)
+    return _digest(cfg.rate_key, "source", ip), None
 
 
 def create_founder_router(sessions: sessionmaker, cfg: FounderConfig) -> APIRouter:
@@ -267,6 +271,12 @@ def create_founder_router(sessions: sessionmaker, cfg: FounderConfig) -> APIRout
                 raise ValueError("Settlement time cannot be in the future")
             return value
 
+    class TelegramClaimInput(BaseModel):
+        model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+        order_id: str = Field(pattern=r"^PW-[0-9A-F]{24}$")
+        payment_method: str = Field(pattern=r"^(telebirr|bank)$")
+        transaction_reference: str = Field(min_length=3, max_length=128)
+
     class ExceptionInput(BaseModel):
         model_config = ConfigDict(extra="forbid")
         order_id: str
@@ -282,6 +292,11 @@ def create_founder_router(sessions: sessionmaker, cfg: FounderConfig) -> APIRout
         evidence_id: str | None = None
         reason: str = Field(min_length=10, max_length=512)
         third_party_exception_id: str | None = None
+
+    class DeliveryInput(BaseModel):
+        model_config = ConfigDict(extra="forbid")
+        order_id: str = Field(pattern=r"^PW-[0-9A-F]{24}$")
+        status: str = Field(pattern=r"^(PREPARING|SENT|DELIVERED|FAILED)$")
 
     def get_session(session_cookie: str | None) -> dict:
         if not session_cookie or len(session_cookie) > 128:
@@ -301,6 +316,8 @@ def create_founder_router(sessions: sessionmaker, cfg: FounderConfig) -> APIRout
         return {"founder_id": row["founder_id"], "csrf_hash": row["csrf_hash"], "session_hash": digest}
 
     def require_csrf(request: Request, identity: dict, token: str | None) -> None:
+        if request.url.scheme != "https":
+            raise HTTPException(403, "HTTPS is required")
         if not token or not hmac.compare_digest(_digest(cfg.session_key, "csrf", token), identity["csrf_hash"]):
             raise HTTPException(403, "CSRF validation failed")
         origin = request.headers.get("origin", "")
@@ -316,8 +333,13 @@ def create_founder_router(sessions: sessionmaker, cfg: FounderConfig) -> APIRout
 
     @router.post("/session")
     def login(body: LoginInput, request: Request, response: Response):
-        if request.headers.get("origin", "") not in cfg.allowed_origins:
+        if request.url.scheme != "https" or request.headers.get("origin", "") not in cfg.allowed_origins:
             raise HTTPException(403, "Request origin is not allowed")
+        # Persist the attempt before Argon2's deliberately expensive verification.
+        with sessions.begin() as db:
+            source_hash, retry_after = _consume_rate_limit(db, cfg, request, body.username)
+        if retry_after is not None:
+            raise HTTPException(429, "Too many sign-in attempts. Try again later.", headers={"Retry-After": str(retry_after)})
         now = int(time.time())
         candidate_step = _totp_counter(cfg.totp_secret, body.totp, now)
         password_ok = False
@@ -326,9 +348,7 @@ def create_founder_router(sessions: sessionmaker, cfg: FounderConfig) -> APIRout
         except (VerifyMismatchError, InvalidHashError, ValueError):
             pass
         username_ok = hmac.compare_digest(body.username.encode(), cfg.username.encode())
-        source_hash = None
         with sessions.begin() as db:
-            source_hash = _consume_rate_limit(db, cfg, request, body.username)
             control = db.execute(text("SELECT last_totp_step FROM production_founder_auth_control WHERE singleton_id=1 FOR UPDATE")).one()
             valid = password_ok and username_ok and candidate_step is not None and candidate_step > control.last_totp_step
             if valid:
@@ -373,25 +393,224 @@ def create_founder_router(sessions: sessionmaker, cfg: FounderConfig) -> APIRout
         response.delete_cookie(SESSION_COOKIE, path="/api/v1/founder", secure=cfg.secure_cookie, httponly=True, samesite="strict")
         return response
 
+    @router.get("/ui/login", include_in_schema=False)
+    def founder_login_page():
+        return FileResponse(FilePath(__file__).with_name("founder_login.html"),
+                            media_type="text/html", headers={"Cache-Control":"no-store"})
+
+    @router.get("/ui", include_in_schema=False)
+    def founder_dashboard_page(who: dict = Depends(identity)):
+        return FileResponse(FilePath(__file__).with_name("founder_admin.html"),
+                            media_type="text/html", headers={"Cache-Control":"no-store"})
+
+    @router.get("/ui/admin.css", include_in_schema=False)
+    def founder_admin_css():
+        return FileResponse(FilePath(__file__).with_name("founder_admin.css"),
+                            media_type="text/css", headers={"Cache-Control":"no-store"})
+
+    @router.get("/ui/admin.js", include_in_schema=False)
+    def founder_admin_js():
+        return FileResponse(FilePath(__file__).with_name("founder_admin.js"),
+                            media_type="application/javascript", headers={"Cache-Control":"no-store"})
+
+    @router.get("/orders")
+    def list_orders(
+        limit: int = Query(default=25, ge=1, le=100),
+        offset: int = Query(default=0, ge=0, le=1_000_000),
+        q: str = Query(default="", max_length=100),
+        status: str | None = Query(default=None, pattern=r"^(AWAITING_PAYMENT|UNDER_REVIEW|PAYMENT_REJECTED|PAYMENT_CONFIRMED)$"),
+        payment_method: str | None = Query(default=None, pattern=r"^(telebirr|bank)$"),
+        who: dict = Depends(identity),
+    ):
+        clauses = ["1=1"]
+        params: dict[str, object] = {"limit": limit, "offset": offset}
+        if q.strip():
+            clauses.append("(o.code=:code OR position(lower(:query) in lower(o.customer_name))>0 OR (:digits<>'' AND position(:digits in regexp_replace(o.mobile_e164,'[^0-9]','','g'))>0))")
+            params.update({"code": q.strip().upper(), "query": q.strip(), "digits": re.sub(r"[^0-9]", "", q)})
+        if status:
+            clauses.append("s.payment_status=:status")
+            params["status"] = status
+        if payment_method:
+            clauses.append("o.method=:method")
+            params["method"] = payment_method
+        where = " AND ".join(clauses)
+        with sessions() as db:
+            total = db.execute(text(f"""
+                SELECT count(*) FROM production_orders o
+                JOIN production_payment_fulfillment_state s ON s.order_id=o.id
+                WHERE {where}
+            """), params).scalar_one()
+            rows = db.execute(text(f"""
+                SELECT o.code AS order_id,o.customer_name,o.mobile_e164,o.method AS payment_method,
+                       o.amount_etb,o.currency,o.created_at,s.payment_status,s.fulfillment_status,
+                       d.status AS delivery_status,
+                       (SELECT c.claim_status FROM production_payment_claims c
+                         WHERE c.order_id=o.id ORDER BY c.submitted_at DESC LIMIT 1) AS claim_status
+                  FROM production_orders o
+                  JOIN production_payment_fulfillment_state s ON s.order_id=o.id
+                  LEFT JOIN production_manual_deliveries d ON d.order_id=o.id
+                 WHERE {where}
+                 ORDER BY o.created_at DESC,o.code DESC LIMIT :limit OFFSET :offset
+            """), params).mappings().all()
+        return {"orders":[dict(row) for row in rows],"total":int(total),
+                "limit":limit,"offset":offset}
+
     @router.get("/claims/pending")
     def pending(who: dict = Depends(identity)):
         from .founder_encryption import decrypt_claim_reference
         with sessions() as db:
             rows = db.execute(text("""SELECT o.code,o.customer_name,o.mobile_e164,o.method,o.amount_etb,
-                       c.id AS claim_id,c.claim_status,c.reference_ciphertext,c.created_at,e.id AS evidence_id
+                       c.id AS claim_id,c.claim_status,c.reference_ciphertext,c.submitted_at,e.id AS evidence_id,
+                       e.payment_method AS evidence_method,e.amount_etb AS evidence_amount_etb,
+                       e.currency AS evidence_currency,e.evidence_source,e.settled_at,e.observed_at,
+                       e.payer_identity_digest,x.id AS exception_id
                   FROM production_payment_claims c JOIN production_orders o ON o.id=c.order_id
                   JOIN production_payment_fulfillment_state s ON s.order_id=o.id
                   LEFT JOIN production_settlement_evidence e ON e.claim_id=c.id AND e.order_id=c.order_id
+                  LEFT JOIN production_third_party_payer_exceptions x ON x.evidence_id=e.id
                  WHERE c.claim_status IN ('SUBMITTED','EVIDENCE_RECORDED') AND s.payment_status='UNDER_REVIEW'
-                 ORDER BY c.created_at ASC LIMIT 100""")).mappings().all()
+                 ORDER BY c.submitted_at ASC LIMIT 100""")).mappings().all()
         output = []
         for r in rows:
             ref = decrypt_claim_reference(r["reference_ciphertext"], cfg, r["code"])
+            payer_digest = hmac.new(cfg.identity_hash_secret.encode(),
+                ("payer-identity:v1:"+r["mobile_e164"]).encode(), hashlib.sha256).hexdigest()
             output.append({"order_id":r["code"],"customer_name":r["customer_name"],"mobile":r["mobile_e164"],
                            "payment_method":r["method"],"amount_etb":r["amount_etb"],"claim_id":str(r["claim_id"]),
                            "claim_status":r["claim_status"],"evidence_id":str(r["evidence_id"]) if r["evidence_id"] else None,
-                           "claimed_reference":ref,"submitted_at":r["created_at"].isoformat()})
+                           "exception_id":str(r["exception_id"]) if r["exception_id"] else None,
+                           "claimed_reference":ref,"submitted_at":r["submitted_at"].isoformat(),
+                           "evidence":({"payment_method":r["evidence_method"],"amount_etb":r["evidence_amount_etb"],
+                               "currency":r["evidence_currency"],"source":r["evidence_source"],
+                               "settled_at":r["settled_at"].isoformat(),"observed_at":r["observed_at"].isoformat(),
+                               "payer_matches_customer":hmac.compare_digest(r["payer_identity_digest"],payer_digest)}
+                               if r["evidence_id"] else None)})
         return {"claims":output}
+
+    @router.get("/orders/search")
+    def search_orders(q: str = Query(min_length=3, max_length=32),
+                      who: dict = Depends(identity)):
+        """Exact founder-only lookup for matching a Telegram claim to an order."""
+        if not re.fullmatch(r"PW-[0-9A-F]{24}", q):
+            raise HTTPException(404, "Order not found")
+        with sessions() as db:
+            row = db.execute(text("""
+                SELECT o.code AS order_id, o.customer_name, o.mobile_e164,
+                       o.method AS payment_method, o.amount_etb, o.currency,
+                       s.payment_status, s.fulfillment_status
+                  FROM production_orders o
+                  JOIN production_payment_fulfillment_state s ON s.order_id=o.id
+                 WHERE o.code=:code
+            """), {"code": q}).mappings().first()
+        if row is None:
+            raise HTTPException(404, "Order not found")
+        return {"order": dict(row)}
+
+    @router.post("/claims/telegram", status_code=201)
+    def record_telegram_claim(body: TelegramClaimInput, request: Request,
+                              x_csrf_token: str | None = Header(default=None),
+                              who: dict = Depends(identity)):
+        require_csrf(request, who, x_csrf_token)
+        decision_enabled()
+        from .founder_encryption import encrypt_claim_reference
+        from .payment_state import record_founder_telegram_claim
+        try:
+            ciphertext = encrypt_claim_reference(
+                body.transaction_reference, cfg, body.order_id)
+            with sessions() as db:
+                claim_id = record_founder_telegram_claim(
+                    db, actor_id=who["founder_id"], order_code=body.order_id,
+                    payment_method=body.payment_method,
+                    reference_hash_secret=cfg.reference_hash_secret,
+                    transaction_reference=body.transaction_reference,
+                    reference_ciphertext=ciphertext,
+                )
+        except ValueError as exc:
+            raise HTTPException(422, str(exc)) from None
+        except Exception as exc:
+            _domain_error(exc)
+        return {"order_id": body.order_id, "claim_id": claim_id,
+                "status": "UNDER_REVIEW_NOT_PAYMENT_CONFIRMATION"}
+
+    @router.get("/metrics")
+    def metrics(who: dict = Depends(identity)):
+        from .manual_fulfillment import manual_delivery_report, verified_revenue_trend
+        with sessions() as db:
+            report = manual_delivery_report(db)
+            report["revenue_trend"] = verified_revenue_trend(db, months=6)
+            return report
+
+    @router.get("/deliveries/pending")
+    def pending_deliveries(who: dict = Depends(identity)):
+        with sessions() as db:
+            rows = db.execute(text("""
+                SELECT o.code AS order_id, o.customer_name, o.mobile_e164,
+                       d.status, d.created_at, d.updated_at
+                  FROM production_manual_deliveries d
+                  JOIN production_orders o ON o.id=d.order_id
+                 WHERE d.status IN ('PENDING','PREPARING','SENT','FAILED')
+                 ORDER BY d.created_at ASC
+            """)).mappings().all()
+            return {"deliveries": [dict(row) for row in rows]}
+
+    @router.get("/deliveries/{order_id}/history")
+    def delivery_history(order_id: str = PathParam(..., pattern=r"^PW-[0-9A-F]{24}$"),
+                         who: dict = Depends(identity)):
+        with sessions() as db:
+            exists = db.scalar(text("SELECT 1 FROM production_orders WHERE code=:code"), {"code":order_id})
+            if not exists:
+                raise HTTPException(404, "Order not found")
+            rows = db.execute(text("""
+                SELECT e.old_status,e.new_status,e.actor_id,e.occurred_at
+                  FROM production_manual_delivery_events e
+                  JOIN production_orders o ON o.id=e.order_id
+                 WHERE o.code=:code ORDER BY e.occurred_at,e.id
+            """), {"code":order_id}).mappings().all()
+        return {"order_id":order_id,"history":[dict(row) for row in rows]}
+
+    @router.get("/deliveries/completed")
+    def completed_deliveries(q: str = Query(default="", max_length=120),
+                             limit: int = Query(default=50, ge=1, le=100),
+                             offset: int = Query(default=0, ge=0, le=100000),
+                             who: dict = Depends(identity)):
+        search = q.strip()
+        pattern = f"%{search}%"
+        with sessions() as db:
+            total = db.scalar(text("""
+                SELECT count(*) FROM production_manual_deliveries d
+                  JOIN production_orders o ON o.id=d.order_id
+                 WHERE d.status='DELIVERED'
+                   AND (:q='' OR o.code ILIKE :pattern OR o.customer_name ILIKE :pattern OR o.mobile_e164 ILIKE :pattern)
+            """), {"q": search, "pattern": pattern})
+            rows = db.execute(text("""
+                SELECT o.code AS order_id,o.customer_name,o.mobile_e164,d.status,d.updated_by,
+                       d.created_at,d.updated_at,d.sent_at,d.delivered_at
+                  FROM production_manual_deliveries d
+                  JOIN production_orders o ON o.id=d.order_id
+                 WHERE d.status='DELIVERED'
+                   AND (:q='' OR o.code ILIKE :pattern OR o.customer_name ILIKE :pattern OR o.mobile_e164 ILIKE :pattern)
+                 ORDER BY d.delivered_at DESC NULLS LAST,o.code
+                 LIMIT :limit OFFSET :offset
+            """), {"q": search, "pattern": pattern, "limit": limit, "offset": offset}).mappings().all()
+        return {"total": int(total or 0), "deliveries": [dict(row) for row in rows],
+                "completion_semantics": "founder_recorded_not_customer_receipt_confirmed"}
+
+    @router.post("/deliveries/status")
+    def delivery_status(body: DeliveryInput, request: Request,
+                        x_csrf_token: str | None = Header(default=None),
+                        who: dict = Depends(identity)):
+        require_csrf(request, who, x_csrf_token)
+        decision_enabled()
+        from .manual_fulfillment import ManualDeliveryError, record_manual_delivery
+        with sessions() as db:
+            try:
+                state = record_manual_delivery(
+                    db, actor_id=who["founder_id"], order_code=body.order_id,
+                    new_status=body.status,
+                )
+            except ManualDeliveryError as exc:
+                raise HTTPException(409, str(exc)) from None
+        return {"order_id": body.order_id, "delivery_status": state}
 
     @router.post("/settlements")
     def settlement(body: SettlementInput, request: Request, x_csrf_token: str | None = Header(default=None), who: dict = Depends(identity)):
@@ -414,7 +633,14 @@ def create_founder_router(sessions: sessionmaker, cfg: FounderConfig) -> APIRout
                     settled_at=body.settled_at.astimezone(timezone.utc), evidence_note_ciphertext=note)
             except Exception as exc:
                 _domain_error(exc)
-        return {"evidence_id": evidence_id, "status": "EVIDENCE_RECORDED_NOT_APPROVED"}
+        buyer_digest = hmac.new(cfg.identity_hash_secret.encode(), ("payer-identity:v1:"+body.payer_mobile).encode(), hashlib.sha256).hexdigest()
+        with sessions() as db:
+            buyer_mobile = db.execute(text("SELECT o.mobile_e164 FROM production_orders o WHERE o.code=:code"),
+                                      {"code":body.order_id}).scalar_one_or_none()
+        payer_matches_customer = bool(buyer_mobile) and hmac.compare_digest(buyer_digest,
+            hmac.new(cfg.identity_hash_secret.encode(), ("payer-identity:v1:"+buyer_mobile).encode(), hashlib.sha256).hexdigest())
+        return {"evidence_id": evidence_id, "payer_matches_customer": payer_matches_customer,
+                "status": "EVIDENCE_RECORDED_NOT_APPROVED"}
 
     @router.post("/third-party-exceptions")
     def exception(body: ExceptionInput, request: Request, x_csrf_token: str | None = Header(default=None), who: dict = Depends(identity)):
@@ -447,9 +673,11 @@ def create_founder_router(sessions: sessionmaker, cfg: FounderConfig) -> APIRout
                 grant = approve_payment(db, actor_id=who["founder_id"], order_code=body.order_id, claim_id=body.claim_id,
                     evidence_id=body.evidence_id, reason=body.reason, token_secret=cfg.token_secret,
                     reference_hash_secret=cfg.reference_hash_secret, identity_hash_secret=cfg.identity_hash_secret,
-                    expected_recipient_digest=recipient_digest, third_party_exception_id=body.third_party_exception_id)
+                    expected_recipient_digest=recipient_digest, third_party_exception_id=body.third_party_exception_id,
+                    fulfillment_mode="manual_telegram")
             except Exception as exc: _domain_error(exc)
-        return {"grant_id": grant, "status": "PAYMENT_CONFIRMED"}
+        return {"grant_id": grant, "status": "PAYMENT_CONFIRMED",
+                "fulfillment_mode": "manual_telegram", "delivery_status": "PENDING"}
 
     @router.post("/reject")
     def reject(body: DecisionInput, request: Request, x_csrf_token: str | None = Header(default=None), who: dict = Depends(identity)):

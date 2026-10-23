@@ -5,6 +5,8 @@ on:
     branches:
       - main
       - dev/payment-delivery-state-foundation-20261019
+      - dev/founder-payment-verification-20261020
+      - feature/aletcloud-manual-telegram-20261023
     paths:
       - 'production_checkout/**'
       - 'staging_checkout/tests/test_journey.py'
@@ -12,6 +14,8 @@ on:
   push:
     branches:
       - dev/founder-payment-verification-20261020
+      - feature/aletcloud-manual-telegram-20261023
+      - feature/founder-admin-v1-20261023
     paths:
       - 'production_checkout/**'
       - 'staging_checkout/tests/test_journey.py'
@@ -26,7 +30,7 @@ jobs:
     timeout-minutes: 30
     services:
       postgres:
-        image: postgres:18
+        image: postgres:16
         env:
           POSTGRES_USER: parentwise_ci
           POSTGRES_PASSWORD: disposable_only_password
@@ -53,12 +57,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: dev/founder-payment-verification-20261020
+          ref: ${{ github.ref }}
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       - name: Install production and test dependencies
-        run: python -m pip install -r production_checkout/requirements.txt 'pytest>=8,<10' 'httpx>=0.27,<1'
+        run: python -m pip install -r production_checkout/requirements.txt 'pytest>=8,<10' 'httpx>=0.27,<1' 'playwright>=1.50,<2'
+      - name: Install Chromium for private founder UI acceptance
+        run: python -m playwright install --with-deps chromium
       - name: Create separate staging database
         run: createdb -h 127.0.0.1 -U parentwise_ci pw_staging_disposable
       - name: Generate synthetic staging founder factors
@@ -85,6 +91,7 @@ jobs:
           psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U parentwise_ci -d pw_founder_disposable -f production_checkout/migrations/0001_create_orders.sql
           psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U parentwise_ci -d pw_founder_disposable -f production_checkout/migrations/0002_create_payment_delivery_state.sql
           psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U parentwise_ci -d pw_founder_disposable -f production_checkout/migrations/0003_create_founder_security.sql
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U parentwise_ci -d pw_founder_disposable -f production_checkout/migrations/0004_manual_telegram_fulfillment.sql
           psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U parentwise_ci -d pw_staging_disposable -f production_checkout/migrations/0001_create_orders.sql
           psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U parentwise_ci -d pw_staging_disposable -f staging_checkout/migrations/0001_stage_sidecar.sql
       - name: Compile production and staging modules
@@ -93,10 +100,23 @@ jobs:
         run: python -m pytest -q production_checkout/tests staging_checkout/tests/test_journey.py
       - name: Roll back founder migration and verify payment foundation remains
         run: |
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U parentwise_ci -d pw_founder_disposable -f production_checkout/migrations/0004_rollback_manual_telegram_fulfillment.sql
+          test "$(psql -At -h 127.0.0.1 -U parentwise_ci -d pw_founder_disposable -c "SELECT to_regclass('production_manual_deliveries') IS NULL")" = "t"
           psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U parentwise_ci -d pw_founder_disposable -f production_checkout/migrations/0003_rollback_founder_security.sql
           test "$(psql -At -h 127.0.0.1 -U parentwise_ci -d pw_founder_disposable -c "SELECT to_regclass('production_orders') IS NOT NULL AND to_regclass('production_payment_fulfillment_state') IS NOT NULL AND to_regclass('production_founder_sessions') IS NULL")" = "t"
       - name: Reapply founder migration and verify schema readiness
         run: |
           psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U parentwise_ci -d pw_founder_disposable -f production_checkout/migrations/0003_create_founder_security.sql
           test "$(psql -At -h 127.0.0.1 -U parentwise_ci -d pw_founder_disposable -c "SELECT to_regclass('production_founder_sessions') IS NOT NULL")" = "t"
+      - name: Reapply manual delivery schema after founder rollback check
+        run: |
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U parentwise_ci -d pw_founder_disposable -f production_checkout/migrations/0004_manual_telegram_fulfillment.sql
+      - name: Backup and restore disposable PostgreSQL database
+        run: |
+          psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U parentwise_ci -d pw_founder_disposable -c "INSERT INTO production_orders (id,code,customer_name,mobile_e164,method,amount_etb,currency,status,idempotency_hash,request_fingerprint,access_hash,created_at) VALUES ('qa-backup-order','PW-AAAAAAAAAAAAAAAAAAAAAAAA','Synthetic Backup Parent','+251912345678','telebirr',1500,'ETB','AWAITING_PAYMENT',repeat('a',64),repeat('b',64),repeat('c',64),now())"
+          docker run --rm --network host -v "$RUNNER_TEMP:/backup" -e PGPASSWORD="$PGPASSWORD" postgres:16 pg_dump --format=custom --no-owner --no-privileges -h 127.0.0.1 -U parentwise_ci -d pw_founder_disposable -f /backup/parentwise-disposable.dump
+          createdb -h 127.0.0.1 -U parentwise_ci pw_restore_disposable
+          docker run --rm --network host -v "$RUNNER_TEMP:/backup" -e PGPASSWORD="$PGPASSWORD" postgres:16 pg_restore --exit-on-error --no-owner --no-privileges -h 127.0.0.1 -U parentwise_ci -d pw_restore_disposable /backup/parentwise-disposable.dump
+          test "$(psql -At -h 127.0.0.1 -U parentwise_ci -d pw_restore_disposable -c "SELECT count(*) FROM production_orders WHERE code='PW-AAAAAAAAAAAAAAAAAAAAAAAA' AND status='AWAITING_PAYMENT'")" = "1"
+          test "$(psql -At -h 127.0.0.1 -U parentwise_ci -d pw_restore_disposable -c "SELECT to_regclass('production_manual_deliveries') IS NOT NULL AND to_regclass('production_founder_sessions') IS NOT NULL")" = "t"
 

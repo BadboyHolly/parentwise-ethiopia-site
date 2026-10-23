@@ -23,6 +23,7 @@ from production_checkout.payment_state import (
     identity_digest, record_settlement_evidence, reject_payment,
     revoke_download_grant, submit_payment_claim, transaction_reference_digest,
 )
+from production_checkout.manual_fulfillment import manual_delivery_report, record_manual_delivery
 
 DATABASE_URL = os.getenv("TEST_DATABASE_URL")
 pytestmark = pytest.mark.skipif(not DATABASE_URL, reason="requires disposable PostgreSQL")
@@ -113,6 +114,7 @@ def approve(engine, code, claim_id, evidence_id, *, exception_id=None, actor=FOU
             token_secret=TOKEN_SECRET, reference_hash_secret=REFERENCE_SECRET,
             identity_hash_secret=IDENTITY_SECRET, expected_recipient_digest=RECIPIENT,
             third_party_exception_id=exception_id,
+            fulfillment_mode="website_download",
         )
 
 
@@ -318,5 +320,64 @@ def test_order_table_remains_awaiting_payment_only(engine):
     with pytest.raises(DBAPIError):
         with engine.begin() as connection:
             connection.execute(text("""
-                UPDATE production_orders SET status='PAYMENT_CONFIRMED' WHERE code=:code
-            """), {"code": code})
+            UPDATE production_orders SET status='PAYMENT_CONFIRMED' WHERE code=:code
+        """), {"code": code})
+
+
+def test_manual_telegram_approval_has_no_download_grant_and_records_delivery(engine):
+    code, token = order(engine)
+    claim_id = claim(engine, code, token, "SIM-TELEGRAM-" + secrets.token_hex(6))
+    evidence_id, _ = evidence(engine, code, claim_id)
+    with session(engine) as db:
+        grant_id = approve_payment(
+            db, actor_id=FOUNDER, order_code=code, claim_id=claim_id,
+            evidence_id=evidence_id, reason="Synthetic independent settlement matched",
+            token_secret=TOKEN_SECRET, reference_hash_secret=REFERENCE_SECRET,
+            identity_hash_secret=IDENTITY_SECRET, expected_recipient_digest=RECIPIENT,
+            fulfillment_mode="manual_telegram",
+        )
+    assert grant_id is None
+    with engine.connect() as connection:
+        state = connection.execute(text("""
+            SELECT s.payment_status, s.fulfillment_status, d.status
+              FROM production_payment_fulfillment_state s
+              JOIN production_manual_deliveries d ON d.order_id=s.order_id
+              JOIN production_orders o ON o.id=s.order_id WHERE o.code=:code
+        """), {"code": code}).one()
+        assert tuple(state) == ("PAYMENT_CONFIRMED", "LOCKED", "PENDING")
+        assert connection.execute(text("""
+            SELECT count(*) FROM production_download_grants g
+            JOIN production_orders o ON o.id=g.order_id WHERE o.code=:code
+        """), {"code": code}).scalar_one() == 0
+    with session(engine) as db:
+        with pytest.raises(DownloadDenied):
+            authorize_download(db, order_code=code, access_token=token, token_secret=TOKEN_SECRET)
+    for next_state in ("PREPARING", "SENT"):
+        with session(engine) as db:
+            assert record_manual_delivery(db, actor_id=FOUNDER, order_code=code,
+                                          new_status=next_state) == next_state
+    with session(engine) as db:
+        assert manual_delivery_report(db)["delivery_unfinished"] == 1
+        db.commit()
+        assert record_manual_delivery(db, actor_id=FOUNDER, order_code=code, new_status="FAILED") == "FAILED"
+        assert manual_delivery_report(db)["delivery_unfinished"] == 1
+        db.commit()
+        assert record_manual_delivery(db, actor_id=FOUNDER, order_code=code, new_status="PREPARING") == "PREPARING"
+        assert manual_delivery_report(db)["delivery_unfinished"] == 1
+        db.commit()
+        assert record_manual_delivery(db, actor_id=FOUNDER, order_code=code, new_status="SENT") == "SENT"
+        assert manual_delivery_report(db)["delivery_unfinished"] == 1
+        db.commit()
+        assert record_manual_delivery(db, actor_id=FOUNDER, order_code=code, new_status="DELIVERED") == "DELIVERED"
+        assert manual_delivery_report(db)["delivery_unfinished"] == 0
+    with session(engine) as db:
+        from production_checkout.manual_fulfillment import ManualDeliveryError
+        with pytest.raises(ManualDeliveryError):
+            record_manual_delivery(db, actor_id=FOUNDER, order_code=code, new_status="FAILED")
+        order(engine)
+        report = manual_delivery_report(db)
+    assert report["payment_verified"] == 1
+    assert report["verified_revenue_etb"] == 1500
+    assert report["delivery_delivered"] == 1
+    assert report["orders_total"] == 2
+    assert report["awaiting_payment"] == 1
