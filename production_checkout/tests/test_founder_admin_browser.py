@@ -159,12 +159,15 @@ def test_founder_browser_auth_claim_approval_delivery_and_expiry(running_founder
             page.wait_for_function("expected => document.querySelector('#global-message').textContent.includes(expected)", arg=expected)
         record_delivery("Mark preparing","Delivery marked preparing.")
         record_delivery("Mark failed","Delivery marked failed.")
+        delivery.get_by_role("button",name="View history").click()
+        assert page.locator("#history-list li").count()==2
+        page.get_by_role("button",name="Close history").click()
         record_delivery("Mark preparing","Delivery marked preparing.")
         record_delivery("Mark sent","Delivery marked sent.")
         record_delivery("Mark completed · founder-recorded","Delivery marked completed · founder-recorded.")
-        delivery.get_by_text("Completed · founder-recorded").wait_for()
-        delivery.get_by_role("button",name="View history").click()
-        assert page.locator("#history-list li").count()==5
+        history=page.request.get(origin+f"/api/v1/founder/deliveries/{order_codes[0]}/history")
+        assert history.status==200 and len(history.json()["history"])==5
+        assert page.locator("#metric-deliveries").inner_text()=="0"
 
         with app.state.engine.begin() as db:
             db.execute(text("UPDATE production_founder_sessions SET expires_at=now()-interval '1 second'"))
