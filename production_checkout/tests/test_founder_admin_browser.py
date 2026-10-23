@@ -151,10 +151,16 @@ def test_founder_browser_auth_claim_approval_delivery_and_expiry(running_founder
         assert page.locator("#metric-revenue").inner_text()=="1,500 ETB"
 
         page.get_by_role("button",name="Telegram delivery").click()
-        page.get_by_role("button",name="Mark preparing").click();page.get_by_role("button",name="Mark failed").click()
-        page.get_by_role("button",name="Mark preparing").click();page.get_by_role("button",name="Mark sent").click()
         delivery=page.locator(".delivery-card").filter(has_text=order_codes[0])
-        delivery.get_by_role("button",name="Mark completed · founder-recorded").click()
+        def record_delivery(button_name, expected):
+            page.locator("#global-message").evaluate("el => { el.textContent=''; el.classList.remove('visible'); }")
+            delivery.get_by_role("button",name=button_name).click()
+            page.wait_for_function("expected => document.querySelector('#global-message').textContent.includes(expected)", expected)
+        record_delivery("Mark preparing","Delivery marked preparing.")
+        record_delivery("Mark failed","Delivery marked failed.")
+        record_delivery("Mark preparing","Delivery marked preparing.")
+        record_delivery("Mark sent","Delivery marked sent.")
+        record_delivery("Mark completed · founder-recorded","Delivery marked completed · founder-recorded.")
         delivery.get_by_text("Completed · founder-recorded").wait_for()
         delivery.get_by_role("button",name="View history").click()
         assert page.locator("#history-list li").count()==5
