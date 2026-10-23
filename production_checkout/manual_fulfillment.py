@@ -44,11 +44,13 @@ def record_manual_delivery(db: Session, *, actor_id: str, order_code: str, new_s
         db.execute(text("""
             UPDATE production_manual_deliveries
                SET status=:status, updated_by=:actor,
-                   sent_at=CASE WHEN :status='SENT' THEN now() ELSE sent_at END,
-                   delivered_at=CASE WHEN :status='DELIVERED' THEN now() ELSE delivered_at END,
+                   sent_at=CASE WHEN :is_sent THEN now() ELSE sent_at END,
+                   delivered_at=CASE WHEN :is_delivered THEN now() ELSE delivered_at END,
                    updated_at=now()
              WHERE order_id=:order_id
-        """), {"status": new_status, "actor": actor_id, "order_id": row["order_id"]})
+        """), {"status": new_status, "actor": actor_id,
+               "is_sent": new_status == "SENT", "is_delivered": new_status == "DELIVERED",
+               "order_id": row["order_id"]})
         db.execute(text("""
             INSERT INTO production_manual_delivery_events(order_id, old_status, new_status, actor_id)
             VALUES (:order_id, :old, :new, :actor)
