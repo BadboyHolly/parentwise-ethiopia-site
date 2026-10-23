@@ -132,7 +132,7 @@ def test_founder_browser_auth_claim_approval_delivery_and_expiry(running_founder
         page.locator("#observed-reference").fill("SYNTH-BROWSER-CLAIM-"+"A"*8)
         page.locator("#recipient-confirmed").check()
         page.locator("#settlement-form button[type=submit]").click()
-        assert "Approval remains a separate founder decision." in page.locator("#evidence-state").inner_text()
+        page.get_by_text("Independent settlement evidence recorded. No sale is counted until approval.").wait_for()
         assert page.locator("#approve-payment").is_enabled()
         assert page.locator("#metric-revenue").inner_text()=="0 ETB"
         page.locator("#decision-reason").fill("Synthetic receiving account settlement verified")
