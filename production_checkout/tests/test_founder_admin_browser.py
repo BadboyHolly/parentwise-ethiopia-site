@@ -152,9 +152,10 @@ def test_founder_browser_auth_claim_approval_delivery_and_expiry(running_founder
         page.get_by_role("button",name="Telegram delivery").click()
         page.get_by_role("button",name="Mark preparing").click();page.get_by_role("button",name="Mark failed").click()
         page.get_by_role("button",name="Mark preparing").click();page.get_by_role("button",name="Mark sent").click()
-        page.get_by_role("button",name="Mark completed · founder-recorded").click()
-        page.get_by_text("Completed · founder-recorded").wait_for()
-        page.get_by_role("button",name="View history").click()
+        delivery=page.locator(".delivery-card").filter(has_text=order_codes[0])
+        delivery.get_by_role("button",name="Mark completed · founder-recorded").click()
+        delivery.get_by_text("Completed · founder-recorded").wait_for()
+        delivery.get_by_role("button",name="View history").click()
         assert page.locator("#history-list li").count()==5
 
         with app.state.engine.begin() as db:
