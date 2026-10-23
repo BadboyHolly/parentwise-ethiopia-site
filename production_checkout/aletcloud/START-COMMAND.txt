@@ -1,0 +1,1 @@
+python -m uvicorn production_checkout.app:from_environment --factory --host 0.0.0.0 --port $PORT --workers 1 --limit-concurrency 4 --timeout-keep-alive 5

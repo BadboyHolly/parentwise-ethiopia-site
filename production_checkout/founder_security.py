@@ -283,6 +283,11 @@ def create_founder_router(sessions: sessionmaker, cfg: FounderConfig) -> APIRout
         reason: str = Field(min_length=10, max_length=512)
         third_party_exception_id: str | None = None
 
+    class DeliveryInput(BaseModel):
+        model_config = ConfigDict(extra="forbid")
+        order_id: str = Field(pattern=r"^PW-[0-9A-F]{24}$")
+        status: str = Field(pattern=r"^(PREPARING|SENT|DELIVERED|FAILED)$")
+
     def get_session(session_cookie: str | None) -> dict:
         if not session_cookie or len(session_cookie) > 128:
             raise HTTPException(401, "Founder session required")
@@ -393,6 +398,42 @@ def create_founder_router(sessions: sessionmaker, cfg: FounderConfig) -> APIRout
                            "claimed_reference":ref,"submitted_at":r["created_at"].isoformat()})
         return {"claims":output}
 
+    @router.get("/metrics")
+    def metrics(who: dict = Depends(identity)):
+        from .manual_fulfillment import manual_delivery_report
+        with sessions() as db:
+            return manual_delivery_report(db)
+
+    @router.get("/deliveries/pending")
+    def pending_deliveries(who: dict = Depends(identity)):
+        with sessions() as db:
+            rows = db.execute(text("""
+                SELECT o.code AS order_id, o.customer_name, o.mobile_e164,
+                       d.status, d.created_at, d.updated_at
+                  FROM production_manual_deliveries d
+                  JOIN production_orders o ON o.id=d.order_id
+                 WHERE d.status IN ('PENDING','PREPARING','SENT','FAILED')
+                 ORDER BY d.created_at ASC
+            """)).mappings().all()
+            return {"deliveries": [dict(row) for row in rows]}
+
+    @router.post("/deliveries/status")
+    def delivery_status(body: DeliveryInput, request: Request,
+                        x_csrf_token: str | None = Header(default=None),
+                        who: dict = Depends(identity)):
+        require_csrf(request, who, x_csrf_token)
+        decision_enabled()
+        from .manual_fulfillment import ManualDeliveryError, record_manual_delivery
+        with sessions() as db:
+            try:
+                state = record_manual_delivery(
+                    db, actor_id=who["founder_id"], order_code=body.order_id,
+                    new_status=body.status,
+                )
+            except ManualDeliveryError as exc:
+                raise HTTPException(409, str(exc)) from None
+        return {"order_id": body.order_id, "delivery_status": state}
+
     @router.post("/settlements")
     def settlement(body: SettlementInput, request: Request, x_csrf_token: str | None = Header(default=None), who: dict = Depends(identity)):
         require_csrf(request, who, x_csrf_token); decision_enabled()
@@ -447,9 +488,11 @@ def create_founder_router(sessions: sessionmaker, cfg: FounderConfig) -> APIRout
                 grant = approve_payment(db, actor_id=who["founder_id"], order_code=body.order_id, claim_id=body.claim_id,
                     evidence_id=body.evidence_id, reason=body.reason, token_secret=cfg.token_secret,
                     reference_hash_secret=cfg.reference_hash_secret, identity_hash_secret=cfg.identity_hash_secret,
-                    expected_recipient_digest=recipient_digest, third_party_exception_id=body.third_party_exception_id)
+                    expected_recipient_digest=recipient_digest, third_party_exception_id=body.third_party_exception_id,
+                    fulfillment_mode="manual_telegram")
             except Exception as exc: _domain_error(exc)
-        return {"grant_id": grant, "status": "PAYMENT_CONFIRMED"}
+        return {"grant_id": grant, "status": "PAYMENT_CONFIRMED",
+                "fulfillment_mode": "manual_telegram", "delivery_status": "PENDING"}
 
     @router.post("/reject")
     def reject(body: DecisionInput, request: Request, x_csrf_token: str | None = Header(default=None), who: dict = Depends(identity)):

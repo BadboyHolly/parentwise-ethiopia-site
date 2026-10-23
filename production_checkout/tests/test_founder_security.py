@@ -7,6 +7,9 @@ import hmac
 import os
 import struct
 import time
+import secrets
+from datetime import datetime, timezone
+from uuid import uuid4
 from concurrent.futures import ThreadPoolExecutor
 
 import pytest
@@ -14,11 +17,13 @@ from argon2 import PasswordHasher
 from fastapi.testclient import TestClient
 from sqlalchemy import text
 
-from production_checkout.app import build_app
+from production_checkout.app import build_app, hmac_digest, private_token
 from production_checkout.founder_security import (
     FounderConfig, InvalidCiphertext, create_founder_router, decrypt_sensitive,
     encrypt_sensitive, _totp_counter,
 )
+from production_checkout.founder_encryption import encrypt_claim_reference
+from production_checkout.payment_state import submit_payment_claim
 
 DATABASE_URL = os.getenv("TEST_DATABASE_URL")
 pytestmark = pytest.mark.skipif(not DATABASE_URL, reason="requires disposable PostgreSQL")
@@ -41,7 +46,7 @@ def password_hash():
 
 
 @pytest.fixture
-def founder_app(password_hash):
+def founder_app(password_hash, request):
     app = build_app(database_url=DATABASE_URL, token_secret="t"*48,
                     allowed_origins=["https://founder.example"], intake_enabled=False)
     cfg = FounderConfig(
@@ -51,8 +56,9 @@ def founder_app(password_hash):
         reference_hash_secret="h"*48, identity_hash_secret="i"*48,
         recipient_hash_secret="p"*48, telebirr_recipient="TEST-TEL-RECIPIENT",
         bank_recipient="TEST-BANK-RECIPIENT", allowed_origins=("https://founder.example",),
-        auth_enabled=True, approvals_enabled=False, secure_cookie=True,
+        auth_enabled=True, approvals_enabled=bool(getattr(request, "param", False)), secure_cookie=True,
     )
+    app.state.founder_config = cfg
     app.include_router(create_founder_router(app.state.sessions, cfg))
     with app.state.engine.begin() as db:
         db.execute(text("TRUNCATE production_orders CASCADE"))
@@ -141,6 +147,76 @@ def test_approval_gate_and_forged_founder_identity_are_denied(founder_app):
         blocked=client.post("/api/v1/founder/reject",headers=headers,json={
             "order_id":"PW-"+"A"*24,"claim_id":"x","reason":"No evidence supplied"})
         assert blocked.status_code==503
+
+
+def test_founder_metrics_and_manual_delivery_routes_are_authenticated_and_gated(founder_app):
+    with TestClient(founder_app, base_url="https://founder.example") as client:
+        assert client.get("/api/v1/founder/metrics").status_code == 401
+        assert client.get("/api/v1/founder/deliveries/pending").status_code == 401
+        response = login(client); assert response.status_code == 200
+        assert client.get("/api/v1/founder/metrics").status_code == 200
+        assert client.get("/api/v1/founder/deliveries/pending").json() == {"deliveries": []}
+        blocked = client.post("/api/v1/founder/deliveries/status",
+            headers={"Origin":"https://founder.example","X-CSRF-Token":response.json()["csrf_token"]},
+            json={"order_id":"PW-"+"A"*24,"status":"SENT"})
+        assert blocked.status_code == 503
+
+
+@pytest.mark.parametrize("founder_app", [True], indirect=True)
+def test_founder_mfa_approval_and_telegram_delivery_journey(founder_app):
+    cfg = founder_app.state.founder_config
+    code = "PW-" + secrets.token_hex(12).upper()
+    order_id = str(uuid4())
+    token = private_token(cfg.token_secret, secrets.token_urlsafe(32))
+    with founder_app.state.engine.begin() as db:
+        db.execute(text("""
+            INSERT INTO production_orders
+              (id,code,customer_name,mobile_e164,method,amount_etb,currency,status,
+               idempotency_hash,request_fingerprint,access_hash,created_at)
+            VALUES (:id,:code,'Synthetic Founder Test','+251912345678','telebirr',1500,
+                    'ETB','AWAITING_PAYMENT',:idem,:fingerprint,:access_hash,now())
+        """), {"id":order_id,"code":code,"idem":secrets.token_hex(32),
+               "fingerprint":secrets.token_hex(32),
+               "access_hash":hmac_digest(cfg.token_secret,"stored:v1:"+token)})
+    reference = "SIM-FOUNDER-" + secrets.token_hex(6).upper()
+    with founder_app.state.sessions() as db:
+        claim_id = submit_payment_claim(
+            db, order_code=code, access_token=token, token_secret=cfg.token_secret,
+            reference_hash_secret=cfg.reference_hash_secret, transaction_reference=reference,
+            reference_ciphertext=encrypt_claim_reference(reference,cfg,code),
+        )
+
+    with TestClient(founder_app, base_url="https://founder.example") as client:
+        logged = login(client); assert logged.status_code == 200
+        csrf = logged.json()["csrf_token"]
+        headers={"Origin":"https://founder.example","X-CSRF-Token":csrf}
+        settlement=client.post("/api/v1/founder/settlements",headers=headers,json={
+            "order_id":code,"claim_id":claim_id,"observed_reference":reference,
+            "payment_method":"telebirr","amount_etb":1500,"currency":"ETB",
+            "recipient_confirmed":True,"payer_mobile":"+251912345678",
+            "evidence_source":"TELEBIRR_PORTAL","settled_at":datetime.now(timezone.utc).isoformat(),
+        })
+        assert settlement.status_code == 200, settlement.text
+        evidence_id=settlement.json()["evidence_id"]
+        approved=client.post("/api/v1/founder/approve",headers=headers,json={
+            "order_id":code,"claim_id":claim_id,"evidence_id":evidence_id,
+            "reason":"Synthetic independent settlement verified",
+        })
+        assert approved.status_code == 200, approved.text
+        assert approved.json() == {"grant_id":None,"status":"PAYMENT_CONFIRMED",
+                                   "fulfillment_mode":"manual_telegram","delivery_status":"PENDING"}
+        assert client.get("/api/v1/founder/metrics").json()["verified_revenue_etb"] == 1500
+        for state in ("PREPARING","SENT","DELIVERED"):
+            changed=client.post("/api/v1/founder/deliveries/status",headers=headers,
+                                json={"order_id":code,"status":state})
+            assert changed.status_code == 200, changed.text
+        metrics=client.get("/api/v1/founder/metrics").json()
+        assert metrics["payment_verified"] == 1
+        assert metrics["verified_revenue_etb"] == 1500
+        assert metrics["delivery_delivered"] == 1
+    with founder_app.state.engine.connect() as db:
+        assert db.execute(text("SELECT count(*) FROM production_download_grants WHERE order_id=:id"),
+                          {"id":order_id}).scalar_one() == 0
 
 
 def test_founder_request_cannot_supply_recipient_configuration(founder_app):

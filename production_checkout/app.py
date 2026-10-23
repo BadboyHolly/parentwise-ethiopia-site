@@ -6,6 +6,7 @@ separate from funds settlement, identity verification and fulfillment.
 from __future__ import annotations
 
 import base64
+from contextlib import asynccontextmanager
 import hashlib
 import hmac
 import json
@@ -127,6 +128,8 @@ def build_app(
     intake_enabled: bool = False,
     allow_sqlite_for_tests: bool = False,
     payment_accounts: dict[str, dict[str, str]] | None = None,
+    db_pool_size: int = 2,
+    db_pool_timeout: int = 5,
 ) -> FastAPI:
     if len(token_secret) < 32:
         raise RuntimeError("A durable ORDER_TOKEN_KEY >= 32 characters is required")
@@ -146,17 +149,38 @@ def build_app(
         raise RuntimeError("Both payment instruction records must be configured")
     accounts = {method: dict(value) for method, value in accounts.items()}
 
-    engine_kwargs = {"pool_pre_ping": True}
+    if not 1 <= db_pool_size <= 4 or not 1 <= db_pool_timeout <= 30:
+        raise RuntimeError("Database pool settings are outside the safe application bounds")
+
+    # AletCloud App Pro is 512 MiB. Keep one Uvicorn worker and a small,
+    # explicitly bounded SQLAlchemy pool. Never allow QueuePool overflow.
+    engine_kwargs = {
+        "pool_pre_ping": True,
+        "pool_size": db_pool_size,
+        "max_overflow": 0,
+        "pool_timeout": db_pool_timeout,
+        "pool_recycle": 1800,
+        "pool_use_lifo": True,
+    }
     if database_url.startswith("sqlite://"):
         engine_kwargs["connect_args"] = {"check_same_thread": False}
     else:
         engine_kwargs["connect_args"] = {"connect_timeout": 5}
     engine = create_engine(database_url, **engine_kwargs)
     sessions = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
-    app = FastAPI(title="ParentWise Orders", docs_url=None, redoc_url=None, openapi_url=None)
+    @asynccontextmanager
+    async def lifespan(_app: FastAPI):
+        try:
+            yield
+        finally:
+            engine.dispose()
+
+    app = FastAPI(title="ParentWise Orders", docs_url=None, redoc_url=None,
+                  openapi_url=None, lifespan=lifespan)
     app.state.engine = engine
     app.state.sessions = sessions
     app.state.intake_enabled = intake_enabled
+    app.state.db_pool_size = db_pool_size
     app.add_middleware(
         CORSMiddleware,
         allow_origins=allowed_origins,
@@ -175,8 +199,11 @@ def build_app(
         return response
 
     @app.get("/healthz")
+    @app.get("/livez", include_in_schema=False)
     def health():
-        return {"service": "parentwise-order-intake", "order_intake_enabled": intake_enabled, "payment_verification_enabled": False}
+        return {"status": "alive", "service": "parentwise-order-intake",
+                "order_intake_enabled": intake_enabled,
+                "payment_verification_enabled": False}
 
     @app.get("/readyz")
     def ready():
@@ -185,7 +212,7 @@ def build_app(
                 conn.execute(text("SELECT 1"))
                 # Migration must have created this independently. No runtime create_all.
                 conn.execute(text("SELECT 1 FROM production_orders LIMIT 1"))
-            return {"database": "ready"}
+            return {"status": "ready", "database": "ready"}
         except SQLAlchemyError:
             raise HTTPException(503, "Order storage is unavailable") from None
 
@@ -282,6 +309,8 @@ def from_environment() -> FastAPI:
         allowed_origins=[x.strip() for x in os.getenv("ALLOWED_ORIGINS", "").split(",") if x.strip()],
         intake_enabled=os.getenv("ORDER_INTAKE_ENABLED", "false").lower() == "true",
         payment_accounts=accounts,
+        db_pool_size=int(os.getenv("DB_POOL_SIZE", "2")),
+        db_pool_timeout=int(os.getenv("DB_POOL_TIMEOUT_SECONDS", "5")),
     )
     founder_auth_enabled = os.getenv("FOUNDER_AUTH_ENABLED", "false").lower() == "true"
     founder_approval_enabled = os.getenv("FOUNDER_APPROVAL_ENABLED", "false").lower() == "true"
