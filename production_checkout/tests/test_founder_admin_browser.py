@@ -160,6 +160,7 @@ def test_founder_browser_auth_claim_approval_delivery_and_expiry(running_founder
         record_delivery("Mark preparing","Delivery marked preparing.")
         record_delivery("Mark failed","Delivery marked failed.")
         delivery.get_by_role("button",name="View history").click()
+        page.wait_for_function("document.querySelectorAll('#history-list li').length === 2", timeout=10000)
         assert page.locator("#history-list li").count()==2
         page.get_by_role("button",name="Close history").click()
         record_delivery("Mark preparing","Delivery marked preparing.")
