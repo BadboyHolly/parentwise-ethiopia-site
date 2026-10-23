@@ -163,14 +163,14 @@ def test_founder_browser_auth_claim_approval_delivery_and_expiry(running_founder
         record_delivery("Mark preparing","Delivery marked preparing.")
         record_delivery("Mark failed","Delivery marked failed.")
         delivery.get_by_role("button",name="View history").click()
-        page.locator("#history-list li:nth-child(2)").wait_for()
-        assert page.locator("#history-list li").count()==2
+        page.locator("#history-list li:nth-child(3)").wait_for()
+        assert page.locator("#history-list li").count()==3
         page.get_by_role("button",name="Close history").click()
         record_delivery("Mark preparing","Delivery marked preparing.")
         record_delivery("Mark sent","Delivery marked sent.")
         record_delivery("Mark completed · founder-recorded","Delivery marked completed · founder-recorded.")
         history=page.request.get(origin+f"/api/v1/founder/deliveries/{order_codes[0]}/history")
-        assert history.status==200 and len(history.json()["history"])==5
+        assert history.status==200 and len(history.json()["history"])==6
         assert page.locator("#metric-deliveries").inner_text()=="0"
 
         with app.state.engine.begin() as db:
