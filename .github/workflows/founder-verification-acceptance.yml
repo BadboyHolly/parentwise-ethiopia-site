@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - dev/payment-delivery-state-foundation-20261019
+      - dev/founder-payment-verification-20261020
     paths:
       - 'production_checkout/**'
       - 'staging_checkout/tests/test_journey.py'
