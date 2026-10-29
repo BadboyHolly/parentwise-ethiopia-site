@@ -134,7 +134,7 @@ input[type=text]:focus,input[type=tel]:focus{border-color:#2a6a49;outline:2px so
 <div class="holder"><span>የሂሳብ ባለቤት</span><strong id="recipient-holder">—</strong></div><p id="copy-status" class="status-clip" role="status" aria-live="polite"></p></div></div>
 <div class="checkout-guide" id="payment-fulfillment">
 <svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true" fill="none" stroke="#42704f" stroke-width="1.8"><path d="M5 12.5l4 4L19 7.5"/><circle cx="12" cy="12" r="10"/></svg>
-<div><strong>መጽሐፍቱን እንዴት ይቀበላሉ?</strong><p>ክፍያዎ ከተረጋገጠ በኋላ 5ቱን PDF መመሪያዎች በTelegram እንልክልዎታለን።</p></div>
+<div><strong>መጽሐፍቱን እንዴት ይቀበላሉ?</strong><p>ክፍያዎ ከተረጋገጠ በኋላ 5ቱን PDF መመሪያዎች ወዲያውኑ በTelegram እንልክልዎታለን።</p></div>
 </div>
 <p class="notice" id="payment-verification-note">ክፍያ ከመፈጸምዎ በፊት በመክፈያ መተግበሪያዎ የሚታየውን የተቀባይ ስም ያረጋግጡ።</p>
 <button id="paid-action" class="primary" type="button">ክፍያ ፈጽሜያለሁ — ይቀጥሉ →</button><p class="smallnote" id="payment-settlement-note">የክፍያ ማስረጃዎን በቀጣዩ ደረጃ በTelegram ይላኩልን።</p><button id="back-payment" class="back" type="button">← ወደ መረጃዎ ይመለሱ</button></section>
@@ -144,7 +144,7 @@ input[type=text]:focus,input[type=tel]:focus{border-color:#2a6a49;outline:2px so
 <div class="order-reference" id="order-reference-bar" hidden><small>የትዕዛዝ ቁጥርዎ</small><strong id="visible-order-reference"></strong><button type="button" id="copy-order-reference">Copy Order ID</button><p id="copy-order-reference-status" class="status-clip" role="status" aria-live="polite"></p></div>
 <div class="confirm-box"><h3 id="telegram-step-one">1 · መረጃዎን Copy ያድርጉ</h3><div id="confirmation-message" class="message" role="note" aria-label="የትዕዛዝ መረጃ">ParentWise payment confirmation</div><button id="copy-confirmation" class="secondary" type="button">መረጃውን Copy ያድርጉ</button><p id="confirmation-status" class="status-clip" role="status" aria-live="polite"></p></div>
 <div class="confirm-box"><h3 id="telegram-step-two">2 · Telegram ይክፈቱ</h3><p id="telegram-receipt-hint">መረጃውን Paste ያድርጉ። ከዚያ ደረሰኝዎን ወይም የዝውውር ቁጥርዎን ይላኩ።</p><a class="primary" style="display:grid;place-items:center;text-decoration:none" id="telegram-handoff" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Telegram ይክፈቱ — ማስረጃ ይላኩ ↗</a><p class="telegram-handle">@ParentWiseEthiopia</p></div>
-<div class="delivery-tip" id="telegram-delivery-tip">ክፍያዎን ካረጋገጥን በኋላ 5ቱን PDF መመሪያዎች በዚሁ Telegram እንልክልዎታለን። PIN ወይም OTP አይላኩ።</div>
+<div class="delivery-tip" id="telegram-delivery-tip">ክፍያዎን ካረጋገጥን በኋላ 5ቱን PDF መመሪያዎች ወዲያውኑ በዚሁ Telegram እንልክልዎታለን። PIN ወይም OTP አይላኩ።</div>
 <button id="back-telegram" class="back" type="button">← ወደ ክፍያ መረጃ ይመለሱ</button><div><a class="help-label" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">እገዛ ↗</a></div></section>
 <div class="bottom-order"><details id="order-summary"><summary><span>የትዕዛዝ ዝርዝር</span><span>1,500 ETB</span></summary><div class="bottom-order-body"><b>Child Behavior &amp; Discipline System</b><span>5 digital PDF guides · የአንድ ጊዜ ክፍያ</span></div></details></div>
 </div></main><footer class="footer">ParentWise Ethiopia · How We Raise Matters.</footer>
@@ -287,6 +287,7 @@ input[type=text]:focus,input[type=tel]:focus{border-color:#2a6a49;outline:2px so
       $('copy-recipient').disabled=true;
       $('copy-account-label').textContent='Hidden';
       $('copy-status').textContent='';
+      $('payment-sub').textContent='ይህ የሙከራ ገጽ ነው። ክፍያ አይፈጽሙ፤ ወደ ቀጣዩ ደረጃ ይቀጥሉ።';
       $('walkthrough-payment-note').hidden=false;
       $('payment-verification-note').hidden=true;
       $('payment-settlement-note').hidden=true;
