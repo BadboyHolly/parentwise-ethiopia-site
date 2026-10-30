@@ -224,6 +224,7 @@ input[type=text],input[type=tel]{background:#fffdf8;border-color:#d6d8cb;border-
 
 .checkout-total{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 15px;margin:0 0 16px;background:#edf3eb;border-radius:12px;color:#1f4d3a}.checkout-total span{font-size:14px}.checkout-total strong{font-size:23px;white-space:nowrap}#copy-confirmation[data-copied="true"]{background:#edf3eb;border-color:#1f4d3a;color:#1f4d3a}
 .telegram-fallback{margin:20px 0;padding:14px;border:1px solid #dce3d7;border-radius:12px;background:#fafbf7}.telegram-fallback summary{cursor:pointer;color:#1f4d3a;font-size:14px;font-weight:700;min-height:30px}.telegram-fallback p{font-size:14px;line-height:1.8}.telegram-send-note{text-align:center}.telegram-instructions{margin-top:12px}
+#telegram-section #telegram-sub{display:block!important;font-size:16px;line-height:1.9;margin:0 0 20px}
 </style></head><body>
 <header class="head"><div class="container brand">
   <a href="./" aria-label="ParentWise Ethiopia"><img src="assets/parentwise-primary-horizontal.webp" alt="ParentWise Ethiopia"></a>
@@ -324,7 +325,7 @@ input[type=text],input[type=tel]{background:#fffdf8;border-color:#d6d8cb;border-
       return;
     }
     $('screen-heading').textContent=['የእርስዎ መረጃ','1,500 ብር ይክፈሉ','የክፍያ ማስረጃዎን ይላኩ'][n-1];
-    $('screen-intro').textContent=n===1?'ሙሉ ስምዎንና ስልክ ቁጥርዎን ያስገቡ።':n===2?(method==='bank'?'በኢትዮጵያ ንግድ ባንክ (CBE)':'በቴሌብር'):'ስምዎን፣ ስልክ ቁጥርዎንና የክፍያ ደረሰኝዎን በTelegram ይላኩልን።';
+    $('screen-intro').textContent=n===1?'ሙሉ ስምዎንና ስልክ ቁጥርዎን ያስገቡ።':n===2?(method==='bank'?'በኢትዮጵያ ንግድ ባንክ (CBE)':'በቴሌብር'):'';
     $('details-section').hidden=n!==1;
     $('payment-section').hidden=n!==2;
     $('telegram-section').hidden=n!==3;
