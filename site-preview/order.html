@@ -1,6 +1,6 @@
 <!doctype html><html lang="am"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer"><title>ትዕዛዝዎን ያጠናቅቁ | ParentWise Ethiopia</title><style>
-@font-face{font-family:SurGraphics;src:url("https://cdn.jsdelivr.net/gh/geezorg/legally-free-geez-fonts@main/FreeToRedistribute/SurGraphics/SurGraphics%20Regular.ttf") format("truetype");font-display:swap;font-weight:400}
-@font-face{font-family:SurGraphics;src:url("https://cdn.jsdelivr.net/gh/geezorg/legally-free-geez-fonts@main/FreeToRedistribute/SurGraphics/SurGraphics%20Bold.ttf") format("truetype");font-display:swap;font-weight:700}
+@font-face{font-family:SurGraphics;src:url("assets/surgraphics-regular.woff") format("woff");font-display:swap;font-weight:400}
+@font-face{font-family:SurGraphics;src:url("assets/surgraphics-bold.woff") format("woff");font-display:swap;font-weight:700}
 :root{--f:#1F4D3A;--deep:#123a29;--burg:#7A2E3E;--iv:#faf6f0;--sage:#eff3eb;--line:#e1e2d9;--ink:#263a2e;--muted:#62746a}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--iv);font:15px/1.62 SurGraphics,'Noto Sans Ethiopic',system-ui,sans-serif;color:var(--ink)}
 button,input{font:inherit}button{cursor:pointer}:focus-visible,a:focus-visible{outline:3px solid #ae6e86;outline-offset:2px}
@@ -175,6 +175,52 @@ input[type=text],input[type=tel]{min-height:54px;padding:12px 14px;font-size:16p
 .delivery-tip{background:#edf4ea;border:0;font-size:14px;line-height:1.8;padding:14px;border-radius:12px}
 .bottom-order{margin-top:18px;padding-top:16px}.footer{font-size:12px;color:#67776a;padding-bottom:24px}
 @media(max-width:380px){.shell,body:has(#payment-section:not([hidden])) .shell{padding:0 10px;margin-top:14px}.panel{padding:18px 15px}.step{font-size:12px}.screen h2,#payment-section h2{font-size:25px}.method{padding:10px 8px;gap:5px}.method img{width:24px;height:24px}.payment-instructions li{padding-left:35px}}
+
+/* Founder-selected Forest Signature. */
+body{background:#f8f4ec;font-weight:400}
+.head{max-width:490px;margin:18px auto 0;border:0;border-radius:20px 20px 0 0;position:relative;background:#1f4d3a;overflow:hidden}
+.head .container{padding:0 24px}.brand{min-height:84px}.brand img{width:174px;max-width:174px;max-height:62px;border-radius:8px;padding:3px;background:#f8f4ec}
+.brand a.help{background:#f8f4ec;color:#7a2e3e;border-radius:24px;text-decoration:none;min-height:38px;padding:8px 16px;font-size:14px;white-space:nowrap}
+.shell,body:has(#payment-section:not([hidden])) .shell{max-width:490px;padding:0;margin:0 auto 24px}
+.panel{background:#1f4d3a;padding:0;border:0;border-radius:0 0 20px 20px;box-shadow:0 16px 40px #1f4d3a14;overflow:hidden;position:relative}
+.panel:before{content:"";position:absolute;top:-100px;left:-170px;width:260px;height:260px;border:32px solid #ffffff06;border-radius:50%;pointer-events:none}
+.progress{position:relative;grid-template-columns:1fr 28px 1fr 28px 1fr;padding:10px 22px 16px;margin:0;border:0;color:#e4ece4}
+.step{color:#e4ece4;font-size:14px;font-weight:400}.step em{border:1px solid #dce9dd;color:#fff;background:transparent;width:32px;height:32px}
+.step.active{color:#fff}.step.active em{background:#7a2e3e;border-color:#f8f4ec}.progress>span[aria-hidden]{color:#b9ccbc}
+.forest-intro{position:relative;padding:4px 24px 24px;color:#fff;text-align:center}
+.forest-intro h1{font-size:28px;line-height:1.45;margin:0 0 7px;font-weight:700;color:#fff}
+.forest-intro p{font-size:15px;line-height:1.7;margin:0;color:#edf2e9}
+.screen{position:relative;background:#fffaf2;border-radius:20px 20px 0 0;padding:24px 22px 8px}
+.screen>h2,.screen>.sub{display:none}
+#details-section form>label:first-child{margin-top:0}
+input[type=text],input[type=tel]{background:#fffdf8;border-color:#d6d8cb;border-radius:11px;box-shadow:none;font-weight:400}
+.methods{gap:12px}.method{flex-direction:column;position:relative;min-height:104px;justify-content:center;gap:6px;border-color:#d4d8cd;background:#fffdf8;font-family:system-ui,sans-serif;font-size:15px}
+.method input{position:absolute;top:12px;left:12px;margin:0;width:18px;height:18px;accent-color:#7a2e3e}.method img{width:39px;height:39px}
+.method:has(input:checked){background:#faf0ef;border-color:#7a2e3e;box-shadow:inset 0 0 0 1px #7a2e3e}
+.primary,#payment-section #paid-action{background:#7a2e3e;color:#fff;min-height:54px;font-weight:700;font-size:17px;box-shadow:none}
+.primary:hover:not(:disabled){background:#682535}
+#payment-section .customer{background:transparent;border:0;padding:0 0 12px;margin:0 0 14px;border-bottom:1px solid #e4e4d8;border-radius:0}
+#payment-section .account{background:#faf7f0;border:1px solid #e2e3d7;box-shadow:none;border-radius:13px}
+#payment-section .amount{background:transparent;border-bottom:1px solid #e4e4d9;margin:0 14px 12px;padding:12px 0;border-radius:0}
+#payment-section .amount b{font-size:25px}
+#payment-section .number-box{border:0;background:#f0f1e8;border-radius:10px;padding:12px}
+#payment-section .num-row{gap:8px}.num-row strong{font-family:system-ui,sans-serif;font-size:20px}
+#payment-section .num-row button{color:#7a2e3e;border-color:#7a2e3e;background:#fffaf2;padding:9px 11px;font-size:13px}
+#payment-section .holder{padding:12px 2px 0;border-top:0}.holder strong{font-weight:400}
+.payment-instructions li{font-size:16px;line-height:1.85;margin-bottom:15px}
+.payment-instructions li:before{background:#7a2e3e;color:#fff}
+.confirm-box,.confirm-box:first-of-type{background:#fffcf7;border-color:#e4e3d8;padding:16px;margin:0 0 16px;border-radius:13px}
+.confirm-box h3{color:#7a2e3e;font-size:18px;line-height:1.6}
+.message{background:#f0f1eb;border:0;border-radius:10px;font-size:14px;font-weight:400}
+#copy-confirmation{color:#7a2e3e;border-color:#7a2e3e;background:transparent}
+#telegram-handoff{background:#7a2e3e}
+.telegram-handle{font-family:system-ui,sans-serif;font-weight:400}
+.bottom-order{background:#fffaf2;margin:0;padding:14px 22px 22px;border-top:0}
+.bottom-order details{background:#f0f2e9;border-color:#e3e6db}.back{font-weight:400}
+.delivery-tip,#payment-fulfillment{background:#edf1e6}
+#telegram-section>div:last-child{text-align:center}
+@media(max-width:520px){.head{margin:0 auto;border-radius:0}.head .container{padding:0 20px}.brand{min-height:76px}.panel{border-radius:0;box-shadow:none}.forest-intro{padding:2px 20px 22px}.forest-intro h1{font-size:26px}.screen{padding:22px 20px 8px}.bottom-order{padding:14px 20px 22px}.shell,body:has(#payment-section:not([hidden])) .shell{margin-top:0;padding:0}.progress{padding:8px 18px 15px}}
+@media(max-width:360px){.screen{padding:20px 16px 8px}.forest-intro h1{font-size:24px}.brand img{width:156px;max-width:156px}.brand a.help{padding:7px 12px}.step{font-size:12px}.payment-instructions li{font-size:15px}.num-row strong{font-size:18px}}
 </style></head><body>
 <header class="head"><div class="container brand">
   <a href="./" aria-label="ParentWise Ethiopia"><img src="assets/parentwise-primary-horizontal.webp" alt="ParentWise Ethiopia"></a>
@@ -186,6 +232,7 @@ input[type=text],input[type=tel]{min-height:54px;padding:12px 14px;font-size:16p
 <main class="shell checkout-shell"><div class="panel">
 <div class="progress" aria-label="Checkout steps"><span class="step active" id="label-details"><em>1</em>መረጃ</span><span aria-hidden="true">—</span><span class="step" id="label-payment"><em>2</em>ክፍያ</span><span aria-hidden="true">—</span><span class="step" id="label-telegram"><em>3</em>ማስረጃ ይላኩ</span></div>
 
+<div class="forest-intro"><h1 id="screen-heading">የእርስዎ መረጃ</h1><p id="screen-intro">ሙሉ ስምዎንና ስልክ ቁጥርዎን ያስገቡ።</p></div>
 <section id="details-section" class="screen">
 <h2>የእርስዎ መረጃ</h2><p class="sub">ሙሉ ስምዎንና ስልክ ቁጥርዎን ያስገቡ፤ ከዚያ የክፍያ ዘዴ ይምረጡ።</p>
 <form id="checkout-form" novalidate>
@@ -204,7 +251,7 @@ input[type=text],input[type=tel]{min-height:54px;padding:12px 14px;font-size:16p
 <p class="walkthrough-note" id="edit-order-notice" tabindex="-1" hidden>ትዕዛዝዎ ተመዝግቧል። ድጋሚ ትዕዛዝ እንዳይፈጠር መረጃዎን እዚህ መቀየር አይቻልም። ለማስተካከል <a class="inline-link" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Telegram ድጋፍ</a> ያነጋግሩ።</p>
 <div class="account"><div class="account-head"><span class="meta-box"><img id="selected-mark" src="assets/telebirr-mark.svg" alt="Selected method"><strong id="selected-method">Telebirr</strong></span><span style="font-size:11px;color:#916142;font-weight:800;letter-spacing:.07em">PAYMENT DETAILS</span></div>
 <div class="amount"><span>የሚከፍሉት ጠቅላላ መጠን</span><b>1,500 ብር</b></div>
-<div class="num-shell"><div class="number-box"><small id="recipient-label">Account number</small><div class="num-row"><strong id="recipient-number">—</strong><button id="copy-recipient" type="button" aria-label="Copy account number"><span id="copy-account-label">Copy</span></button></div></div>
+<div class="num-shell"><div class="number-box"><small id="recipient-label">Account number</small><div class="num-row"><strong id="recipient-number">—</strong><button id="copy-recipient" type="button" aria-label="ቁጥሩን ኮፒ ያድርጉ"><span id="copy-account-label">Copy</span></button></div></div>
 <div class="holder"><span id="holder-label">የተቀባይ ስም</span><strong id="recipient-holder">—</strong></div><p id="copy-status" class="status-clip" role="status" aria-live="polite"></p></div></div>
 <ol class="payment-instructions">
 <li id="payment-instruction-one"></li>
@@ -271,6 +318,8 @@ input[type=text],input[type=tel]{min-height:54px;padding:12px 14px;font-size:16p
       notice.scrollIntoView({behavior:'smooth',block:'center'});
       return;
     }
+    $('screen-heading').textContent=['የእርስዎ መረጃ','1,500 ብር ይክፈሉ','በTelegram ያሳውቁን'][n-1];
+    $('screen-intro').textContent=n===1?'ሙሉ ስምዎንና ስልክ ቁጥርዎን ያስገቡ።':n===2?(method==='bank'?'በኢትዮጵያ ንግድ ባንክ (CBE)':'በቴሌብር'):'የትዕዛዝ መረጃዎንና ደረሰኝዎን ይላኩልን።';
     $('details-section').hidden=n!==1;
     $('payment-section').hidden=n!==2;
     $('telegram-section').hidden=n!==3;
