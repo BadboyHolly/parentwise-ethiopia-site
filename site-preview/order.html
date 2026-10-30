@@ -101,6 +101,39 @@ input[type=text]:focus,input[type=tel]:focus{border-color:#2a6a49;outline:2px so
 .bottom-order-body{border-top:1px solid #e4e9df;padding:13px 14px;font-size:13px;line-height:1.65}
 .bottom-order-body b{display:block;font-size:14px;color:#234935}.bottom-order-body span{display:block;color:#64766b}
 @media(max-width:350px){.shell{padding:0 10px}.panel{padding:17px 14px 18px}.progress{padding:10px 7px;font-size:13px}.brand img{max-width:150px}.top{padding-bottom:65px}.num-row{flex-wrap:wrap}.num-row strong{font-size:17px}}
+
+/* Payment-screen refinement: scoped to step 2. */
+#payment-section h2{font-size:clamp(26px,7vw,34px);color:#1f4d3a}
+#payment-section .sub{font-size:17px;margin-bottom:18px}
+#payment-section .amount{align-items:flex-start;gap:8px;flex-direction:column}
+#payment-section .amount b{font-size:32px;color:#1f4d3a}
+.payment-product{font-size:14px;line-height:1.7;margin:0 0 16px;color:#53645a}
+#payment-section .num-row{flex-wrap:wrap;gap:12px}
+#copy-recipient{min-height:44px;max-width:100%;font-size:13px}
+.payment-instructions{list-style:none;counter-reset:pay;padding:0;margin:22px 0}
+.payment-instructions li{counter-increment:pay;position:relative;padding-left:42px;margin:0 0 18px;font-size:16px;line-height:1.8;font-weight:400}
+.payment-instructions li:before{content:counter(pay);position:absolute;left:0;top:2px;width:30px;height:30px;border-radius:50%;background:#f5e6eb;color:#7a2e3e;text-align:center;font:700 17px/30px system-ui}
+#payment-fulfillment{margin-top:18px;background:#eaf3e9;border-radius:14px;padding:16px}
+#payment-fulfillment p{margin:0;font-size:15px;line-height:1.8}
+.payment-safety{font-size:13px;line-height:1.8;color:#53645a;margin:16px 0}
+#payment-section #paid-action{min-height:54px;font-size:18px;background:#1f4d3a}
+
+.progress{display:grid;grid-template-columns:1fr 18px 1fr 18px 1fr;gap:2px;padding:14px 5px;background:transparent;border:0}
+.step{flex-direction:column;white-space:normal;text-align:center;min-width:0;font-size:13px;line-height:1.6}
+.step em{width:32px;height:32px;font-size:15px}.step.active{color:#7a2e3e}.step.active em{background:#7a2e3e;border-color:#7a2e3e}
+body:has(#payment-section:not([hidden])) .top{display:none}
+body:has(#payment-section:not([hidden])) .shell{margin:18px auto 26px}
+#payment-section .kicker{display:none}
+#payment-section .account-head{background:transparent;border:0;padding-bottom:0}
+#payment-section .account-head>span:last-child{display:none}
+#payment-section .account{box-shadow:none}
+#payment-section .number-box{background:#fff;color:#263a2e;border:1px solid #dbe5d8}
+#payment-section .number-box small{color:#1f4d3a}
+#payment-section .num-row button{background:#fff;border:1px solid #1f4d3a}
+#payment-section .holder{flex-direction:column;align-items:flex-start;gap:6px}
+#payment-section .holder strong{text-align:left}
+#payment-section .amount{background:#f7f6f0;margin:12px 12px 0;border-radius:12px 12px 0 0}
+#payment-section .payment-product{background:#f7f6f0;margin:0 12px 16px;padding:0 16px 12px;border-radius:0 0 12px 12px}
 </style></head><body>
 <header class="head"><div class="container brand">
   <a href="./" aria-label="ParentWise Ethiopia"><img src="assets/parentwise-primary-horizontal.webp" alt="ParentWise Ethiopia"></a>
@@ -110,7 +143,7 @@ input[type=text]:focus,input[type=tel]:focus{border-color:#2a6a49;outline:2px so
 <h1>ትዕዛዝዎን ያጠናቅቁ</h1><p>የParentWise ሙሉ ፕሮግራም</p>
 <span class="price"><b>1,500 ETB</b><small>አንድ ጊዜ ብቻ</small></span></div></div>
 <main class="shell checkout-shell"><div class="panel">
-<div class="progress" aria-label="Checkout steps"><span class="step active" id="label-details"><em>1</em>መረጃ</span><span aria-hidden="true">—</span><span class="step" id="label-payment"><em>2</em>ክፍያ</span><span aria-hidden="true">—</span><span class="step" id="label-telegram"><em>3</em>Telegram</span></div>
+<div class="progress" aria-label="Checkout steps"><span class="step active" id="label-details"><em>1</em>መረጃ</span><span aria-hidden="true">—</span><span class="step" id="label-payment"><em>2</em>ክፍያ</span><span aria-hidden="true">—</span><span class="step" id="label-telegram"><em>3</em>ማስረጃ ይላኩ</span></div>
 
 <section id="details-section" class="screen">
 <p class="kicker">01 · Your details</p><h2>የእርስዎ መረጃ</h2><p class="sub">ሙሉ ስምዎንና ስልክ ቁጥርዎን ያስገቡ፤ ከዚያ የክፍያ ዘዴ ይምረጡ።</p>
@@ -124,20 +157,25 @@ input[type=text]:focus,input[type=tel]:focus{border-color:#2a6a49;outline:2px so
 <label class="method"><input name="payment" type="radio" value="bank"><img src="assets/cbe-bank-logo.png" alt=""><span>CBE</span></label></div>
 
 <button class="primary" id="continue-payment" type="submit">ወደ ክፍያ ይቀጥሉ →</button><p class="form-error" id="validation-error" role="alert" hidden></p></form></section>
-<section id="payment-section" class="screen" hidden tabindex="-1"><p class="kicker">02 · Payment details</p><h2>የክፍያ መረጃ</h2><p class="sub" id="payment-sub">ከታች ያለውን ቁጥር Copy አድርገው 1,500 ብር ይክፈሉ። ከከፈሉ በኋላ ደረሰኝዎን ይዘው ይቀጥሉ።</p>
+<section id="payment-section" class="screen" hidden tabindex="-1"><p class="kicker">02 · Payment details</p><h2>1,500 ብር ይክፈሉ</h2><p class="sub" id="payment-sub">በቴሌብር</p>
 <p class="walkthrough-note" id="walkthrough-payment-note" hidden>ይህ ለግምገማ ብቻ ነው፤ ክፍያ አይፈጽሙ።</p>
 <div class="customer"><div><small>የእርስዎ መረጃ</small><strong id="review-customer-name">—</strong><small id="review-customer-phone">—</small></div><button id="change-method" class="back" type="button">Edit</button></div>
 <p class="walkthrough-note" id="edit-order-notice" tabindex="-1" hidden>ትዕዛዝዎ ተመዝግቧል። ድጋሚ ትዕዛዝ እንዳይፈጠር መረጃዎን እዚህ መቀየር አይቻልም። ለማስተካከል <a class="inline-link" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Telegram ድጋፍ</a> ያነጋግሩ።</p>
 <div class="account"><div class="account-head"><span class="meta-box"><img id="selected-mark" src="assets/telebirr-mark.svg" alt="Selected method"><strong id="selected-method">Telebirr</strong></span><span style="font-size:11px;color:#916142;font-weight:800;letter-spacing:.07em">PAYMENT DETAILS</span></div>
-<div class="amount"><span>የሚከፈለው ገንዘብ</span><b>1,500 ETB</b></div>
+<div class="amount"><span>የሚከፍሉት ጠቅላላ መጠን</span><b>1,500 ብር</b></div><p class="payment-product">5 የPDF መመሪያዎች · የአንድ ጊዜ ክፍያ</p>
 <div class="num-shell"><div class="number-box"><small id="recipient-label">Account number</small><div class="num-row"><strong id="recipient-number">—</strong><button id="copy-recipient" type="button" aria-label="Copy account number"><span id="copy-account-label">Copy</span></button></div></div>
-<div class="holder"><span>የሂሳብ ባለቤት</span><strong id="recipient-holder">—</strong></div><p id="copy-status" class="status-clip" role="status" aria-live="polite"></p></div></div>
-<div class="checkout-guide" id="payment-fulfillment">
-<svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true" fill="none" stroke="#42704f" stroke-width="1.8"><path d="M5 12.5l4 4L19 7.5"/><circle cx="12" cy="12" r="10"/></svg>
-<div><strong>መጽሐፍቱን እንዴት ይቀበላሉ?</strong><p>ክፍያዎ ከተረጋገጠ በኋላ 5ቱን PDF መመሪያዎች ወዲያውኑ በTelegram እንልክልዎታለን።</p></div>
-</div>
-<p class="notice" id="payment-verification-note">ክፍያ ከመፈጸምዎ በፊት በመክፈያ መተግበሪያዎ የሚታየውን የተቀባይ ስም ያረጋግጡ።</p>
-<button id="paid-action" class="primary" type="button">ክፍያ ፈጽሜያለሁ — ይቀጥሉ →</button><p class="smallnote" id="payment-settlement-note">የክፍያ ማስረጃዎን በቀጣዩ ደረጃ በTelegram ይላኩልን።</p><button id="back-payment" class="back" type="button">← ወደ መረጃዎ ይመለሱ</button></section>
+<div class="holder"><span id="holder-label">የተቀባይ ስም</span><strong id="recipient-holder">—</strong></div><p id="copy-status" class="status-clip" role="status" aria-live="polite"></p></div></div>
+<ol class="payment-instructions">
+<li id="payment-instruction-one"></li>
+<li>የክፍያ ማረጋገጫውን ስክሪንሾት ያንሱ፣ ወይም የዝውውር ቁጥሩን (Transaction ID) ያስቀምጡ።</li>
+<li>ወደዚህ ገጽ ተመልሰው «ክፍያ ፈጽሜያለሁ» የሚለውን ቁልፍ ይጫኑ።</li>
+</ol>
+<p class="notice" id="payment-verification-note" hidden></p>
+<button id="paid-action" class="primary" type="button">ክፍያ ፈጽሜያለሁ →</button>
+<p class="smallnote" id="payment-settlement-note">በቀጣዩ ደረጃ፦ የክፍያ ማስረጃዎን በTelegram ይላኩልን።</p>
+<div class="checkout-guide" id="payment-fulfillment"><p>ክፍያዎን ካረጋገጥን በኋላ፣ 5ቱን የPDF መመሪያዎች ወዲያውኑ በTelegram እንልክልዎታለን።</p></div>
+<p class="payment-safety">የይለፍ ቁጥርዎን (PIN) ወይም የአንድ ጊዜ ማረጋገጫ ኮድዎን (OTP) ለማንም አይስጡ።</p>
+<button id="back-payment" class="back" type="button">← ወደ መረጃዎ ይመለሱ</button></section>
 <section id="telegram-section" class="screen" hidden tabindex="-1">
 <p class="kicker">03 · Payment confirmation</p><h2>በTelegram ያሳውቁን</h2><p class="sub" id="telegram-sub">ክፍያ ከፈጸሙ በኋላ መረጃዎንና የክፍያ ማስረጃዎን በTelegram ይላኩልን።</p>
 <p class="walkthrough-note" id="walkthrough-telegram-note" hidden>ይህ ለግምገማ ብቻ ነው፤ ደረሰኝ አይላኩ።</p>
@@ -160,7 +198,7 @@ input[type=text]:focus,input[type=tel]:focus{border-color:#2a6a49;outline:2px so
   const $ = id => document.getElementById(id);
   const TG = 'https://t.me/ParentWiseEthiopia';
   const methods = {
-    telebirr: {title:'Telebirr',label:'የTelebirr ቁጥር',logo:'assets/telebirr-mark.svg'},
+    telebirr: {title:'Telebirr',label:'የቴሌብር ቁጥር',logo:'assets/telebirr-mark.svg'},
     bank: {title:'CBE Bank',label:'የCBE ሂሳብ ቁጥር',logo:'assets/cbe-bank-logo.png'}
   };
   const data={name:'',phone:'',orderRef:'',accessToken:'',number:'',holder:''};
@@ -240,6 +278,11 @@ input[type=text]:focus,input[type=tel]:focus{border-color:#2a6a49;outline:2px so
     data.holder=instr.holder;
     const meta=methods[method];
     $('selected-method').textContent=meta.title;
+      $('payment-sub').textContent=method==='bank'?'በኢትዮጵያ ንግድ ባንክ (CBE)':'በቴሌብር';
+      $('holder-label').textContent=method==='bank'?'የሂሳቡ ባለቤት ስም':'የተቀባይ ስም';
+      $('payment-instruction-one').textContent=method==='bank'
+        ? 'የCBE መተግበሪያን ከፍተው ከላይ ወደሚታየው ሂሳብ 1,500 ብር ያስተላልፉ። ክፍያውን ከማጽደቅዎ በፊት፣ የሂሳቡ ባለቤት ስም እዚህ ከተጠቀሰው ጋር መመሳሰሉን ያረጋግጡ።'
+        : 'ቴሌብርን ከፍተው ከላይ ወደሚታየው ቁጥር 1,500 ብር ይላኩ። ክፍያውን ከማጽደቅዎ በፊት፣ የተቀባዩ ስም እዚህ ከተጠቀሰው ጋር መመሳሰሉን ያረጋግጡ።';
     $('selected-mark').src=meta.logo;
     $('selected-mark').alt=meta.title;
     $('recipient-label').textContent=meta.label;
@@ -252,7 +295,7 @@ input[type=text]:focus,input[type=tel]:focus{border-color:#2a6a49;outline:2px so
     $('confirmation-message').textContent=buildMessage();
     $('copy-status').textContent='';
     $('confirmation-status').textContent='';
-    $('copy-account-label').textContent='Copy';
+    $('copy-account-label').textContent='ቁጥሩን ኮፒ ያድርጉ';
     $('visible-order-reference').textContent=data.orderRef;
     $('order-reference-bar').hidden=false;
     $('copy-order-reference-status').textContent='';
@@ -277,6 +320,11 @@ input[type=text]:focus,input[type=tel]:focus{border-color:#2a6a49;outline:2px so
       method=requestedMethod;
       const meta=methods[requestedMethod];
       $('selected-method').textContent=meta.title;
+      $('payment-sub').textContent=method==='bank'?'በኢትዮጵያ ንግድ ባንክ (CBE)':'በቴሌብር';
+      $('holder-label').textContent=method==='bank'?'የሂሳቡ ባለቤት ስም':'የተቀባይ ስም';
+      $('payment-instruction-one').textContent=method==='bank'
+        ? 'የCBE መተግበሪያን ከፍተው ከላይ ወደሚታየው ሂሳብ 1,500 ብር ያስተላልፉ። ክፍያውን ከማጽደቅዎ በፊት፣ የሂሳቡ ባለቤት ስም እዚህ ከተጠቀሰው ጋር መመሳሰሉን ያረጋግጡ።'
+        : 'ቴሌብርን ከፍተው ከላይ ወደሚታየው ቁጥር 1,500 ብር ይላኩ። ክፍያውን ከማጽደቅዎ በፊት፣ የተቀባዩ ስም እዚህ ከተጠቀሰው ጋር መመሳሰሉን ያረጋግጡ።';
       $('selected-mark').src=meta.logo;
       $('selected-mark').alt=meta.title;
       $('recipient-label').textContent=meta.label;
@@ -290,8 +338,8 @@ input[type=text]:focus,input[type=tel]:focus{border-color:#2a6a49;outline:2px so
       $('payment-sub').textContent='ይህ የሙከራ ገጽ ነው። ክፍያ አይፈጽሙ፤ ወደ ቀጣዩ ደረጃ ይቀጥሉ።';
       $('walkthrough-payment-note').hidden=false;
       $('payment-verification-note').hidden=true;
-      $('payment-settlement-note').hidden=true;
-      $('paid-action').textContent='ወደ ቀጣዩ ደረጃ ይቀጥሉ →';
+      $('payment-settlement-note').hidden=false;
+      $('paid-action').textContent='ክፍያ ፈጽሜያለሁ →';
       stage(2);
       return;
     }
@@ -360,7 +408,7 @@ input[type=text]:focus,input[type=tel]:focus{border-color:#2a6a49;outline:2px so
     if(!data.orderRef||!data.number)return;
     try{
       await copy(data.number);
-      $('copy-account-label').textContent='Copied';
+      $('copy-account-label').textContent='ኮፒ ተደርጓል ✓';
       $('copy-status').textContent='ቁጥሩ ተቀድቷል።';
     }catch{
       $('copy-status').textContent='ቁጥሩ መቅዳት አልተቻለም። ቁጥሩን ተጭነው ይምረጡ።';
