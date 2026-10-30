@@ -225,6 +225,34 @@ input[type=text],input[type=tel]{background:#fffdf8;border-color:#d6d8cb;border-
 .checkout-total{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 15px;margin:0 0 16px;background:#edf3eb;border-radius:12px;color:#1f4d3a}.checkout-total span{font-size:14px}.checkout-total strong{font-size:23px;white-space:nowrap}#copy-confirmation[data-copied="true"]{background:#edf3eb;border-color:#1f4d3a;color:#1f4d3a}
 .telegram-fallback{margin:20px 0;padding:14px;border:1px solid #dce3d7;border-radius:12px;background:#fafbf7}.telegram-fallback summary{cursor:pointer;color:#1f4d3a;font-size:14px;font-weight:700;min-height:30px}.telegram-fallback p{font-size:14px;line-height:1.8}.telegram-send-note{text-align:center}.telegram-instructions{margin-top:12px}
 #telegram-section #telegram-sub{display:block!important;font-size:16px;line-height:1.9;margin:0 0 20px}
+
+/* Founder-locked Forest Compact payment card. */
+#payment-section .customer{display:flex;align-items:center;gap:11px;padding:14px 12px;background:#fffdfa;border:1px solid #e1e2d9;border-radius:15px;margin:0 0 16px}
+.customer-avatar{width:42px;height:42px;border-radius:50%;background:#e5ebe0;color:#1f4d3a;display:grid;place-items:center;flex:none}
+#payment-section .customer>div{flex:1;min-width:0}
+#payment-section .customer strong{font-size:17px;line-height:1.5}
+#payment-section .customer small{font-size:12px;line-height:1.6}
+#payment-section #change-method{flex:none;min-height:44px;padding:7px 9px;border:1px solid #7a2e3e;border-radius:9px;color:#7a2e3e;text-decoration:none;font-size:13px}
+#payment-section .account{background:#1f4d3a;border:0;border-radius:18px;padding:18px 14px;color:#f8f4ec;overflow:hidden}
+#payment-section .account-head{padding:0 2px 12px;background:transparent;border:0}
+#payment-section .meta-box{gap:10px}
+#payment-section .meta-box img{width:35px;height:35px}
+#payment-section .account-head strong{font:700 21px/1.4 system-ui,sans-serif;color:#f8f4ec}
+#payment-section .amount{margin:0;padding:0 2px 16px;background:transparent;border-radius:0;display:flex;flex-direction:row;align-items:center;gap:10px}
+#payment-section .amount span{color:#e6eee5;font-size:13px;max-width:48%}
+#payment-section .amount b{color:#fffdfa;font-size:clamp(25px,6.8vw,32px);line-height:1.4;white-space:nowrap}
+#payment-section .num-shell{padding:0}
+#payment-section .number-box{background:#f8f4ec;border:0;border-radius:14px;padding:15px;color:#1f4d3a}
+#payment-section .number-box small{font-size:15px;color:#1f4d3a;font-weight:700}
+#payment-section .num-row{display:flex;flex-direction:column;align-items:stretch;gap:12px;padding-top:8px}
+#payment-section .num-row strong{color:#123a29;font:700 clamp(23px,6.6vw,30px)/1.5 system-ui,sans-serif;letter-spacing:.015em;overflow-wrap:anywhere;white-space:normal}
+#payment-section #copy-recipient{width:100%;min-height:48px;border:0;border-radius:10px;background:#7a2e3e;color:#fffdfa;display:flex;align-items:center;justify-content:center;gap:9px;padding:10px;font-size:15px}
+#payment-section #copy-recipient:disabled{opacity:.65;cursor:not-allowed}
+#payment-section .holder{border-top:1px solid #ffffff35;margin:18px 2px 0;padding:14px 0 0;display:flex;flex-direction:column;align-items:flex-start;gap:5px}
+#payment-section .holder span{color:#d7e3d8;font-size:13px}
+#payment-section .holder strong{color:#fffdfa;font-size:16px;line-height:1.7;text-align:left;overflow-wrap:anywhere}
+#payment-section #copy-status{color:#fffdfa;margin-bottom:0}
+@media(max-width:360px){#payment-section .customer{gap:8px}.customer-avatar{width:34px;height:34px}#payment-section #change-method{font-size:12px;padding:6px}#payment-section .account{padding:16px 12px}#payment-section .number-box{padding:12px}}
 </style></head><body>
 <header class="head"><div class="container brand">
   <a href="./" aria-label="ParentWise Ethiopia"><img src="assets/parentwise-primary-horizontal.webp" alt="ParentWise Ethiopia"></a>
@@ -252,12 +280,12 @@ input[type=text],input[type=tel]{background:#fffdf8;border-color:#d6d8cb;border-
 <button class="primary" id="continue-payment" type="submit">ወደ ክፍያ ይቀጥሉ →</button><p class="form-error" id="validation-error" role="alert" hidden></p></form></section>
 <section id="payment-section" class="screen" hidden tabindex="-1"><p class="kicker">02 · Payment details</p><h2>1,500 ብር ይክፈሉ</h2><p class="sub" id="payment-sub">በቴሌብር</p>
 <p class="walkthrough-note" id="walkthrough-payment-note" hidden>ይህ ለግምገማ ብቻ ነው፤ ክፍያ አይፈጽሙ።</p>
-<div class="customer"><div><small>የእርስዎ መረጃ</small><strong id="review-customer-name">—</strong><small id="review-customer-phone">—</small></div><button id="change-method" class="back" type="button">Edit</button></div>
+<div class="customer"><span class="customer-avatar" aria-hidden="true"><svg width="23" height="23" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="7" r="4"/><path d="M4 22v-4a8 8 0 0 1 16 0v4z"/></svg></span><div><small>የእርስዎ መረጃ</small><strong id="review-customer-name">—</strong><small id="review-customer-phone">—</small></div><button id="change-method" class="back" type="button">አስተካክል</button></div>
 <div class="order-reference" id="payment-order-reference-bar" hidden><small>የትዕዛዝ ቁጥርዎ</small><strong id="payment-visible-order-reference"></strong><button type="button" id="payment-copy-order-reference">Copy Order ID</button><p id="payment-copy-order-reference-status" class="status-clip" role="status" aria-live="polite"></p></div>
 <p class="walkthrough-note" id="edit-order-notice" tabindex="-1" hidden>ትዕዛዝዎ ተመዝግቧል። ድጋሚ ትዕዛዝ እንዳይፈጠር መረጃዎን እዚህ መቀየር አይቻልም። ለማስተካከል <a class="inline-link" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Telegram ድጋፍ</a> ያነጋግሩ።</p>
 <div class="account"><div class="account-head"><span class="meta-box"><img id="selected-mark" src="assets/telebirr-mark.svg" alt="Selected method"><strong id="selected-method">Telebirr</strong></span><span style="font-size:11px;color:#916142;font-weight:800;letter-spacing:.07em">PAYMENT DETAILS</span></div>
-<div class="amount"><span>የሚከፍሉት ጠቅላላ መጠን</span><b>1,500 ብር</b></div>
-<div class="num-shell"><div class="number-box"><small id="recipient-label">Account number</small><div class="num-row"><strong id="recipient-number">—</strong><button id="copy-recipient" type="button" aria-label="ቁጥሩን ኮፒ ያድርጉ"><span id="copy-account-label">Copy</span></button></div></div>
+<div class="amount"><span>ጠቅላላ የሚከፈል</span><b>1,500 ብር</b></div>
+<div class="num-shell"><div class="number-box"><small id="recipient-label">Account number</small><div class="num-row"><strong id="recipient-number">—</strong><button id="copy-recipient" type="button" aria-label="ቁጥሩን ኮፒ ያድርጉ"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="8" y="8" width="13" height="14" rx="2"/><path d="M16 8V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4"/></svg><span id="copy-account-label">ቁጥሩን ኮፒ ያድርጉ</span></button></div></div>
 <div class="holder"><span id="holder-label">የተቀባይ ስም</span><strong id="recipient-holder">—</strong></div><p id="copy-status" class="status-clip" role="status" aria-live="polite"></p></div></div>
 <ol class="payment-instructions">
 <li id="payment-instruction-one"></li>
@@ -427,7 +455,7 @@ input[type=text],input[type=tel]{background:#fffdf8;border-color:#d6d8cb;border-
       $('review-customer-name').textContent=name;
       $('review-customer-phone').textContent=phone;
       $('copy-recipient').disabled=true;
-      $('copy-account-label').textContent='Hidden';
+      $('copy-account-label').textContent='ቁጥሩን ኮፒ ያድርጉ';
       $('copy-status').textContent='';
 
       $('walkthrough-payment-note').hidden=false;
