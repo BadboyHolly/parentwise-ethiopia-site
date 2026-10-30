@@ -248,6 +248,7 @@ input[type=text],input[type=tel]{background:#fffdf8;border-color:#d6d8cb;border-
 <section id="payment-section" class="screen" hidden tabindex="-1"><p class="kicker">02 · Payment details</p><h2>1,500 ብር ይክፈሉ</h2><p class="sub" id="payment-sub">በቴሌብር</p>
 <p class="walkthrough-note" id="walkthrough-payment-note" hidden>ይህ ለግምገማ ብቻ ነው፤ ክፍያ አይፈጽሙ።</p>
 <div class="customer"><div><small>የእርስዎ መረጃ</small><strong id="review-customer-name">—</strong><small id="review-customer-phone">—</small></div><button id="change-method" class="back" type="button">Edit</button></div>
+<div class="order-reference" id="payment-order-reference-bar" hidden><small>የትዕዛዝ ቁጥርዎ</small><strong id="payment-visible-order-reference"></strong><button type="button" id="payment-copy-order-reference">Copy Order ID</button><p id="payment-copy-order-reference-status" class="status-clip" role="status" aria-live="polite"></p></div>
 <p class="walkthrough-note" id="edit-order-notice" tabindex="-1" hidden>ትዕዛዝዎ ተመዝግቧል። ድጋሚ ትዕዛዝ እንዳይፈጠር መረጃዎን እዚህ መቀየር አይቻልም። ለማስተካከል <a class="inline-link" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Telegram ድጋፍ</a> ያነጋግሩ።</p>
 <div class="account"><div class="account-head"><span class="meta-box"><img id="selected-mark" src="assets/telebirr-mark.svg" alt="Selected method"><strong id="selected-method">Telebirr</strong></span><span style="font-size:11px;color:#916142;font-weight:800;letter-spacing:.07em">PAYMENT DETAILS</span></div>
 <div class="amount"><span>የሚከፍሉት ጠቅላላ መጠን</span><b>1,500 ብር</b></div>
@@ -386,6 +387,9 @@ input[type=text],input[type=tel]{background:#fffdf8;border-color:#d6d8cb;border-
     $('copy-status').textContent='';
     $('confirmation-status').textContent='';
     $('copy-account-label').textContent='ቁጥሩን ኮፒ ያድርጉ';
+    $('payment-visible-order-reference').textContent=data.orderRef;
+    $('payment-order-reference-bar').hidden=false;
+    $('payment-copy-order-reference-status').textContent='';
     $('visible-order-reference').textContent=data.orderRef;
     $('order-reference-bar').hidden=false;
     $('copy-order-reference-status').textContent='';
@@ -506,14 +510,16 @@ input[type=text],input[type=tel]{background:#fffdf8;border-color:#d6d8cb;border-
       const selection=window.getSelection();selection.removeAllRanges();selection.addRange(range);
     }
   });
-  $('copy-order-reference').addEventListener('click',async()=>{
-    if(!enabled||!data.orderRef)return;
-    try{
-      await copy(data.orderRef);
-      $('copy-order-reference-status').textContent='የትዕዛዝ ቁጥሩ ተቀድቷል።';
-    }catch{
-      $('copy-order-reference-status').textContent='ትዕዛዝ ቁጥሩን በእጅ ይምረጡ።';
-    }
+  ['','payment-'].forEach(prefix=>{
+    $(prefix+'copy-order-reference').addEventListener('click',async()=>{
+      if(!enabled||!data.orderRef)return;
+      try{
+        await copy(data.orderRef);
+        $(prefix+'copy-order-reference-status').textContent='የትዕዛዝ ቁጥሩ ተቀድቷል።';
+      }catch{
+        $(prefix+'copy-order-reference-status').textContent='ትዕዛዝ ቁጥሩን በእጅ ይምረጡ።';
+      }
+    });
   });
   $('telegram-handoff').addEventListener('click',()=>{
     if(!enabled||!data.orderRef)return;
