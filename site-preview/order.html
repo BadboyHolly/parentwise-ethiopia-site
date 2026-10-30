@@ -134,6 +134,47 @@ body:has(#payment-section:not([hidden])) .shell{margin:18px auto 26px}
 #payment-section .holder strong{text-align:left}
 #payment-section .amount{background:#f7f6f0;margin:12px 12px 0;border-radius:12px 12px 0 0}
 #payment-section .payment-product{background:#f7f6f0;margin:0 12px 16px;padding:0 16px 12px;border-radius:0 0 12px 12px}
+
+/* Consistent compact checkout across all three screens. */
+body{background:#f8f4ec;color:#243c30}
+.head{background:#1f4d3a}.brand{min-height:78px}.brand img{box-shadow:none}
+.top{display:none!important}.shell,body:has(#payment-section:not([hidden])) .shell{margin:20px auto 28px;max-width:490px;padding:0 16px}
+.panel{padding:22px 20px;border-radius:22px;border:1px solid #e2e6dc;box-shadow:0 12px 36px #1f4d3a0d;background:#fffdfa}
+.progress{margin:0 0 22px;padding:0 0 20px;border-bottom:1px solid #e8e9e1;border-radius:0}
+.progress>span[aria-hidden]{color:#b5c1b6;font-size:18px}
+.screen h2{color:#1f4d3a;font-size:26px;line-height:1.45;margin:0 0 8px}
+.screen .sub,#payment-section .sub{font-size:15px;line-height:1.75;margin:0 0 18px;color:#5d7063;font-weight:400}
+.kicker{display:none}
+form label:not(.method){font-size:14px;margin-top:16px}
+input[type=text],input[type=tel]{min-height:54px;padding:12px 14px;font-size:16px;border-color:#cfdacf;background:#fff;box-shadow:none}
+.fieldnote{font-size:12px;margin:6px 0 0}hr{margin:20px 0}
+.methods{gap:10px;margin:12px 0 20px}.method{min-height:68px;background:#fff;padding:12px;gap:8px;box-shadow:none}.method img{width:29px;height:29px}
+.method:has(input:checked){background:#edf3eb;border-color:#1f4d3a;box-shadow:inset 0 0 0 1px #1f4d3a}
+.primary,#payment-section #paid-action{min-height:54px;border-radius:12px;background:#1f4d3a;box-shadow:none;font-size:17px;line-height:1.6}
+.primary:hover:not(:disabled){background:#173d2e}.back{min-height:44px;font-size:14px;text-underline-offset:4px}
+#payment-section .customer{padding:10px 12px;margin:0 0 16px;box-shadow:none;background:#f6f8f3}
+#payment-section .account{border-radius:16px;border-color:#dde4d8;background:#fff}
+#payment-section .amount{margin:12px;padding:12px 14px;border-radius:10px;flex-direction:row;align-items:center;gap:12px}
+#payment-section .amount span{font-size:12px;line-height:1.7;max-width:48%}
+#payment-section .amount b{font-size:27px;white-space:nowrap}
+#payment-section .account-head{padding:12px 14px 0}
+#payment-section .num-shell{padding:0 12px 12px}.status-clip:empty{display:none}
+#payment-section .number-box{padding:12px}.holder{padding-top:12px;margin-top:12px}
+.payment-instructions{margin:20px 0}.payment-instructions li{font-size:15px;line-height:1.8;padding-left:38px;margin-bottom:14px}
+.payment-instructions li:before{width:28px;height:28px;line-height:28px;font-size:15px}
+#payment-settlement-note{font-size:13px;line-height:1.7;text-align:center;margin:10px 0 16px}
+#payment-fulfillment{border:0;padding:13px;background:#edf4ea;margin:0 0 8px;border-radius:12px}
+#payment-fulfillment p{font-size:14px;line-height:1.8}
+#back-payment,#back-telegram{display:block;margin:10px auto 0}
+.walkthrough-note{font-size:12px;line-height:1.65;border-radius:9px;margin:12px 0 16px;padding:9px 11px}
+.confirm-box,.confirm-box:first-of-type{background:#fff;border:1px solid #dfe5da;border-radius:14px;box-shadow:none;margin:16px 0;padding:16px}
+.confirm-box h3{font-size:17px;color:#1f4d3a}.confirm-box p{font-size:15px;line-height:1.8}
+.message{background:#f6f8f3;border:1px solid #e5e9e0;font-size:14px;line-height:1.85;padding:12px;max-height:260px}
+#copy-confirmation{width:100%;min-height:48px;border-color:#1f4d3a;background:#fff;font-size:15px}
+#telegram-handoff{margin-top:14px}.telegram-handle{font-size:13px;margin-top:10px}
+.delivery-tip{background:#edf4ea;border:0;font-size:14px;line-height:1.8;padding:14px;border-radius:12px}
+.bottom-order{margin-top:18px;padding-top:16px}.footer{font-size:12px;color:#67776a;padding-bottom:24px}
+@media(max-width:380px){.shell,body:has(#payment-section:not([hidden])) .shell{padding:0 10px;margin-top:14px}.panel{padding:18px 15px}.step{font-size:12px}.screen h2,#payment-section h2{font-size:25px}.method{padding:10px 8px;gap:5px}.method img{width:24px;height:24px}.payment-instructions li{padding-left:35px}}
 </style></head><body>
 <header class="head"><div class="container brand">
   <a href="./" aria-label="ParentWise Ethiopia"><img src="assets/parentwise-primary-horizontal.webp" alt="ParentWise Ethiopia"></a>
@@ -141,12 +182,12 @@ body:has(#payment-section:not([hidden])) .shell{margin:18px auto 26px}
 </div></header>
 <div class="top"><div class="container"><p class="eyebrow">PARENTWISE ETHIOPIA · CHECKOUT</p>
 <h1>ትዕዛዝዎን ያጠናቅቁ</h1><p>የParentWise ሙሉ ፕሮግራም</p>
-<span class="price"><b>1,500 ETB</b><small>አንድ ጊዜ ብቻ</small></span></div></div>
+<span class="price"><b>1,500 ETB</b></span></div></div>
 <main class="shell checkout-shell"><div class="panel">
 <div class="progress" aria-label="Checkout steps"><span class="step active" id="label-details"><em>1</em>መረጃ</span><span aria-hidden="true">—</span><span class="step" id="label-payment"><em>2</em>ክፍያ</span><span aria-hidden="true">—</span><span class="step" id="label-telegram"><em>3</em>ማስረጃ ይላኩ</span></div>
 
 <section id="details-section" class="screen">
-<p class="kicker">01 · Your details</p><h2>የእርስዎ መረጃ</h2><p class="sub">ሙሉ ስምዎንና ስልክ ቁጥርዎን ያስገቡ፤ ከዚያ የክፍያ ዘዴ ይምረጡ።</p>
+<h2>የእርስዎ መረጃ</h2><p class="sub">ሙሉ ስምዎንና ስልክ ቁጥርዎን ያስገቡ፤ ከዚያ የክፍያ ዘዴ ይምረጡ።</p>
 <form id="checkout-form" novalidate>
 <label for="customer-name">ሙሉ ስም</label><input id="customer-name" name="name" type="text" placeholder="ሙሉ ስምዎን ያስገቡ" autocomplete="name" maxlength="100" required>
 <label for="customer-mobile">ስልክ ቁጥር</label><input id="customer-mobile" name="phone" type="tel" inputmode="tel" placeholder="09XXXXXXXX" autocomplete="tel" maxlength="13" required>
@@ -162,7 +203,7 @@ body:has(#payment-section:not([hidden])) .shell{margin:18px auto 26px}
 <div class="customer"><div><small>የእርስዎ መረጃ</small><strong id="review-customer-name">—</strong><small id="review-customer-phone">—</small></div><button id="change-method" class="back" type="button">Edit</button></div>
 <p class="walkthrough-note" id="edit-order-notice" tabindex="-1" hidden>ትዕዛዝዎ ተመዝግቧል። ድጋሚ ትዕዛዝ እንዳይፈጠር መረጃዎን እዚህ መቀየር አይቻልም። ለማስተካከል <a class="inline-link" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Telegram ድጋፍ</a> ያነጋግሩ።</p>
 <div class="account"><div class="account-head"><span class="meta-box"><img id="selected-mark" src="assets/telebirr-mark.svg" alt="Selected method"><strong id="selected-method">Telebirr</strong></span><span style="font-size:11px;color:#916142;font-weight:800;letter-spacing:.07em">PAYMENT DETAILS</span></div>
-<div class="amount"><span>የሚከፍሉት ጠቅላላ መጠን</span><b>1,500 ብር</b></div><p class="payment-product">5 የPDF መመሪያዎች · የአንድ ጊዜ ክፍያ</p>
+<div class="amount"><span>የሚከፍሉት ጠቅላላ መጠን</span><b>1,500 ብር</b></div>
 <div class="num-shell"><div class="number-box"><small id="recipient-label">Account number</small><div class="num-row"><strong id="recipient-number">—</strong><button id="copy-recipient" type="button" aria-label="Copy account number"><span id="copy-account-label">Copy</span></button></div></div>
 <div class="holder"><span id="holder-label">የተቀባይ ስም</span><strong id="recipient-holder">—</strong></div><p id="copy-status" class="status-clip" role="status" aria-live="polite"></p></div></div>
 <ol class="payment-instructions">
@@ -174,17 +215,17 @@ body:has(#payment-section:not([hidden])) .shell{margin:18px auto 26px}
 <button id="paid-action" class="primary" type="button">ክፍያ ፈጽሜያለሁ →</button>
 <p class="smallnote" id="payment-settlement-note">በቀጣዩ ደረጃ፦ የክፍያ ማስረጃዎን በTelegram ይላኩልን።</p>
 <div class="checkout-guide" id="payment-fulfillment"><p>ክፍያዎን ካረጋገጥን በኋላ፣ 5ቱን የPDF መመሪያዎች ወዲያውኑ በTelegram እንልክልዎታለን።</p></div>
-<p class="payment-safety">የይለፍ ቁጥርዎን (PIN) ወይም የአንድ ጊዜ ማረጋገጫ ኮድዎን (OTP) ለማንም አይስጡ።</p>
+
 <button id="back-payment" class="back" type="button">← ወደ መረጃዎ ይመለሱ</button></section>
 <section id="telegram-section" class="screen" hidden tabindex="-1">
-<p class="kicker">03 · Payment confirmation</p><h2>በTelegram ያሳውቁን</h2><p class="sub" id="telegram-sub">ክፍያ ከፈጸሙ በኋላ መረጃዎንና የክፍያ ማስረጃዎን በTelegram ይላኩልን።</p>
+<p class="kicker">03 · Send proof</p><h2>በTelegram ያሳውቁን</h2><p class="sub" id="telegram-sub">ክፍያ ከፈጸሙ በኋላ መረጃዎንና የክፍያ ማስረጃዎን በTelegram ይላኩልን።</p>
 <p class="walkthrough-note" id="walkthrough-telegram-note" hidden>ይህ ለግምገማ ብቻ ነው፤ ደረሰኝ አይላኩ።</p>
 <div class="order-reference" id="order-reference-bar" hidden><small>የትዕዛዝ ቁጥርዎ</small><strong id="visible-order-reference"></strong><button type="button" id="copy-order-reference">Copy Order ID</button><p id="copy-order-reference-status" class="status-clip" role="status" aria-live="polite"></p></div>
 <div class="confirm-box"><h3 id="telegram-step-one">1 · መረጃዎን Copy ያድርጉ</h3><div id="confirmation-message" class="message" role="note" aria-label="የትዕዛዝ መረጃ">ParentWise payment confirmation</div><button id="copy-confirmation" class="secondary" type="button">መረጃውን Copy ያድርጉ</button><p id="confirmation-status" class="status-clip" role="status" aria-live="polite"></p></div>
 <div class="confirm-box"><h3 id="telegram-step-two">2 · Telegram ይክፈቱ</h3><p id="telegram-receipt-hint">መረጃውን Paste ያድርጉ። ከዚያ ደረሰኝዎን ወይም የዝውውር ቁጥርዎን ይላኩ።</p><a class="primary" style="display:grid;place-items:center;text-decoration:none" id="telegram-handoff" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Telegram ይክፈቱ — ማስረጃ ይላኩ ↗</a><p class="telegram-handle">@ParentWiseEthiopia</p></div>
-<div class="delivery-tip" id="telegram-delivery-tip">ክፍያዎን ካረጋገጥን በኋላ 5ቱን PDF መመሪያዎች ወዲያውኑ በዚሁ Telegram እንልክልዎታለን። PIN ወይም OTP አይላኩ።</div>
+<div class="delivery-tip" id="telegram-delivery-tip">ክፍያዎን ካረጋገጥን በኋላ 5ቱን PDF መመሪያዎች ወዲያውኑ በዚሁ Telegram እንልክልዎታለን።</div>
 <button id="back-telegram" class="back" type="button">← ወደ ክፍያ መረጃ ይመለሱ</button><div><a class="help-label" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">እገዛ ↗</a></div></section>
-<div class="bottom-order"><details id="order-summary"><summary><span>የትዕዛዝ ዝርዝር</span><span>1,500 ETB</span></summary><div class="bottom-order-body"><b>Child Behavior &amp; Discipline System</b><span>5 digital PDF guides · የአንድ ጊዜ ክፍያ</span></div></details></div>
+<div class="bottom-order"><details id="order-summary"><summary><span>የትዕዛዝ ዝርዝር</span><span>1,500 ETB</span></summary><div class="bottom-order-body"><b>Child Behavior &amp; Discipline System</b></div></details></div>
 </div></main><footer class="footer">ParentWise Ethiopia · How We Raise Matters.</footer>
 <script>
 (() => {
@@ -335,7 +376,7 @@ body:has(#payment-section:not([hidden])) .shell{margin:18px auto 26px}
       $('copy-recipient').disabled=true;
       $('copy-account-label').textContent='Hidden';
       $('copy-status').textContent='';
-      $('payment-sub').textContent='ይህ የሙከራ ገጽ ነው። ክፍያ አይፈጽሙ፤ ወደ ቀጣዩ ደረጃ ይቀጥሉ።';
+
       $('walkthrough-payment-note').hidden=false;
       $('payment-verification-note').hidden=true;
       $('payment-settlement-note').hidden=false;
