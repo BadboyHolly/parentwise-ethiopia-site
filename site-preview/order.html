@@ -221,6 +221,8 @@ input[type=text],input[type=tel]{background:#fffdf8;border-color:#d6d8cb;border-
 #telegram-section>div:last-child{text-align:center}
 @media(max-width:520px){.head{margin:0 auto;border-radius:0}.head .container{padding:0 20px}.brand{min-height:76px}.panel{border-radius:0;box-shadow:none}.forest-intro{padding:2px 20px 22px}.forest-intro h1{font-size:26px}.screen{padding:22px 20px 8px}.bottom-order{padding:14px 20px 22px}.shell,body:has(#payment-section:not([hidden])) .shell{margin-top:0;padding:0}.progress{padding:8px 18px 15px}}
 @media(max-width:360px){.screen{padding:20px 16px 8px}.forest-intro h1{font-size:24px}.brand img{width:156px;max-width:156px}.brand a.help{padding:7px 12px}.step{font-size:12px}.payment-instructions li{font-size:15px}.num-row strong{font-size:18px}}
+
+.checkout-total{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 15px;margin:0 0 16px;background:#edf3eb;border-radius:12px;color:#1f4d3a}.checkout-total span{font-size:14px}.checkout-total strong{font-size:23px;white-space:nowrap}#copy-confirmation[data-copied="true"]{background:#edf3eb;border-color:#1f4d3a;color:#1f4d3a}
 </style></head><body>
 <header class="head"><div class="container brand">
   <a href="./" aria-label="ParentWise Ethiopia"><img src="assets/parentwise-primary-horizontal.webp" alt="ParentWise Ethiopia"></a>
@@ -237,13 +239,14 @@ input[type=text],input[type=tel]{background:#fffdf8;border-color:#d6d8cb;border-
 <h2>የእርስዎ መረጃ</h2><p class="sub">ሙሉ ስምዎንና ስልክ ቁጥርዎን ያስገቡ፤ ከዚያ የክፍያ ዘዴ ይምረጡ።</p>
 <form id="checkout-form" novalidate>
 <label for="customer-name">ሙሉ ስም</label><input id="customer-name" name="name" type="text" placeholder="ሙሉ ስምዎን ያስገቡ" autocomplete="name" maxlength="100" required>
-<label for="customer-mobile">ስልክ ቁጥር</label><input id="customer-mobile" name="phone" type="tel" inputmode="tel" placeholder="09XXXXXXXX" autocomplete="tel" maxlength="13" required>
-<p class="fieldnote">የኢትዮጵያ ስልክ ቁጥር</p><hr>
+<label for="customer-mobile">ስልክ ቁጥር</label><input id="customer-mobile" name="phone" type="tel" inputmode="tel" placeholder="09… / 07… / +251…" aria-describedby="phone-format-help" autocomplete="tel" maxlength="13" required>
+<p class="fieldnote" id="phone-format-help">09…፣ 07… ወይም +251… የሚጀምር ስልክ ቁጥር</p><hr>
 <strong>የክፍያ ዘዴ ይምረጡ</strong>
 <div class="methods" role="radiogroup" aria-label="Choose payment method">
 <label class="method"><input name="payment" type="radio" value="telebirr" checked><img src="assets/telebirr-mark.svg" alt=""><span>Telebirr</span></label>
 <label class="method"><input name="payment" type="radio" value="bank"><img src="assets/cbe-bank-logo.png" alt=""><span>CBE</span></label></div>
 
+<div class="checkout-total"><span>ጠቅላላ የሚከፈል</span><strong>1,500 ብር</strong></div>
 <button class="primary" id="continue-payment" type="submit">ወደ ክፍያ ይቀጥሉ →</button><p class="form-error" id="validation-error" role="alert" hidden></p></form></section>
 <section id="payment-section" class="screen" hidden tabindex="-1"><p class="kicker">02 · Payment details</p><h2>1,500 ብር ይክፈሉ</h2><p class="sub" id="payment-sub">በቴሌብር</p>
 <p class="walkthrough-note" id="walkthrough-payment-note" hidden>ይህ ለግምገማ ብቻ ነው፤ ክፍያ አይፈጽሙ።</p>
@@ -273,7 +276,7 @@ input[type=text],input[type=tel]{background:#fffdf8;border-color:#d6d8cb;border-
 <div class="confirm-box"><h3 id="telegram-step-two">2 · Telegram ይክፈቱ</h3><p id="telegram-receipt-hint">መረጃውን Paste ያድርጉ። ከዚያ ደረሰኝዎን ወይም የዝውውር ቁጥርዎን ይላኩ።</p><a class="primary" style="display:grid;place-items:center;text-decoration:none" id="telegram-handoff" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Telegram ይክፈቱ — ማስረጃ ይላኩ ↗</a><p class="telegram-handle">@ParentWiseEthiopia</p></div>
 <div class="delivery-tip" id="telegram-delivery-tip">ክፍያዎን ካረጋገጥን በኋላ 5ቱን PDF መመሪያዎች ወዲያውኑ በዚሁ Telegram እንልክልዎታለን።</div>
 <button id="back-telegram" class="back" type="button">← ወደ ክፍያ መረጃ ይመለሱ</button><div><a class="help-label" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">እገዛ ↗</a></div></section>
-<div class="bottom-order"><details id="order-summary"><summary><span>የትዕዛዝ ዝርዝር</span><span>1,500 ETB</span></summary><div class="bottom-order-body"><b>Child Behavior &amp; Discipline System</b></div></details></div>
+
 </div></main><footer class="footer">ParentWise Ethiopia · How We Raise Matters.</footer>
 <script>
 (() => {
@@ -329,6 +332,7 @@ input[type=text],input[type=tel]{background:#fffdf8;border-color:#d6d8cb;border-
       const previous=stored();
       if(previous?.id===data.orderRef)save({...previous,activeStep:n});
     }
+    if(n===3){$('copy-confirmation').textContent='መረጃውን Copy ያድርጉ';delete $('copy-confirmation').dataset.copied;$('confirmation-status').textContent='';}
     if(n!==1)$(n===2?'payment-section':'telegram-section').focus({preventScroll:true});
     if(shouldScroll){
       requestAnimationFrame(()=>{
@@ -535,7 +539,9 @@ input[type=text],input[type=tel]{background:#fffdf8;border-color:#d6d8cb;border-
     if(!data.orderRef&&!previewOnly)return;
     try{
       await copy(previewOnly?$('confirmation-message').textContent:buildMessage());
-      $('confirmation-status').textContent=previewOnly?'መረጃው Copy ተደርጓል። ክፍያ አይፈጽሙ።':'መረጃው Copy ተደርጓል። Telegram ላይ Paste አድርገው የክፍያ ደረሰኙን ይላኩ።';
+      $('copy-confirmation').textContent='ኮፒ ተደርጓል ✓';
+      $('copy-confirmation').dataset.copied='true';
+      $('confirmation-status').textContent=previewOnly?'መረጃው Copy ተደርጓል። ክፍያ አይፈጽሙ።':'አሁን Telegram ይክፈቱ። መረጃውን Paste አድርገው ከደረሰኝዎ ጋር ይላኩ።';
     }catch{
       $('confirmation-status').textContent='መረጃው መቅዳት አልተቻለም። ከላይ ያለውን መረጃ ይጠቀሙ።';
     }
