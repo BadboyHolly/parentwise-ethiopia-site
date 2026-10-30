@@ -223,6 +223,7 @@ input[type=text],input[type=tel]{background:#fffdf8;border-color:#d6d8cb;border-
 @media(max-width:360px){.screen{padding:20px 16px 8px}.forest-intro h1{font-size:24px}.brand img{width:156px;max-width:156px}.brand a.help{padding:7px 12px}.step{font-size:12px}.payment-instructions li{font-size:15px}.num-row strong{font-size:18px}}
 
 .checkout-total{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 15px;margin:0 0 16px;background:#edf3eb;border-radius:12px;color:#1f4d3a}.checkout-total span{font-size:14px}.checkout-total strong{font-size:23px;white-space:nowrap}#copy-confirmation[data-copied="true"]{background:#edf3eb;border-color:#1f4d3a;color:#1f4d3a}
+.telegram-fallback{margin:20px 0;padding:14px;border:1px solid #dce3d7;border-radius:12px;background:#fafbf7}.telegram-fallback summary{cursor:pointer;color:#1f4d3a;font-size:14px;font-weight:700;min-height:30px}.telegram-fallback p{font-size:14px;line-height:1.8}.telegram-send-note{text-align:center}.telegram-instructions{margin-top:12px}
 </style></head><body>
 <header class="head"><div class="container brand">
   <a href="./" aria-label="ParentWise Ethiopia"><img src="assets/parentwise-primary-horizontal.webp" alt="ParentWise Ethiopia"></a>
@@ -269,11 +270,19 @@ input[type=text],input[type=tel]{background:#fffdf8;border-color:#d6d8cb;border-
 
 <button id="back-payment" class="back" type="button">← ወደ መረጃዎ ይመለሱ</button></section>
 <section id="telegram-section" class="screen" hidden tabindex="-1">
-<p class="kicker">03 · Send proof</p><h2>በTelegram ያሳውቁን</h2><p class="sub" id="telegram-sub">ክፍያ ከፈጸሙ በኋላ መረጃዎንና የክፍያ ማስረጃዎን በTelegram ይላኩልን።</p>
+<p class="kicker">03 · Send proof</p><h2>የክፍያ ስክሪንሾትዎን ይላኩ</h2><p class="sub" id="telegram-sub">በTelegram እነዚህን ሁለት ነገሮች ይላኩልን።</p>
 <p class="walkthrough-note" id="walkthrough-telegram-note" hidden>ይህ ለግምገማ ብቻ ነው፤ ደረሰኝ አይላኩ።</p>
 <div class="order-reference" id="order-reference-bar" hidden><small>የትዕዛዝ ቁጥርዎ</small><strong id="visible-order-reference"></strong><button type="button" id="copy-order-reference">Copy Order ID</button><p id="copy-order-reference-status" class="status-clip" role="status" aria-live="polite"></p></div>
-<div class="confirm-box"><h3 id="telegram-step-one">1 · መረጃዎን Copy ያድርጉ</h3><div id="confirmation-message" class="message" role="note" aria-label="የትዕዛዝ መረጃ">ParentWise payment confirmation</div><button id="copy-confirmation" class="secondary" type="button">መረጃውን Copy ያድርጉ</button><p id="confirmation-status" class="status-clip" role="status" aria-live="polite"></p></div>
-<div class="confirm-box"><h3 id="telegram-step-two">2 · Telegram ይክፈቱ</h3><p id="telegram-receipt-hint">መረጃውን Paste ያድርጉ። ከዚያ የክፍያዎን ስክሪንሾት (Screenshot) ይላኩ።</p><a class="primary" style="display:grid;place-items:center;text-decoration:none" id="telegram-handoff" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Telegram ይክፈቱ — ማስረጃ ይላኩ ↗</a><p class="telegram-handle">@ParentWiseEthiopia</p></div>
+<ol class="payment-instructions telegram-instructions">
+<li id="telegram-step-one">Telegram ይክፈቱ። የተዘጋጀውን መልዕክት ለመላክ Send ይጫኑ።</li>
+<li id="telegram-receipt-hint">የማያያዣውን ምልክት (📎) ተጭነው የክፍያዎን ስክሪንሾት ይምረጡ። ከዚያ Send ይጫኑ።</li></ol>
+<a class="primary" style="display:grid;place-items:center;text-decoration:none" id="telegram-handoff" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Telegram ይክፈቱ →</a>
+<p class="smallnote telegram-send-note">Telegram መክፈት ብቻ መልዕክቱን አይልክም። በውይይቱ ውስጥ Send ይጫኑ።</p>
+<p class="telegram-handle">@ParentWiseEthiopia</p>
+<details class="telegram-fallback"><summary>Telegram አልተከፈተም ወይም መልዕክቱ አልታየም?</summary>
+<p>ስምዎን፣ እዚህ ያስገቡትን ስልክ ቁጥርና የክፍያ ስክሪንሾት ወደ @ParentWiseEthiopia ይላኩ። ወይም ከታች ያለውን መረጃ Copy አድርገው በTelegram ላይ Paste ያድርጉ።</p>
+<div id="confirmation-message" class="message" role="note" aria-label="የትዕዛዝ መረጃ"></div><button id="copy-confirmation" class="secondary" type="button">መረጃውን Copy ያድርጉ</button><p id="confirmation-status" class="status-clip" role="status" aria-live="polite"></p>
+<a class="inline-link" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">Telegram በቀጥታ ይክፈቱ ↗</a></details>
 <div class="delivery-tip" id="telegram-delivery-tip">ክፍያዎን ካረጋገጥን በኋላ 5ቱን PDF መመሪያዎች ወዲያውኑ በዚሁ Telegram እንልክልዎታለን።</div>
 <button id="back-telegram" class="back" type="button">← ወደ ክፍያ መረጃ ይመለሱ</button><div><a class="help-label" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">እገዛ ↗</a></div></section>
 
@@ -332,7 +341,10 @@ input[type=text],input[type=tel]{background:#fffdf8;border-color:#d6d8cb;border-
       const previous=stored();
       if(previous?.id===data.orderRef)save({...previous,activeStep:n});
     }
-    if(n===3){$('copy-confirmation').textContent='መረጃውን Copy ያድርጉ';delete $('copy-confirmation').dataset.copied;$('confirmation-status').textContent='';}
+    if(n===3){
+      $('telegram-handoff').href=TG+'?text='+encodeURIComponent(previewOnly?$('confirmation-message').textContent:buildMessage());
+      $('telegram-handoff').textContent='Telegram ይክፈቱ →';
+      $('copy-confirmation').textContent='መረጃውን Copy ያድርጉ';delete $('copy-confirmation').dataset.copied;$('confirmation-status').textContent='';}
     if(n!==1)$(n===2?'payment-section':'telegram-section').focus({preventScroll:true});
     if(shouldScroll){
       requestAnimationFrame(()=>{
@@ -346,13 +358,9 @@ input[type=text],input[type=tel]{background:#fffdf8;border-color:#d6d8cb;border-
     return btoa(String.fromCharCode(...bytes)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
   };
   const buildMessage=()=>[
-    'ParentWise Ethiopia — የትዕዛዝ መረጃ',
+    'ParentWise Ethiopia',
     'የትዕዛዝ ቁጥር: '+data.orderRef,
-    'ሙሉ ስም: '+data.name,
-    'ስልክ ቁጥር: '+data.phone,
-    'የክፍያ ዘዴ: '+methods[method].title,
-    'የትዕዛዝ መጠን: 1,500 ETB',
-    'የክፍያ ማስረጃ: (ስክሪንሾት ያያይዙ ወይም የዝውውር ቁጥር ይጻፉ)'
+    'ስልክ ቁጥር: '+data.phone
   ].join('\n');
   function verifiedOrder(order,expectedMethod){
     const instr=order?.payment_instructions;
@@ -524,16 +532,6 @@ input[type=text],input[type=tel]{background:#fffdf8;border-color:#d6d8cb;border-
         $(prefix+'copy-order-reference-status').textContent='ትዕዛዝ ቁጥሩን በእጅ ይምረጡ።';
       }
     });
-  });
-  $('telegram-handoff').addEventListener('click',()=>{
-    if(!enabled||!data.orderRef)return;
-    // Optional clipboard convenience only. Opening Telegram does not mean
-    // the message was sent or the payment was verified.
-    if(navigator.clipboard?.writeText){
-      navigator.clipboard.writeText(buildMessage()).catch(()=>{
-        $('confirmation-status').textContent='መረጃውን Copy ለማድረግ ከላይ ያለውን ቁልፍ ይጠቀሙ።';
-      });
-    }
   });
   $('copy-confirmation').addEventListener('click',async()=>{
     if(!data.orderRef&&!previewOnly)return;
