@@ -61,21 +61,5 @@
   if (page === 'sales') document.addEventListener('click', e => {
     if (e.target.closest('a[href="order.html"]')) track('buy_click');
   });
-  // Choices are tab-scoped; no prompt is shown while collection is disabled.
-  if (!TRACKING_ENABLED || !document.createElement) return;
-  const box = document.createElement('section');
-  box.className = 'pw-analytics-choice';
-  box.setAttribute('aria-label', 'የድረ ገጽ መለኪያ ምርጫ');
-  box.innerHTML = `<button type="button" class="pw-analytics-settings">የመረጃ መለኪያ ምርጫ</button>
-    <div class="pw-analytics-panel" hidden><p>ድረ ገጻችንን ለማሻሻል የሚጎበኟቸውን ገጾችና የትዕዛዝ ደረጃዎች በአማራጭ እንለካለን። ስምዎን፣ ስልክዎን ወይም የክፍያ መረጃዎን በመለኪያው አንልክም።</p>
-    <p>አለመፍቀድ ግዢዎን አይከለክልም፤ ምርጫዎን በኋላ መቀየር ይችላሉ። <a href="policies/privacy-policy.html#analytics">ዝርዝር የግላዊነት መረጃ</a></p>
-    <div><button type="button" class="pw-analytics-allow">ፍቀድ</button><button type="button" class="pw-analytics-decline">አልፈቅድም</button></div><p class="pw-analytics-status" role="status"></p></div>`;
-  document.body.appendChild(box);
-  const panel = box.querySelector('.pw-analytics-panel');
-  const status = box.querySelector('.pw-analytics-status');
-  const describe = () => { try { const choice=sessionStorage.getItem('pw-analytics-consent'); status.textContent=choice==='yes'?'መለኪያ ተፈቅዷል።':choice==='no'?'መለኪያ አልተፈቀደም።':''; } catch { status.textContent='ምርጫዎን ማስቀመጥ አልተቻለም፤ መለኪያ አይላክም።'; } };
-  box.querySelector('.pw-analytics-settings').addEventListener('click',()=>{ panel.hidden=!panel.hidden; describe(); });
-  box.querySelector('.pw-analytics-allow').addEventListener('click',()=>{ try { sessionStorage.setItem('pw-analytics-consent','yes'); denied=false; track(viewEvent); panel.hidden=true; } catch { describe(); } });
-  box.querySelector('.pw-analytics-decline').addEventListener('click',()=>{ denied=true; sessionId=undefined; try { sessionStorage.setItem('pw-analytics-consent','no'); sessionStorage.removeItem('pw-analytics-session'); sessionStorage.removeItem('pw-analytics-attribution'); panel.hidden=true; } catch { describe(); } });
-  try { panel.hidden = sessionStorage.getItem('pw-analytics-consent') !== null; } catch { panel.hidden = true; }
+  // Consent prompt removed by founder request. Keep analytics disabled until a privacy approach is reviewed.
 })();
