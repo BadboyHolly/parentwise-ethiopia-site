@@ -4,8 +4,8 @@
   const TRACKING_ENABLED = false;
   const API_ORIGIN = 'https://parentwise-isolated-test.app.aletcloud.com';
   // Public identifiers only. Match these to the backend allowlists before activation.
-  const CAMPAIGNS = [];
-  const CREATIVES = [];
+  const CAMPAIGNS = ['pw-parenting-01'];
+  const CREATIVES = ['pw-video-01', 'pw-image-01'];
   const EVENTS = {sales_view:'sales', buy_click:'sales', checkout_view:'checkout',
     details_completed:'checkout', payment_view:'checkout', paid_clicked:'checkout',
     proof_view:'checkout', telegram_open:'checkout'};
@@ -67,9 +67,9 @@
   box.className = 'pw-analytics-choice';
   box.setAttribute('aria-label', 'የድረ ገጽ መለኪያ ምርጫ');
   box.innerHTML = `<button type="button" class="pw-analytics-settings">የመረጃ መለኪያ ምርጫ</button>
-    <div class="pw-analytics-panel" hidden><p>ድረ ገጻችንን ለማሻሻል ጎብኚዎች የትኞቹን ገጾችና የትዕዛዝ ደረጃዎች እንደሚጠቀሙ፣ እንዲሁም ከየት እንደመጡ ለመለካት ፈቃድዎን እንጠይቃለን። በዚህ የአሳሽ ትር ውስጥ የዘፈቀደ መለያ እንጠቀማለን፤ ስምዎን፣ ስልክዎን ወይም የክፍያ መረጃዎን በመለኪያው አንልክም። ትዕዛዝ ካቀረቡ ከዚህ መለያ ጋር ሊያያዝ ይችላል። የማስተናገጃ አቅራቢዎች የግንኙነት መረጃን በደህንነት መዝገቦች ሊያስቀምጡ ይችላሉ። መከልከል ግዢዎን አይከለክልም።</p>
-    <p>ካለ፣ የማስታወቂያ ዘመቻና የማስታወቂያ ስሪት መለያንም እንመዘግባለን። ምርጫዎ ለዚህ የአሳሽ ትር ብቻ ነው፤ በማንኛውም ጊዜ እዚህ መቀየር ይችላሉ። ፈቃድ ማንሳት የወደፊት መለኪያን ያቆማል፤ ቀደም ሲል የተሰበሰበውን በራሱ አይሰርዝም። <a href="policies/privacy-policy.html">የግላዊነት መመሪያ</a></p>
-    <div><button type="button" class="pw-analytics-allow">ፍቀድ</button><button type="button" class="pw-analytics-decline">አልፈቅድም / ፈቃዴን አነሳለሁ</button></div><p class="pw-analytics-status" role="status"></p></div>`;
+    <div class="pw-analytics-panel" hidden><p>ድረ ገጻችንን ለማሻሻል የሚጎበኟቸውን ገጾችና የትዕዛዝ ደረጃዎች በአማራጭ እንለካለን። ስምዎን፣ ስልክዎን ወይም የክፍያ መረጃዎን በመለኪያው አንልክም።</p>
+    <p>አለመፍቀድ ግዢዎን አይከለክልም፤ ምርጫዎን በኋላ መቀየር ይችላሉ። <a href="policies/privacy-policy.html#analytics">ዝርዝር የግላዊነት መረጃ</a></p>
+    <div><button type="button" class="pw-analytics-allow">ፍቀድ</button><button type="button" class="pw-analytics-decline">አልፈቅድም</button></div><p class="pw-analytics-status" role="status"></p></div>`;
   document.body.appendChild(box);
   const panel = box.querySelector('.pw-analytics-panel');
   const status = box.querySelector('.pw-analytics-status');

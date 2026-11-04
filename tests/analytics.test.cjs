@@ -11,8 +11,8 @@ function run({enabled, consent, query = '', store = new Map(), path = '/index.ht
     document:{addEventListener:(name,handler) => {listeners[name]=handler;}},
     fetch:(url,options) => {sent.push(JSON.parse(options.body));return Promise.resolve();}};
   const source = script.replace('const TRACKING_ENABLED = false;', `const TRACKING_ENABLED = ${enabled};`)
-    .replace('const CAMPAIGNS = [];', "const CAMPAIGNS = ['synthetic-campaign'];")
-    .replace('const CREATIVES = [];', "const CREATIVES = ['synthetic-creative'];");
+    .replace("const CAMPAIGNS = ['pw-parenting-01'];", "const CAMPAIGNS = ['synthetic-campaign'];")
+    .replace("const CREATIVES = ['pw-video-01', 'pw-image-01'];", "const CREATIVES = ['synthetic-creative'];");
   vm.runInNewContext(source, context);
   return {sent, store, listeners, api:context.window.parentwiseAnalytics};
 }
