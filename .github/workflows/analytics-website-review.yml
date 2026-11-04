@@ -1,0 +1,19 @@
+name: Website analytics review
+on:
+  push:
+    branches: [codex/website-analytics]
+  pull_request:
+    paths: ['site-preview/analytics.js', 'site-preview/analytics.css', 'site-preview/index.html', 'site-preview/order.html', 'site-preview/policies/privacy-policy.html', 'tests/analytics.test.cjs', '.github/workflows/analytics-website-review.yml']
+permissions:
+  contents: read
+jobs:
+  tracker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check site-preview/analytics.js
+      - run: node tests/analytics.test.cjs
