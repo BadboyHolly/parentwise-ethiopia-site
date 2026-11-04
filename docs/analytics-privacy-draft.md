@@ -1,0 +1,7 @@
+# Analytics wording for founder review — not yet published
+
+Suggested notice: “May we use optional analytics to understand which pages and checkout steps are used and how visitors find ParentWise? If you agree, we store a random session identifier in this browser tab and record page and button events, a broad screen-size category, and approved campaign or advertisement labels if present. We do not send your name, phone number, payment details, or the full page address in these analytics events. If you place an order, its record may be linked to that session. Our hosting providers may process connection information in their security logs. You can decline without affecting checkout.”
+
+Suggested buttons: “Allow optional analytics” and “Decline”. Provide a persistent “Analytics choices” control that can withdraw consent; withdrawal should stop future events and remove the browser's analytics session and attribution. Explain separately how to request deletion of previously stored data, and verify what can actually be identified and deleted before promising it.
+
+Add the actual retention period and provider/backup information only after the founder has selected the period and the deletion schedule and log policies are operational. The current site policy discusses measurement generally but does not describe these specific identifiers, order linkage, consent choices, or retention. Review and translate the final wording into Amharic before release. No consent UI or analytics collection is activated by this draft.

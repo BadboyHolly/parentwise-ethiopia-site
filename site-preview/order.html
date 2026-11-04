@@ -337,6 +337,7 @@ body.proof-screen .proof-preview-strip:not([hidden]){display:block}
 <button id="back-telegram" class="back" type="button">← ወደ ክፍያ ገጽ ይመለሱ</button></section>
 
 </div></main><footer class="footer">ParentWise Ethiopia · How We Raise Matters.</footer>
+<script src="analytics.js"></script>
 <script>
 (() => {
   'use strict';
@@ -388,6 +389,7 @@ body.proof-screen .proof-preview-strip:not([hidden]){display:block}
     $('payment-section').hidden=n!==2;
     $('telegram-section').hidden=n!==3;
     ['details','payment','telegram'].forEach((key,i)=>$('label-'+key).classList.toggle('active',i===n-1));
+    if (enabled && data.orderRef && n >= 2) window.parentwiseAnalytics?.track(n === 2 ? 'payment_view' : 'proof_view');
     if(enabled && data.orderRef && n>=2){
       const previous=stored();
       if(previous?.id===data.orderRef)save({...previous,activeStep:n});
@@ -511,7 +513,7 @@ body.proof-screen .proof-preview-strip:not([hidden]){display:block}
     try{
       const response=await fetch(ORDER_API_ORIGIN+'/api/v1/orders',{
         method:'POST',mode:'cors',credentials:'omit',cache:'no-store',
-        headers:{'Content-Type':'application/json','Idempotency-Key':pendingKey},
+        headers:{'Content-Type':'application/json','Idempotency-Key':pendingKey,...(window.parentwiseAnalytics?.session() ? {'X-PW-Session':window.parentwiseAnalytics.session()} : {})},
         body:payload
       });
       if(!response.ok)throw new Error('Order creation was not accepted');
@@ -522,6 +524,7 @@ body.proof-screen .proof-preview-strip:not([hidden]){display:block}
       data.name=name;data.phone=phone;data.accessToken=result.access_token;
       save({id:order.order_id,token:result.access_token,name,phone,method:requestedMethod});
       clearAttempt();
+      window.parentwiseAnalytics?.track('details_completed');
       present(order,instr);
     }catch(err){
       // Never show bank details or advance without a confirmed saved order.
@@ -540,9 +543,11 @@ body.proof-screen .proof-preview-strip:not([hidden]){display:block}
       return;
     }
     if(!data.orderRef)return;
+    window.parentwiseAnalytics?.track('paid_clicked');
     $('telegram-handoff').href=TG;
     stage(3);
   });
+  $('telegram-handoff').addEventListener('click',()=>{ if(enabled && data.orderRef) window.parentwiseAnalytics?.track('telegram_open'); });
   const copy=async value=>{
     if(!navigator.clipboard?.writeText)throw Error('Clipboard unavailable');
     await navigator.clipboard.writeText(value);
