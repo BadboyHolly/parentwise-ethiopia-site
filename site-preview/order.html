@@ -412,6 +412,62 @@ section.screen>button.back{display:block;width:100%;min-height:44px;margin-top:1
 .next-list li:after{content:counter(nx);position:absolute;left:0;top:0;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#1F4D3A;color:#fff;font:700 13px system-ui,sans-serif}
 .next-list b{display:block;font-size:15px;color:#1F4D3A}
 @media(prefers-reduced-motion:reduce){.proof-items li{transition:none}}
+</style><style id="pw-checkout-motion">
+/* ===== Motion + polish: fades and transforms only, short, and off for reduced-motion ===== */
+html{scroll-behavior:smooth}
+button,a,label,[role=checkbox]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+::selection{background:#d8e4dc;color:#1F4D3A}
+h1,h2{text-wrap:balance}
+.number-box strong,.amount b,.checkout-total strong,#recipient-number{font-variant-numeric:tabular-nums}
+input:-webkit-autofill{-webkit-box-shadow:0 0 0 100px #F8F4EC inset;-webkit-text-fill-color:#202928}
+section.screen{scroll-margin-top:12px}
+@keyframes pwUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes pwPop{0%{transform:scale(.6)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+@keyframes pwRing{0%{box-shadow:0 0 0 0 rgba(122,46,62,.35)}100%{box-shadow:0 0 0 10px rgba(122,46,62,0)}}
+@keyframes pwShake{0%,100%{transform:none}20%{transform:translateX(-6px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}
+/* page load + step change */
+.pwb-bar{animation:pwUp .35s cubic-bezier(.2,.7,.2,1) both}
+.progress{animation:pwUp .4s .05s cubic-bezier(.2,.7,.2,1) both}
+.forest-intro{animation:pwUp .4s .1s cubic-bezier(.2,.7,.2,1) both}
+section.screen:not([hidden]){animation:pwUp .34s .04s cubic-bezier(.2,.7,.2,1) both}
+/* steps */
+.step em{transition:background .25s,border-color .25s,color .25s}
+.step.active em{animation:pwPop .45s cubic-bezier(.3,1.6,.5,1) both,pwRing 1.5s .5s 2}
+body:has(#payment-section:not([hidden])) #label-details em,body:has(#telegram-section:not([hidden])) #label-details em,body:has(#telegram-section:not([hidden])) #label-payment em{animation:pwPop .45s cubic-bezier(.3,1.6,.5,1) both}
+.progress>span[aria-hidden]{transition:color .3s}
+/* fields and cards */
+#checkout-form input[type=text],#checkout-form input[type=tel]{transition:border-color .2s,background .2s,box-shadow .2s}
+#checkout-form input[type=text]:focus,#checkout-form input[type=tel]:focus{box-shadow:0 8px 18px -12px rgba(31,77,58,.6)}
+.method{transition:border-color .2s,background .2s,transform .12s,box-shadow .2s}
+.method:active{transform:scale(.97)}
+.method:has(input:checked){box-shadow:0 10px 20px -14px rgba(122,46,62,.7)}
+.method:has(input:checked) img{animation:pwPop .3s cubic-bezier(.3,1.6,.5,1)}
+/* buttons */
+.primary,#copy-recipient,.order-reference button,.customer .back{transition:transform .15s,box-shadow .2s,background .2s,opacity .2s}
+.primary:active:not(:disabled),#copy-recipient:active,.order-reference button:active{transform:scale(.98)}
+.primary:disabled{opacity:.75}
+/* copy / status feedback */
+.status-clip:not(:empty){display:inline-block;margin:10px 0 0;padding:7px 14px;border-radius:999px;background:#EEF3EF;color:#1F4D3A;font-weight:700;animation:pwUp .25s both}
+.order-reference:not([hidden]){animation:pwUp .3s both}
+/* validation */
+.form-error:not([hidden]){animation:pwShake .4s;background:#fbf3f4;border-color:#e8c9ce;color:#7A2E3E;font-size:13.5px;padding:11px 14px;border-radius:12px;margin-top:12px}
+/* step 3 */
+.proof-items li[aria-checked=true]:before{animation:pwPop .3s cubic-bezier(.3,1.6,.5,1)}
+.proof-items li{transition:border-color .15s,background .15s,transform .12s}
+.proof-items li:active{transform:scale(.985)}
+#telegram-section:not([hidden]) .proof-items li{animation:pwUp .35s both}
+#telegram-section:not([hidden]) .proof-items li:nth-child(1){animation-delay:.12s}
+#telegram-section:not([hidden]) .proof-items li:nth-child(2){animation-delay:.2s}
+#telegram-section:not([hidden]) .proof-items li:nth-child(3){animation-delay:.28s}
+#telegram-section:not([hidden]) .next-list li{animation:pwUp .4s both}
+#telegram-section:not([hidden]) .next-list li:nth-child(1){animation-delay:.4s}
+#telegram-section:not([hidden]) .next-list li:nth-child(2){animation-delay:.52s}
+/* payment instructions */
+#payment-section:not([hidden]) .payment-instructions li{animation:pwUp .35s both}
+#payment-section:not([hidden]) .payment-instructions li:nth-child(1){animation-delay:.2s}
+#payment-section:not([hidden]) .payment-instructions li:nth-child(2){animation-delay:.28s}
+#payment-section:not([hidden]) .payment-instructions li:nth-child(3){animation-delay:.36s}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}}
 </style></head><body>
 <p class="proof-preview-strip" id="walkthrough-telegram-note" hidden>ይህ ለግምገማ ብቻ ነው፤ ደረሰኝ አይላኩ።</p>
 <header class="pwb-bar"><a class="pwb-logo" href="./" aria-label="ParentWise Ethiopia"><img src="assets/img/page-02.webp" alt="ParentWise Ethiopia" width="900" height="249"></a><a class="pwb-help" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 4L3 11l5.5 2L10 19l3-4 4.5 3.5L21 4z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>እገዛ</a></header>
