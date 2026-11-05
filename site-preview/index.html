@@ -735,4 +735,19 @@ const menu=document.querySelector('.menu-toggle');const nav=document.querySelect
 })();
 
 </script><!-- PARENTWISE PUBLISHING QA: Founder-supplied expert portraits and endorsements were inserted as provided in Doc credibility.docx. No independent credential or signed consent validation was performed in this preview; retain signed originals before production. -->
+<script id="pw-min-text">
+/* Phone-only readability floor: raise any text smaller than 13px to 13px. */
+(function(){
+  if(!window.matchMedia('(max-width:640px)').matches) return;
+  var nodes=document.querySelectorAll('body *');
+  for(var i=0;i<nodes.length;i++){
+    var el=nodes[i];
+    var hasText=false;
+    for(var c=0;c<el.childNodes.length;c++){ if(el.childNodes[c].nodeType===3 && el.childNodes[c].textContent.trim()){hasText=true;break;} }
+    if(!hasText) continue;
+    var fs=parseFloat(getComputedStyle(el).fontSize);
+    if(fs<13){ el.style.fontSize='13px'; }
+  }
+})();
+</script>
 </body></html>
