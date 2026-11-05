@@ -746,7 +746,7 @@ const menu=document.querySelector('.menu-toggle');const nav=document.querySelect
     for(var c=0;c<el.childNodes.length;c++){ if(el.childNodes[c].nodeType===3 && el.childNodes[c].textContent.trim()){hasText=true;break;} }
     if(!hasText) continue;
     var fs=parseFloat(getComputedStyle(el).fontSize);
-    if(fs<13){ el.style.fontSize='13px'; }
+    if(fs<13){ el.style.setProperty('font-size','13px','important'); }
   }
 })();
 </script>
