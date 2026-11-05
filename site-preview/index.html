@@ -757,7 +757,7 @@ html.pw-js .pw-reveal.is-in{opacity:1;transform:none}
 </section><section class="section product-section" id="section-05"><header class="section-heading"><div class="section-kicker"><b>05</b><span></span></div><h2>ParentWise ከውስጥ ምን ይመስላል?</h2><p class="intro">ከመግዛትዎ በፊት የParentWise የተግባር ቅጾች፣ የንግግር ምሳሌዎችና የ30 ቀን እቅድ እንዴት እንደሚቀርቡ የሚያሳዩ የንድፍ ምሳሌዎችን ይመልከቱ።</p></header>
 <p class="pwa-hint">ከታች ያሉትን ትሮች ተጠቅመው PDFውን ይቀይሩ፤ ገጾቹን ለማየት ወደ ጎን ያንሸራትቱ።</p>
 <div class="pwa-tabs" role="tablist" aria-label="የParentWise ክፍሎች"><button type="button" role="tab" aria-selected="true" data-k="quickhelp">Quick Help</button><button type="button" role="tab" aria-selected="false" data-k="workbook">Workbook</button><button type="button" role="tab" aria-selected="false" data-k="30day">30-Day</button></div>
-<div class="pwa-phone"><div class="pwa-screen"><div class="pwa-track" id="pwaTrack" tabindex="0" aria-label="ናሙና ገጾች"><img src="assets/img/preview/quickhelp-1.webp" width="1100" height="1956" alt="ልጄ «እምቢ» ሲለኝ — ምን ማድረግ"><img src="assets/img/preview/quickhelp-2.webp" width="1100" height="1956" alt="ምን ማለትና ምን ማስወገድ" loading="lazy"></div></div></div>
+<div class="pwa-phone"><div class="pwa-screen"><div class="pwa-track" id="pwaTrack" tabindex="0" aria-label="ናሙና ገጾች"><img src="assets/img/preview/quickhelp-1.webp" width="1100" height="1956" alt="ልጄ «እምቢ» ሲለኝ — ምን ማድረግ"><img src="assets/img/preview/quickhelp-2.webp" width="1100" height="1956" alt="ምን ማለትና ምን ማስወገድ" loading="lazy"><img src="assets/img/preview/workbook-1.webp" width="1100" height="1956" alt="የመረጋጋት ዕቅድ ገጽ" loading="lazy"><img src="assets/img/preview/workbook-2.webp" width="1100" height="1956" alt="ሳምንታዊ የባህሪ መከታተያ ገጽ" loading="lazy"><img src="assets/img/preview/workbook-3.webp" width="1100" height="1956" alt="የባህሪ መርማሪ ገጽ" loading="lazy"><img src="assets/img/preview/30day-1.webp" width="1100" height="1956" alt="የ30 ቀን ካርታ" loading="lazy"><img src="assets/img/preview/30day-2.webp" width="1100" height="1956" alt="የሳምንት 1 የዕለት ልምምድ" loading="lazy"><img src="assets/img/preview/30day-3.webp" width="1100" height="1956" alt="የ30 ቀን የመሻሻል መከታተያ" loading="lazy"></div></div></div>
 <div class="pwa-dots" id="pwaDots" aria-hidden="true"><i class="on"></i><i></i></div>
 <div class="pwa-info"><h3 id="pwaT">ልጄ «እምቢ» ሲለኝ</h3><p id="pwaD">ምን ማድረግ፣ ምን ማለትና ምን ማስወገድ እንዳለብዎት ደረጃ በደረጃ።</p><button type="button" class="pwa-zoom" id="pwaZoom">ገጹን አስፍተው ይመልከቱ ⤢</button></div>
 <p class="pwa-note">ከሙሉ ጥቅሉ የተወሰዱ ናሙና ገጾች</p></section>
@@ -945,31 +945,30 @@ const menu=document.querySelector('.menu-toggle');const nav=document.querySelect
 .pwv-cap{position:absolute;bottom:18px;left:0;right:0;text-align:center;color:#fff;font:400 14px/1.3 ParentWiseEthiopic,sans-serif}
 @media(prefers-reduced-motion:reduce){#section-05 *{transition:none!important}}
 </style><script id="pw-preview-a-js">(function(){var tr=document.getElementById('pwaTrack');if(!tr)return;var lb=document.getElementById('pwv-lb');document.body.appendChild(lb);
-var vt=document.getElementById('pwv-track'),cap=document.getElementById('pwv-cap'),dw=document.getElementById('pwaDots');
-var S={quickhelp:['ልጄ «እምቢ» ሲለኝ','ምን ማድረግ፣ ምን ማለትና ምን ማስወገድ እንዳለብዎት ደረጃ በደረጃ።',['ልጄ «እምቢ» ሲለኝ — ምን ማድረግ','ምን ማለትና ምን ማስወገድ']],workbook:['የመረጋጋት ዕቅድና የባህሪ መከታተያ','ቁጣ ሲነሳ ምን እንደሚያደርጉ አስቀድመው ያቅዱ፤ ተደጋጋሚ ሁኔታን ይመዝግቡ፣ ሳምንታዊ መከታተያውንም ይሙሉ።',['የመረጋጋት ዕቅድ ገጽ','ሳምንታዊ የባህሪ መከታተያ ገጽ','የባህሪ መርማሪ ገጽ']],'30day':['የ30 ቀን ካርታዎ','በሳምንት የተከፋፈለ፣ በቀን 5–10 ደቂቃ የሚወስድ ልምምድ፤ መሻሻልዎንም ይከታተሉ።',['የ30 ቀን ካርታ','የሳምንት 1 የዕለት ልምምድ','የ30 ቀን የመሻሻል መከታተያ']]};
-var cur='quickhelp',op=null;
-function cs(){return Math.round(tr.scrollLeft/tr.clientWidth)}
-function dots(n){dw.innerHTML=new Array(S[cur][2].length+1).join('<i></i>');dw.children[n||0].className='on'}
-tr.addEventListener('scroll',function(){var n=cs();[].forEach.call(dw.children,function(d,k){d.className=k===n?'on':''})},{passive:true});
-document.querySelectorAll('.pwa-tabs button').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('.pwa-tabs button').forEach(function(x){x.setAttribute('aria-selected',x===b)});cur=b.dataset.k;var d=S[cur];
-tr.innerHTML=d[2].map(function(t,k){return '<img src="assets/img/preview/'+cur+'-'+(k+1)+'.webp" width="1100" height="1956" alt="'+t+'">'}).join('');tr.scrollLeft=0;
-document.getElementById('pwaT').textContent=d[0];document.getElementById('pwaD').textContent=d[1];dots(0)});});
+var vt=document.getElementById('pwv-track'),cap=document.getElementById('pwv-cap'),dw=document.getElementById('pwaDots'),tabs=[].slice.call(document.querySelectorAll('.pwa-tabs button'));
+var S={quickhelp:['ልጄ «እምቢ» ሲለኝ','ምን ማድረግ፣ ምን ማለትና ምን ማስወገድ እንዳለብዎት ደረጃ በደረጃ።',["ልጄ «እምቢ» ሲለኝ — ምን ማድረግ","ምን ማለትና ምን ማስወገድ"]],workbook:['የመረጋጋት ዕቅድና የባህሪ መከታተያ','ቁጣ ሲነሳ ምን እንደሚያደርጉ አስቀድመው ያቅዱ፤ ተደጋጋሚ ሁኔታን ይመዝግቡ፣ ሳምንታዊ መከታተያውንም ይሙሉ።',["የመረጋጋት ዕቅድ ገጽ","ሳምንታዊ የባህሪ መከታተያ ገጽ","የባህሪ መርማሪ ገጽ"]],'30day':['የ30 ቀን ካርታዎ','በሳምንት የተከፋፈለ፣ በቀን 5–10 ደቂቃ የሚወስድ ልምምድ፤ መሻሻልዎንም ይከታተሉ።',["የ30 ቀን ካርታ","የሳምንት 1 የዕለት ልምምድ","የ30 ቀን የመሻሻል መከታተያ"]]};
 var ORDER=['quickhelp','workbook','30day'],NAME={quickhelp:'Quick Help',workbook:'Workbook','30day':'30-Day'};
-function flat(){var r=[];ORDER.forEach(function(k){S[k][2].forEach(function(t,n){r.push({k:k,n:n,len:S[k][2].length,t:t})})});return r}
-var ALL=flat();
+var ALL=[];ORDER.forEach(function(k){S[k][2].forEach(function(t,n){ALL.push({k:k,n:n,len:S[k][2].length,t:t})})});
 function base(k){var c=0;for(var i=0;i<ORDER.length&&ORDER[i]!==k;i++)c+=S[ORDER[i]][2].length;return c}
-function vs(){return Math.round(vt.scrollLeft/vt.clientWidth)}
-function label(){var p=ALL[Math.max(0,Math.min(ALL.length-1,vs()))];cap.textContent=NAME[p.k]+' · '+(p.n+1)+' / '+p.len+' · '+p.t}
+function clamp(n){return Math.max(0,Math.min(ALL.length-1,n))}
+function idx(el){return clamp(Math.round(el.scrollLeft/el.clientWidth))}
+var cur='';
+function sync(){var p=ALL[idx(tr)];
+if(p.k!==cur){cur=p.k;tabs.forEach(function(x){x.setAttribute('aria-selected',x.dataset.k===cur)});var d=S[cur];document.getElementById('pwaT').textContent=d[0];document.getElementById('pwaD').textContent=d[1];dw.innerHTML=new Array(p.len+1).join('<i></i>')}
+[].forEach.call(dw.children,function(d,k){d.className=k===p.n?'on':''})}
+tr.addEventListener('scroll',sync,{passive:true});
+tabs.forEach(function(b){b.addEventListener('click',function(){tr.scrollTo({left:base(b.dataset.k)*tr.clientWidth,behavior:'instant'});sync()})});
+function label(){var p=ALL[idx(vt)];cap.textContent=NAME[p.k]+' · '+(p.n+1)+' / '+p.len+' · '+p.t}
 vt.addEventListener('scroll',label,{passive:true});
-function go(d){var n=Math.max(0,Math.min(ALL.length-1,vs()+d));vt.scrollTo({left:n*vt.clientWidth,behavior:'smooth'})}
-function open(b){var start=base(cur)+cs();op=b;
+function go(d){vt.scrollTo({left:clamp(idx(vt)+d)*vt.clientWidth,behavior:'smooth'})}
+var op=null;
+function open(b){var start=idx(tr);op=b;
 vt.innerHTML=ALL.map(function(p){return '<div class="pwv-slide"><img src="assets/img/preview/'+p.k+'-'+(p.n+1)+'.webp" alt="'+NAME[p.k]+' — '+p.t+'" loading="lazy"></div>'}).join('');
 lb.hidden=false;document.body.style.overflow='hidden';vt.scrollLeft=start*vt.clientWidth;label();lb.querySelector('.pwv-x').focus()}
-function close(){var p=ALL[Math.max(0,Math.min(ALL.length-1,vs()))];lb.hidden=true;document.body.style.overflow='';
-if(p.k!==cur){var tb=document.querySelector('.pwa-tabs button[data-k="'+p.k+'"]');if(tb)tb.click()}
-tr.scrollLeft=p.n*tr.clientWidth;if(op)op.focus()}
+function close(){var n=idx(vt);lb.hidden=true;document.body.style.overflow='';tr.scrollTo({left:n*tr.clientWidth,behavior:'instant'});sync();if(op)op.focus()}
 document.getElementById('pwaZoom').addEventListener('click',function(){open(this)});
 tr.addEventListener('click',function(){open(tr)});
 lb.querySelector('.pwv-x').onclick=close;lb.querySelector('.pwv-next').onclick=function(){go(1)};lb.querySelector('.pwv-prev').onclick=function(){go(-1)};
 lb.addEventListener('click',function(e){if(e.target===lb||e.target.classList.contains('pwv-slide'))close()});
-document.addEventListener('keydown',function(e){if(lb.hidden)return;if(e.key==='Escape')close();if(e.key==='ArrowRight')go(1);if(e.key==='ArrowLeft')go(-1)});})();</script></body></html>
+document.addEventListener('keydown',function(e){if(lb.hidden)return;if(e.key==='Escape')close();if(e.key==='ArrowRight')go(1);if(e.key==='ArrowLeft')go(-1)});
+sync();})();</script></body></html>
