@@ -482,6 +482,29 @@ body:has(#payment-section:not([hidden])) #label-details em,body:has(#telegram-se
 .pw-assure{display:flex;align-items:center;justify-content:center;gap:8px;margin:12px 0 0;font-size:13.5px;line-height:1.5;color:#1F4D3A;font-weight:700}
 .pw-assure svg{flex:none}
 .proof-hint.is-ready{color:#1F4D3A;font-weight:700}
+</style><style id="pw-flow-css">
+#payment-settlement-note,.pw-flow-orig{display:none!important}
+.pw-flow{margin-top:18px;padding:16px 8px 14px;background:#EEF3EF;border-radius:18px}
+.pw-flow h3{font:700 13px/1 SurGraphics,"Noto Sans Ethiopic",system-ui,sans-serif;color:#7A2E3E;text-align:center;margin:0 0 14px;letter-spacing:.02em}
+.pw-flow-row{display:grid;grid-template-columns:1fr 22px 1fr 22px 1fr;align-items:start}
+.pw-flow .nd{display:grid;justify-items:center;gap:8px;text-align:center;font:700 13px/1.4 SurGraphics,"Noto Sans Ethiopic",system-ui,sans-serif;color:#1F4D3A;background:none;border:0;padding:4px 0;min-height:44px;cursor:pointer}
+.pw-flow .nd small{display:block;font:400 12px/1.4 SurGraphics,"Noto Sans Ethiopic",system-ui,sans-serif;color:#56645d}
+.pw-flow .ico{display:grid;place-items:center;width:58px;height:58px;border-radius:50%;background:#fff;border:2px solid #cfdcd3;color:#1F4D3A;position:relative;transition:transform .25s cubic-bezier(.3,1.6,.5,1),border-color .25s,background .25s,color .25s}
+.pw-flow .n{position:absolute;top:-6px;right:-6px;width:22px;height:22px;border-radius:50%;background:#7A2E3E;color:#fff;font:700 12px/22px system-ui,sans-serif;text-align:center;font-style:normal}
+.pw-flow .nd.on .ico{border-color:#7A2E3E;color:#7A2E3E;transform:scale(1.1)}
+.pw-flow .nd.end.on .ico{background:#1F4D3A;border-color:#1F4D3A;color:#fff}
+.pw-flow .nd:focus-visible{outline:3px solid #e9c46a;outline-offset:2px;border-radius:12px}
+.pw-flow .ar{margin-top:20px;color:#9bb0a2;transition:color .3s}
+.pw-flow .ar.done{color:#7A2E3E}
+.pw-flow-detail{margin:14px 10px 0;padding-top:12px;border-top:1px dashed #b9c9bb;text-align:center;font:400 14px/1.65 SurGraphics,"Noto Sans Ethiopic",system-ui,sans-serif;color:#1F4D3A;min-height:5.2em;transition:opacity .2s}
+.pw-flow-detail.swap{opacity:0}
+/* reveal when the payment screen appears */
+#payment-section:not([hidden]) .pw-flow .nd,#payment-section:not([hidden]) .pw-flow .ar{animation:pwUp .4s both}
+#payment-section:not([hidden]) .pw-flow .nd:nth-of-type(1){animation-delay:.45s}
+#payment-section:not([hidden]) .pw-flow .ar:nth-of-type(1){animation-delay:.6s}
+#payment-section:not([hidden]) .pw-flow .nd:nth-of-type(2){animation-delay:.75s}
+#payment-section:not([hidden]) .pw-flow .ar:nth-of-type(2){animation-delay:.9s}
+#payment-section:not([hidden]) .pw-flow .nd:nth-of-type(3){animation-delay:1.05s}
 </style></head><body>
 <p class="proof-preview-strip" id="walkthrough-telegram-note" hidden>ይህ ለግምገማ ብቻ ነው፤ ደረሰኝ አይላኩ።</p>
 <header class="pwb-bar"><a class="pwb-logo" href="./" aria-label="ParentWise Ethiopia"><img src="assets/img/page-02.webp" alt="ParentWise Ethiopia" width="900" height="249"></a><a class="pwb-help" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 4L3 11l5.5 2L10 19l3-4 4.5 3.5L21 4z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>እገዛ</a></header>
@@ -521,8 +544,8 @@ body:has(#payment-section:not([hidden])) #label-details em,body:has(#telegram-se
 </ol>
 <p class="notice" id="payment-verification-note" hidden></p>
 <button id="paid-action" class="primary" type="button">ክፍያ ፈጽሜያለሁ →</button><p class="pw-assure"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l8 3v6c0 5-3.4 8.6-8 10-4.6-1.4-8-5-8-10v-6l8-3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.5 12l2.5 2.5 4.5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>የ30 ቀን የተግባር ዋስትና</span></p>
-<p class="smallnote" id="payment-settlement-note">በቀጣዩ ደረጃ፦ የክፍያ ማስረጃዎን በTelegram ይላኩልን።</p>
-<div class="checkout-guide" id="payment-fulfillment"><p>ክፍያዎን ካረጋገጥን በኋላ፣ 5ቱን የPDF መመሪያዎች ወዲያውኑ በTelegram እንልክልዎታለን።</p></div>
+<p class="smallnote" id="payment-settlement-note">በቀጣይ፦ የክፍያ ማስረጃዎን በTelegram ይላኩልን።</p>
+<div class="pw-flow" id="pw-flow"><h3>በቀጣይ፦</h3><div class="pw-flow-row"><button type="button" class="nd on" data-i="0" aria-pressed="true"><span class="ico"><svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="2.6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 17.8h.01" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M9.2 9.2h5.6M9.2 12.2h5.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><i class="n">1</i></span>ክፍያ<small>ፈጽመዋል</small></button><span class="ar" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><button type="button" class="nd" data-i="1" aria-pressed="false"><span class="ico"><svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 4L3 11l5.5 2L10 19l3-4 4.5 3.5L21 4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><i class="n">2</i></span>ማስረጃ በTelegram<small>ይላኩልን</small></button><span class="ar" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><button type="button" class="nd end" data-i="2" aria-pressed="false"><span class="ico"><svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l4 4v14H7z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 3v4h4M12 11v6m-2.5-2.5L12 17l2.5-2.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><i class="n">3</i></span>5ቱ PDF<small>በTelegram</small></button></div><p class="pw-flow-detail" id="pw-flow-detail">ወደዚህ ገጽ ተመልሰው «ክፍያ ፈጽሜያለሁ» የሚለውን ቁልፍ ይጫኑ።</p></div><div class="checkout-guide pw-flow-orig" id="payment-fulfillment"><p>ክፍያዎን ካረጋገጥን በኋላ፣ 5ቱን የPDF መመሪያዎች ወዲያውኑ በTelegram እንልክልዎታለን።</p></div>
 
 <button id="back-payment" class="back" type="button">← ወደ መረጃዎ ይመለሱ</button></section>
 <section id="telegram-section" class="screen" hidden tabindex="-1">
@@ -817,5 +840,15 @@ body:has(#payment-section:not([hidden])) #label-details em,body:has(#telegram-se
   recover();
 })();
 </script>
-<script id="pw-step3-js">(function(){var lis=[].slice.call(document.querySelectorAll('#telegram-section .proof-items li')),hint=document.querySelector('#telegram-section .proof-hint'),btn=document.getElementById('telegram-handoff');var base=hint?hint.textContent:'';function sync(){var all=lis.length&&lis.every(function(l){return l.getAttribute('aria-checked')==='true'});if(btn){btn.classList.remove('is-ready');if(all){void btn.offsetWidth;btn.classList.add('is-ready')}}if(hint){hint.classList.toggle('is-ready',all);hint.textContent=all?'ጥሩ! አሁን Telegram ይክፈቱ':base}}lis.forEach(function(li){function t(){li.setAttribute('aria-checked',li.getAttribute('aria-checked')==='true'?'false':'true');sync()}li.addEventListener('click',t);li.addEventListener('keydown',function(e){if(e.key===' '||e.key==='Enter'){e.preventDefault();t()}})})})();</script></body>
+<script id="pw-step3-js">(function(){var lis=[].slice.call(document.querySelectorAll('#telegram-section .proof-items li')),hint=document.querySelector('#telegram-section .proof-hint'),btn=document.getElementById('telegram-handoff');var base=hint?hint.textContent:'';function sync(){var all=lis.length&&lis.every(function(l){return l.getAttribute('aria-checked')==='true'});if(btn){btn.classList.remove('is-ready');if(all){void btn.offsetWidth;btn.classList.add('is-ready')}}if(hint){hint.classList.toggle('is-ready',all);hint.textContent=all?'ጥሩ! አሁን Telegram ይክፈቱ':base}}lis.forEach(function(li){function t(){li.setAttribute('aria-checked',li.getAttribute('aria-checked')==='true'?'false':'true');sync()}li.addEventListener('click',t);li.addEventListener('keydown',function(e){if(e.key===' '||e.key==='Enter'){e.preventDefault();t()}})})})();</script><script id="pw-flow-js">(function(){var f=document.getElementById('pw-flow');if(!f)return;var nds=[].slice.call(f.querySelectorAll('.nd')),ars=[].slice.call(f.querySelectorAll('.ar')),det=document.getElementById('pw-flow-detail');
+var T=['ወደዚህ ገጽ ተመልሰው «ክፍያ ፈጽሜያለሁ» የሚለውን ቁልፍ ይጫኑ።','የክፍያ ማስረጃዎን በTelegram ይላኩልን።','ክፍያዎን ካረጋገጥን በኋላ፣ 5ቱን የPDF መመሪያዎች ወዲያውኑ በTelegram እንልክልዎታለን።'];
+var timer=null,touched=false;
+function show(i,instant){nds.forEach(function(n,k){n.classList.toggle('on',k===i);n.setAttribute('aria-pressed',k===i)});ars.forEach(function(a,k){a.classList.toggle('done',k<i)});
+if(instant){det.textContent=T[i];return}det.classList.add('swap');setTimeout(function(){det.textContent=T[i];det.classList.remove('swap')},180)}
+function stop(){if(timer){clearInterval(timer);timer=null}}
+nds.forEach(function(n){n.addEventListener('click',function(){touched=true;stop();det.setAttribute('aria-live','polite');show(+n.dataset.i)})});
+var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+function run(){if(reduce||touched||timer)return;var i=0,loops=0;timer=setInterval(function(){i=(i+1)%3;if(i===0)loops++;show(i);if(loops>=2&&i===2){stop()}},2600)}
+if('IntersectionObserver' in window){new IntersectionObserver(function(es,io){es.forEach(function(e){if(e.isIntersecting&&e.intersectionRatio>=.6){setTimeout(run,1400);io.disconnect()}})},{threshold:[.6]}).observe(f)}
+})();</script></body>
 </html>
