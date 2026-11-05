@@ -346,6 +346,9 @@ body.proof-screen .proof-preview-strip:not([hidden]){display:block}
   const ORDER_API_ORIGIN = 'https://parentwise-isolated-test.app.aletcloud.com';
   // A local, non-payable visual walkthrough. It never calls the order API.
   const WALKTHROUGH_ENABLED = true;
+  // Switch only after an end-to-end transfer and delivery check.
+  const MANUAL_LIVE = false;
+  const MANUAL_RECIPIENTS = {telebirr:{number:'0912910693',holder:'Kidus Elias'},bank:{number:'1000220596536',holder:'Kidus Elias'}};
   const $ = id => document.getElementById(id);
   const TG = 'https://t.me/ParentWiseEthiopia';
   const methods = {
@@ -357,6 +360,7 @@ body.proof-screen .proof-preview-strip:not([hidden]){display:block}
   const requestKey='parentwise-unsure-order-request-v1';
   const enabled = CHECKOUT_OPEN && /^https:\/\/[a-z0-9.-]+(?::443)?$/i.test(ORDER_API_ORIGIN);
   const previewOnly = !enabled && WALKTHROUGH_ENABLED;
+  const manualActive = previewOnly && MANUAL_LIVE;
   let method='telebirr', busy=false, pendingKey='', pendingPayload='';
   const selected=()=>document.querySelector('input[name="payment"]:checked').value;
   const verificationText=payMethod=>payMethod==='telebirr'
@@ -396,7 +400,7 @@ body.proof-screen .proof-preview-strip:not([hidden]){display:block}
     $('screen-intro').hidden=n===3;
     $('telegram-title')?.removeAttribute('aria-hidden');
     if(n===3){
-      $('telegram-handoff').href=previewOnly?TG:TG+'?text='+encodeURIComponent(buildMessage());
+      $('telegram-handoff').href=(!previewOnly || manualActive) ? TG+'?text='+encodeURIComponent(buildMessage()) : TG;
       $('telegram-handoff').textContent='የParentWise Telegram ይክፈቱ →';
     }
     if(n!==1)$(n===2?'payment-section':'telegram-section').focus({preventScroll:true});
@@ -414,7 +418,9 @@ body.proof-screen .proof-preview-strip:not([hidden]){display:block}
   const buildMessage=()=>[
     'ParentWise Ethiopia',
     'ስም: '+data.name,
-    'ስልክ ቁጥር: '+data.phone
+    'ስልክ ቁጥር: '+data.phone,
+    'Payment method: '+(method==='bank'?'CBE':'Telebirr'),
+    'Amount: 1,500 ETB'
   ].join('\n');
   function verifiedOrder(order,expectedMethod){
     const instr=order?.payment_instructions;
@@ -483,15 +489,16 @@ body.proof-screen .proof-preview-strip:not([hidden]){display:block}
       $('selected-mark').src=meta.logo;
       $('selected-mark').alt=meta.title;
       $('recipient-label').textContent=meta.label;
-      $('recipient-number').textContent=requestedMethod==='telebirr'?'••••••0693':'•••••••••9327';
-      $('recipient-holder').textContent='የተቀባይ መረጃ በእውነተኛ ትዕዛዝ ላይ ይታያል';
+      $('recipient-number').textContent=manualActive ? MANUAL_RECIPIENTS[requestedMethod].number : '••••••••••';
+      data.number = manualActive ? MANUAL_RECIPIENTS[requestedMethod].number : '';
+      $('recipient-holder').textContent=manualActive ? MANUAL_RECIPIENTS[requestedMethod].holder : 'የተቀባይ መረጃ በእውነተኛ ትዕዛዝ ላይ ይታያል';
       $('review-customer-name').textContent=name;
       $('review-customer-phone').textContent=phone;
-      $('copy-recipient').disabled=true;
+      $('copy-recipient').disabled=!manualActive;
       $('copy-account-label').textContent='ቁጥሩን ኮፒ ያድርጉ';
       $('copy-status').textContent='';
 
-      $('walkthrough-payment-note').hidden=false;
+      $('walkthrough-payment-note').hidden=manualActive;
       $('payment-verification-note').hidden=true;
       $('payment-settlement-note').hidden=false;
       $('paid-action').textContent='ክፍያ ፈጽሜያለሁ →';
@@ -535,7 +542,7 @@ body.proof-screen .proof-preview-strip:not([hidden]){display:block}
   $('back-telegram').addEventListener('click',()=>stage(2));
   $('paid-action').addEventListener('click',()=>{
     if(previewOnly){
-      $('walkthrough-telegram-note').hidden=false;
+      $('walkthrough-telegram-note').hidden=manualActive;
       stage(3);
       return;
     }
@@ -548,7 +555,7 @@ body.proof-screen .proof-preview-strip:not([hidden]){display:block}
     await navigator.clipboard.writeText(value);
   };
   $('copy-recipient').addEventListener('click',async()=>{
-    if(!data.orderRef||!data.number)return;
+    if((!data.orderRef&&!manualActive)||!data.number)return;
     try{
       await copy(data.number);
       $('copy-account-label').textContent='ኮፒ ተደርጓል ✓';
