@@ -394,6 +394,24 @@ section.screen>button.back{display:block;width:100%;min-height:44px;margin-top:1
 .proof-items li:before{content:counter(pwp);flex:none;display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#EEF3EF;color:#1F4D3A;font:700 14px system-ui,sans-serif}
 .telegram-handle{text-align:center;color:#56645d;font-size:13.5px;margin:8px 0 0}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style><style id="pw-step3">
+.proof-items li{cursor:pointer;min-height:64px;border:2px solid #e3d8c6!important;padding:12px 14px!important;font-size:15.5px;line-height:1.4;transition:border-color .15s,background .15s;-webkit-tap-highlight-color:transparent}
+.proof-items li:before{content:"\2713"!important;width:28px!important;height:28px!important;background:#fff!important;border:2px solid #cdbf9f;color:transparent!important;font:700 15px system-ui,sans-serif!important}
+.proof-items li[aria-checked=true]{border-color:#1F4D3A!important;background:#EEF3EF!important}
+.proof-items li[aria-checked=true]:before{background:#1F4D3A!important;border-color:#1F4D3A!important;color:#fff!important}
+.proof-items li:focus-visible{outline:3px solid #e9c46a;outline-offset:2px}
+.proof-hint{text-align:center;font-size:13px;color:#56645d;margin:2px 0 14px}
+#telegram-section .primary{min-height:58px;font-weight:800}
+.next-card{background:transparent!important;padding:0!important;margin-top:20px!important;border-top:1px solid #e3d8c6;border-radius:0!important}
+.next-card h2{font:800 17px/1.4 SurGraphics,"Noto Sans Ethiopic",system-ui,sans-serif;color:#1F4D3A;margin:16px 0 0}
+.next-list{list-style:none;padding:0;margin:12px 0 0;counter-reset:nx}
+.next-list li{position:relative;counter-increment:nx;padding:0 0 18px 44px;font-size:14.5px;line-height:1.65;color:#202928}
+.next-list li:last-child{padding-bottom:0}
+.next-list li:before{content:"";position:absolute;left:14px;top:30px;bottom:0;width:2px;background:#d6cbb4}
+.next-list li:last-child:before{display:none}
+.next-list li:after{content:counter(nx);position:absolute;left:0;top:0;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#1F4D3A;color:#fff;font:700 13px system-ui,sans-serif}
+.next-list b{display:block;font-size:15px;color:#1F4D3A}
+@media(prefers-reduced-motion:reduce){.proof-items li{transition:none}}
 </style></head><body>
 <p class="proof-preview-strip" id="walkthrough-telegram-note" hidden>ይህ ለግምገማ ብቻ ነው፤ ደረሰኝ አይላኩ።</p>
 <header class="pwb-bar"><a class="pwb-logo" href="./" aria-label="ParentWise Ethiopia"><img src="assets/img/page-02.webp" alt="ParentWise Ethiopia" width="900" height="249"></a><a class="pwb-help" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 4L3 11l5.5 2L10 19l3-4 4.5 3.5L21 4z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>እገዛ</a></header>
@@ -441,12 +459,12 @@ section.screen>button.back{display:block;width:100%;min-height:44px;margin-top:1
 <h1 id="telegram-title">የክፍያ ማስረጃዎን ይላኩ</h1>
 <p class="sub" id="telegram-sub">የParentWise Telegramን ከፍተው እነዚህን ይላኩልን፦</p>
 <ul class="proof-items" aria-label="በTelegram የሚላኩ መረጃዎች">
-<li><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="7" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2z"/></svg><span>ስምዎን</span></li>
-<li><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h4l2 5-3 2a16 16 0 0 0 6 6l2-3 5 2v4a2 2 0 0 1-2 2C10 21 3 14 3 5a2 2 0 0 1 2-2z"/></svg><span>ቀደም ብለው ያስገቡትን ስልክ ቁጥር</span></li>
-<li><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8" r="1.5"/><path d="m3 18 6-6 4 4 3-4 5 6"/></svg><span>የክፍያ ደረሰኝዎን (Screenshot)</span></li></ul>
+<li role="checkbox" aria-checked="false" tabindex="0"><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="7" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2z"/></svg><span>ስምዎን</span></li>
+<li role="checkbox" aria-checked="false" tabindex="0"><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h4l2 5-3 2a16 16 0 0 0 6 6l2-3 5 2v4a2 2 0 0 1-2 2C10 21 3 14 3 5a2 2 0 0 1 2-2z"/></svg><span>ቀደም ብለው ያስገቡትን ስልክ ቁጥር</span></li>
+<li role="checkbox" aria-checked="false" tabindex="0"><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8" r="1.5"/><path d="m3 18 6-6 4 4 3-4 5 6"/></svg><span>የክፍያ ደረሰኝዎን (Screenshot)</span></li></ul><p class="proof-hint">ሲልኩ ይንኩ — ምልክት ያድርጉ</p>
 <a class="primary" id="telegram-handoff" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer">የParentWise Telegram ይክፈቱ →</a>
 <p class="telegram-handle">@ParentWiseEthiopia</p>
-<div class="delivery-tip" id="telegram-delivery-tip">ክፍያዎን ካረጋገጥን በኋላ፣ 5ቱን የPDF መመሪያዎች ወዲያውኑ በTelegram እንልክልዎታለን።</div>
+<div class="delivery-tip next-card" id="telegram-delivery-tip"><h2>ከዚያ በኋላ</h2><ol class="next-list"><li><b>ክፍያዎን ካረጋገጥን በኋላ</b></li><li><b>5ቱን የPDF መመሪያዎች</b>ወዲያውኑ በTelegram እንልክልዎታለን።</li></ol></div>
 <button id="back-telegram" class="back" type="button">← ወደ ክፍያ ገጽ ይመለሱ</button></section>
 
 </div></main><footer class="pwf" aria-label="ParentWise Ethiopia footer"><a class="pwf-logo" href="../index.html"><img src="assets/img/page-02.webp" alt="ParentWise Ethiopia" width="900" height="249" loading="lazy" decoding="async"></a><p class="pwf-tag">How We Raise Matters.</p><h3 class="pwf-h">Policies</h3><nav class="pwf-grid" aria-label="Website policies"><a href="policies/terms.html" target="_blank" rel="noopener noreferrer">Terms &amp; Conditions</a><a href="policies/privacy-policy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a><a href="policies/educational-disclaimer.html" target="_blank" rel="noopener noreferrer">Educational Disclaimer</a><a href="policies/refund-policy.html" target="_blank" rel="noopener noreferrer">30-Day Guarantee &amp; Refund Policy</a><a href="policies/payment-delivery.html" target="_blank" rel="noopener noreferrer">Payment &amp; Delivery Policy</a></nav><a class="pwf-tele" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 4L3 11l5.5 2L10 19l3-4 4.5 3.5L21 4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>Telegram Support</a><p class="pwf-cp">© 2026 ParentWise Ethiopia</p></footer>
@@ -729,5 +747,5 @@ section.screen>button.back{display:block;width:100%;min-height:44px;margin-top:1
   recover();
 })();
 </script>
-</body>
+<script id="pw-step3-js">(function(){document.querySelectorAll('#telegram-section .proof-items li').forEach(function(li){function t(){li.setAttribute('aria-checked',li.getAttribute('aria-checked')==='true'?'false':'true')}li.addEventListener('click',t);li.addEventListener('keydown',function(e){if(e.key===' '||e.key==='Enter'){e.preventDefault();t()}})})})();</script></body>
 </html>
