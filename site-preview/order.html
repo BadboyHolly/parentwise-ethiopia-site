@@ -324,6 +324,76 @@ body{background:#F8F4EC}
 .forest-intro{display:block!important;background:#fff;border:1px solid #e3d8c6;border-top:0;border-radius:0 0 20px 20px;padding:6px 18px 20px!important;margin:0 0 14px;box-shadow:0 12px 24px -18px rgba(31,77,58,.45)}
 .forest-intro h1{color:#1F4D3A!important;font-size:23px!important;margin:6px 0 4px!important}
 .forest-intro p{color:#56645d!important;font-size:14.5px!important}
+</style><style id="pw-checkout-ui">
+/* ===== Checkout UI: clean cards, big payment box, clear step label, pinned action button ===== */
+body{background:#F8F4EC}
+.shell{max-width:490px;padding:0 14px;margin:0 auto 24px}
+/* Step label + done ticks */
+.forest-intro{position:relative}
+.forest-intro:before{content:"ደረጃ 1 / 3";display:block;font:700 12.5px/1 SurGraphics,"Noto Sans Ethiopic",system-ui,sans-serif;letter-spacing:.04em;color:#7A2E3E;margin:6px 0 8px}
+body:has(#payment-section:not([hidden])) .forest-intro:before{content:"ደረጃ 2 / 3"}
+body:has(#telegram-section:not([hidden])) .forest-intro:before{content:"ደረጃ 3 / 3"}
+body:has(#payment-section:not([hidden])) #label-details em,body:has(#telegram-section:not([hidden])) #label-details em,body:has(#telegram-section:not([hidden])) #label-payment em{background:#1F4D3A!important;border-color:#1F4D3A!important;color:transparent!important;font-size:0!important;position:relative}
+body:has(#payment-section:not([hidden])) #label-details em:after,body:has(#telegram-section:not([hidden])) #label-details em:after,body:has(#telegram-section:not([hidden])) #label-payment em:after{content:"\2713";color:#fff;font:700 15px/1 system-ui,sans-serif;position:absolute;inset:0;display:grid;place-items:center}
+/* Each screen is a white card */
+section.screen{background:#fff;border:1px solid #e3d8c6;border-radius:20px;padding:18px 16px 20px;box-shadow:0 12px 24px -18px rgba(31,77,58,.45);margin:0 0 14px}
+#details-section>h2{display:none}
+section.screen h2{font:800 22px/1.4 SurGraphics,"Noto Sans Ethiopic",system-ui,sans-serif;color:#1F4D3A;margin:0}
+section.screen .sub{font-size:14.5px;line-height:1.6;color:#56645d}
+.kicker{color:#7A2E3E!important;font:700 11.5px/1 system-ui,sans-serif!important;letter-spacing:.1em!important;text-transform:uppercase}
+/* Form fields */
+#checkout-form label:not(.method){display:block;font:700 15px/1.4 SurGraphics,"Noto Sans Ethiopic",system-ui,sans-serif;color:#1F4D3A;margin:16px 0 6px}
+#checkout-form input[type=text],#checkout-form input[type=tel]{width:100%;min-height:56px;padding:0 16px;font-size:16px;background:#F8F4EC;border:1.5px solid #d6cbb4;border-radius:14px;color:#202928}
+#checkout-form input[type=text]:focus,#checkout-form input[type=tel]:focus{outline:3px solid #e9c46a;outline-offset:2px;background:#fff}
+.fieldnote{font-size:13px!important;color:#56645d!important}
+/* Payment method cards */
+.methods{display:grid!important;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0 0}
+.method{position:relative;display:grid!important;justify-items:center;align-content:center;gap:8px;min-height:92px;padding:14px 10px!important;background:#fff;border:2px solid #e3d8c6!important;border-radius:16px!important;font-weight:700;color:#202928;cursor:pointer}
+.method img{height:34px;width:auto;max-width:90px;object-fit:contain}
+.method input{position:absolute;top:10px;right:10px;width:22px;height:22px;accent-color:#7A2E3E;margin:0}
+.method:has(input:checked){border-color:#7A2E3E!important;background:#fbf3f4!important}
+.method:focus-within{outline:3px solid #e9c46a;outline-offset:2px}
+.checkout-total{display:flex;align-items:center;justify-content:space-between;margin:18px 0 14px;padding:14px 16px;border-radius:14px;background:#EEF3EF;color:#1F4D3A}
+.checkout-total strong{font-size:22px}
+/* Main action button pinned near the bottom of the screen while the form is long */
+.primary{position:relative;z-index:6;display:flex!important;align-items:center;justify-content:center;gap:10px;width:100%;min-height:56px;border-radius:14px!important;box-shadow:0 12px 24px -10px rgba(122,46,62,.65)!important;text-decoration:none;color:#fff!important;font-size:16.5px!important;font-weight:800}
+.primary:disabled{box-shadow:none!important}
+#paid-action{position:sticky;bottom:12px}
+/* Payment screen */
+.customer{display:flex;align-items:center;gap:12px;padding:12px 14px;background:#F8F4EC;border:1px solid #e3d8c6;border-radius:16px;margin-top:14px}
+.customer .back{margin-left:auto;min-height:44px;padding:0 6px;color:#7A2E3E;font-weight:800;background:none;border:0;text-decoration:none}
+.account{background:#1F4D3A!important;border-radius:22px!important;padding:16px!important;margin-top:14px;border:0!important}
+.account-head{background:transparent!important;padding:0!important;color:#fff;border:0!important}
+.account-head strong,.account-head .meta-box{color:#fff!important}
+.account-head img{background:#fff;border-radius:8px;padding:3px;height:30px}
+.account-head span[style]{display:none}
+.amount{display:flex;justify-content:space-between;align-items:baseline;margin:14px 0 12px;color:#dbe7e0}
+.amount b{font-size:28px;color:#fff}
+.num-shell{background:transparent!important;padding:0!important}
+.number-box{background:#F8F4EC!important;color:#202928!important;border-radius:16px!important;padding:14px!important}
+.number-box small{color:#56645d!important;font-weight:700;letter-spacing:.04em}
+.num-row{display:flex!important;flex-direction:column;align-items:stretch!important;gap:12px}
+.num-row strong{font:800 26px/1.3 system-ui,sans-serif!important;letter-spacing:.06em;color:#1F4D3A!important;word-break:break-all}
+#copy-recipient{display:flex!important;align-items:center;justify-content:center;gap:8px;width:100%;min-height:52px;border:0;border-radius:12px!important;background:#7A2E3E!important;color:#fff!important;font:700 15px SurGraphics,"Noto Sans Ethiopic",system-ui,sans-serif}
+.holder{display:flex;justify-content:space-between;gap:10px;margin-top:12px;color:#dbe7e0}
+.holder strong{color:#fff}
+.order-reference{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:12px 14px;border-radius:14px;background:#EEF3EF;margin-top:12px}
+.order-reference button{min-height:44px;border-radius:12px;border:1.5px solid #1F4D3A;background:#fff;color:#1F4D3A;font-weight:700;padding:0 14px}
+.payment-instructions{list-style:none!important;counter-reset:pwi;padding:0!important;margin:16px 0!important;display:grid;gap:12px}
+.payment-instructions li{counter-increment:pwi;display:flex;gap:12px;align-items:flex-start;font-size:15px;line-height:1.6}
+.payment-instructions li:before{content:counter(pwi);flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#7A2E3E;color:#fff;font:700 14px system-ui,sans-serif;margin-top:1px}
+.smallnote{text-align:center;font-size:13px;color:#56645d}
+.checkout-guide,.delivery-tip{padding:13px 15px;border-radius:14px;background:#EEF3EF;color:#1F4D3A;font-size:14px;line-height:1.65;margin-top:14px}
+section.screen>button.back{display:block;width:100%;min-height:44px;margin-top:10px;background:none;border:0;color:#1F4D3A;font-weight:800;font-size:14px}
+.customer>div{min-width:0;flex:1}
+.customer .back{width:auto!important;flex:none;white-space:nowrap}
+/* Proof screen */
+.proof-items{list-style:none!important;padding:0!important;display:grid;gap:10px;margin:16px 0!important;counter-reset:pwp}
+.proof-items li{counter-increment:pwp;display:flex;align-items:center;gap:12px;padding:14px;background:#fff;border:1px solid #e3d8c6;border-radius:14px;font-weight:700;color:#1F4D3A}
+.proof-items li svg{display:none}
+.proof-items li:before{content:counter(pwp);flex:none;display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#EEF3EF;color:#1F4D3A;font:700 14px system-ui,sans-serif}
+.telegram-handle{text-align:center;color:#56645d;font-size:13.5px;margin:8px 0 0}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 </style></head><body>
 <p class="proof-preview-strip" id="walkthrough-telegram-note" hidden>ይህ ለግምገማ ብቻ ነው፤ ደረሰኝ አይላኩ።</p>
 <header class="pwb-bar"><a class="pwb-logo" href="./" aria-label="ParentWise Ethiopia"><img src="assets/img/page-02.webp" alt="ParentWise Ethiopia" width="900" height="249"></a><a class="pwb-help" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 4L3 11l5.5 2L10 19l3-4 4.5 3.5L21 4z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>እገዛ</a></header>
