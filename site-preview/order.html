@@ -278,6 +278,34 @@ body.proof-screen #telegram-section{border-radius:20px 20px 0 0;padding:22px 20p
 .proof-preview-strip{display:none;margin:0 auto;max-width:490px;padding:5px 15px;background:#f2eadc;color:#745735;font-size:11px;line-height:1.6;text-align:center}
 body.proof-screen .proof-preview-strip:not([hidden]){display:block}
 @media(max-width:380px){body.proof-screen #telegram-section{padding:19px 16px 10px}#telegram-title{font-size:24px}.proof-items{padding:3px 12px}.proof-items li{font-size:16px;gap:10px;padding:11px 0}#telegram-section #telegram-handoff{font-size:16px}}
+</style><style id="pw-brand">
+:root{--iv:#F8F4EC;--deep:#1F4D3A;--burg:#7A2E3E;--line:#e3d8c6}
+body{background:#F8F4EC}
+.head{background:#1F4D3A!important;background-image:none!important}
+.top{background:#1F4D3A!important;background-image:none!important}
+.account-head{background:#F8F4EC!important;background-image:none!important}
+.number-box{background:#1F4D3A!important;background-image:none!important}
+.confirm-box{background:#fff!important;background-image:none!important;border-color:#e3d8c6!important}
+.panel{border-color:#e3d8c6!important;border-radius:18px!important}
+.primary:not(:disabled){background:#7A2E3E!important;background-image:none!important;border-radius:14px!important;min-height:56px;box-shadow:0 10px 22px -10px rgba(122,46,62,.55)}
+.primary:hover:not(:disabled){background:#6a2535!important;background-image:none!important}
+.primary:disabled{border-radius:14px!important;min-height:56px}
+.secondary{border-radius:12px!important;min-height:46px}
+.brand a.help{display:inline-flex;align-items:center;min-height:44px}
+.pwf{background:#1F4D3A;color:#f4eee0;padding:34px 22px 24px;text-align:center;font-family:SurGraphics,"Noto Sans Ethiopic",system-ui,sans-serif}
+.pwf-logo{display:block;width:172px;margin:0 auto}.pwf-logo img{display:block;width:100%;height:auto;border-radius:10px}
+.pwf-tag{font:600 14px/1.6 system-ui,sans-serif;color:#f3e9d6;margin:14px 0 22px}
+.pwf-h{font:700 12px/1 system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#cfdcd3;margin:0 0 6px;text-align:left;max-width:520px;margin-inline:auto}
+.pwf-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 20px;margin:0 auto 22px;max-width:520px;text-align:left}
+.pwf-grid a{display:flex;align-items:center;min-height:48px;color:#f5ebdc;text-decoration:none;font:600 13.5px/1.35 system-ui,sans-serif;border-bottom:1px solid rgba(255,255,255,.16)}
+.pwf-grid a[aria-current=page]{color:#fff;border-bottom-color:#F8F4EC}
+.pwf-grid a:hover{color:#fff}
+.pwf-tele{display:flex;justify-content:center;align-items:center;gap:10px;min-height:52px;max-width:520px;margin:0 auto;border-radius:14px;background:#F8F4EC;color:#1F4D3A;text-decoration:none;font:700 15px system-ui,sans-serif;transition:transform .15s}
+.pwf-tele:active{transform:scale(.98)}
+.pwf a:focus-visible{outline:3px solid #e9c46a;outline-offset:3px}
+.pwf-cp{font:500 12px/1.5 system-ui,sans-serif;color:#cdd9ce;margin:24px 0 0}
+@media(prefers-reduced-motion:reduce){.pwf-tele{transition:none}}
+.pwf{margin-top:28px}
 </style></head><body>
 <p class="proof-preview-strip" id="walkthrough-telegram-note" hidden>ይህ ለግምገማ ብቻ ነው፤ ደረሰኝ አይላኩ።</p>
 <header class="head"><div class="container brand">
@@ -336,7 +364,7 @@ body.proof-screen .proof-preview-strip:not([hidden]){display:block}
 <div class="delivery-tip" id="telegram-delivery-tip">ክፍያዎን ካረጋገጥን በኋላ፣ 5ቱን የPDF መመሪያዎች ወዲያውኑ በTelegram እንልክልዎታለን።</div>
 <button id="back-telegram" class="back" type="button">← ወደ ክፍያ ገጽ ይመለሱ</button></section>
 
-</div></main><footer class="footer">ParentWise Ethiopia · How We Raise Matters.</footer>
+</div></main><footer class="pwf" aria-label="ParentWise Ethiopia footer"><a class="pwf-logo" href="../index.html"><img src="assets/img/page-02.webp" alt="ParentWise Ethiopia" width="900" height="249" loading="lazy" decoding="async"></a><p class="pwf-tag">How We Raise Matters.</p><h3 class="pwf-h">Policies</h3><nav class="pwf-grid" aria-label="Website policies"><a href="policies/terms.html">Terms &amp; Conditions</a><a href="policies/privacy-policy.html">Privacy Policy</a><a href="policies/educational-disclaimer.html">Educational Disclaimer</a><a href="policies/refund-policy.html">30-Day Guarantee &amp; Refund Policy</a><a href="policies/payment-delivery.html">Payment &amp; Delivery Policy</a></nav><a class="pwf-tele" href="https://t.me/ParentWiseEthiopia" target="_blank" rel="noopener noreferrer"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 4L3 11l5.5 2L10 19l3-4 4.5 3.5L21 4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>Telegram Support</a><p class="pwf-cp">© 2026 ParentWise Ethiopia</p></footer>
 <script>
 (() => {
   'use strict';
