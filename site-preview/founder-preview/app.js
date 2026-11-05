@@ -73,6 +73,7 @@
   }
   function table(headers, data){const t=el('table'),head=el('thead'),tr=el('tr');headers.forEach(h=>tr.append(el('th','',h)));head.append(tr);t.append(head);const body=el('tbody');data.forEach(cells=>{const row=el('tr');cells.forEach((c,ci)=>{const td=el('td');td.dataset.label=headers[ci]||'';td.append(c instanceof Node?c:document.createTextNode(String(c)));row.append(td);});body.append(row);});t.append(body);return t;}
   function renderWebKpis(){const host=$('web-kpis');if(!host)return;host.replaceChildren();const m=report.metrics,f=report.funnel||[],s0=f[0]&&f[0].sessions?Number(f[0].sessions):0,s1=f[1]?Number(f[1].sessions):0;const k=(label,value,sub,good)=>{const d=el('div','kpi'+(good?' good':''));d.append(el('small','',label),el('b','',value),el('span','',sub));return d;};host.append(k('Sessions',fmt(m.sessions),'anonymous visits'),k('Opened checkout',s0?Math.round(100*s1/s0)+'%':'—',fmt(s1)+' of '+fmt(s0)+' sessions'),k('Verified sales',fmt(m.verified_payments),fmt(m.verified_revenue_etb)+' ETB',true),k('Visit → sale',m.sessions?(100*m.verified_payments/m.sessions).toFixed(2)+'%':'—','verified ÷ sessions'));}
+  function setupOverviewMore(){const p=$('panel-overview');if(!p||p.dataset.more)return;p.dataset.more='1';const heads=['Verified sales by day','Sessions over time','Traffic sources'];p.querySelectorAll('.panel').forEach(s=>{const t=s.querySelector('h2');if(t&&heads.includes(t.textContent.trim()))s.classList.add('detail-extra');});const b=document.createElement('button');b.className='more-toggle';b.type='button';b.textContent='Show more detail';b.setAttribute('aria-expanded','false');b.onclick=()=>{const o=p.classList.toggle('expanded');b.setAttribute('aria-expanded',String(o));b.textContent=o?'Show less':'Show more detail';};p.append(b);}
   function renderReport(){
     const m=report.metrics;$('metric-grid').replaceChildren(metric('Browser sessions',fmt(m.sessions),'Website · session-start period'),metric('Orders created',fmt(m.orders_created),'Orders · created in period'),metric('Verified revenue',fmt(m.verified_revenue_etb)+' ETB','Verified in period · before refunds',true),metric('Verified payments',fmt(m.verified_payments),'Verified in period · not button taps'));
     $('review-count').textContent=fmt(m.under_review+(m.claimed_no_proof||0));$('delivery-count').textContent=fmt(m.delivery_due);
@@ -86,7 +87,7 @@
     [...sourceGroups.values()].forEach(s=>{const r=el('div','source-row'),d=el('div','source-name',s.source);d.append(el('small','',fmt(s.verified)+' payments verified in period'));r.append(d,el('b','',fmt(s.sessions)+' sessions'));src.append(r);});
     if(!report.sources.length)src.append(empty('No source data yet','Orders without tracking stay unattributed.'));
     const st=$('source-table');st.replaceChildren(report.sources.length?table(['Source','Campaign','Sessions','Orders','Verified','Gross ETB'],report.sources.map(s=>[s.source,s.campaign||'—',fmt(s.sessions),fmt(s.orders),fmt(s.verified),fmt(s.revenue_etb)])):empty('No attributed sessions','Add approved campaign tags when tracking is activated.'));
-    renderTrend();renderBusiness();
+    renderTrend();renderBusiness();setupOverviewMore();
   }
   const money=n=>n===null||n===undefined?'—':fmt(Number(n).toFixed(2))+' ETB';
   const percent=n=>n===null||n===undefined?'—':Number(n).toFixed(2)+'%';
