@@ -570,6 +570,12 @@ main,main>section{min-width:0}
   #section-09 .pw9-review-name h4{font-size:16px!important}
 }
 </style>
+<style id="pw-scroll-reveal">
+/* Scroll reveal: content fades up as it enters the screen. Visible by default; hidden only once the script runs. */
+html.pw-js .pw-reveal{opacity:0;transform:translateY(18px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+html.pw-js .pw-reveal.is-in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){html.pw-js .pw-reveal{opacity:1;transform:none;transition:none}}
+</style>
 </head><body><a class="pw-skip" href="#hero">ወደ ዋናው ይዘት ይሂዱ</a><main><header class="topbar"><a class="logo" href="#hero"><img class="pw-official-wordmark" alt="ParentWise Ethiopia" src="assets/img/page-02.webp" width="900" height="249" /></a><button aria-expanded="false" aria-label="Open navigation" class="menu-toggle" type="button"><svg aria-hidden="true" fill="none" height="21" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24" width="21"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button></header><nav aria-label="Page sections" class="mobile-nav" id="mobile-nav"><a href="#section-05">ParentWise ከውስጥ ምን ይመስላል?</a><a href="#section-02">ከእነዚህ ውስጥ የትኞቹ ያጋጥሙዎታል?</a><a href="#section-10">ሙሉውን ParentWise በ1,500 ብር ያግኙ።</a><a href="#section-11">ስለ ParentWise ጥያቄ አለዎት?</a></nav><section id="hero" class="v2-hero">
     <span class="v2-eyebrow v2-rise v2-d1">ከ2 እስከ 12 ዓመት ያሉ ልጆችን ለሚያሳድጉ ወላጆች</span>
     <h1 class="v2-rise v2-d2">ልጅዎ «እምቢ» ሲል፣<span>ምን ማለትና ምን ማድረግ እንዳለብዎት ይወቁ።</span></h1>
@@ -762,6 +768,33 @@ const menu=document.querySelector('.menu-toggle');const nav=document.querySelect
     var fs=parseFloat(getComputedStyle(el).fontSize);
     if(fs<13){ el.style.setProperty('font-size','13px','important'); }
   }
+})();
+</script>
+<script id="pw-scroll-reveal-js">
+(function(){
+  var root=document.documentElement;
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce||!('IntersectionObserver' in window)) return;
+  root.classList.add('pw-js');
+  var sel=[
+    'section[id]:not(#hero) > h2','section[id]:not(#hero) > p','section[id]:not(#hero) > header',
+    'section[id]:not(#hero) .problem','section[id]:not(#hero) .flow-row','section[id]:not(#hero) .product-row',
+    'section[id]:not(#hero) .use-card','section[id]:not(#hero) .advice-item','section[id]:not(#hero) .faq-list details',
+    'section[id]:not(#hero) .pw9-review','section[id]:not(#hero) .pw9-org-group','section[id]:not(#hero) .pw10x-step',
+    'section[id]:not(#hero) .included-grid article','section[id]:not(#hero) .start-list article','section[id]:not(#hero) .pw9-disclaimer'
+  ].join(',');
+  var els=Array.prototype.slice.call(document.querySelectorAll(sel));
+  els.forEach(function(el){
+    el.classList.add('pw-reveal');
+    var i=Array.prototype.indexOf.call(el.parentNode.children, el);
+    el.style.transitionDelay=(Math.min(i,4)*70)+'ms';
+  });
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('is-in'); io.unobserve(e.target); }
+    });
+  },{threshold:0.12,rootMargin:'0px 0px -6% 0px'});
+  els.forEach(function(el){ io.observe(el); });
 })();
 </script>
 </body></html>
