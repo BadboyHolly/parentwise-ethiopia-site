@@ -52,3 +52,46 @@
  #source-table td:not(:first-child):not(:nth-child(2)){font-size:18px;font-weight:700;color:var(--ink)}
  #source-table td:not(:first-child):not(:nth-child(2)):before{font-size:11px}
 }
+/* ===== mobile shell v2: app-style bottom navigation, compact header ===== */
+@media(max-width:700px){
+ body{padding-bottom:84px}
+ .sidebar{padding:10px 14px 10px!important;min-height:0;display:flex!important;flex-direction:row!important;align-items:center;justify-content:space-between}
+ .sidebar .wordmark img{height:38px;width:auto}
+ .sidebar .workspace-label,.sidebar .sidebar-bottom{display:none!important}
+ .sidebar nav{position:fixed!important;left:0;right:0;bottom:0;z-index:80;display:grid!important;grid-template-columns:repeat(6,1fr);gap:2px;padding:6px 6px calc(6px + env(safe-area-inset-bottom))!important;background:#102e24;box-shadow:0 -12px 26px -8px rgba(0,0,0,.35);border-top:1px solid rgba(255,255,255,.08)}
+ .sidebar nav button{display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:54px;padding:5px 1px!important;font-size:11px!important;line-height:1.15;border-radius:12px;position:relative;color:#b9cdc2}
+ .sidebar nav button span[aria-hidden]{font-size:19px;line-height:1}
+ .sidebar nav button.active{background:#1f4d3a;color:#fff}
+ .sidebar nav button .nav-count{position:absolute;top:2px;right:7px;min-width:18px;height:18px;padding:0 4px;font-size:10.5px;line-height:18px;border-radius:9px;background:#c4566a;color:#fff}
+ main{padding-bottom:16px!important}
+ .preview-banner{padding:8px 12px!important;font-size:12.5px;gap:2px 10px!important;margin-top:8px}
+ .preview-banner button,.preview-banner .text-button{font-size:12.5px}
+ .page-head{margin:14px 0 12px!important}
+ .page-head h1{font-size:30px!important;line-height:1.15}
+ .page-head p{font-size:14px;margin:4px 0 0}
+ .notice{padding:10px 12px!important;font-size:13px!important;line-height:1.5!important}
+ .metric{padding:12px 13px!important}
+ .metric small{min-height:0!important}
+ .metric strong{font-size:26px!important}
+ .panel{padding:16px 14px!important;border-radius:18px}
+ .panel-head h2,.panel h2{font-size:18px}
+}
+@media(max-width:700px){
+ .sidebar nav button span[aria-hidden]{display:block!important}
+ .preview-banner{margin-top:18px!important}
+ body.demo-mode #load-status{display:none}
+}
+@media(max-width:700px){
+ #panel-overview:not([hidden]){display:flex;flex-direction:column;gap:14px}
+ #panel-overview .two-col{display:contents}
+ #panel-overview>.section-label:nth-child(3),#panel-overview>.metric-grid:nth-child(4){order:2}
+ #panel-overview .two-col:has(#action-list)>.panel:first-child{order:1}
+ #panel-overview .two-col:has(#action-list)>.panel:nth-child(2){order:7}
+ #panel-overview .two-col:has(#overview-funnel)>.panel:first-child{order:5}
+ #panel-overview .two-col:has(#overview-funnel)>.panel:nth-child(2){order:6}
+ #panel-overview .two-col:not(:has(#action-list)):not(:has(#overview-funnel))>.panel:first-child{order:4}
+ #panel-overview .two-col:not(:has(#action-list)):not(:has(#overview-funnel))>.panel:nth-child(2){order:3}
+ .metric-grid{gap:10px!important}
+ .metric span,.metric small,.metric p{font-size:12px!important;line-height:1.4}
+ .metric strong{font-size:24px!important;margin:4px 0 6px!important}
+}
