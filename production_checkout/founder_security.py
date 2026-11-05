@@ -21,7 +21,7 @@ from argon2 import PasswordHasher, Type, extract_parameters
 from argon2.exceptions import InvalidHashError, VerifyMismatchError
 from cryptography.exceptions import InvalidTag
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-from fastapi import APIRouter, Cookie, Depends, Header, HTTPException, Request, Response
+from fastapi import APIRouter, Cookie, Depends, Header, HTTPException, Query, Request, Response
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from sqlalchemy import text
 from sqlalchemy.orm import Session, sessionmaker
@@ -376,6 +376,13 @@ def create_founder_router(sessions: sessionmaker, cfg: FounderConfig) -> APIRout
         response = Response(status_code=204)
         response.delete_cookie(SESSION_COOKIE, path="/api/v1/founder", secure=cfg.secure_cookie, httponly=True, samesite="strict")
         return response
+
+    @router.get("/report")
+    def visit_report(days: int = Query(30, ge=1, le=90), who: dict = Depends(identity)):
+        """Read-only anonymous visit analytics for the founder dashboard."""
+        from .analytics import build_report
+        with sessions() as db:
+            return build_report(db, days)
 
     @router.get("/claims/pending")
     def pending(who: dict = Depends(identity)):

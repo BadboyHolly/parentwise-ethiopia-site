@@ -286,6 +286,18 @@ def from_environment() -> FastAPI:
         intake_enabled=os.getenv("ORDER_INTAKE_ENABLED", "false").lower() == "true",
         payment_accounts=accounts,
     )
+    analytics_enabled = os.getenv("ANALYTICS_ENABLED", "false").lower() == "true"
+    if analytics_enabled:
+        from .analytics import create_analytics_router
+        analytics_key = os.getenv("ANALYTICS_HASH_KEY", "").encode()
+        if len(analytics_key) < 32:
+            raise RuntimeError("ANALYTICS_HASH_KEY of at least 32 characters is required")
+        try:
+            per_minute = max(30, min(3000, int(os.getenv("ANALYTICS_MAX_PER_MINUTE", "300"))))
+        except ValueError:
+            raise RuntimeError("ANALYTICS_MAX_PER_MINUTE must be a whole number") from None
+        app.include_router(create_analytics_router(app.state.sessions, analytics_key, max_per_minute=per_minute))
+    app.state.analytics_enabled = analytics_enabled
     founder_auth_enabled = os.getenv("FOUNDER_AUTH_ENABLED", "false").lower() == "true"
     founder_approval_enabled = os.getenv("FOUNDER_APPROVAL_ENABLED", "false").lower() == "true"
     if founder_approval_enabled and not founder_auth_enabled:
