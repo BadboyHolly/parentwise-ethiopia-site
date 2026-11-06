@@ -1,0 +1,2 @@
+Order no.,TEST?,First message (date time),Name,Phone,Method,Amount (ETB),Payment checked (date time),Checked by,Transaction ref (from YOUR record),Files sent (date time),Files confirmed received,Status,Refund window ends,Delete-by date,Notes (no child/medical details)
+M-0001,yes,2026-11-07 10:05,EXAMPLE Test Parent,0900000000,Telebirr,1500,2026-11-07 10:09,Founder,EXAMPLE-REF,2026-11-07 10:12,yes,delivered,2026-12-14,2028-11-07,EXAMPLE ROW: delete this row before real orders. Timings: notice-to-verify 4 min; verify-to-send 3 min

@@ -10,6 +10,7 @@ on:
       - refine/checkout-copy-ux-safety-20261022
       - fix/checkout-step-navigation-20261022
       - ci/release-checks
+      - launch/manual-sale-ready
     paths:
       - 'site-preview/order.html'
       - 'production_checkout/app.py'

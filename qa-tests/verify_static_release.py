@@ -38,6 +38,8 @@ def recipients(text):
 for name, page in (("homepage", home), ("checkout", checkout)):
     check(not re.search(r"<script[^>]+src=[\"']https?:", page, re.I), f"{name}: external script found")
     check(not re.search(r"<form[^>]+action=", page, re.I), f"{name}: a form posts somewhere")
+    check(not re.search(r"<img[^>]+src=[\"']https?:", page, re.I), f"{name}: an image is loaded from an outside host (use a local copy)")
+    check(not re.search(r"onerror=[\"'][^\"']*https?:", page, re.I), f"{name}: an error handler loads from an outside host")
     check(not re.search(r"subscription", page, re.I), f"{name}: forbidden word 'subscription'")
     prices = {m.group(1) for m in re.finditer(r"([0-9][0-9,]*)\s?ብር", page)}
     check(prices <= APPROVED_PRICES, f"{name}: unapproved price(s) {sorted(prices - APPROVED_PRICES)}")

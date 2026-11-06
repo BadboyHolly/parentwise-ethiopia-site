@@ -69,10 +69,10 @@ and a screen lock on the phone.** Hosting staff can technically reach stored dat
 4. Record the request and date in a private "requests" note (no sensitive detail).
 
 ## 6. Gaps found in the published policy pages (for the lawyer and you) ⚖
-1. **Delivery time:** the payment/delivery page says the expected delivery time "will be stated on the checkout page before purchase", but the checkout page states none. Set a measured promise (after the rehearsal) and put it on the checkout page, or change the policy wording.
+1. **Delivery time:** the payment/delivery and terms pages say the delivery time "will be stated on the checkout page"; the checkout does say delivery is **immediately after payment verification**, but gives no verification window. Add one, set from the test order (see POLICY-APPROVAL-NEEDED.md, item 2).
 2. **"One-time payment" wording:** the payment/delivery page and the terms page say "ይህ የአንድ ጊዜ ክፍያ" (this is a one-time payment); your brand rule avoids that phrase. Reword (e.g. "ወርሃዊ ክፍያ የለም").
 3. **Privacy page, third parties:** mentions payment-service providers and IP address collection; the manual flow uses neither as a provider you control. Make it match reality (Telegram, Telebirr/CBE, the website host).
-4. **Privacy page, retention and rights:** retention is only "as long as needed" (no periods) and **no explicit right to access/correct/delete or how to ask**. Add them after approval.
+4. **Privacy page, retention and rights:** the right to ask for access, correction and deletion **is** stated (section 8), but without how or how fast, and retention is only "as long as needed" with no periods (POLICY-APPROVAL-NEEDED.md, items 6 and 7).
 5. **Overseas processing:** the privacy page says some providers may host data outside Ethiopia; keep, but have the lawyer confirm the required wording ⚖.
 6. **Refund page promises:** review within 3 working days and refund within 5 working days. These are commitments you must be able to keep while operating alone.
 7. **Delivery promise "immediately"** on the page: replace with the measured promise.
