@@ -29,11 +29,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Verify homepage stays at approved Git blob
-        run: |
-          test "$(git hash-object site-preview/index.html)" = "9c6ec146adde2f3df5274c5794660a586eb6fc65"
-          grep -q "CHECKOUT_OPEN = false" site-preview/order.html
-          grep -q "ORDER_API_ORIGIN = ''" site-preview/order.html
+      - name: Static release safety checks (closed order system, approved recipients and price, no external scripts)
+        run: python qa-tests/verify_static_release.py site-preview/index.html site-preview/order.html site-preview/robots.txt
       - name: Install Playwright Python and use runner-provided Chrome
         run: |
           python -m pip install --disable-pip-version-check 'playwright==1.56.0'
