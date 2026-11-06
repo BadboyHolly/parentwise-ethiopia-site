@@ -1,0 +1,107 @@
+name: ParentWise Production Backend — full PostgreSQL validation (disposable)
+
+# Runs ONLY on the dedicated CI branch or by hand. Uses a throwaway PostgreSQL inside the runner.
+# Never touches any real or hosted database. Results are written as annotations.
+on:
+  push:
+    branches:
+      - ci/pg-full-validation
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  postgres-full:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: parentwise_ci
+          POSTGRES_PASSWORD: disposable_only_password
+          POSTGRES_DB: pw_full_disposable
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U parentwise_ci -d pw_full_disposable"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      APP_MODE: staging
+      PAYMENTS_ENABLED: 'false'
+      TEST_DATABASE_URL: postgresql+psycopg://parentwise_ci:disposable_only_password@127.0.0.1:5432/pw_full_disposable
+      TEST_CUSTOMER_RATE_LIMIT: '100'
+      PGPASSWORD: disposable_only_password
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: python -m pip install -r production_checkout/requirements.txt 'argon2-cffi>=23.1,<26' 'pytest>=8,<10' 'httpx>=0.27,<1'
+      - name: Apply every production migration in order
+        run: |
+          for f in 0001_create_orders 0002_create_payment_delivery_state 0003_create_founder_security 0004_create_customer_rate_limits 0005_create_analytics_events; do
+            echo "applying $f"
+            psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U parentwise_ci -d pw_full_disposable -f production_checkout/migrations/$f.sql
+          done
+      - name: Compile backend
+        run: python -m compileall -q production_checkout
+      - name: Run the whole production backend test suite on PostgreSQL
+        id: tests
+        continue-on-error: true
+        run: python -m pytest -q -p no:cacheprovider production_checkout/tests --junitxml=pytest.xml
+      - name: Publish pass/fail results as annotations
+        if: always()
+        run: |
+          python - <<'PY'
+          import os, xml.etree.ElementTree as ET
+          if not os.path.exists("pytest.xml"):
+              print("::error title=No results::pytest produced no results file"); raise SystemExit
+          root = ET.parse("pytest.xml").getroot()
+          suites = [root] if root.tag == "testsuite" else list(root)
+          tot = fail = skip = 0
+          lines = []
+          for s in suites:
+              for c in s.iter("testcase"):
+                  tot += 1
+                  name = (c.get("classname", "").split(".")[-1] + "::" + c.get("name", ""))[:110]
+                  bad = c.find("failure") if c.find("failure") is not None else c.find("error")
+                  if bad is not None:
+                      fail += 1
+                      msg = " ".join((bad.get("message") or "").split())[:180]
+                      print(f"::error title=FAILED {name}::{msg}")
+                  elif c.find("skipped") is not None:
+                      skip += 1
+                      print(f"::warning title=SKIPPED {name}::{(c.find('skipped').get('message') or '')[:150]}")
+          print(f"::notice title=TOTALS::tests={tot} passed={tot-fail-skip} failed={fail} skipped={skip}")
+          PY
+      - name: Roll back newest migrations one by one, then reapply (restore drill)
+        if: always()
+        run: |
+          set -e
+          for f in 0005_rollback_analytics_events 0004_rollback_customer_rate_limits 0003_rollback_founder_security 0002_rollback_payment_delivery_state; do
+            psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U parentwise_ci -d pw_full_disposable -f production_checkout/migrations/$f.sql
+            echo "rolled back $f"
+          done
+          test "$(psql -At -h 127.0.0.1 -U parentwise_ci -d pw_full_disposable -c "SELECT to_regclass('production_orders') IS NOT NULL")" = "t"
+          for f in 0002_create_payment_delivery_state 0003_create_founder_security 0004_create_customer_rate_limits 0005_create_analytics_events; do
+            psql -v ON_ERROR_STOP=1 -h 127.0.0.1 -U parentwise_ci -d pw_full_disposable -f production_checkout/migrations/$f.sql
+          done
+          echo "::notice title=MIGRATION DRILL::rollback and reapply of migrations 0002-0005 succeeded"
+      - name: Backup and restore drill (pg_dump into a second empty database)
+        if: always()
+        run: |
+          set -e
+          psql -h 127.0.0.1 -U parentwise_ci -d postgres -c "CREATE DATABASE pw_restore_check"
+          pg_dump -h 127.0.0.1 -U parentwise_ci -d pw_full_disposable -Fc -f backup.dump
+          pg_restore -h 127.0.0.1 -U parentwise_ci -d pw_restore_check --no-owner backup.dump
+          n=$(psql -At -h 127.0.0.1 -U parentwise_ci -d pw_restore_check -c "SELECT count(*) FROM information_schema.tables WHERE table_name LIKE 'production_%'")
+          echo "::notice title=BACKUP/RESTORE DRILL::dump restored into a fresh database; production_* tables found: $n"
+          test "$n" -ge 8
+      - name: Fail the job if any test failed
+        if: steps.tests.outcome == 'failure'
+        run: exit 1
