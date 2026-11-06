@@ -5,6 +5,7 @@ public page; the old API-flow test (preview_checkout_gate_acceptance.py) is kept
 """
 import re
 import shutil
+from urllib.parse import unquote
 from playwright.sync_api import sync_playwright, expect
 
 BASE = "http://127.0.0.1:8765"
@@ -53,7 +54,11 @@ def main():
                 no_overflow(page, f"{width}px payment ({method})")
                 page.click("#paid-action")
                 expect(page.locator("#telegram-section")).to_be_visible()
-                expect(page.locator("#telegram-handoff")).to_have_attribute("href", TELEGRAM)
+                href = page.locator("#telegram-handoff").get_attribute("href")
+                assert href.startswith(TELEGRAM), f"Telegram link goes elsewhere: {href[:80]}"
+                prefilled = unquote(href.split("?text=", 1)[1]) if "?text=" in href else ""
+                assert NAME in prefilled and PHONE in prefilled and "Payment method" in prefilled, \
+                    "Telegram message should be prefilled with the buyer's name, phone and payment method"
                 no_overflow(page, f"{width}px telegram ({method})")
                 page.click("#back-telegram")
                 expect(page.locator("#payment-section")).to_be_visible()
