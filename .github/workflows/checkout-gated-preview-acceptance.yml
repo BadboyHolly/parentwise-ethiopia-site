@@ -9,11 +9,15 @@ on:
       - deploy/parentwise-full-site-preview-20261021
       - refine/checkout-copy-ux-safety-20261022
       - fix/checkout-step-navigation-20261022
+      - ci/release-checks
     paths:
       - 'site-preview/order.html'
       - 'production_checkout/app.py'
       - 'production_checkout/tests/**'
       - 'qa-tests/preview_checkout_gate_acceptance.py'
+      - 'qa-tests/manual_checkout_acceptance.py'
+      - 'qa-tests/verify_static_release.py'
+      - 'site-preview/index.html'
       - '.github/workflows/checkout-gated-preview-acceptance.yml'
   workflow_dispatch:
 
@@ -44,8 +48,8 @@ jobs:
           done
           cat /tmp/pw-preview.log
           exit 1
-      - name: Validate all five widths, synthetic order and recovery
-        run: python qa-tests/preview_checkout_gate_acceptance.py
+      - name: Validate the manual checkout at five widths (no payment, no order API)
+        run: python qa-tests/manual_checkout_acceptance.py
 
   api-regression:
     runs-on: ubuntu-24.04
