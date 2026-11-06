@@ -28,7 +28,7 @@ Files outside `site-preview/` (tests, workflows, documents) do not affect the li
 | Static release safety checks (order system closed; **no backend address**; approved recipients and price only; no external scripts, **images** or form posts; submission gate present; "subscription" absent) | **Pass** on the real pages; self-tested against 12 deliberately broken copies (all caught) |
 | Manual checkout in a browser at **320 px** (Telebirr and CBE): approved recipient shown, 1,500 ብር, "Edit" button, pay button in view, back navigation, Telegram link prefilled, no horizontal scroll, nothing stored | **Pass** |
 | Sales page at 375 px: share/favicon tags present, hero and video placeholder intact, payment-logo cards, no horizontal scroll | **Pass** |
-| Automated browser test of the manual checkout at 320/360/390/768/1280 px, both methods (GitHub) | {{CI_RESULT}} |
+| Automated browser test of the manual checkout at 320/360/390/768/1280 px, both methods (GitHub) | **Pass** (run <https://github.com/BadboyHolly/parentwise-ethiopia-site/actions/runs/42199880960>, commit `4023e4d`; the backend manual-journey regression job also passed) |
 
 Not tested: a real payment, real Telegram delivery, the share preview inside Telegram/Facebook (needs the deployed address), iPhone Safari.
 
