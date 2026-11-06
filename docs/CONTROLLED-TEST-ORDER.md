@@ -43,6 +43,8 @@ Start a timer at step 1. Write the clock time next to each step.
 | 10 | **You** | Fill the order log row (and the delivery checklist); mark `TEST = yes` | | | |
 | 11 | Both | Total time from step 4 (message sent) to step 9 (all five received) | | | |
 
+**Your published target is: verify within 10 minutes, at any hour.** Run **one extra pass in the evening or at night** (for example 21:00–23:00) to see what the promise really costs you.
+
 ## 2. Pass / fail
 **Pass** only if all are true: the Telegram message reached you; the payment was found in **your own** record with the right amount;
 **exactly the five approved files** arrived, open and match the page counts; the log row is complete; the tester could follow
