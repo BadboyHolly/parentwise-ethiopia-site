@@ -17,6 +17,7 @@ This branch is built on top of the current working branch. Everything that would
 | `policies/*.html` (5 pages) | Favicon/theme-colour tags only. **No policy text changed** | — |
 | New files | `favicon.ico`, `assets/icons/*` (favicons), `assets/og/parentwise-share.jpg` (share image) | Built from your own logo and method illustration |
 | **Removed** | `pay-options.html` | A public test page with a fake account number and name ("Sample Holder Name") |
+| **Moved out of the site** | `founder/` and `founder-preview/` → `design-previews/` (still in the repository, no longer published) | Customers should not be able to reach an internal dashboard design (even with sample data); the real dashboard is built separately. Nothing linked to them |
 
 **Not changed (on purpose):** the hero video placeholder («በቅርቡ», as you asked), `noindex` and `robots.txt` (the site stays hidden from
 search until you decide), all policy wording, the payment flow and recipients, the dormant visit tracker.
@@ -35,7 +36,7 @@ Not tested: a real payment, real Telegram delivery, the share preview inside Tel
 ## 3. Things to know before selling
 1. **Share image address:** the share tags point to the current Render preview address. When you move to the final domain, update those two lines.
 2. **Search visibility:** the site is still marked `noindex`. That is right while you test; remove it (and `Disallow: /` in `robots.txt`, and the matching "preview" lines in the check) only when you want Google to find the site.
-3. **Founder preview pages** (`/founder/`, `/founder-preview/`) are public on the same site (sample data only, `noindex`). Decide whether to leave them or remove them from the sales site; I have not touched them.
+3. **Founder preview pages** were moved out of the published folder (see the table); they remain in `design-previews/` for reference.
 4. **The five PDFs** still need your confirmation (see `CONTROLLED-TEST-ORDER.md`): newest files carry `DRAFT`/`HOLD`/`TRIAL` in their names.
 5. **Policy wording** needing your approval is in `POLICY-APPROVAL-NEEDED.md`. Nothing was edited.
 
