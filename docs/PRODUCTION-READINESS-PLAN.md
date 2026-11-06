@@ -120,6 +120,13 @@ later, return to the manual flow by redeploying the tagged manual page (method a
   error. It now runs the same shared script against the deployed pages.
 - The check found one genuine issue: the checkout page contained the AletCloud **test address** (harmless while closed, but an
   unnecessary exposure). It was removed (`ORDER_API_ORIGIN = ''`); this changes nothing for customers.
+- **Result in GitHub (branch `ci/release-checks`, run <https://github.com/BadboyHolly/parentwise-ethiopia-site/actions/runs/42189303984>): green.**
+  Static safety checks passed; the new browser test passed at 320/360/390/768/1280 px for both Telebirr and CBE (approved recipients
+  shown, amount shown, "Edit" button, back navigation, Telegram link prefilled with name/phone/method, no order-API call, nothing
+  stored in the browser, no outside requests); the backend manual-journey regression job passed.
+- The *Verify deployed site* check runs only after a push to the deploy branch and waits for Render to serve the same page. I tested
+  its logic against the live site today (it fails **only** on the old backend address, which clears after the next deploy). It has not
+  run in GitHub yet; it needs the fix merged to the deploy branch and Render's Manual Deploy.
 - Self-test: 11 deliberately broken copies (checkout opened, extra/swapped recipient, external script, second price, "subscription",
   form post, removed gate, opened robots…) were **all caught**. Preview-only rules (noindex, robots `Disallow`) are marked "remove at launch".
 

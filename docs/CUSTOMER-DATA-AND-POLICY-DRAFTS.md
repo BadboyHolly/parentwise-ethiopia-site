@@ -8,7 +8,7 @@ matter for it now. The new backend must not store real customer data until you a
 ## 1. What customer information exists, where, who can see it
 | # | Data | Where it lives | Who can access | In the manual process now? | In the backend (later)? |
 |---|---|---|---|---|---|
-| 1 | Name and phone typed on the order page | **Not saved by the website** (checked: nothing is stored in the browser and no order server is contacted). It only appears on screen | The customer | Yes (screen only) | Yes, in the database |
+| 1 | Name and phone typed on the order page | **Not saved by the website** (checked in an automated browser test: nothing is stored in the browser and no order server is contacted). On the last screen they are placed in the **prefilled Telegram message link** that opens Telegram (sent to Telegram only when the customer taps send) | The customer; Telegram once sent | Yes | Yes, in the database |
 | 2 | Name, phone, messages, **receipt screenshots**, payer details | **Telegram** (your chat; Telegram's servers) | You; Telegram as provider; anyone with your phone/account | **Yes** | No (stays in Telegram) |
 | 3 | The payment itself: amount, time, payer, transaction reference | **Telebirr and CBE records** (your accounts) | You; Telebirr/CBE | **Yes** | Reference stored encrypted/hashed |
 | 4 | **Order log** (section 4 of the checklist) | One access-controlled spreadsheet | You (+ named technical owner) | **Yes (to create)** | Replaced by the dashboard |
