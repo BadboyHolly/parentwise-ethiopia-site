@@ -35,6 +35,9 @@ Files outside `site-preview/` (tests, workflows, documents) do not affect the li
 
 Not tested: a real payment, real Telegram delivery, the share preview inside Telegram/Facebook (needs the deployed address), iPhone Safari.
 
+## 2b. Old pages that Render kept (found after the first deploy)
+Render's static host keeps files that were deleted from the repository: after deploying, `/pay-options.html`, `/founder/` and `/founder-preview/` still loaded (their time stamps were from the previous build). They were therefore **overwritten with small redirect pages** (to the home page, `noindex`) and the old scripts/styles with empty files. These six stub files stay in `site-preview/` on purpose; if Render later offers a way to purge old files, delete them.
+
 ## 3. Things to know before selling
 1. **Share image address:** the share tags point to the current Render preview address. When you move to the final domain, update those two lines.
 2. **Search visibility:** the site is still marked `noindex`. That is right while you test; remove it (and `Disallow: /` in `robots.txt`, and the matching "preview" lines in the check) only when you want Google to find the site.
