@@ -47,6 +47,14 @@ jobs:
           done
           echo "Render has not served the exact checkout HTML for this GitHub commit"
           exit 1
+      - name: Re-fetch the home page and robots.txt now that the deploy is confirmed
+        env:
+          BASE: https://parentwise-ethiopia-full-website-preview.onrender.com
+        run: |
+          set -euo pipefail
+          curl --fail --location --silent --show-error --retry 5 --retry-delay 3 --retry-all-errors --max-time 30 --output /tmp/pw-home.html "$BASE/?v=$GITHUB_SHA"
+          curl --fail --location --silent --show-error --retry 5 --retry-delay 3 --retry-all-errors --max-time 30 --output /tmp/pw-robots.txt "$BASE/robots.txt?v=$GITHUB_SHA"
+          echo "home bytes: $(wc -c < /tmp/pw-home.html); robots bytes: $(wc -c < /tmp/pw-robots.txt)"
       - name: Validate the live pages (closed order system, approved recipients and price, no external scripts)
         run: python qa-tests/verify_static_release.py /tmp/pw-home.html /tmp/pw-checkout.html /tmp/pw-robots.txt
       - name: Brand assets are present
