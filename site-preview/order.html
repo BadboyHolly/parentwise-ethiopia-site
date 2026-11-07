@@ -531,7 +531,7 @@ button,input,select,textarea{font-synthesis:none}</style><meta name="pw-leads-en
 <h2>የእርስዎ መረጃ</h2><p class="sub">ሙሉ ስምዎንና ስልክ ቁጥርዎን ያስገቡ፤ ከዚያ የክፍያ ዘዴ ይምረጡ።</p>
 <form id="checkout-form" novalidate>
 <label for="customer-name">ሙሉ ስም</label><input id="customer-name" name="name" type="text" placeholder="ሙሉ ስምዎን ያስገቡ" autocomplete="name" maxlength="100" required>
-<label for="customer-mobile">ስልክ ቁጥር</label><input id="customer-mobile" name="phone" type="tel" inputmode="tel" placeholder="09… / 07… / +251…" aria-describedby="phone-format-help" autocomplete="tel" maxlength="13" required>
+<label for="customer-mobile">ስልክ ቁጥር</label><input id="customer-mobile" name="phone" type="tel" inputmode="tel" placeholder="09… / 07… / +251…" aria-describedby="phone-format-help" autocomplete="tel" maxlength="24" required>
 <p class="fieldnote" id="phone-format-help">09…፣ 07… ወይም +251… የሚጀምር ስልክ ቁጥር</p><hr>
 <strong>የክፍያ ዘዴ ይምረጡ</strong>
 <div class="methods" role="radiogroup" aria-label="Choose payment method">
@@ -704,7 +704,11 @@ button,input,select,textarea{font-synthesis:none}</style><meta name="pw-leads-en
     event.preventDefault();
     if((!enabled&&!previewOnly)||busy){return;}
     const name=$('customer-name').value.trim();
-    const phone=$('customer-mobile').value.trim();
+    // Accept the ways people really type a number (spaces, dashes, +251, 251, 00251, no leading 0) and show the standard 09/07 form.
+    const typed=$('customer-mobile').value.trim().replace(/[٠-٩۰-۹]/g,ch=>String(ch.charCodeAt(0)&15)).replace(/[^0-9+]/g,'');
+    const parts=typed.match(/^(?:[+]251|00251|251|0)?([97][0-9]{8})$/);
+    const phone=parts?'0'+parts[1]:$('customer-mobile').value.trim();
+    if(parts)$('customer-mobile').value=phone;
     $('validation-error').hidden=true;
     if(name.length<2||name.length>100||!/\p{L}/u.test(name)||/[\u0000-\u001F\u007F]/.test(name)){
       error('እባክዎ ትክክለኛ ስም ያስገቡ።');$('customer-name').focus();return;

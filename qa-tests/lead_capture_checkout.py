@@ -105,12 +105,12 @@ def main():
         expect(page.locator("#lead-consent-row")).to_be_visible()
         check(not page.locator("#lead-consent").is_checked(), "follow-up box must start unticked")
         check(page.evaluate("document.documentElement.scrollWidth <= window.innerWidth"), "no horizontal scroll at 375px")
-        fill_details(page, phone="0911 22 33 44", consent=True, method="bank")
+        fill_details(page, phone="0911 22 33 44", consent=True, method="bank")  # spaces are accepted and tidied to 0911223344
         expect(page.locator("#payment-section")).to_be_visible()
         page.wait_for_timeout(300)
         check([e["step"] for e in seen] == ["details_submitted", "payment_viewed"], f"after details: {[e['step'] for e in seen]}")
         first = seen[0]
-        check(first["phone"] == "0911 22 33 44" and first["name"] == "Hanna Bekele" and first["follow_up_consent"] is True
+        check(first["phone"] == "0911223344" and first["name"] == "Hanna Bekele" and first["follow_up_consent"] is True
               and first["payment_method"] == "bank", "details payload")
         page.click("#paid-action")
         expect(page.locator("#telegram-section")).to_be_visible()
