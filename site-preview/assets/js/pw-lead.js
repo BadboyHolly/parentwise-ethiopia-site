@@ -15,7 +15,8 @@
      in a row per page visit); the queue is kept and sent again at the next trigger. 409 (server has not seen the details yet): the
      details are sent first, once, then the event. Other 4xx answers are final and the event is dropped.
    * If the customer changes the follow-up box or their name after the details were sent, the updated details are queued
-     again for the same attempt (an update that has not left the browser yet replaces the older one).
+     again for the same attempt, after a short pause (0.6 s); an update that has not left the browser yet replaces the older
+     one, so a quick tick and un-tick is never sent as two answers.
    * Queued events older than 24 hours are discarded. The queue holds only what the customer typed on this page. */
 (function () {
   'use strict';
@@ -64,7 +65,8 @@
 
     // ---------------------------------------------------------------- the queue
     var busy = false, timer = null, failures = 0, uid = 0;
-    function enqueue(body, details) {
+    var settle = null, SETTLE = 600;
+    function enqueue(body, details, pause) {
       var q = readQueue();
       var item = { uid: Date.now().toString(36) + (uid++) + Math.random().toString(36).slice(2, 6), at: Date.now(), body: body, details: details || null };
       if (body.step === 'details_submitted') {
@@ -76,7 +78,9 @@
       if (item) q.push(item);
       while (q.length > MAX_QUEUE) q.shift();
       writeQueue(q);
-      flush();
+      // A change the customer makes to their own answer waits a moment before it is sent, so a quick change of mind
+      // (tick, then un-tick) replaces the first answer instead of reaching the server as two.
+      if (pause) { clearTimeout(settle); settle = setTimeout(flush, SETTLE); } else flush();
     }
     function removeItem(id) {
       writeQueue(readQueue().filter(function (x) { return x.uid !== id; }));
@@ -161,7 +165,7 @@
       var body = detailsBody(record, name);
       if (sameAnswer(record.details, body)) return;
       record.details = body; writeAttempt(record);
-      enqueue(body, null);
+      enqueue(body, null, true);
     }
     function step(name) {
       var record = readAttempt();

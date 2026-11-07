@@ -102,6 +102,17 @@ def accepted(log, step=None):
     return [b for b, st in log if st is not None and 200 <= st < 300 and (step is None or b["step"] == step)]
 
 
+def until(page, condition, timeout=8000):
+    """Poll instead of sleeping, so a slow machine only makes the test wait longer, never fail."""
+    waited = 0
+    while waited < timeout:
+        if condition():
+            return True
+        page.wait_for_timeout(100)
+        waited += 100
+    return condition()
+
+
 def main():
     work = Path(tempfile.mkdtemp(prefix="pw-lead-"))
     enabled_dir = work / "enabled"
@@ -275,14 +286,14 @@ def main():
         page.goto("http://127.0.0.1:8772/order.html")
         fill_details(page, name="Hanna Bekele", phone="0911223344", promo=True)
         expect(page.locator("#payment-section")).to_be_visible()
-        page.wait_for_timeout(400)
+        until(page, lambda: len(queued(page)) == 2)
         check(accepted(log) == [], "nothing is accepted while the server is down")
         waiting = queued(page)
         check([i["body"]["step"] for i in waiting] == ["details_submitted", "payment_viewed"], f"events wait in the browser: {[i['body']['step'] for i in waiting]}")
         check(waiting[0]["body"]["promo_opt_in"] is True, "the waiting details keep the customer's tick")
         state["down"] = False
         page.reload()
-        page.wait_for_timeout(900)
+        until(page, lambda: len(accepted(log)) >= 2 and queued(page) == [])
         steps = [b["step"] for b in accepted(log)]
         check(steps == ["details_submitted", "payment_viewed"], f"delivered after the reload, in order: {steps}")
         check(len({b["attempt_id"] for b in accepted(log)}) == 1, "the delivered events keep the original attempt id")
@@ -297,12 +308,12 @@ def main():
         page.goto("http://127.0.0.1:8772/order.html")
         fill_details(page, name="Sara Tesfaye", phone="0922334455")
         expect(page.locator("#payment-section")).to_be_visible()
-        page.wait_for_timeout(400)
+        until(page, lambda: len(log) >= 1 and len(queued(page)) == 2)
         page.close()
         state["down"] = False
         page = context.new_page()
         page.goto("http://127.0.0.1:8772/order.html")
-        page.wait_for_timeout(900)
+        until(page, lambda: len(accepted(log, "details_submitted")) >= 1)
         sent = accepted(log, "details_submitted")
         check(len(sent) == 1 and sent[0]["name"] == "Sara Tesfaye" and sent[0]["phone"] == "0922334455", f"details delivered from a new tab: {sent}")
         context.close()
@@ -317,10 +328,10 @@ def main():
             page.goto("http://127.0.0.1:8772/order.html")
             fill_details(page)
             expect(page.locator("#payment-section")).to_be_visible()
-            page.wait_for_timeout(300)
+            until(page, lambda: len(log) >= 1 and len(queued(page)) == 2)
             state["down"] = False
             page.evaluate(fire)
-            page.wait_for_timeout(500)
+            until(page, lambda: len(accepted(log)) >= 2, timeout=1200)  # well under the 1.5 s timer: the trigger did it
             check([b["step"] for b in accepted(log)] == ["details_submitted", "payment_viewed"], f"{label}: delivered without waiting for the timer: {[b['step'] for b, _ in log]}")
             context.close()
 
@@ -345,17 +356,17 @@ def main():
         page.goto("http://127.0.0.1:8772/order.html")
         fill_details(page)
         expect(page.locator("#payment-section")).to_be_visible()
-        page.wait_for_timeout(400)
+        until(page, lambda: len(log) >= 1)                 # the first send was refused ...
+        page.wait_for_timeout(300)                         # ... and has fully finished; the retry timer is 1.5 s or more away
         set_promo(page, True)
-        page.wait_for_timeout(100)
         set_promo(page, False)
         waiting = [i for i in queued(page) if i["body"]["step"] == "details_submitted"]
         check(len(waiting) == 1 and waiting[0]["body"]["promo_opt_in"] is False, f"one waiting details event carrying the final answer: {[i['body']['promo_opt_in'] for i in waiting]}")
         state["down"] = False
         page.reload()
-        page.wait_for_timeout(900)
+        until(page, lambda: len(accepted(log)) >= 2 and queued(page) == [])
         flags = [b["promo_opt_in"] for b in accepted(log, "details_submitted")]
-        check(flags == [False], f"the server never sees a tick the customer took back: {flags}")
+        check(flags == [False], f"the server never sees a tick the customer took back: {flags} log={[(b['step'], b.get('promo_opt_in'), st) for b, st in log]}")
         context.close()
 
         # 13. Changing the box during the same attempt: each answer is sent, in order, under the same attempt id.
@@ -365,20 +376,21 @@ def main():
         page.goto("http://127.0.0.1:8772/order.html")
         fill_details(page)
         expect(page.locator("#payment-section")).to_be_visible()
-        page.wait_for_timeout(300)
+        until(page, lambda: len(accepted(log)) >= 2 and queued(page) == [])
         for value in (True, False, True):
+            before = len(accepted(log, "details_submitted"))
             set_promo(page, value)
-            page.wait_for_timeout(300)
+            until(page, lambda: len(accepted(log, "details_submitted")) > before and queued(page) == [])
         page.click("#paid-action")
         expect(page.locator("#telegram-section")).to_be_visible()
-        page.wait_for_timeout(300)
+        until(page, lambda: len(accepted(log)) >= 7 and queued(page) == [])
         details_events = accepted(log, "details_submitted")
         check([b["promo_opt_in"] for b in details_events] == [False, True, False, True], f"answers in order: {[b['promo_opt_in'] for b in details_events]}")
         check(len({b["attempt_id"] for b in accepted(log)}) == 1, "all answers belong to the same attempt")
         check(sum(1 for b in accepted(log) if b["step"] == "payment_viewed") == 1, "steps are not repeated by an answer change")
         # changing the name in the same attempt is sent too; the phone is the attempt's own
         page.evaluate("""() => { const n = document.getElementById('customer-name'); n.value = 'Hanna B. Bekele'; n.dispatchEvent(new Event('change', {bubbles: true})); }""")
-        page.wait_for_timeout(300)
+        until(page, lambda: accepted(log, "details_submitted")[-1]["name"] == "Hanna B. Bekele")
         check(accepted(log, "details_submitted")[-1]["name"] == "Hanna B. Bekele", "a changed name is sent for the same attempt")
         context.close()
 
@@ -390,7 +402,8 @@ def main():
         fill_details(page)
         expect(page.locator("#payment-section")).to_be_visible()
         page.click("#paid-action")
-        page.wait_for_timeout(3500)
+        until(page, lambda: len(accepted(log)) >= 3 and queued(page) == [])
+        page.wait_for_timeout(2500)  # long enough for any (wrong) retry of the refused event
         check(sum(1 for b, _ in log if b["step"] == "details_submitted") == 1, "a refused event is not retried")
         check([b["step"] for b in accepted(log)] == ["payment_viewed", "paid_clicked", "proof_viewed"], f"later events still go out: {[b['step'] for b in accepted(log)]}")
         check(queued(page) == [], "nothing is left waiting after a final refusal")
