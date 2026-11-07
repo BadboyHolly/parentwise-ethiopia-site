@@ -207,6 +207,29 @@ def main():
         page.wait_for_timeout(1200)
         check(log.count("details_submitted") == 2 and log.count("payment_viewed") == 2, f"409 recovery: {log}")
         context.close()
+
+        # 8. A busy server (503) or a dropped request is retried once, quietly, and the visitor never notices.
+        context = browser.new_context(viewport={"width": 375, "height": 860})
+        tries = []
+
+        def busy_then_ok(route):
+            request = route.request
+            if request.method == "OPTIONS":
+                return route.fulfill(status=204, headers=CORS)
+            body = json.loads(request.post_data or "{}")
+            tries.append(body["step"])
+            if tries.count("details_submitted") == 1 and body["step"] == "details_submitted":
+                return route.fulfill(status=503, headers=CORS, body="")
+            route.fulfill(status=204, headers=CORS, body="")
+
+        context.route(ENDPOINT, busy_then_ok)
+        page = context.new_page()
+        page.goto("http://127.0.0.1:8772/order.html")
+        fill_details(page)
+        expect(page.locator("#payment-section")).to_be_visible()
+        page.wait_for_timeout(3500)
+        check(tries.count("details_submitted") == 2, f"one retry after a 503: {tries}")
+        context.close()
         browser.close()
     shipped.shutdown(); enabled.shutdown()
     shutil.rmtree(work, ignore_errors=True)

@@ -39,21 +39,29 @@
       return el && (el.value === 'bank' || el.value === 'telebirr') ? el.value : undefined;
     }
 
-    function post(body, retry) {
+    // One quiet retry when the server is busy (503/429) or the network blips, after a short random wait. Visitors never see it.
+    function later(body, flags) {
+      if (flags.retried) return;
+      setTimeout(function () { post(body, { resent: flags.resent, retried: true }); }, 1200 + Math.random() * 1500);
+    }
+    function post(body, flags) {
+      flags = flags || {};
       try {
         fetch(endpoint, {
           method: 'POST', mode: 'cors', credentials: 'omit', cache: 'no-store', keepalive: true,
           headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
         }).then(function (response) {
           // 409: the server has not seen the details step for this attempt (it failed earlier). Send it again once.
-          if (response.status === 409 && !retry) {
+          if (response.status === 409 && !flags.resent) {
             var current = read();
             if (current && current.id === body.attempt_id && current.details) {
-              post(current.details, true);
-              setTimeout(function () { post(body, true); }, 400);
+              post(current.details, { resent: true });
+              setTimeout(function () { post(body, { resent: true }); }, 400);
             }
+          } else if (response.status === 503 || response.status === 429) {
+            later(body, flags);
           }
-        }).catch(function () { /* never interrupt checkout */ });
+        }).catch(function () { later(body, flags); /* never interrupt checkout */ });
       } catch (e) { /* never interrupt checkout */ }
     }
 
