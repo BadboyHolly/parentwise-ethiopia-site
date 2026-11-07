@@ -1,5 +1,7 @@
 # Lead capture for ParentWise checkout: findings, design, review wording
 
+> **UPDATE 2026-11-08 (supersedes the "no tick box" decision below).** Order contact (a small notice) and promotional follow-up (a separate, optional, unticked opt-in that can be stopped) are now separate. The first release collects only name, phone, checkout progress and follow-up preferences; child age groups, challenge tags and notes are switched off. Retention has no default and is a proposal only. See **OPT-IN-WORDING-FOR-REVIEW.md** (this folder) and, in the backend repository, **RETENTION-AND-PURGE-PROPOSAL.md**, **PRODUCTION-PLAN.md** and **CONCURRENCY-RESULTS.md**. Where this older text disagrees, the newer documents win.
+
 Status: **built and tested, not deployed, switched off.** Nothing here changes the live site or stores customer data until you
 switch it on (see "Before real customer data").
 

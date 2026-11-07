@@ -51,10 +51,12 @@ def install_fake_api(context, status=204):
     return seen
 
 
-def fill_details(page, name="Hanna Bekele", phone="0911223344", method="telebirr"):
+def fill_details(page, name="Hanna Bekele", phone="0911223344", method="telebirr", promo=False):
     page.fill("#customer-name", name)
     page.fill("#customer-mobile", phone)
     page.check(f'input[name="payment"][value="{method}"]')
+    if promo:
+        page.check("#lead-promo")
     page.click("#continue-payment")
 
 
@@ -88,7 +90,8 @@ def main():
         page.on("request", lambda r: requested.append(r.url))
         page.goto("http://127.0.0.1:8771/order.html")
         expect(page.locator("#lead-notice")).to_be_hidden()
-        check(page.locator("#lead-consent-row").count() == 0, "no tick box exists")
+        check(page.locator("#lead-consent-row").count() == 0, "no order-notice tick box exists")
+        expect(page.locator("#lead-promo-row")).to_be_hidden()
         fill_details(page)
         expect(page.locator("#payment-section")).to_be_visible()
         check(not [u for u in requested if "/api/v1/" in u], "dormant checkout must not contact any API")
@@ -100,7 +103,9 @@ def main():
         page = context.new_page()
         page.goto("http://127.0.0.1:8772/order.html")
         expect(page.locator("#lead-notice")).to_be_visible()
-        check(page.locator("#lead-consent").count() == 0, "there must be no tick box")
+        check(page.locator("#lead-consent").count() == 0, "no tick box for the order notice")
+        expect(page.locator("#lead-promo-row")).to_be_visible()
+        check(not page.locator("#lead-promo").is_checked(), "the promotional box must start unticked")
         box = page.locator("#lead-notice").bounding_box()
         check(box["height"] <= 48, f"the notice must stay small, got {box['height']}px")
         check(page.evaluate("parseFloat(getComputedStyle(document.getElementById('lead-notice')).fontSize)") <= 13, "notice text must be small")
@@ -110,7 +115,7 @@ def main():
         page.wait_for_timeout(300)
         check([e["step"] for e in seen] == ["details_submitted", "payment_viewed"], f"after details: {[e['step'] for e in seen]}")
         first = seen[0]
-        check(first["phone"] == "0911223344" and first["name"] == "Hanna Bekele" and first["follow_up_notice"] is True
+        check(first["phone"] == "0911223344" and first["name"] == "Hanna Bekele" and first["order_contact_notice"] is True and first["promo_opt_in"] is False
               and first["payment_method"] == "bank", "details payload")
         page.click("#paid-action")
         expect(page.locator("#telegram-section")).to_be_visible()
@@ -140,6 +145,17 @@ def main():
         page.wait_for_timeout(300)
         check(len({e["attempt_id"] for e in seen}) == 2, "a different phone is a different attempt")
         check(seen[-2]["step"] == "details_submitted" and seen[-2]["name"] == "Sara Tesfaye", "second person details")
+        context.close()
+
+        # 4b. Ticking the optional promotional box is the only way promo_opt_in becomes true.
+        context = browser.new_context(viewport={"width": 375, "height": 860})
+        seen = install_fake_api(context)
+        page = context.new_page()
+        page.goto("http://127.0.0.1:8772/order.html")
+        fill_details(page, phone="0944556677", promo=True)
+        expect(page.locator("#payment-section")).to_be_visible()
+        page.wait_for_timeout(300)
+        check(seen[0]["promo_opt_in"] is True and seen[0]["order_contact_notice"] is True, "ticked box is sent as promo_opt_in")
         context.close()
 
         # 5. Invalid details never send anything.

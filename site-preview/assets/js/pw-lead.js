@@ -11,8 +11,10 @@
     var meta = document.querySelector('meta[name="pw-leads-endpoint"]');
     var endpoint = meta && meta.content;
     var notice = document.getElementById('lead-notice');
+    var promoRow = document.getElementById('lead-promo-row');
     if (!endpoint || !/^https:\/\/[a-z0-9.-]+(:443)?\/api\/v1\/leads$/i.test(endpoint)) return;
     if (notice) notice.hidden = false;
+    if (promoRow) promoRow.hidden = false;
 
     var KEY = 'parentwise-lead-attempt-v1';
     var memory = null;
@@ -66,7 +68,9 @@
       }
       // The small checkout line ("we will contact you about your order with this information") is on screen whenever capture is on.
       var noticeShown = !!(notice && !notice.hidden);
-      var body = { attempt_id: record.id, step: 'details_submitted', name: name, phone: phone, payment_method: method(), follow_up_notice: noticeShown };
+      // Separate, optional and unticked by default: only a customer's own tick allows promotional follow-up.
+      var promoOptIn = !!(document.getElementById('lead-promo') || {}).checked;
+      var body = { attempt_id: record.id, step: 'details_submitted', name: name, phone: phone, payment_method: method(), order_contact_notice: noticeShown, promo_opt_in: promoOptIn };
       record.details = body;
       if (!record.sent.details_submitted) { record.sent.details_submitted = true; post(body); }
       write(record);
