@@ -10,7 +10,7 @@ non-payable walkthrough. They keep what matters for the CURRENT approved launch 
     never change without someone updating this file),
   * only the approved price is shown, and forbidden wording is absent,
   * the order-submission gate and the three-step navigation still exist.
-Preview-only rules (noindex, robots Disallow) are listed separately: REMOVE THEM AT LAUNCH.
+Launch rules: sales page indexable, checkout noindex, robots.txt does not block the whole site.
 """
 import re
 import sys
@@ -61,9 +61,10 @@ check("if((!enabled&&!previewOnly)||busy)" in checkout, "checkout: order-submiss
 for element in ("continue-payment", "paid-action", "change-method", "back-payment", "back-telegram", "telegram-handoff"):
     check(f'id="{element}"' in checkout, f"checkout: #{element} missing")
 
-# PREVIEW-ONLY rules. REMOVE AT LAUNCH (when the site is meant to be found in search).
-check("noindex" in home and "noindex" in checkout, "preview: noindex missing (remove this rule at launch)")
-check("Disallow: /" in robots, "preview: robots Disallow missing (remove this rule at launch)")
+# LAUNCH rules: the sales page is public and findable; the checkout stays out of search.
+check("noindex" not in home, "launch: the sales page must not be noindex")
+check("noindex" in checkout, "launch: the checkout page must stay noindex")
+check(not re.search(r"(?m)^Disallow:\s*/\s*$", robots), "launch: robots.txt must not block the whole site")
 
 if failures:
     print("RELEASE CHECK FAILED:")
