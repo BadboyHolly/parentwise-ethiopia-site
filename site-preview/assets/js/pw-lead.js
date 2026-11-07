@@ -11,10 +11,8 @@
     var meta = document.querySelector('meta[name="pw-leads-endpoint"]');
     var endpoint = meta && meta.content;
     var notice = document.getElementById('lead-notice');
-    var consentRow = document.getElementById('lead-consent-row');
     if (!endpoint || !/^https:\/\/[a-z0-9.-]+(:443)?\/api\/v1\/leads$/i.test(endpoint)) return;
     if (notice) notice.hidden = false;
-    if (consentRow) consentRow.hidden = false;
 
     var KEY = 'parentwise-lead-attempt-v1';
     var memory = null;
@@ -66,8 +64,9 @@
       if (!record || record.phoneKey !== key) {
         record = { id: newId(), phoneKey: key, sent: {}, details: null };
       }
-      var consent = !!(document.getElementById('lead-consent') || {}).checked;
-      var body = { attempt_id: record.id, step: 'details_submitted', name: name, phone: phone, payment_method: method(), follow_up_consent: consent };
+      // The small checkout line ("we will contact you about your order with this information") is on screen whenever capture is on.
+      var noticeShown = !!(notice && !notice.hidden);
+      var body = { attempt_id: record.id, step: 'details_submitted', name: name, phone: phone, payment_method: method(), follow_up_notice: noticeShown };
       record.details = body;
       if (!record.sent.details_submitted) { record.sent.details_submitted = true; post(body); }
       write(record);

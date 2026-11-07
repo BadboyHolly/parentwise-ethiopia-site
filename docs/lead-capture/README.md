@@ -33,7 +33,7 @@ no payment state and no revenue. `ORDER_INTAKE_ENABLED` and payments stay `false
   (the dashboard shows "verified repeat buyer"), and a lead never changes revenue.
 - **Protection:** name and phone are AES-256-GCM encrypted (field-bound); only a keyed hash is searchable; origin check, 2 KB size cap, rate limits per IP, attempt and phone;
   the public answer never reveals whether a number was already known; no cookies; later steps carry no personal data.
-- **Consent and follow-up:** an optional, unticked checkbox records that the customer agrees to be contacted about their order. Without it the dashboard refuses to move a lead to
+- **Follow-up notice (decided: no tick box):** checkout shows one small line under the details form saying we will contact the customer about their order with this information, with a link to the details. The lead records that the line was shown. Without that record the dashboard refuses to move a lead to *contacted / in conversation / interested* unless you first record that **the customer contacted us**. *Do not contact* cannot be undone.
   *contacted / in conversation / interested* unless you first record that **the customer contacted us**. *Do not contact* cannot be undone.
 - **Your control:** the Founder dashboard has a **Leads** tab: search by phone, status (new, contacted, in conversation, interested, not interested, do not contact), next follow-up time,
   "left checkout" (no activity for 2 hours and not a buyer), funnel counts, and **Erase lead** (permanent, keeps only a person-free proof row). Expired leads (12 months by default) can be purged.
@@ -45,30 +45,27 @@ Not built on purpose: automatic messaging, automatic Telegram/SMS sending, expor
 
 The checkout shows this only when lead capture is switched on. **Amharic drafts need a native reader.**
 
-**Notice under the details form** (always shown when capture is on):
-> ስምዎንና ስልክ ቁጥርዎን የምንጠቀመው ትዕዛዝዎን ለመርዳትና ክፍያዎን ለማረጋገጥ ነው። ዝርዝሩን በግላዊነት መመሪያችን ይመልከቱ።
+**Small line above the "continue to payment" button** (shown only when capture is on):
+> ስለ ትዕዛዝዎ በዚህ መረጃ እናገኝዎታለን። ዝርዝር
 
-English meaning: *We use your name and phone number to help with your order and to verify your payment. See our privacy policy for details.*
+English meaning: *We will contact you about your order using this information. Details* (the last word links to the privacy policy).
 
-**Optional box (unticked):**
-> ስለ ትዕዛዜ በTelegram ወይም በስልክ ማግኘት ይችላሉ።
-
-English meaning: *You may contact me by Telegram or phone about my order.*
+**No tick box.** Nothing for the customer to tick; the line above is the only addition.
 
 **Proposed additions to `policies/privacy-policy.html`** (draft; not applied):
 - §2 *What we collect*: "The name and phone number you enter at checkout, saved when you continue, even if you do not finish your order."
-- §3 *Why we use it*: "To help you finish your order, verify your payment and answer you. If you tick the box, we may also contact you about your order by Telegram or phone."
+- §3 *Why we use it*: "To help you finish your order, verify your payment, and to contact you about your order by Telegram or phone using the details you gave."
 - §4 *Sharing*: "We do not sell your details." (confirm this is true for every provider you use before publishing)
 - §7 *How long we keep it*: "Details from unfinished checkouts are kept for up to 12 months, then deleted. You can ask us to delete yours at any time through Telegram."
 - Also state who is responsible for the data and how to ask for access or deletion.
 
-Open decisions for you: (a) keep the box optional/unticked (recommended, least risk) or drop it and rely on the notice only; (b) retention (default 365 days, configurable 30 to 1,095);
+Decided: no tick box, a short notice only. Still open: (a) retention (default 365 days, configurable 30 to 1,095); (b) confirm with a lawyer that a notice without a tick is enough for contacting people who did not buy (the box is the safer route if the lawyer says no); (c) have the wording and the legal basis checked against Ethiopia's personal data protection law (Proclamation No. 1321/2024 as I understand it; I am not a lawyer).
 (c) have the wording and the legal basis checked against Ethiopia's personal data protection law (Proclamation No. 1321/2024 as I understand it; I am not a lawyer).
 
 ## 4. Tests that pass
 
 Backend (SQLite, 37 tests; PostgreSQL run in CI): phone formats and rejections, encryption at rest, reload/double-click, same phone in different formats, return after a break,
-different people, same attempt id with another phone, consent never silently removed, forward-only steps, Telegram click is not contact, rate limiting/origin/size/disabled gate,
+different people, same attempt id with another phone, notice never silently removed, forward-only steps, Telegram click is not contact, rate limiting/origin/size/disabled gate,
 leads never create orders, verified buyer and repeat purchase derivation, follow-up rules and audit, erasure, retention purge.
 Browser (`qa-tests/lead_capture_checkout.py`, CI): dormant by default, exact payloads and order of events, one attempt per phone per tab, reload, edited phone, invalid details send nothing,
 a failing endpoint never blocks checkout, a 409 triggers one resend of details, no horizontal scroll at 375 px.

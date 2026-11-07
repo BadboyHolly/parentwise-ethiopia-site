@@ -51,12 +51,10 @@ def install_fake_api(context, status=204):
     return seen
 
 
-def fill_details(page, name="Hanna Bekele", phone="0911223344", consent=False, method="telebirr"):
+def fill_details(page, name="Hanna Bekele", phone="0911223344", method="telebirr"):
     page.fill("#customer-name", name)
     page.fill("#customer-mobile", phone)
     page.check(f'input[name="payment"][value="{method}"]')
-    if consent:
-        page.check("#lead-consent")
     page.click("#continue-payment")
 
 
@@ -90,7 +88,7 @@ def main():
         page.on("request", lambda r: requested.append(r.url))
         page.goto("http://127.0.0.1:8771/order.html")
         expect(page.locator("#lead-notice")).to_be_hidden()
-        expect(page.locator("#lead-consent-row")).to_be_hidden()
+        check(page.locator("#lead-consent-row").count() == 0, "no tick box exists")
         fill_details(page)
         expect(page.locator("#payment-section")).to_be_visible()
         check(not [u for u in requested if "/api/v1/" in u], "dormant checkout must not contact any API")
@@ -102,15 +100,17 @@ def main():
         page = context.new_page()
         page.goto("http://127.0.0.1:8772/order.html")
         expect(page.locator("#lead-notice")).to_be_visible()
-        expect(page.locator("#lead-consent-row")).to_be_visible()
-        check(not page.locator("#lead-consent").is_checked(), "follow-up box must start unticked")
+        check(page.locator("#lead-consent").count() == 0, "there must be no tick box")
+        box = page.locator("#lead-notice").bounding_box()
+        check(box["height"] <= 48, f"the notice must stay small, got {box['height']}px")
+        check(page.evaluate("parseFloat(getComputedStyle(document.getElementById('lead-notice')).fontSize)") <= 13, "notice text must be small")
         check(page.evaluate("document.documentElement.scrollWidth <= window.innerWidth"), "no horizontal scroll at 375px")
-        fill_details(page, phone="0911 22 33 44", consent=True, method="bank")  # spaces are accepted and tidied to 0911223344
+        fill_details(page, phone="0911 22 33 44", method="bank")  # spaces are accepted and tidied to 0911223344
         expect(page.locator("#payment-section")).to_be_visible()
         page.wait_for_timeout(300)
         check([e["step"] for e in seen] == ["details_submitted", "payment_viewed"], f"after details: {[e['step'] for e in seen]}")
         first = seen[0]
-        check(first["phone"] == "0911223344" and first["name"] == "Hanna Bekele" and first["follow_up_consent"] is True
+        check(first["phone"] == "0911223344" and first["name"] == "Hanna Bekele" and first["follow_up_notice"] is True
               and first["payment_method"] == "bank", "details payload")
         page.click("#paid-action")
         expect(page.locator("#telegram-section")).to_be_visible()
