@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="am"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Section 07 options</title>
+<style>
+@font-face{font-family:PW;src:url("assets/fonts/parentwise-font-01.woff2") format("woff2");font-weight:400}
+@font-face{font-family:PW;src:url("assets/fonts/parentwise-font-02.woff2") format("woff2");font-weight:700}
+:root{--g:#1F4D3A;--m:#7A2E3E;--cream:#FFF9EF;--ink:#202928;--mute:#56645d;--line:#e8dcc6;--tint:#EEF3EF}
+*{box-sizing:border-box;margin:0}
+body{font-family:PW,sans-serif;background:#f1ece2;color:var(--ink)}
+.opt{max-width:420px;margin:0 auto 28px;background:var(--cream);padding:26px 16px 24px}
+.tag{display:inline-block;background:var(--ink);color:#fff;font:700 12px/1 sans-serif;padding:6px 10px;border-radius:999px;margin:16px auto 8px;display:block;width:max-content}
+h2{font-size:22px;line-height:1.3;color:var(--g);text-align:center}
+.intro{font-size:14px;line-height:1.55;color:var(--mute);text-align:center;margin:6px 0 16px}
+.sum{margin-top:14px;text-align:center;font-weight:700;font-size:14px;color:var(--g)}
+.sum b{color:var(--m)}
+/* A: checklist card */
+.a{background:#fff;border:1px solid var(--line);border-radius:18px;padding:4px 14px;box-shadow:0 8px 22px rgba(31,77,58,.07)}
+.a li{list-style:none;display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-bottom:1px solid #f0e8d8}
+.a li:last-child{border:0}
+.a .n{flex:none;width:28px;height:28px;border-radius:50%;background:var(--g);color:#fff;font:700 13px/28px sans-serif;text-align:center;margin-top:1px}
+.a h3{font-size:14px;line-height:1.3;color:var(--g);letter-spacing:.02em}
+.a p{font-size:13.5px;line-height:1.5;color:var(--mute);margin-top:2px}
+/* B: bento */
+.b{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.b div{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px}
+.b div:first-child{grid-column:1/-1;background:var(--g);color:#fff;border:0}
+.b div:last-child{grid-column:1/-1}
+.b i{display:inline-block;font:700 12px/1 sans-serif;font-style:normal;color:var(--m);background:var(--tint);border-radius:999px;padding:4px 8px;margin-bottom:6px}
+.b div:first-child i{background:rgba(255,255,255,.16);color:#fff}
+.b h3{font-size:13px;line-height:1.3;color:var(--g)}
+.b div:first-child h3{color:#fff}
+.b p{font-size:13px;line-height:1.5;color:var(--mute);margin-top:3px}
+.b div:first-child p{color:#dbe8e0}
+/* C: accordion */
+.c details{background:#fff;border:1px solid var(--line);border-radius:14px;margin-bottom:8px;overflow:hidden}
+.c summary{list-style:none;display:flex;align-items:center;gap:10px;padding:13px 14px;min-height:48px;cursor:pointer;font-weight:700;font-size:14px;color:var(--g)}
+.c summary::-webkit-details-marker{display:none}
+.c summary span{flex:none;width:26px;height:26px;border-radius:8px;background:var(--tint);color:var(--m);font:700 12px/26px sans-serif;text-align:center}
+.c summary::after{content:"+";margin-left:auto;font:400 22px/1 sans-serif;color:var(--m);transition:transform .2s}
+.c details[open] summary::after{transform:rotate(45deg)}
+.c details p{padding:0 14px 13px 50px;font-size:13.5px;line-height:1.55;color:var(--mute)}
+</style></head><body>
+
+<section class="opt"><span class="tag">OPTION A · Checklist card</span>
+<h2>በParentWise ምን ያገኛሉ?</h2><p class="intro">እርስ በርስ የሚደጋገፉ አምስት ክፍሎች በአንድ ላይ።</p>
+<ul class="a">
+<li><span class="n">1</span><div><h3>START HERE</h3><p>ለልጅዎ ዕድሜና ችግር ተገቢውን ክፍል የሚያሳይ መምሪያ።</p></div></li>
+<li><span class="n">2</span><div><h3>CORE GUIDE</h3><p>ስለ ባህሪ፣ ስሜትና የቤተሰብ ሕጎች 7 ዋና ትምህርቶች።</p></div></li>
+<li><span class="n">3</span><div><h3>ACTION WORKBOOK</h3><p>የባህሪ መከታተያ፣ የቤተሰብ ሕግና የልምምድ እቅድ ቅጾች።</p></div></li>
+<li><span class="n">4</span><div><h3>QUICK HELP &amp; PARENT SCRIPTS</h3><p>በአስቸጋሪ ጊዜ ምን ማለትና ማድረግ እንደሚችሉ ምሳሌዎች።</p></div></li>
+<li><span class="n">5</span><div><h3>30-DAY PRACTICE PROGRAM</h3><p>የየቀኑ አጭር ልምምዶችና የ30 ቀን መከታተያ እቅድ።</p></div></li>
+</ul>
+<p class="sum">አምስቱም በ<b>1,500 ብር</b> ግዢ ውስጥ ተካትተዋል።</p></section>
+
+<section class="opt"><span class="tag">OPTION B · Bento grid</span>
+<h2>በParentWise ምን ያገኛሉ?</h2><p class="intro">እርስ በርስ የሚደጋገፉ አምስት ክፍሎች በአንድ ላይ።</p>
+<div class="b">
+<div><i>01</i><h3>START HERE</h3><p>ለልጅዎ ዕድሜና ችግር ተገቢውን ክፍል የሚያሳይ መምሪያ።</p></div>
+<div><i>02</i><h3>CORE GUIDE</h3><p>7 ዋና ትምህርቶች ስለ ባህሪ፣ ስሜትና ሕጎች።</p></div>
+<div><i>03</i><h3>ACTION WORKBOOK</h3><p>መከታተያና የልምምድ እቅድ ቅጾች።</p></div>
+<div><i>04</i><h3>QUICK HELP &amp; SCRIPTS</h3><p>በአስቸጋሪ ጊዜ ምን ማለትና ማድረግ እንደሚችሉ ምሳሌዎች።</p></div>
+<div><i>05</i><h3>30-DAY PRACTICE PROGRAM</h3><p>የየቀኑ አጭር ልምምዶችና የ30 ቀን መከታተያ እቅድ።</p></div>
+</div>
+<p class="sum">አምስቱም በ<b>1,500 ብር</b> ግዢ ውስጥ ተካትተዋል።</p></section>
+
+<section class="opt"><span class="tag">OPTION C · Tap-to-expand (shortest)</span>
+<h2>በParentWise ምን ያገኛሉ?</h2><p class="intro">እርስ በርስ የሚደጋገፉ አምስት ክፍሎች በአንድ ላይ።</p>
+<div class="c">
+<details open><summary><span>1</span>START HERE</summary><p>ለልጅዎ ዕድሜና ለገጠምዎት ችግር ተገቢውን ክፍል የሚያሳይ መምሪያ።</p></details>
+<details><summary><span>2</span>CORE GUIDE</summary><p>ስለ ባህሪ፣ ስሜትና የቤተሰብ ሕጎች 7 ዋና ትምህርቶች።</p></details>
+<details><summary><span>3</span>ACTION WORKBOOK</summary><p>የባህሪ መከታተያ፣ የቤተሰብ ሕግና የልምምድ እቅድ ቅጾች።</p></details>
+<details><summary><span>4</span>QUICK HELP &amp; PARENT SCRIPTS</summary><p>በአስቸጋሪ ጊዜ ምን ማለትና ማድረግ እንደሚችሉ የሚያሳዩ ምሳሌዎች።</p></details>
+<details><summary><span>5</span>30-DAY PRACTICE PROGRAM</summary><p>የየቀኑ አጭር ልምምዶችና የ30 ቀን መከታተያ እቅድ።</p></details>
+</div>
+<p class="sum">አምስቱም በ<b>1,500 ብር</b> ግዢ ውስጥ ተካትተዋል።</p></section>
+</body></html>

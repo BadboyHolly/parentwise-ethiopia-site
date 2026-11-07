@@ -1,0 +1,58 @@
+<!doctype html><html lang="am"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>How it helps: options</title>
+<style>
+@font-face{font-family:ParentWise;src:url(assets/fonts/inter-400.woff2) format("woff2");font-weight:400;unicode-range:U+0000-00FF,U+2000-206F}
+@font-face{font-family:ParentWise;src:url(assets/fonts/inter-500.woff2) format("woff2");font-weight:500;unicode-range:U+0000-00FF,U+2000-206F}
+@font-face{font-family:ParentWise;src:url(assets/fonts/inter-600.woff2) format("woff2");font-weight:600;unicode-range:U+0000-00FF,U+2000-206F}
+@font-face{font-family:ParentWise;src:url(assets/fonts/inter-700.woff2) format("woff2");font-weight:700;unicode-range:U+0000-00FF,U+2000-206F}
+@font-face{font-family:ParentWise;src:url(assets/fonts/parentwise-font-01.woff2) format("woff2");font-weight:400 700;unicode-range:U+1200-139F,U+2D80-2DDF}
+*{box-sizing:border-box}body{margin:0;background:#F8F4EC;font-family:ParentWise,"Noto Sans Ethiopic",system-ui,sans-serif;color:#202928}
+.lab{background:#7A2E3E;color:#fff;font:700 13px/1.4 ParentWise,sans-serif;padding:9px 14px}.lab small{display:block;font-weight:400;opacity:.92}
+.sec{max-width:430px;margin:0 auto;padding:26px 17px 30px}
+.kick{display:flex;align-items:center;justify-content:center;gap:10px;margin:0 0 8px;color:#7A2E3E;font:700 13px/1 ParentWise,sans-serif}.kick:before,.kick:after{content:"";width:34px;height:2px;background:#7A2E3E}
+h2{font:700 25px/1.5 ParentWise,sans-serif;color:#1F4D3A;text-align:center;margin:0}
+.in{font:400 16px/1.8 ParentWise,sans-serif;color:#3f4d46;text-align:center;margin:8px 0 18px}
+mark{background:none;color:#1F4D3A;font-weight:700;box-shadow:inset 0 -.42em 0 rgba(31,77,58,.14);padding:0 1px}
+.end{margin-top:14px;background:#1F4D3A;color:#fff;border-radius:20px;padding:16px 18px;font:500 16.5px/1.85 ParentWise,sans-serif;display:flex;gap:12px;align-items:flex-start}
+.end svg{flex:none;margin-top:4px}.end b{font-weight:700}
+/* A compact timeline */
+.A .tl{position:relative;padding-left:0}
+.A .tl:before{content:"";position:absolute;left:19px;top:20px;bottom:20px;width:3px;background:#d9cfbd;border-radius:3px}
+.A .st{position:relative;padding-left:52px;margin-bottom:12px}
+.A .nd{position:absolute;left:0;top:10px;width:40px;height:40px;border-radius:50%;background:#1F4D3A;color:#fff;display:grid;place-items:center;font:700 17px/1 ParentWise,sans-serif;box-shadow:0 0 0 5px #F8F4EC}
+.A .cd{background:#fff;border:1px solid #e3d8c6;border-radius:18px;padding:14px 15px 15px;box-shadow:0 14px 22px -20px rgba(31,77,58,.6)}
+.A .cd h3{font:700 18.5px/1.5 ParentWise,sans-serif;color:#1F4D3A;margin:0 0 6px}
+.A .cd p{font:400 16px/1.8 ParentWise,sans-serif;color:#202928;margin:0}.A .cd p+p{margin-top:5px;color:#4a5852;font-size:15.5px}
+/* B tabs */
+.B .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.B .tb{border:1.5px solid #1F4D3A;background:#fff;color:#1F4D3A;border-radius:16px;padding:10px 6px 9px;font:700 13.5px/1.3 ParentWise,sans-serif;display:flex;flex-direction:column;align-items:center;gap:6px;min-height:78px;justify-content:center;cursor:pointer}
+.B .tb i{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#e4ece6;font:700 15px/1 ParentWise,sans-serif;font-style:normal}
+.B .tb.on{background:#1F4D3A;color:#fff}.B .tb.on i{background:#fff;color:#1F4D3A}
+.B .pn{margin-top:12px;background:#fff;border:1px solid #e3d8c6;border-radius:20px;padding:16px 16px 18px;min-height:230px;box-shadow:0 14px 22px -20px rgba(31,77,58,.6);animation:sw .35s both}
+@keyframes sw{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.B .pn h3{font:700 20px/1.5 ParentWise,sans-serif;color:#1F4D3A;margin:0 0 8px}.B .pn p{font:400 16.5px/1.85 ParentWise,sans-serif;color:#202928;margin:0}.B .pn p+p{margin-top:8px;color:#4a5852}
+.B .nx{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;min-height:50px;border:0;border-radius:14px;background:#7A2E3E;color:#fff;font:700 15.5px/1.2 ParentWise,sans-serif;width:100%;cursor:pointer}
+.B .dots{display:flex;justify-content:center;gap:6px;margin-top:12px}.B .dots i{width:7px;height:7px;border-radius:50%;background:#cfc6b4}.B .dots i.on{width:22px;border-radius:5px;background:#7A2E3E}
+/* C big numeral cards */
+.C .cd{position:relative;overflow:hidden;background:#fff;border:1px solid #e3d8c6;border-radius:20px;padding:16px 16px 17px 16px;margin-bottom:12px;box-shadow:0 14px 22px -20px rgba(31,77,58,.6);border-left:7px solid #1F4D3A}
+.C .big{position:absolute;right:10px;top:-8px;font:700 84px/1 ParentWise,sans-serif;color:#1F4D3A;opacity:.09}
+.C .tag{display:inline-flex;align-items:center;gap:7px;color:#7A2E3E;font:700 12.5px/1 ParentWise,sans-serif;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+.C .cd h3{position:relative;font:700 19px/1.5 ParentWise,sans-serif;color:#1F4D3A;margin:0 38px 6px 0}
+.C .cd p{position:relative;font:400 16px/1.8 ParentWise,sans-serif;color:#202928;margin:0}.C .cd p+p{margin-top:5px;color:#4a5852;font-size:15.5px}
+</style></head><body>
+<div class="lab">OPTION A: compact timeline<small>Slim line and 40px nodes, full-width cards, one bold phrase per line, lighter body text</small></div>
+<section class="sec A" id="a"></section>
+<div class="lab">OPTION B: 3 step tabs, one card at a time<small>Shortest. Tap 1 / 2 / 3 or "next" to move through the steps</small></div>
+<section class="sec B" id="b"></section>
+<div class="lab">OPTION C: numbered cards, no line<small>Large faint numerals, green edge, widest text, no timeline</small></div>
+<section class="sec C" id="c"></section>
+<script>
+var S=[{t:'የልጅዎን ባህሪ ይረዱ',a:'ልጅዎ ሲናደድ ወይም «እምቢ» ሲል፣ ከዚያ በፊት <mark>ምን እንደተፈጠረ ማስተዋል</mark> ይማራሉ።',b:'<mark>የሚደጋገሙ ሁኔታዎችን</mark> ለመለየት የሚረዱ ጥያቄዎችንና ምሳሌዎችን ያገኛሉ።'},{t:'ምን ማለትና ቀጥሎ ምን ማድረግ እንዳለብዎት ይወቁ',a:'ልጅዎ «እምቢ» ሲል ወይም ሲናደድ፣ ሊጠቀሙባቸው የሚችሉ <mark>የንግግር ምሳሌዎችን</mark> ያገኛሉ።',b:'ወዲያውኑ ባይስማማም፣ <mark>ቀጥሎ ምን ማድረግ</mark> እንደሚችሉ ይማራሉ።'},{t:'እቅድ አውጥተው በየቀኑ ይለማመዱ',a:'ለቤተሰብዎ <mark>ግልጽ ሕጎችን</mark> ያዘጋጃሉ።',b:'<mark>የ30 ቀን የልምምድ እቅዱንና የተግባር ቅጾችን</mark> ተጠቅመው የተማሩትን ይሞክራሉ፤ ምን እንደረዳዎትና ምን መቀየር እንዳለብዎት ይከታተላሉ።'}];
+var HD='<div class="kick">04</div><h2>ParentWise እንዴት ይረዳዎታል?</h2><p class="in">የልጅዎን ባህሪ ለመረዳት፣ በአስቸጋሪ ሰዓት ተገቢውን ምላሽ ለመስጠትና ለቤተሰብዎ የሚስማማ እቅድ ለማውጣት የሚረዳዎት ግልጽ መመሪያ።</p>';
+var HEART='<svg width="26" height="26" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z" fill="none" stroke="#fff" stroke-width="1.9" stroke-linejoin="round"/></svg>';
+var END='<div class="end">'+HEART+'<div>ዓላማው የዛሬን ችግር ማስቆም ብቻ ሳይሆን፣ ልጅዎ ቀስ በቀስ <b>ጥሩ ልማዶችን</b> እንዲያዳብር መርዳትም ነው።</div></div>';
+document.getElementById('a').innerHTML=HD+'<div class="tl">'+S.map(function(s,i){return '<div class="st"><span class="nd">'+(i+1)+'</span><div class="cd"><h3>'+s.t+'</h3><p>'+s.a+'</p><p>'+s.b+'</p></div></div>'}).join('')+'</div>'+END;
+document.getElementById('c').innerHTML=HD+S.map(function(s,i){return '<div class="cd"><span class="big">'+(i+1)+'</span><span class="tag">ደረጃ '+(i+1)+' / 3</span><h3>'+s.t+'</h3><p>'+s.a+'</p><p>'+s.b+'</p></div>'}).join('')+END;
+var B=document.getElementById('b'),cur=0;
+function rb(){B.innerHTML=HD+'<div class="tabs">'+S.map(function(s,i){return '<button class="tb'+(i===cur?' on':'')+'" data-i="'+i+'"><i>'+(i+1)+'</i>'+['ይረዱ','ይወቁ','ይለማመዱ'][i]+'</button>'}).join('')+'</div><div class="pn"><h3>'+S[cur].t+'</h3><p>'+S[cur].a+'</p><p>'+S[cur].b+'</p></div>'+(cur<2?'<button class="nx" data-i="'+(cur+1)+'">ቀጣይ ደረጃ →</button>':'')+'<div class="dots">'+S.map(function(s,i){return '<i class="'+(i===cur?'on':'')+'"></i>'}).join('')+'</div>'+(cur===2?END:'');B.querySelectorAll('[data-i]').forEach(function(x){x.onclick=function(){cur=+x.dataset.i;rb()}})}
+rb();
+</script></body></html>

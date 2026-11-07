@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="am"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How it helps options</title>
+<style>
+@font-face{font-family:PW;src:url("assets/fonts/parentwise-font-01.woff2") format("woff2");font-weight:400}
+@font-face{font-family:PW;src:url("assets/fonts/parentwise-font-02.woff2") format("woff2");font-weight:700}
+:root{--g:#1F4D3A;--iv:#F8F4EC;--m:#7A2E3E;--ink:#202928;--mute:#56645d;--line:#e3d8c6;--tint:#EEF3EF}
+*{box-sizing:border-box;margin:0}
+body{font-family:PW,sans-serif;background:#d9d2c2;color:var(--ink)}
+.opt{max-width:430px;margin:0 auto 18px;background:var(--iv);padding:56px 14px 34px;position:relative;overflow:hidden}
+.tag{position:absolute;top:14px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font:700 12px/1 sans-serif;padding:8px 12px;border-radius:999px;white-space:nowrap}
+button{font-family:inherit;cursor:pointer}
+:focus-visible{outline:3px solid #e9c46a;outline-offset:3px}
+svg{display:block}
+.bar{display:block;width:44px;height:3px;border-radius:3px;background:var(--m);margin:0 auto 12px}
+h2{font:800 26px/1.4 PW,sans-serif;color:var(--g);text-align:center;text-wrap:balance}
+.intro{font:400 15px/1.7 PW,sans-serif;color:var(--mute);text-align:center;margin:10px 4px 0}
+.lead{font:800 16.5px/1.6 PW,sans-serif;color:var(--ink)}
+.rest{font:400 15px/1.75 PW,sans-serif;color:var(--mute);margin-top:6px}
+/* ===== A: journey path ===== */
+.path{position:relative;margin-top:26px;padding-left:0}
+.stp{position:relative;display:grid;grid-template-columns:64px 1fr;gap:14px;padding-bottom:20px}
+.stp:last-child{padding-bottom:0}
+.stp:not(:last-child):before{content:"";position:absolute;left:31px;top:68px;bottom:4px;width:0;border-left:3px dashed #cfdcd3}
+.ic{position:relative;display:grid;place-items:center;width:64px;height:64px;border-radius:50%;background:var(--g);color:#fff;box-shadow:0 12px 20px -12px rgba(31,77,58,.7)}
+.stp:nth-child(2) .ic{background:var(--m);box-shadow:0 12px 20px -12px rgba(122,46,62,.7)}
+.ic i{position:absolute;top:-4px;right:-4px;width:24px;height:24px;border-radius:50%;background:#fff;color:var(--ink);border:2px solid var(--iv);font:800 12px/20px sans-serif;text-align:center;font-style:normal;box-shadow:0 0 0 1px var(--line)}
+.card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:14px 16px 16px;box-shadow:0 14px 24px -20px rgba(31,77,58,.5)}
+.card h3{font:800 18px/1.4 PW,sans-serif;color:var(--g);margin-bottom:8px}
+.rv{opacity:0;transform:translateY(16px);transition:opacity .5s ease,transform .5s cubic-bezier(.2,.7,.2,1)}
+.rv.in{opacity:1;transform:none}
+.stp:nth-child(2){transition-delay:.12s}.stp:nth-child(3){transition-delay:.24s}
+/* ===== B: icon tabs + one panel ===== */
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:24px}
+.tb{position:relative;display:grid;justify-items:center;gap:6px;padding:12px 4px 10px;background:#fff;border:2px solid var(--line);border-radius:18px;color:var(--mute);transition:border-color .2s,background .2s,color .2s,transform .12s;min-height:84px}
+.tb:active{transform:scale(.97)}
+.tb .ci{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:var(--tint);color:var(--g);transition:background .2s,color .2s}
+.tb b{font:800 12.5px/1 sans-serif;letter-spacing:.06em}
+.tb[aria-selected=true]{border-color:var(--m);background:#fbf3f4;color:var(--m)}
+.tb[aria-selected=true] .ci{background:var(--m);color:#fff}
+.panel{margin-top:14px;background:#fff;border:1px solid var(--line);border-radius:22px;padding:22px 18px 18px;box-shadow:0 14px 26px -20px rgba(31,77,58,.5);animation:up .35s both}
+.panel[hidden]{display:none}
+.panel .big{display:grid;place-items:center;width:72px;height:72px;border-radius:50%;background:var(--m);color:#fff;margin:0 auto 14px}
+.panel h3{font:800 20px/1.45 PW,sans-serif;color:var(--g);text-align:center;text-wrap:balance}
+.panel .lead{margin-top:14px;text-align:center}
+.panel .rest{text-align:center}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:18px;padding-top:14px;border-top:1px solid #efe6d7}
+.nav button{display:grid;place-items:center;width:48px;height:48px;border-radius:50%;border:1.5px solid var(--g);background:#fff;color:var(--g)}
+.nav button:disabled{opacity:.35}
+.dots{display:flex;gap:6px}.dots i{width:7px;height:7px;border-radius:50%;background:#d6cbb4;transition:all .2s}.dots i.on{width:22px;border-radius:9px;background:var(--m)}
+.opt.c{overflow:clip}
+.stack{margin-top:26px}
+.sc{position:sticky;border-radius:28px;padding:22px 20px 24px;margin-bottom:14px;color:#fff;box-shadow:0 20px 34px -22px rgba(0,0,0,.55);transform-origin:50% 0;will-change:transform}
+.sc.g{background:var(--g)}.sc.m{background:var(--m)}.sc.w{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.sc .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.sc .ic2{display:grid;place-items:center;width:62px;height:62px;border-radius:20px;background:rgba(255,255,255,.16)}
+.sc.w .ic2{background:var(--tint);color:var(--g)}
+.sc .nm{font:800 54px/1 sans-serif;letter-spacing:-.02em;color:rgba(255,255,255,.28)}
+.sc.w .nm{color:#e4dccb}
+.sc h3{font:800 21px/1.45 PW,sans-serif;text-wrap:balance}
+.sc.w h3{color:var(--g)}
+.sc .ld{font:700 16.5px/1.65 PW,sans-serif;margin-top:12px}
+.sc .rs{font:400 15px/1.75 PW,sans-serif;margin-top:8px;opacity:.9}
+.sc.w .rs{color:var(--mute);opacity:1}
+@keyframes up{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}.rv{opacity:1!important;transform:none!important}}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="s1" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="m15.5 15.5 5 5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+<symbol id="s2" viewBox="0 0 24 24"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5 10 10 0 0 1-4.5-1.1L3 21l1.3-5.1A8.5 8.5 0 1 1 21 11.5Z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></symbol>
+<symbol id="s3" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.9"/><circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="1.9"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/></symbol>
+<symbol id="lf" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="rt" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</defs></svg>
+
+<!-- ============ A ============ -->
+<section class="opt"><span class="tag">A · Journey path</span>
+<span class="bar"></span><h2>ParentWise እንዴት ይረዳዎታል?</h2>
+<p class="intro">የልጅዎን ባህሪ ለመረዳት፣ በአስቸጋሪ ሰዓት ተገቢውን ምላሽ ለመስጠትና ለቤተሰብዎ የሚስማማ እቅድ ለማውጣት የሚረዳዎት ግልጽ መመሪያ።</p>
+<div class="path">
+<div class="stp rv"><div class="ic"><svg width="30" height="30"><use href="#s1"/></svg><i>1</i></div><div class="card"><h3>የልጅዎን ባህሪ ይረዱ</h3><p class="lead">ልጅዎ ሲናደድ ወይም «እምቢ» ሲል፣ ከዚያ በፊት ምን እንደተፈጠረ ማስተዋል ይማራሉ።</p><p class="rest">የሚደጋገሙ ሁኔታዎችን ለመለየት የሚረዱ ጥያቄዎችንና ምሳሌዎችን ያገኛሉ።</p></div></div>
+<div class="stp rv"><div class="ic"><svg width="30" height="30"><use href="#s2"/></svg><i>2</i></div><div class="card"><h3>ምን ማለትና ቀጥሎ ምን ማድረግ እንዳለብዎት ይወቁ</h3><p class="lead">ልጅዎ «እምቢ» ሲል ወይም ሲናደድ፣ ሊጠቀሙባቸው የሚችሉ የንግግር ምሳሌዎችን ያገኛሉ።</p><p class="rest">ወዲያውኑ ባይስማማም፣ ቀጥሎ ምን ማድረግ እንደሚችሉ ይማራሉ።</p></div></div>
+<div class="stp rv"><div class="ic"><svg width="30" height="30"><use href="#s3"/></svg><i>3</i></div><div class="card"><h3>እቅድ አውጥተው በየቀኑ ይለማመዱ</h3><p class="lead">ለቤተሰብዎ ግልጽ ሕጎችን ያዘጋጁ።</p><p class="rest">የ30 ቀን የልምምድ እቅዱንና የተግባር ቅጾችን ተጠቅመው የተማሩትን ይሞክሩ። ምን እንደረዳዎትና ምን መቀየር እንዳለብዎት ይከታተሉ።</p></div></div>
+</div></section>
+
+<!-- ============ B ============ -->
+<section class="opt"><span class="tag">B · Three icon tabs, one panel</span>
+<span class="bar"></span><h2>ParentWise እንዴት ይረዳዎታል?</h2>
+<p class="intro">የልጅዎን ባህሪ ለመረዳት፣ በአስቸጋሪ ሰዓት ተገቢውን ምላሽ ለመስጠትና ለቤተሰብዎ የሚስማማ እቅድ ለማውጣት የሚረዳዎት ግልጽ መመሪያ።</p>
+<div class="tabs" role="tablist">
+<button class="tb" role="tab" aria-selected="true" aria-label="የልጅዎን ባህሪ ይረዱ" data-i="0"><span class="ci"><svg width="24" height="24"><use href="#s1"/></svg></span><b>1</b></button>
+<button class="tb" role="tab" aria-selected="false" aria-label="ምን ማለትና ቀጥሎ ምን ማድረግ እንዳለብዎት ይወቁ" data-i="1"><span class="ci"><svg width="24" height="24"><use href="#s2"/></svg></span><b>2</b></button>
+<button class="tb" role="tab" aria-selected="false" aria-label="እቅድ አውጥተው በየቀኑ ይለማመዱ" data-i="2"><span class="ci"><svg width="24" height="24"><use href="#s3"/></svg></span><b>3</b></button></div>
+<div class="panel" id="p0"><span class="big"><svg width="36" height="36"><use href="#s1"/></svg></span><h3>የልጅዎን ባህሪ ይረዱ</h3><p class="lead">ልጅዎ ሲናደድ ወይም «እምቢ» ሲል፣ ከዚያ በፊት ምን እንደተፈጠረ ማስተዋል ይማራሉ።</p><p class="rest">የሚደጋገሙ ሁኔታዎችን ለመለየት የሚረዱ ጥያቄዎችንና ምሳሌዎችን ያገኛሉ።</p></div>
+<div class="panel" id="p1" hidden><span class="big"><svg width="36" height="36"><use href="#s2"/></svg></span><h3>ምን ማለትና ቀጥሎ ምን ማድረግ እንዳለብዎት ይወቁ</h3><p class="lead">ልጅዎ «እምቢ» ሲል ወይም ሲናደድ፣ ሊጠቀሙባቸው የሚችሉ የንግግር ምሳሌዎችን ያገኛሉ።</p><p class="rest">ወዲያውኑ ባይስማማም፣ ቀጥሎ ምን ማድረግ እንደሚችሉ ይማራሉ።</p></div>
+<div class="panel" id="p2" hidden><span class="big"><svg width="36" height="36"><use href="#s3"/></svg></span><h3>እቅድ አውጥተው በየቀኑ ይለማመዱ</h3><p class="lead">ለቤተሰብዎ ግልጽ ሕጎችን ያዘጋጁ።</p><p class="rest">የ30 ቀን የልምምድ እቅዱንና የተግባር ቅጾችን ተጠቅመው የተማሩትን ይሞክሩ። ምን እንደረዳዎትና ምን መቀየር እንዳለብዎት ይከታተሉ።</p></div>
+<div class="nav" style="margin-top:14px"><button id="pv" aria-label="ቀዳሚ" disabled><svg width="22" height="22"><use href="#lf"/></svg></button><div class="dots" id="dts"><i class="on"></i><i></i><i></i></div><button id="nx" aria-label="ቀጣይ"><svg width="22" height="22"><use href="#rt"/></svg></button></div></section>
+
+<section class="opt c"><span class="tag">C · Stacked cards, just scroll</span><span class="bar"></span><h2>ParentWise እንዴት ይረዳዎታል?</h2><p class="intro">የልጅዎን ባህሪ ለመረዳት፣ በአስቸጋሪ ሰዓት ተገቢውን ምላሽ ለመስጠትና ለቤተሰብዎ የሚስማማ እቅድ ለማውጣት የሚረዳዎት ግልጽ መመሪያ።</p><div class="stack" id="stk"><article class="sc g" style="top:16px;z-index:1"><div class="top"><span class="ic2"><svg width="32" height="32"><use href="#s1"/></svg></span><span class="nm">01</span></div><h3>የልጅዎን ባህሪ ይረዱ</h3><p class="ld">ልጅዎ ሲናደድ ወይም «እምቢ» ሲል፣ ከዚያ በፊት ምን እንደተፈጠረ ማስተዋል ይማራሉ።</p><p class="rs">የሚደጋገሙ ሁኔታዎችን ለመለየት የሚረዱ ጥያቄዎችንና ምሳሌዎችን ያገኛሉ።</p></article><article class="sc m" style="top:28px;z-index:2"><div class="top"><span class="ic2"><svg width="32" height="32"><use href="#s2"/></svg></span><span class="nm">02</span></div><h3>ምን ማለትና ቀጥሎ ምን ማድረግ እንዳለብዎት ይወቁ</h3><p class="ld">ልጅዎ «እምቢ» ሲል ወይም ሲናደድ፣ ሊጠቀሙባቸው የሚችሉ የንግግር ምሳሌዎችን ያገኛሉ።</p><p class="rs">ወዲያውኑ ባይስማማም፣ ቀጥሎ ምን ማድረግ እንደሚችሉ ይማራሉ።</p></article><article class="sc w" style="top:40px;z-index:3"><div class="top"><span class="ic2"><svg width="32" height="32"><use href="#s3"/></svg></span><span class="nm">03</span></div><h3>እቅድ አውጥተው በየቀኑ ይለማመዱ</h3><p class="ld">ለቤተሰብዎ ግልጽ ሕጎችን ያዘጋጁ።</p><p class="rs">የ30 ቀን የልምምድ እቅዱንና የተግባር ቅጾችን ተጠቅመው የተማሩትን ይሞክሩ። ምን እንደረዳዎትና ምን መቀየር እንዳለብዎት ይከታተሉ።</p></article></div><div style="height:40px"></div></section><script>
+var tbs=[].slice.call(document.querySelectorAll('.tb')),pn=[0,1,2].map(function(i){return document.getElementById('p'+i)}),dt=document.querySelectorAll('#dts i'),pv=document.getElementById('pv'),nx=document.getElementById('nx'),cur=0;
+function go(i){cur=Math.max(0,Math.min(2,i));tbs.forEach(function(t,k){t.setAttribute('aria-selected',k===cur)});pn.forEach(function(p,k){p.hidden=k!==cur});dt.forEach(function(d,k){d.className=k===cur?'on':''});pv.disabled=cur===0;nx.disabled=cur===2}
+tbs.forEach(function(t){t.addEventListener('click',function(){go(+t.dataset.i)})});pv.onclick=function(){go(cur-1)};nx.onclick=function(){go(cur+1)};
+(function(){var cs=[].slice.call(document.querySelectorAll("#stk .sc"));if(!cs.length||(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches))return;var t=0;function f(){t=0;cs.forEach(function(c,i){var n=cs[i+1];if(!n){return}var h=c.offsetHeight,d=n.getBoundingClientRect().top-c.getBoundingClientRect().top,p=Math.max(0,Math.min(1,(h-d)/(h-12)));c.style.transform="scale("+(1-.05*p)+")";c.style.filter="brightness("+(1-.12*p)+")"})}addEventListener("scroll",function(){if(!t)t=requestAnimationFrame(f)},{passive:true});f()})();
+var els=[].slice.call(document.querySelectorAll('.rv'));if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.15});els.forEach(function(e){io.observe(e)})}else{els.forEach(function(e){e.classList.add('in')})}
+</script></body></html>

@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="am"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Header options</title>
+<style>
+@font-face{font-family:PW;src:url("assets/fonts/parentwise-font-01.woff2") format("woff2");font-weight:400}
+@font-face{font-family:PW;src:url("assets/fonts/parentwise-font-02.woff2") format("woff2");font-weight:700}
+:root{--g:#1F4D3A;--iv:#F8F4EC;--m:#7A2E3E;--ink:#202928;--mute:#56645d;--line:#e3d8c6}
+*{box-sizing:border-box;margin:0}
+body{font-family:PW,sans-serif;background:#d9d2c2;color:var(--ink);padding-bottom:20px}
+.opt{max-width:430px;margin:0 auto 18px;background:#d9d2c2}
+.tag{display:block;width:max-content;margin:18px auto 10px;background:var(--ink);color:#fff;font:700 12px/1 sans-serif;padding:7px 12px;border-radius:999px}
+.cap{font:700 12px/1 sans-serif;color:#56645d;margin:10px 16px 6px;text-transform:uppercase;letter-spacing:.08em}
+.frame{background:var(--iv);overflow:hidden;margin-bottom:10px}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+/* ===== shared sales-style bar ===== */
+.bar{display:flex;align-items:center;justify-content:space-between;padding:18px 17px;height:80px}
+.bar .logo img{width:156px;height:auto}
+.rb{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:rgba(8,55,41,.68);color:#fff}
+.rb svg{display:block}
+.rb.txt{width:auto;padding:0 14px;border-radius:999px;font:700 13px/1 PW,sans-serif;gap:8px;display:inline-flex;align-items:center}
+/* ===== policy title blocks ===== */
+.kick{font:700 11.5px/1 sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--m)}
+.bar3{display:block;width:44px;height:3px;border-radius:3px;background:var(--m);margin:0 auto 14px}
+h1{font:800 26px/1.4 PW,sans-serif;color:var(--g);text-wrap:balance}
+.p-a{padding:6px 18px 22px;text-align:center}
+.p-a .kick{display:block;margin-bottom:10px}
+.p-b{padding:4px 18px 22px}
+.p-b .back{display:inline-flex;align-items:center;gap:6px;min-height:44px;font:700 14px PW,sans-serif;color:var(--g)}
+.p-b .kick{display:block;margin:2px 0 8px}
+.p-c{padding:4px 14px 16px}
+.p-c .card{background:var(--g);color:#fff;border-radius:22px;padding:22px 20px}
+.p-c .kick{color:#d8e4dc;display:block;margin-bottom:8px}
+.p-c h1{color:#fff;font-size:24px}
+.p-c small{display:block;margin-top:6px;font:500 13px/1.5 sans-serif;color:#d8e4dc}
+/* ===== checkout steps ===== */
+.steps{display:flex;align-items:flex-start;justify-content:center;gap:0;padding:0 18px}
+.st{display:grid;justify-items:center;gap:6px;width:92px;font:700 12.5px/1.2 PW,sans-serif;color:var(--mute)}
+.st i{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;border:2px solid #cdbf9f;font:700 14px/1 sans-serif;font-style:normal;background:#fff;color:var(--mute)}
+.st.on{color:var(--g)}.st.on i{background:var(--m);border-color:var(--m);color:#fff}
+.ln{flex:1;height:2px;background:#d6cbb4;margin-top:17px;max-width:40px}
+.c-a{padding:0 0 20px;text-align:center}
+.c-a h1{margin:18px 18px 6px}.c-a .sub{font-size:14.5px;line-height:1.6;color:var(--mute);margin:0 18px}
+.c-b{padding:0 14px 20px}
+.c-b .card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:16px 8px 20px;text-align:center;box-shadow:0 12px 24px -18px rgba(31,77,58,.45)}
+.c-b h1{font-size:23px;margin:16px 14px 4px}.c-b .sub{font-size:14px;color:var(--mute);margin:0 14px}
+.c-c{padding:0 14px 16px}
+.c-c .card{background:var(--g);color:#fff;border-radius:22px;padding:18px 10px 20px;text-align:center}
+.c-c .st{color:#cfdcd3}.c-c .st i{background:transparent;border-color:rgba(255,255,255,.45);color:#fff}
+.c-c .st.on{color:#fff}.c-c .st.on i{background:var(--iv);border-color:var(--iv);color:var(--m)}
+.c-c .ln{background:rgba(255,255,255,.35)}
+.c-c h1{color:#fff;font-size:23px;margin:16px 14px 4px}.c-c .sub{font-size:14px;color:#dbe7e0;margin:0 14px}
+.fld{margin:16px 16px 0;padding:14px;border:1px solid var(--line);background:#fff;border-radius:14px;color:#8a9489;font-size:14px}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="ar" viewBox="0 0 24 24"><path d="M19 12H5m6-6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="hp" viewBox="0 0 24 24"><path d="M21 4L3 11l5.5 2L10 19l3-4 4.5 3.5L21 4z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></symbol>
+</defs></svg>
+
+<!-- ============ A ============ -->
+<section class="opt"><span class="tag">HEADER A · Exact twin of the sales bar</span>
+<p class="cap">Policy pages</p>
+<div class="frame"><div class="bar"><a class="logo" href="#"><img src="assets/img/page-02.webp" alt="ParentWise Ethiopia"></a><a class="rb" href="#" aria-label="ወደ ዋናው ገጽ ይመለሱ"><svg width="22" height="22"><use href="#ar"/></svg></a></div>
+<div class="p-a"><span class="bar3"></span><span class="kick">ParentWise Ethiopia · Terms &amp; Conditions</span><h1>የግዢና የአጠቃቀም ውሎች</h1></div></div>
+<p class="cap">Checkout</p>
+<div class="frame"><div class="bar"><a class="logo" href="#"><img src="assets/img/page-02.webp" alt="ParentWise Ethiopia"></a><a class="rb" href="#" aria-label="እገዛ በቴሌግራም"><svg width="22" height="22"><use href="#hp"/></svg></a></div>
+<div class="c-a"><div class="steps"><div class="st on"><i>1</i>መረጃ</div><span class="ln"></span><div class="st"><i>2</i>ክፍያ</div><span class="ln"></span><div class="st"><i>3</i>ማስረጃ ይላኩ</div></div>
+<h1>የእርስዎ መረጃ</h1><p class="sub">ሙሉ ስምዎንና ስልክ ቁጥርዎን ያስገቡ።</p><div class="fld" style="text-align:left">ሙሉ ስምዎን ያስገቡ</div></div></div></section>
+
+<!-- ============ B ============ -->
+<section class="opt"><span class="tag">HEADER B · Twin + back link + white step card</span>
+<p class="cap">Policy pages</p>
+<div class="frame"><div class="bar"><a class="logo" href="#"><img src="assets/img/page-02.webp" alt="ParentWise Ethiopia"></a><a class="rb" href="#" aria-label="ወደ ዋናው ገጽ ይመለሱ"><svg width="22" height="22"><use href="#ar"/></svg></a></div>
+<div class="p-b"><a class="back" href="#"><svg width="18" height="18"><use href="#ar"/></svg>ወደ ዋናው ገጽ ይመለሱ</a><span class="kick">ParentWise Ethiopia · Terms &amp; Conditions</span><h1>የግዢና የአጠቃቀም ውሎች</h1></div></div>
+<p class="cap">Checkout</p>
+<div class="frame"><div class="bar"><a class="logo" href="#"><img src="assets/img/page-02.webp" alt="ParentWise Ethiopia"></a><a class="rb txt" href="#"><svg width="18" height="18"><use href="#hp"/></svg>እገዛ</a></div>
+<div class="c-b"><div class="card"><div class="steps"><div class="st on"><i>1</i>መረጃ</div><span class="ln"></span><div class="st"><i>2</i>ክፍያ</div><span class="ln"></span><div class="st"><i>3</i>ማስረጃ ይላኩ</div></div>
+<h1>የእርስዎ መረጃ</h1><p class="sub">ሙሉ ስምዎንና ስልክ ቁጥርዎን ያስገቡ።</p></div></div></div></section>
+
+<!-- ============ C ============ -->
+<section class="opt"><span class="tag">HEADER C · Twin + green title card</span>
+<p class="cap">Policy pages</p>
+<div class="frame"><div class="bar"><a class="logo" href="#"><img src="assets/img/page-02.webp" alt="ParentWise Ethiopia"></a><a class="rb" href="#" aria-label="ወደ ዋናው ገጽ ይመለሱ"><svg width="22" height="22"><use href="#ar"/></svg></a></div>
+<div class="p-c"><div class="card"><span class="kick">ParentWise Ethiopia · Terms &amp; Conditions</span><h1>የግዢና የአጠቃቀም ውሎች</h1><small>How We Raise Matters.</small></div></div></div>
+<p class="cap">Checkout</p>
+<div class="frame"><div class="bar"><a class="logo" href="#"><img src="assets/img/page-02.webp" alt="ParentWise Ethiopia"></a><a class="rb" href="#" aria-label="እገዛ በቴሌግራም"><svg width="22" height="22"><use href="#hp"/></svg></a></div>
+<div class="c-c"><div class="card"><div class="steps"><div class="st on"><i>1</i>መረጃ</div><span class="ln"></span><div class="st"><i>2</i>ክፍያ</div><span class="ln"></span><div class="st"><i>3</i>ማስረጃ ይላኩ</div></div>
+<h1>የእርስዎ መረጃ</h1><p class="sub">ሙሉ ስምዎንና ስልክ ቁጥርዎን ያስገቡ።</p></div></div></div></section>
+</body></html>

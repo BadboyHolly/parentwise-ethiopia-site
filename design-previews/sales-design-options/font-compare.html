@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="am"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Font comparison</title>
+<style>
+/* the three names used on the site today */
+@font-face{font-family:ParentWiseEthiopic;src:url("assets/fonts/parentwise-font-01.woff2") format("woff2");font-weight:400}
+@font-face{font-family:ParentWiseEthiopic;src:url("assets/fonts/parentwise-font-02.woff2") format("woff2");font-weight:700}
+@font-face{font-family:PWSG;src:url("assets/surgraphics-regular.woff") format("woff");font-weight:400}
+@font-face{font-family:PWSG;src:url("assets/surgraphics-bold.woff") format("woff");font-weight:700}
+@font-face{font-family:SurGraphics;src:url("assets/surgraphics-regular.woff") format("woff");font-weight:400}
+@font-face{font-family:SurGraphics;src:url("assets/surgraphics-bold.woff") format("woff");font-weight:700}
+:root{--g:#1F4D3A;--iv:#F8F4EC;--m:#7A2E3E;--ink:#202928;--mute:#56645d;--line:#e3d8c6;--tint:#EEF3EF}
+*{box-sizing:border-box;margin:0}
+body{font-family:ParentWiseEthiopic,sans-serif;background:var(--iv);color:var(--ink);max-width:430px;margin:0 auto;padding:18px 14px 40px}
+h1{font:800 24px/1.4 ParentWiseEthiopic;color:var(--g);text-align:center;margin:8px 0 4px}
+.sub{text-align:center;color:var(--mute);font:400 14.5px/1.7 ParentWiseEthiopic;margin-bottom:18px}
+.card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:16px;margin-bottom:14px;box-shadow:0 12px 22px -20px rgba(31,77,58,.5)}
+.card h2{font:800 17px/1.4 ParentWiseEthiopic;color:var(--g);margin-bottom:4px}
+.card>p.t{font:400 13.5px/1.6 ParentWiseEthiopic;color:var(--mute);margin-bottom:12px}
+.row{padding:12px 0;border-top:1px solid #efe6d7}
+.row:first-of-type{border-top:0}
+.nm{font:700 12px/1.3 system-ui,sans-serif;color:var(--m);letter-spacing:.04em;margin-bottom:6px}
+.nm span{color:var(--mute);font-weight:400}
+.smp{font-size:17px;line-height:1.7}
+.smp b{font-weight:700}
+.big{font-size:26px;line-height:1.35;margin-top:4px}
+.ok{display:inline-block;margin-top:6px;font:700 12px sans-serif;background:var(--tint);color:var(--g);padding:5px 10px;border-radius:999px}
+.bad{display:inline-block;margin-top:6px;font:700 12px sans-serif;background:#fbf3f4;color:var(--m);padding:5px 10px;border-radius:999px}
+.cols{display:grid;gap:12px}
+.box{border:1.5px dashed #d6cbb4;border-radius:16px;padding:14px;background:var(--iv)}
+.box h3{font:700 12px/1.3 system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px}
+.today h3{color:var(--m)}.after h3{color:var(--g)}
+.lbl{margin:2px 0 12px}
+/* today: exactly the stacks found on the page */
+.t-sys{font:700 11.5px/1.3 system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--m)}
+.t-geo{font:700 40px/1 Georgia,serif;color:#cdbf9f}
+.t-ar{font:700 15px/1.4 Arial,sans-serif;color:var(--ink)}
+.t-ar2{font:400 13px/1.4 Arial,sans-serif;color:var(--mute)}
+.t-int{font:700 11.5px/1 Inter,system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--m)}
+/* after: one family */
+.a *{font-family:ParentWiseEthiopic,"Noto Sans Ethiopic",system-ui,sans-serif}
+.a .t-geo{font-weight:700}
+/* reading */
+.rd-old{font:400 14px/1.65 PWSG,sans-serif;color:#56645d}
+.rd-new{font:400 16px/1.85 ParentWiseEthiopic,sans-serif;letter-spacing:.01em;color:#2f3b35;font-synthesis:none;text-rendering:optimizeLegibility}
+.rd-new mark{background:var(--tint);color:var(--g);border-radius:6px;padding:1px 5px}
+.sz{font:700 12px/1 sans-serif;color:var(--mute);margin-bottom:6px;display:block}
+table{width:100%;border-collapse:collapse;font:400 13px/1.5 system-ui,sans-serif}
+td,th{text-align:left;padding:8px 6px;border-top:1px solid #efe6d7;vertical-align:top}th{color:var(--mute);font-weight:700;border-top:0}
+.glyph{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}.glyph span{display:grid;place-items:center;min-width:52px;height:52px;border:1px solid var(--line);border-radius:12px;font-size:22px;background:#fff}
+</style></head><body>
+<h1>ፊደል (Font) ማነጻጸሪያ</h1>
+<p class="sub">ሦስቱ ስሞች አንድ ፊደል ናቸው ወይስ የተለያዩ?</p>
+
+<div class="card"><h2>1 · Same text, three names</h2><p class="t">The site loads the same typeface under three different names. Look and compare:</p>
+<div class="row"><p class="nm">ParentWiseEthiopic <span>— sales page · woff2 · 61 + 58 KB</span></p><p class="smp" style="font-family:ParentWiseEthiopic">ልጅዎ «እምቢ» ሲል፣ ምን ማለትና ምን ማድረግ እንዳለብዎት ይወቁ። ParentWise <b>1,500 ብር</b></p><p class="smp big" style="font-family:ParentWiseEthiopic;font-weight:700">ልጅዎን ለመረዳት ParentWise</p></div>
+<div class="row"><p class="nm">PWSG <span>— declared on the sales page (not used) · woff · 93 + 90 KB</span></p><p class="smp" style="font-family:PWSG">ልጅዎ «እምቢ» ሲል፣ ምን ማለትና ምን ማድረግ እንዳለብዎት ይወቁ። ParentWise <b>1,500 ብር</b></p><p class="smp big" style="font-family:PWSG;font-weight:700">ልጅዎን ለመረዳት ParentWise</p></div>
+<div class="row"><p class="nm">SurGraphics <span>— checkout + policy pages · woff · 93 + 90 KB</span></p><p class="smp" style="font-family:SurGraphics">ልጅዎ «እምቢ» ሲል፣ ምን ማለትና ምን ማድረግ እንዳለብዎት ይወቁ። ParentWise <b>1,500 ብር</b></p><p class="smp big" style="font-family:SurGraphics;font-weight:700">ልጅዎን ለመረዳት ParentWise</p></div>
+<p class="ok" style="margin-top:12px">Same design · same 513 glyphs · only the name and file size differ</p></div>
+
+<div class="card"><h2>2 · Where it really breaks: English labels and numbers</h2><p class="t">On the sales page about 180 small pieces of text use five other fonts, so the numbers and labels do not match the Amharic.</p>
+<div class="cols">
+<div class="box today"><h3>Today</h3>
+<p class="t-sys lbl">06 · OUR METHOD</p><p class="t-geo lbl">01</p><p class="t-ar">WHO guidelines on parenting interventions</p><p class="t-ar2 lbl">who.int ↗</p><p class="t-int">TRUST &amp; CREDIBILITY</p>
+<p class="bad">system-ui · Georgia · Arial · Inter mixed</p></div>
+<div class="box after a"><h3>One font</h3>
+<p class="t-sys lbl">06 · OUR METHOD</p><p class="t-geo lbl">01</p><p class="t-ar">WHO guidelines on parenting interventions</p><p class="t-ar2 lbl">who.int ↗</p><p class="t-int">TRUST &amp; CREDIBILITY</p>
+<p class="ok">All ParentWise</p></div></div></div>
+
+<div class="card"><h2>3 · Reading comfort</h2><p class="t">Same paragraph. Left: how much of the site reads today. Right: the proposed setting (bigger, more space between lines and letters).</p>
+<div class="cols">
+<div class="box today"><h3>Today · 14px / 1.65</h3><p class="rd-old">ልጅዎ ሲናደድ ወይም «እምቢ» ሲል፣ ከዚያ በፊት ምን እንደተፈጠረ ማስተዋል ይማራሉ። የሚደጋገሙ ሁኔታዎችን ለመለየት የሚረዱ ጥያቄዎችንና ምሳሌዎችን ያገኛሉ።</p></div>
+<div class="box after"><h3>Proposed · 16px / 1.85</h3><p class="rd-new">ልጅዎ ሲናደድ ወይም «እምቢ» ሲል፣ ከዚያ በፊት <mark>ምን እንደተፈጠረ ማስተዋል</mark> ይማራሉ። የሚደጋገሙ ሁኔታዎችን ለመለየት የሚረዱ ጥያቄዎችንና ምሳሌዎችን ያገኛሉ።</p></div></div></div>
+
+<div class="card"><h2>4 · Symbols the font does not have</h2><p class="t">These 8 characters are not in the font, so each phone draws them with its own system font, and they look different on every phone.</p>
+<div class="glyph"><span>→</span><span>←</span><span>↗</span><span>⌄</span><span>·</span><span>▶</span><span>⤢</span><span>▤</span></div>
+<p class="t" style="margin-top:12px">Fix: replace the arrows and icons with small drawn icons (SVG) so they look the same on every phone.</p></div>
+</body></html>

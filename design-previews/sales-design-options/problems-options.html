@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="am"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pain points options</title>
+<style>
+@font-face{font-family:PW;src:url("assets/fonts/parentwise-font-01.woff2") format("woff2");font-weight:400}
+@font-face{font-family:PW;src:url("assets/fonts/parentwise-font-02.woff2") format("woff2");font-weight:700}
+:root{--g:#1F4D3A;--iv:#F8F4EC;--m:#7A2E3E;--ink:#202928;--mute:#56645d;--line:#e3d8c6}
+*{box-sizing:border-box;margin:0}
+body{font-family:PW,sans-serif;background:#d9d2c2;color:var(--ink)}
+.opt{max-width:430px;margin:0 auto 22px;background:var(--iv);padding:46px 0 30px;position:relative;overflow:hidden}
+.tag{position:absolute;top:12px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font:700 12px/1 sans-serif;padding:7px 11px;border-radius:999px;white-space:nowrap}
+.bar{display:block;width:44px;height:3px;border-radius:3px;background:var(--m);margin:0 auto 14px}
+h2{font:800 26px/1.4 PW,sans-serif;color:var(--g);text-align:center;padding:0 16px;text-wrap:balance}
+.intro{font-size:15px;line-height:1.7;color:var(--mute);text-align:center;margin:10px 20px 20px}
+img{display:block}
+button{font-family:inherit}
+svg{flex:none}
+:focus-visible{outline:3px solid #e9c46a;outline-offset:3px}
+/* ===== A: tap what you face ===== */
+.a-list{display:grid;gap:10px;padding:0 16px}
+.a-card{display:grid;grid-template-columns:96px 1fr 44px;align-items:stretch;text-align:left;background:#fff;border:2px solid var(--line);border-radius:18px;overflow:hidden;padding:0;cursor:pointer;min-height:112px;transition:border-color .2s,background .2s,transform .12s}
+.a-card:active{transform:scale(.985)}
+.a-card img{width:96px;height:100%;object-fit:cover}
+.a-card .t{padding:12px 4px 12px 14px;align-self:center}
+.a-card h3{font:700 16.5px/1.4 PW,sans-serif;color:var(--g)}
+.a-card p{font:400 14px/1.55 PW,sans-serif;color:var(--mute);margin-top:3px}
+.a-card .k{align-self:center;justify-self:center;width:28px;height:28px;border-radius:50%;border:2px solid #cdbf9f;display:grid;place-items:center;color:transparent;transition:all .2s}
+.a-card[aria-pressed=true]{border-color:var(--g);background:#EEF3EF}
+.a-card[aria-pressed=true] .k{background:var(--g);border-color:var(--g);color:#fff}
+.a-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:16px 16px 0;padding:14px 16px;border-radius:16px;background:var(--g);color:#fff;min-height:60px}
+.a-bar b{font:700 15px/1.3 PW,sans-serif}
+.a-bar a{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:12px;background:var(--iv);color:var(--g);font:700 14px PW,sans-serif;text-decoration:none}
+.hint{font-size:13px;color:var(--mute);text-align:center;margin:0 20px 12px}
+/* ===== B: photo swipe ===== */
+.b-track{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 40px 8px;scroll-padding:0 40px;scrollbar-width:none}
+.b-track::-webkit-scrollbar{display:none}
+.b-card{flex:0 0 82%;scroll-snap-align:center;background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:0 16px 28px -18px rgba(31,77,58,.5)}
+.b-ph{position:relative;aspect-ratio:3/2}
+.b-ph img{width:100%;height:100%;object-fit:cover}
+.b-n{position:absolute;left:12px;top:12px;min-width:36px;height:36px;padding:0 10px;border-radius:12px;background:var(--m);color:#fff;font:700 14px/36px sans-serif;text-align:center}
+.b-body{padding:16px 16px 20px}
+.b-body h3{font:800 19px/1.4 PW,sans-serif;color:var(--g)}
+.b-body p{font:400 15px/1.7 PW,sans-serif;color:var(--mute);margin-top:6px}
+.b-dots{display:flex;gap:6px;justify-content:center;margin-top:14px}
+.b-dots i{width:7px;height:7px;border-radius:50%;background:#d6cbb4;transition:all .2s}
+.b-dots i.on{width:22px;border-radius:9px;background:var(--m)}
+.b-hint{display:flex;justify-content:center;align-items:center;gap:6px;font-size:13px;color:var(--mute);margin-top:12px}
+/* ===== C: compact accordion ===== */
+.c-list{padding:0 16px;display:grid;gap:8px}
+.c-item{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.c-item summary{list-style:none;display:flex;align-items:center;gap:12px;min-height:60px;padding:8px 14px 8px 10px;cursor:pointer}
+.c-item summary::-webkit-details-marker{display:none}
+.c-item summary img{width:44px;height:44px;border-radius:12px;object-fit:cover}
+.c-item summary span{font:700 16.5px/1.4 PW,sans-serif;color:var(--g);flex:1}
+.c-item summary svg{transition:transform .2s;color:var(--m)}
+.c-item[open] summary svg{transform:rotate(180deg)}
+.c-item .d{display:grid;grid-template-columns:1fr;gap:10px;padding:0 14px 14px}
+.c-item .d img{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:12px}
+.c-item .d p{font:400 15px/1.7 PW,sans-serif;color:var(--mute)}
+.c-foot{text-align:center;margin:16px 20px 0;font-size:14px;color:var(--mute)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="ck" viewBox="0 0 24 24"><path d="M5 12.5l4.2 4.2L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="ch" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="ar" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</defs></svg>
+
+<!-- ===== A ===== -->
+<section class="opt"><span class="tag">OPTION A · Tap what you face</span>
+<span class="bar"></span><h2>ከእነዚህ ውስጥ የትኞቹ ያጋጥሙዎታል?</h2>
+<p class="intro">ልጅ ማሳደግ ሁልጊዜ ቀላል አይደለም። ተመሳሳይ ነገር ደጋግመው መናገር፣ ጭቅጭቅን መፍታትና የራስዎን ቁጣ መቆጣጠር አንዳንድ ቀን ያደክማል።</p>
+<p class="hint">የሚያጋጥምዎትን ይንኩ</p>
+<div class="a-list" id="aList">
+<button class="a-card" aria-pressed="false"><img src="assets/img/page-04.webp" alt=""><span class="t"><h3>ሲነግሩት አይሰማም</h3><p>አንድ ነገር እንዲያደርግ ደጋግመው ይነግሩታል። ሳያደርገው ሲቀር፣ በመጨረሻ ድምፅዎን ከፍ ያደርጋሉ።</p></span><span class="k"><svg width="16" height="16"><use href="#ck"/></svg></span></button>
+<button class="a-card" aria-pressed="false"><img src="assets/img/page-05.webp" alt=""><span class="t"><h3>«እምቢ» ብሎ ይከራከራል</h3><p>አንድ ነገር እንዲያደርግ ሲጠይቁት «አልፈልግም» ይላል። ምክንያቱን ቢያስረዱትም ክርክሩ ይቀጥላል።</p></span><span class="k"><svg width="16" height="16"><use href="#ck"/></svg></span></button>
+<button class="a-card" aria-pressed="false"><img src="assets/img/page-06.webp" alt=""><span class="t"><h3>ሲናደድ ማረጋጋት ይከብዳል</h3><p>የፈለገውን ሳያገኝ ሲቀር ያለቅሳል ወይም ይጮኻል። በዚያ ሰዓት ምን ማድረግ እንዳለብዎት ግራ ይገባዎታል።</p></span><span class="k"><svg width="16" height="16"><use href="#ck"/></svg></span></button>
+<button class="a-card" aria-pressed="false"><img src="assets/img/page-07.webp" alt=""><span class="t"><h3>ስልኩን ማስቀመጥ አይፈልግም</h3><p>የስልክ ጊዜው ሲያበቃ «ገና ትንሽ» ይላል። እንዲያስቀምጠው ሲነግሩት ክርክር ይጀምራል።</p></span><span class="k"><svg width="16" height="16"><use href="#ck"/></svg></span></button>
+<button class="a-card" aria-pressed="false"><img src="assets/img/page-08.webp" alt=""><span class="t"><h3>ልጆችዎ ሲጣሉ</h3><p>አንዱ ሌላውን ይወቅሳል። ሁለቱንም ሰምተው ግጭቱን እንዴት መፍታት እንዳለብዎት ይከብድዎታል።</p></span><span class="k"><svg width="16" height="16"><use href="#ck"/></svg></span></button>
+<button class="a-card" aria-pressed="false"><img src="assets/img/page-09.webp" alt=""><span class="t"><h3>በንዴት ምላሽ ይሰጣሉ</h3><p>አንዳንዴ ተበሳጭተው የማይፈልጉትን ነገር ይናገራሉ። ከተረጋጉ በኋላ ግን በተናገሩት ነገር ይጸጸታሉ።</p></span><span class="k"><svg width="16" height="16"><use href="#ck"/></svg></span></button>
+</div>
+<div class="a-bar"><b id="aCnt">0 ተመርጠዋል</b><a href="#">ParentWise እንዴት ይረዳል <svg width="18" height="18"><use href="#ar"/></svg></a></div></section>
+
+<!-- ===== B ===== -->
+<section class="opt"><span class="tag">OPTION B · Photo swipe stories</span>
+<span class="bar"></span><h2>ከእነዚህ ውስጥ የትኞቹ ያጋጥሙዎታል?</h2>
+<p class="intro">ልጅ ማሳደግ ሁልጊዜ ቀላል አይደለም። ተመሳሳይ ነገር ደጋግመው መናገር፣ ጭቅጭቅን መፍታትና የራስዎን ቁጣ መቆጣጠር አንዳንድ ቀን ያደክማል።</p>
+<div class="b-track" id="bTrack">
+<article class="b-card"><div class="b-ph"><img src="assets/img/page-04.webp" alt="Mother supporting a frustrated young boy"><span class="b-n">1 / 6</span></div><div class="b-body"><h3>ሲነግሩት አይሰማም</h3><p>አንድ ነገር እንዲያደርግ ደጋግመው ይነግሩታል። ሳያደርገው ሲቀር፣ በመጨረሻ ድምፅዎን ከፍ ያደርጋሉ።</p></div></article>
+<article class="b-card"><div class="b-ph"><img src="assets/img/page-05.webp" alt="Father listening to a daughter"><span class="b-n">2 / 6</span></div><div class="b-body"><h3>«እምቢ» ብሎ ይከራከራል</h3><p>አንድ ነገር እንዲያደርግ ሲጠይቁት «አልፈልግም» ይላል። ምክንያቱን ቢያስረዱትም ክርክሩ ይቀጥላል።</p></div></article>
+<article class="b-card"><div class="b-ph"><img src="assets/img/page-06.webp" alt="Mother talking with a sad child"><span class="b-n">3 / 6</span></div><div class="b-body"><h3>ሲናደድ ማረጋጋት ይከብዳል</h3><p>የፈለገውን ሳያገኝ ሲቀር ያለቅሳል ወይም ይጮኻል። በዚያ ሰዓት ምን ማድረግ እንዳለብዎት ግራ ይገባዎታል።</p></div></article>
+<article class="b-card"><div class="b-ph"><img src="assets/img/page-07.webp" alt="Father speaking calmly with an older child"><span class="b-n">4 / 6</span></div><div class="b-body"><h3>ስልኩን ማስቀመጥ አይፈልግም</h3><p>የስልክ ጊዜው ሲያበቃ «ገና ትንሽ» ይላል። እንዲያስቀምጠው ሲነግሩት ክርክር ይጀምራል።</p></div></article>
+<article class="b-card"><div class="b-ph"><img src="assets/img/page-08.webp" alt="Mother helping two children resolve a dispute"><span class="b-n">5 / 6</span></div><div class="b-body"><h3>ልጆችዎ ሲጣሉ</h3><p>አንዱ ሌላውን ይወቅሳል። ሁለቱንም ሰምተው ግጭቱን እንዴት መፍታት እንዳለብዎት ይከብድዎታል።</p></div></article>
+<article class="b-card"><div class="b-ph"><img src="assets/img/page-09.webp" alt="Mother feeling overwhelmed"><span class="b-n">6 / 6</span></div><div class="b-body"><h3>በንዴት ምላሽ ይሰጣሉ</h3><p>አንዳንዴ ተበሳጭተው የማይፈልጉትን ነገር ይናገራሉ። ከተረጋጉ በኋላ ግን በተናገሩት ነገር ይጸጸታሉ።</p></div></article>
+</div>
+<div class="b-dots" id="bDots"><i class="on"></i><i></i><i></i><i></i><i></i><i></i></div></section>
+
+<!-- ===== C ===== -->
+<section class="opt"><span class="tag">OPTION C · Compact list (shortest)</span>
+<span class="bar"></span><h2>ከእነዚህ ውስጥ የትኞቹ ያጋጥሙዎታል?</h2>
+<p class="intro">ልጅ ማሳደግ ሁልጊዜ ቀላል አይደለም። ተመሳሳይ ነገር ደጋግመው መናገር፣ ጭቅጭቅን መፍታትና የራስዎን ቁጣ መቆጣጠር አንዳንድ ቀን ያደክማል።</p>
+<div class="c-list">
+<details class="c-item"><summary><img src="assets/img/page-04.webp" alt=""><span>ሲነግሩት አይሰማም</span><svg width="22" height="22"><use href="#ch"/></svg></summary><div class="d"><img src="assets/img/page-04.webp" alt="Mother supporting a frustrated young boy"><p>አንድ ነገር እንዲያደርግ ደጋግመው ይነግሩታል። ሳያደርገው ሲቀር፣ በመጨረሻ ድምፅዎን ከፍ ያደርጋሉ።</p></div></details>
+<details class="c-item"><summary><img src="assets/img/page-05.webp" alt=""><span>«እምቢ» ብሎ ይከራከራል</span><svg width="22" height="22"><use href="#ch"/></svg></summary><div class="d"><img src="assets/img/page-05.webp" alt="Father listening to a daughter"><p>አንድ ነገር እንዲያደርግ ሲጠይቁት «አልፈልግም» ይላል። ምክንያቱን ቢያስረዱትም ክርክሩ ይቀጥላል።</p></div></details>
+<details class="c-item"><summary><img src="assets/img/page-06.webp" alt=""><span>ሲናደድ ማረጋጋት ይከብዳል</span><svg width="22" height="22"><use href="#ch"/></svg></summary><div class="d"><img src="assets/img/page-06.webp" alt="Mother talking with a sad child"><p>የፈለገውን ሳያገኝ ሲቀር ያለቅሳል ወይም ይጮኻል። በዚያ ሰዓት ምን ማድረግ እንዳለብዎት ግራ ይገባዎታል።</p></div></details>
+<details class="c-item"><summary><img src="assets/img/page-07.webp" alt=""><span>ስልኩን ማስቀመጥ አይፈልግም</span><svg width="22" height="22"><use href="#ch"/></svg></summary><div class="d"><img src="assets/img/page-07.webp" alt="Father speaking calmly with an older child"><p>የስልክ ጊዜው ሲያበቃ «ገና ትንሽ» ይላል። እንዲያስቀምጠው ሲነግሩት ክርክር ይጀምራል።</p></div></details>
+<details class="c-item"><summary><img src="assets/img/page-08.webp" alt=""><span>ልጆችዎ ሲጣሉ</span><svg width="22" height="22"><use href="#ch"/></svg></summary><div class="d"><img src="assets/img/page-08.webp" alt="Mother helping two children resolve a dispute"><p>አንዱ ሌላውን ይወቅሳል። ሁለቱንም ሰምተው ግጭቱን እንዴት መፍታት እንዳለብዎት ይከብድዎታል።</p></div></details>
+<details class="c-item"><summary><img src="assets/img/page-09.webp" alt=""><span>በንዴት ምላሽ ይሰጣሉ</span><svg width="22" height="22"><use href="#ch"/></svg></summary><div class="d"><img src="assets/img/page-09.webp" alt="Mother feeling overwhelmed"><p>አንዳንዴ ተበሳጭተው የማይፈልጉትን ነገር ይናገራሉ። ከተረጋጉ በኋላ ግን በተናገሩት ነገር ይጸጸታሉ።</p></div></details>
+</div></section>
+
+<script>
+var cards=document.querySelectorAll('.a-card'),cnt=document.getElementById('aCnt');
+cards.forEach(function(c){c.addEventListener('click',function(){c.setAttribute('aria-pressed',c.getAttribute('aria-pressed')!=='true');var n=document.querySelectorAll('.a-card[aria-pressed=true]').length;cnt.textContent=n+' ተመርጠዋል'})});
+var bt=document.getElementById('bTrack'),bd=document.querySelectorAll('#bDots i');
+bt.addEventListener('scroll',function(){var w=bt.firstElementChild.offsetWidth+12,k=Math.round(bt.scrollLeft/w);bd.forEach(function(d,i){d.className=i===k?'on':''})},{passive:true});
+</script></body></html>

@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="am"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Research and doctors options</title>
+<style>
+@font-face{font-family:PW;src:url("assets/fonts/parentwise-font-01.woff2") format("woff2");font-weight:400}
+@font-face{font-family:PW;src:url("assets/fonts/parentwise-font-02.woff2") format("woff2");font-weight:700}
+:root{--g:#1F4D3A;--iv:#F8F4EC;--m:#7A2E3E;--ink:#202928;--mute:#56645d;--line:#e3d8c6;--tint:#EEF3EF}
+*{box-sizing:border-box;margin:0}
+body{font-family:PW,sans-serif;background:#d9d2c2;color:var(--ink);padding-bottom:30px}
+.opt{max-width:430px;margin:0 auto 18px;background:var(--iv);padding:50px 0 28px;position:relative;overflow:hidden}
+.tag{position:absolute;top:12px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font:700 12px/1 sans-serif;padding:8px 12px;border-radius:999px;white-space:nowrap}
+img{display:block;max-width:100%}
+button{font-family:inherit;cursor:pointer}
+a{text-decoration:none;color:inherit}
+:focus-visible{outline:3px solid #e9c46a;outline-offset:2px}
+.bar{display:block;width:44px;height:3px;border-radius:3px;background:var(--m);margin:0 auto 12px}
+.eyebrow{text-align:center;font:700 11.5px/1 sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--m);margin-bottom:10px}
+h2{font:800 26px/1.4 PW,sans-serif;color:var(--g);text-align:center;padding:0 16px;text-wrap:balance}
+.lead{font:400 15px/1.7 PW,sans-serif;color:var(--mute);text-align:center;margin:10px 20px 0}
+.pad{padding:0 14px}
+.note{display:flex;gap:10px;align-items:flex-start;margin:16px 14px 0;padding:12px 14px;background:#fff;border:1px solid var(--line);border-radius:14px;font:400 12.5px/1.6 PW,sans-serif;color:var(--mute)}
+.note i{flex:none;display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--tint);color:var(--g);font:700 13px sans-serif;font-style:normal}
+.note span span{display:block;font:400 11.5px/1.5 sans-serif;margin-top:4px}
+/* logos */
+.logos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.logos div{display:grid;place-items:center;aspect-ratio:3/2;background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px}
+.logos img{max-height:100%;width:auto;object-fit:contain}
+.grp{font:700 11.5px/1 sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin:14px 2px 8px}
+.src{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:56px;margin:14px 14px 0;padding:10px 16px;background:#fff;border:1.5px solid var(--g);border-radius:14px;color:var(--g);font:700 14.5px/1.35 PW,sans-serif;width:calc(100% - 28px);text-align:left}
+.src small{display:block;font:400 12px/1.4 PW,sans-serif;color:var(--mute)}
+.src b{flex:none;font:700 12px sans-serif;background:var(--tint);padding:6px 10px;border-radius:999px}
+/* doctor cards */
+.dr{background:#fff;border:1px solid var(--line);border-radius:22px;padding:18px 16px 18px;box-shadow:0 14px 26px -20px rgba(31,77,58,.5)}
+.dr .hd{display:flex;gap:12px;align-items:center}
+.dr .ph{flex:none;width:64px;height:64px;border-radius:50%;object-fit:cover;object-position:50% 25%;border:3px solid #fff;box-shadow:0 0 0 2px var(--g)}
+.dr .no{font:700 11px/1 sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--m)}
+.dr h3{font:800 17px/1.35 PW,sans-serif;color:var(--ink);margin-top:3px}
+.dr small{display:block;font:400 12.5px/1.45 PW,sans-serif;color:var(--mute);margin-top:2px}
+.dr .q{font:800 17.5px/1.6 PW,sans-serif;color:var(--g);margin-top:14px;padding-top:14px;border-top:1px solid #efe6d7;position:relative}
+.dr .more{margin-top:10px}
+.dr .long{font:400 14.5px/1.8 PW,sans-serif;color:var(--ink);margin-top:10px;display:none}
+.dr.open .long{display:block}
+.rm{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 4px;background:none;border:0;color:var(--m);font:800 14px PW,sans-serif}
+.rm svg{transition:transform .2s}.dr.open .rm svg{transform:rotate(180deg)}
+.dots{display:flex;gap:6px;justify-content:center;margin-top:12px}
+.dots i{width:7px;height:7px;border-radius:50%;background:#d6cbb4;transition:all .2s}.dots i.on{width:22px;border-radius:9px;background:var(--m)}
+.sw{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 18px 8px;scroll-padding:0 18px;scrollbar-width:none}
+.sw::-webkit-scrollbar{display:none}.sw>*{flex:0 0 91%;scroll-snap-align:start}
+/* option B hero numbers */
+.proof{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 14px 0}
+.proof div{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 6px;text-align:center}
+.proof b{display:block;font:800 22px/1.1 sans-serif;color:var(--m)}
+.proof span{display:block;font:400 12px/1.4 PW,sans-serif;color:var(--mute);margin-top:4px}
+/* option C tabs */
+.seg{display:flex;gap:6px;margin:18px 14px 14px;background:#f1eadb;padding:4px;border-radius:999px}
+.seg button{flex:1;min-height:46px;border:0;border-radius:999px;background:none;font:700 13.5px/1.2 PW,sans-serif;color:var(--mute)}
+.seg button[aria-selected=true]{background:var(--g);color:#fff;box-shadow:0 4px 10px rgba(31,77,58,.25)}
+.pane[hidden]{display:none}
+.pane{animation:up .3s both}
+@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="ch" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol></defs></svg>
+
+<!-- ================= A ================= -->
+<section class="opt"><span class="tag">A · Logo wall + doctor swipe cards</span>
+<span class="bar"></span><p class="eyebrow">Trust &amp; Credibility</p>
+<h2>በምርምር የተደገፈ፣ ለኢትዮጵያ ቤተሰቦች የተዘጋጀ።</h2>
+<p class="lead">ParentWise ስለ ልጆች ባህሪና አስተዳደግ የተደረጉ ምርምሮችን በማጣቀስ የተዘጋጀ የወላጅነት ትምህርት ፕሮግራም ነው።</p>
+<div class="pad" style="margin-top:18px"><p class="grp" style="margin-top:0">የምርምር ምንጮች</p>
+<div class="logos"><div><img src="assets/img/page-17.png" alt="WHO"></div><div><img src="assets/img/page-18.png" alt="UNICEF"></div><div><img src="assets/img/page-19.png" alt="CDC"></div><div><img src="assets/img/page-20.png" alt="University of Oxford"></div><div><img src="assets/img/page-21.png" alt="University of Cape Town"></div><div><img src="assets/img/page-22.png" alt="Stellenbosch University"></div><div><img src="assets/img/page-23.png" alt="Parenting for Lifelong Health"></div><div><img src="assets/img/page-24.png" alt="Triple P"></div><div><img src="assets/img/page-25.png" alt="The Incredible Years"></div></div></div>
+<button class="src" type="button"><span>ምንጮቹን በዝርዝር ይመልከቱ<small>ዋናውን ድረ ገጽ ይክፈቱ</small></span><b>11 ምንጮች</b></button>
+<h3 style="font:800 19px/1.4 PW,sans-serif;color:var(--g);text-align:center;margin:26px 16px 12px">የባለሙያዎች ግምገማ</h3>
+<div class="sw" id="swA">
+<article class="dr"><div class="hd"><img class="ph" src="assets/img/page-26.webp" alt="ዶ/ር ሜሮን ኃይሉ"><div><span class="no">የባለሙያ ግምገማ · 01</span><h3>ዶ/ር ሜሮን ኃይሉ (PhD)</h3><small>የሕፃናትና ቤተሰብ ሥነ-ልቦና ባለሙያ · መስከረም 2019 ዓ.ም.</small></div></div>
+<p class="q">«በክሊኒኬ ለሚመጡ ወላጆች በሙሉ እንዲጠቀሙበት የምመክረው ተግባራዊ ሲስተም!»</p>
+<p class="long">«ዛሬ ላይ የስልክ ሱስ፣ የልጆች እልህና ያለ ምክንያት ማልቀስ በብዙ ቤተሰቦች ውስጥ ትልቅ ፈተና ሆኗል። ይህ መመሪያ የሥነ-ልቦና ንድፈ-ሐሳቦችን (Theories) ብቻ የሚዘረዝር ሳይሆን፣ ወላጆች ልጃቸው ሲቆጣ ወይም ሲያኮርፍ በዚያች ደቂቃ ምን ማለትና ማድረግ እንዳለባቸው ደረጃ በደረጃ የሚያሳይ ነው። በውስጡ ያሉት የልምድ መከታተያዎች (Routine Trackers) የልጆችን ባህሪ በአጭር ጊዜ ለመቀየር እጅግ ውጤታማ ናቸው።»</p>
+<button class="rm" type="button">ሙሉውን ያንብቡ <svg width="18" height="18"><use href="#ch"/></svg></button></article>
+<article class="dr"><div class="hd"><img class="ph" src="assets/img/page-27.webp" alt="ዶ/ር ዮሐንስ አሰፋ"><div><span class="no">የባለሙያ ግምገማ · 02</span><h3>ዶ/ር ዮሐንስ አሰፋ (MD)</h3><small>የሕፃናት ሕክምና ስፔሻሊስት (አዲስ አበባ) · መስከረም 2019 ዓ.ም.</small></div></div>
+<p class="q">«የልጆችን አእምሮ ሳያሸማቅቁ በዲሲፕሊን ለማሳደግ የሚያግዝ ሳይንሳዊ መመሪያ ነው።»</p>
+<p class="long">«በሕፃናት ሕክምና ሥራዬ ብዙ ወላጆች 'ልጄ አልታዘዝ አለኝ' ብለው በጭንቀት ያማክሩኛል። ቁጣና ግርፊያ የልጆችን የአእምሮ እድገትና በራስ መተማመን እንደሚጎዳ ሳይንስ ያረጋግጣል፤ ግን ወላጆች 'ታዲያ ምን እናድርግ?' ለሚለው ተግባራዊ መልስ ያጡ ነበር። ParentWise Ethiopia ይህንን ክፍተት በሚገባ የሞላ፣ በዓለም አቀፍ የሕፃናት እድገት ጥናቶች ላይ የተመሠረተና ለኛ ማህበረሰብ እንዲሆን ተደርጎ የተዘጋጀ ድንቅ ሲስተም ነው።»</p>
+<button class="rm" type="button">ሙሉውን ያንብቡ <svg width="18" height="18"><use href="#ch"/></svg></button></article></div>
+<div class="dots" id="dA"><i class="on"></i><i></i></div>
+<div class="note"><i>i</i><span>እነዚህ ተቋማት የመረጃ ምንጮች ናቸው፤ ParentWiseን አጽድቀዋል ወይም ደግፈዋል ማለት አይደለም።<span>Sources are provided for research transparency; inclusion does not imply endorsement, approval, partnership or affiliation.</span></span></div></section>
+
+<!-- ================= B ================= -->
+<section class="opt"><span class="tag">B · Doctors first, big and stacked</span>
+<span class="bar"></span><p class="eyebrow">Trust &amp; Credibility</p>
+<h2>በምርምር የተደገፈ፣ ለኢትዮጵያ ቤተሰቦች የተዘጋጀ።</h2>
+<p class="lead">ParentWise ስለ ልጆች ባህሪና አስተዳደግ የተደረጉ ምርምሮችን በማጣቀስ የተዘጋጀ የወላጅነት ትምህርት ፕሮግራም ነው።</p>
+<div class="pad" style="margin-top:20px;display:grid;gap:12px">
+<article class="dr"><div class="hd"><img class="ph" src="assets/img/page-26.webp" alt="ዶ/ር ሜሮን ኃይሉ" style="width:72px;height:72px"><div><span class="no">የባለሙያ ግምገማ · 01</span><h3>ዶ/ር ሜሮን ኃይሉ (PhD)</h3><small>የሕፃናትና ቤተሰብ ሥነ-ልቦና ባለሙያ · መስከረም 2019 ዓ.ም.</small></div></div>
+<p class="q" style="font-size:19px">«በክሊኒኬ ለሚመጡ ወላጆች በሙሉ እንዲጠቀሙበት የምመክረው ተግባራዊ ሲስተም!»</p>
+<p class="long">«ዛሬ ላይ የስልክ ሱስ፣ የልጆች እልህና ያለ ምክንያት ማልቀስ በብዙ ቤተሰቦች ውስጥ ትልቅ ፈተና ሆኗል። ይህ መመሪያ የሥነ-ልቦና ንድፈ-ሐሳቦችን (Theories) ብቻ የሚዘረዝር ሳይሆን፣ ወላጆች ልጃቸው ሲቆጣ ወይም ሲያኮርፍ በዚያች ደቂቃ ምን ማለትና ማድረግ እንዳለባቸው ደረጃ በደረጃ የሚያሳይ ነው። በውስጡ ያሉት የልምድ መከታተያዎች (Routine Trackers) የልጆችን ባህሪ በአጭር ጊዜ ለመቀየር እጅግ ውጤታማ ናቸው።»</p>
+<button class="rm" type="button">ሙሉውን ያንብቡ <svg width="18" height="18"><use href="#ch"/></svg></button></article>
+<article class="dr"><div class="hd"><img class="ph" src="assets/img/page-27.webp" alt="ዶ/ር ዮሐንስ አሰፋ" style="width:72px;height:72px"><div><span class="no">የባለሙያ ግምገማ · 02</span><h3>ዶ/ር ዮሐንስ አሰፋ (MD)</h3><small>የሕፃናት ሕክምና ስፔሻሊስት (አዲስ አበባ) · መስከረም 2019 ዓ.ም.</small></div></div>
+<p class="q" style="font-size:19px">«የልጆችን አእምሮ ሳያሸማቅቁ በዲሲፕሊን ለማሳደግ የሚያግዝ ሳይንሳዊ መመሪያ ነው።»</p>
+<p class="long">«በሕፃናት ሕክምና ሥራዬ ብዙ ወላጆች 'ልጄ አልታዘዝ አለኝ' ብለው በጭንቀት ያማክሩኛል። ቁጣና ግርፊያ የልጆችን የአእምሮ እድገትና በራስ መተማመን እንደሚጎዳ ሳይንስ ያረጋግጣል፤ ግን ወላጆች 'ታዲያ ምን እናድርግ?' ለሚለው ተግባራዊ መልስ ያጡ ነበር። ParentWise Ethiopia ይህንን ክፍተት በሚገባ የሞላ፣ በዓለም አቀፍ የሕፃናት እድገት ጥናቶች ላይ የተመሠረተና ለኛ ማህበረሰብ እንዲሆን ተደርጎ የተዘጋጀ ድንቅ ሲስተም ነው።»</p>
+<button class="rm" type="button">ሙሉውን ያንብቡ <svg width="18" height="18"><use href="#ch"/></svg></button></article></div>
+<div class="pad" style="margin-top:22px"><p class="grp" style="margin-top:0">የምርምር ምንጮች · RESEARCH FOUNDATION</p>
+<div class="logos"><div><img src="assets/img/page-17.png" alt="WHO"></div><div><img src="assets/img/page-18.png" alt="UNICEF"></div><div><img src="assets/img/page-19.png" alt="CDC"></div></div>
+<p class="lead" style="margin:10px 4px 0;font-size:13.5px;text-align:left">ለParentWise ዝግጅት ከተጠቀምንባቸው ምንጮች መካከል የዓለም ጤና ድርጅት (WHO)፣ ዩኒሴፍ (UNICEF) እና CDC ያቀረቧቸው የልጆች አስተዳደግ መመሪያዎች ይገኙበታል።</p></div>
+<button class="src" type="button"><span>ምንጮቹን በዝርዝር ይመልከቱ<small>ሌሎች ተቋማትና ፕሮግራሞችም ተካትተዋል</small></span><b>11 ምንጮች</b></button>
+<div class="note"><i>i</i><span>እነዚህ ተቋማት የመረጃ ምንጮች ናቸው፤ ParentWiseን አጽድቀዋል ወይም ደግፈዋል ማለት አይደለም።<span>Sources are provided for research transparency; inclusion does not imply endorsement, approval, partnership or affiliation.</span></span></div></section>
+
+<!-- ================= C ================= -->
+<section class="opt"><span class="tag">C · Two tabs, one at a time (shortest)</span>
+<span class="bar"></span><p class="eyebrow">Trust &amp; Credibility</p>
+<h2>በምርምር የተደገፈ፣ ለኢትዮጵያ ቤተሰቦች የተዘጋጀ።</h2>
+<p class="lead">ParentWise ስለ ልጆች ባህሪና አስተዳደግ የተደረጉ ምርምሮችን በማጣቀስ የተዘጋጀ የወላጅነት ትምህርት ፕሮግራም ነው።</p>
+<div class="seg" role="tablist"><button role="tab" aria-selected="true" data-p="0">የባለሙያዎች ግምገማ</button><button role="tab" aria-selected="false" data-p="1">የምርምር ምንጮች</button></div>
+<div class="pane" id="pC0"><div class="sw" id="swC" style="padding-top:0">
+<article class="dr"><div class="hd"><img class="ph" src="assets/img/page-26.webp" alt="ዶ/ር ሜሮን ኃይሉ"><div><span class="no">የባለሙያ ግምገማ · 01</span><h3>ዶ/ር ሜሮን ኃይሉ (PhD)</h3><small>የሕፃናትና ቤተሰብ ሥነ-ልቦና ባለሙያ · መስከረም 2019 ዓ.ም.</small></div></div>
+<p class="q">«በክሊኒኬ ለሚመጡ ወላጆች በሙሉ እንዲጠቀሙበት የምመክረው ተግባራዊ ሲስተም!»</p>
+<p class="long">«ዛሬ ላይ የስልክ ሱስ፣ የልጆች እልህና ያለ ምክንያት ማልቀስ በብዙ ቤተሰቦች ውስጥ ትልቅ ፈተና ሆኗል። ይህ መመሪያ የሥነ-ልቦና ንድፈ-ሐሳቦችን (Theories) ብቻ የሚዘረዝር ሳይሆን፣ ወላጆች ልጃቸው ሲቆጣ ወይም ሲያኮርፍ በዚያች ደቂቃ ምን ማለትና ማድረግ እንዳለባቸው ደረጃ በደረጃ የሚያሳይ ነው። በውስጡ ያሉት የልምድ መከታተያዎች (Routine Trackers) የልጆችን ባህሪ በአጭር ጊዜ ለመቀየር እጅግ ውጤታማ ናቸው።»</p>
+<button class="rm" type="button">ሙሉውን ያንብቡ <svg width="18" height="18"><use href="#ch"/></svg></button></article>
+<article class="dr"><div class="hd"><img class="ph" src="assets/img/page-27.webp" alt="ዶ/ር ዮሐንስ አሰፋ"><div><span class="no">የባለሙያ ግምገማ · 02</span><h3>ዶ/ር ዮሐንስ አሰፋ (MD)</h3><small>የሕፃናት ሕክምና ስፔሻሊስት (አዲስ አበባ) · መስከረም 2019 ዓ.ም.</small></div></div>
+<p class="q">«የልጆችን አእምሮ ሳያሸማቅቁ በዲሲፕሊን ለማሳደግ የሚያግዝ ሳይንሳዊ መመሪያ ነው።»</p>
+<p class="long">«በሕፃናት ሕክምና ሥራዬ ብዙ ወላጆች 'ልጄ አልታዘዝ አለኝ' ብለው በጭንቀት ያማክሩኛል። ቁጣና ግርፊያ የልጆችን የአእምሮ እድገትና በራስ መተማመን እንደሚጎዳ ሳይንስ ያረጋግጣል፤ ግን ወላጆች 'ታዲያ ምን እናድርግ?' ለሚለው ተግባራዊ መልስ ያጡ ነበር። ParentWise Ethiopia ይህንን ክፍተት በሚገባ የሞላ፣ በዓለም አቀፍ የሕፃናት እድገት ጥናቶች ላይ የተመሠረተና ለኛ ማህበረሰብ እንዲሆን ተደርጎ የተዘጋጀ ድንቅ ሲስተም ነው።»</p>
+<button class="rm" type="button">ሙሉውን ያንብቡ <svg width="18" height="18"><use href="#ch"/></svg></button></article></div></div>
+<div class="pane" id="pC1" hidden><div class="pad"><p class="lead" style="margin:0 2px 4px;font-size:14px;text-align:left">ለParentWise ዝግጅት ከተጠቀምንባቸው ምንጮች መካከል የዓለም ጤና ድርጅት (WHO)፣ ዩኒሴፍ (UNICEF) እና CDC ያቀረቧቸው የልጆች አስተዳደግ መመሪያዎች ይገኙበታል።</p>
+<p class="grp">ዓለም አቀፍ የመመሪያ ምንጮች</p><div class="logos"><div><img src="assets/img/page-17.png" alt="WHO"></div><div><img src="assets/img/page-18.png" alt="UNICEF"></div><div><img src="assets/img/page-19.png" alt="CDC"></div></div>
+<p class="grp">የምርምር ተቋማት</p><div class="logos"><div><img src="assets/img/page-20.png" alt="University of Oxford"></div><div><img src="assets/img/page-21.png" alt="University of Cape Town"></div><div><img src="assets/img/page-22.png" alt="Stellenbosch University"></div></div>
+<p class="grp">የወላጅነት ፕሮግራሞች</p><div class="logos"><div><img src="assets/img/page-23.png" alt="Parenting for Lifelong Health"></div><div><img src="assets/img/page-24.png" alt="Triple P"></div><div><img src="assets/img/page-25.png" alt="The Incredible Years"></div></div></div>
+<button class="src" type="button"><span>ምንጮቹን በዝርዝር ይመልከቱ<small>ዋናውን ድረ ገጽ ይክፈቱ</small></span><b>11 ምንጮች</b></button></div>
+<div class="note"><i>i</i><span>እነዚህ ተቋማት የመረጃ ምንጮች ናቸው፤ ParentWiseን አጽድቀዋል ወይም ደግፈዋል ማለት አይደለም።<span>Sources are provided for research transparency; inclusion does not imply endorsement, approval, partnership or affiliation.</span></span></div></section>
+
+<script>
+document.querySelectorAll('.dr .rm').forEach(function(b){b.addEventListener('click',function(){var d=b.closest('.dr');d.classList.toggle('open');b.firstChild.textContent=d.classList.contains('open')?'አሳጥር ':'ሙሉውን ያንብቡ '})});
+var sw=document.getElementById('swA'),dA=document.querySelectorAll('#dA i');sw.addEventListener('scroll',function(){var w=sw.firstElementChild.offsetWidth+12,k=Math.round(sw.scrollLeft/w);dA.forEach(function(d,i){d.className=i===k?'on':''})},{passive:true});
+document.querySelectorAll('.seg button').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('.seg button').forEach(function(x){x.setAttribute('aria-selected',x===b)});document.getElementById('pC0').hidden=b.dataset.p!=='0';document.getElementById('pC1').hidden=b.dataset.p!=='1'})});
+</script></body></html>

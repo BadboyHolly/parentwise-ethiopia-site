@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="am"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Last checkout step options</title>
+<style>
+@font-face{font-family:PW;src:url("assets/fonts/parentwise-font-01.woff2") format("woff2");font-weight:400}
+@font-face{font-family:PW;src:url("assets/fonts/parentwise-font-02.woff2") format("woff2");font-weight:700}
+:root{--g:#1F4D3A;--iv:#F8F4EC;--m:#7A2E3E;--ink:#202928;--mute:#56645d;--line:#e3d8c6;--tint:#EEF3EF}
+*{box-sizing:border-box;margin:0}
+body{font-family:PW,sans-serif;background:#d9d2c2;color:var(--ink);padding-bottom:30px}
+.opt{max-width:430px;margin:0 auto}
+.tag{display:block;width:max-content;margin:22px auto 8px;background:var(--ink);color:#fff;font:700 12px/1 sans-serif;padding:8px 13px;border-radius:999px}
+.screen{background:var(--iv);padding:0 14px 26px;overflow:hidden}
+img{display:block;max-width:100%}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer}
+.bar{display:flex;align-items:center;justify-content:space-between;padding:18px 3px;height:80px}
+.bar img{width:156px;height:auto}
+.help{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:999px;background:rgba(8,55,41,.68);color:#fff;font:700 13.5px/1 PW,sans-serif}
+.stepcard{background:#fff;border:1px solid var(--line);border-radius:20px;padding:16px 8px 18px;text-align:center;box-shadow:0 12px 24px -18px rgba(31,77,58,.45)}
+.steps{display:flex;align-items:flex-start;justify-content:center}
+.st{display:grid;justify-items:center;gap:6px;width:92px;font:700 12.5px/1.2 PW,sans-serif;color:var(--mute)}
+.st i{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;border:2px solid #cdbf9f;background:#fff;font:700 14px sans-serif;font-style:normal}
+.st.on{color:var(--g)}.st.on i{background:var(--m);border-color:var(--m);color:#fff}.st.done i{background:var(--g);border-color:var(--g);color:#fff}
+.ln{flex:1;height:2px;background:#d6cbb4;margin-top:17px;max-width:40px}
+.lab{font:700 12.5px/1 PW,sans-serif;letter-spacing:.04em;color:var(--m);margin:12px 0 6px}
+.stepcard h1{font:800 23px/1.4 PW,sans-serif;color:var(--g);margin:0 14px}
+.stepcard p{font:400 14.5px/1.6 PW,sans-serif;color:var(--mute);margin:4px 14px 0}
+.card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:18px 16px 20px;margin-top:12px;box-shadow:0 12px 24px -18px rgba(31,77,58,.45)}
+.card h2{font:800 20px/1.4 PW,sans-serif;color:var(--g)}
+.sub{font:400 14.5px/1.6 PW,sans-serif;color:var(--mute);margin-top:4px}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;min-height:58px;border-radius:14px;background:var(--m);color:#fff;font:800 16.5px/1.2 PW,sans-serif;box-shadow:0 12px 24px -10px rgba(122,46,62,.65);width:100%;border:0}
+.btn.off{background:#d9cfd0;color:#fff;box-shadow:none}
+.handle{text-align:center;color:var(--mute);font:400 13.5px PW,sans-serif;margin-top:8px}
+.tip{padding:13px 15px;border-radius:14px;background:var(--tint);color:var(--g);font:400 14px/1.65 PW,sans-serif;margin-top:14px}
+.back{display:block;text-align:center;font:800 14px PW,sans-serif;color:var(--g);min-height:44px;line-height:44px;margin-top:8px}
+.ref{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 14px;border-radius:14px;background:var(--tint);margin-top:14px;font:400 13px PW,sans-serif;color:var(--mute)}
+.ref b{font:800 17px system-ui,sans-serif;letter-spacing:.04em;color:var(--g)}
+.ref button{margin-left:auto;min-height:44px;border-radius:12px;border:1.5px solid var(--g);background:#fff;color:var(--g);font:700 13.5px PW,sans-serif;padding:0 14px}
+/* ---- 1: message preview ---- */
+.chat{background:#eaf0ea;border-radius:18px;padding:14px;margin-top:14px}
+.chat small{display:block;font:700 11.5px/1 sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin-bottom:10px}
+.bub{background:#fff;border-radius:16px 16px 16px 4px;padding:12px 14px;margin-bottom:8px;font:700 15px/1.5 PW,sans-serif;color:var(--g);display:flex;gap:10px;align-items:center;box-shadow:0 2px 0 rgba(31,77,58,.08)}
+.bub i{flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--tint);font:700 13px sans-serif;font-style:normal;color:var(--g)}
+.bub.ph{border:2px dashed #b9c9bb;background:#f6f9f6;color:var(--mute)}
+/* ---- 2: tick-off list + what happens next ---- */
+.tick{display:flex;align-items:center;gap:14px;width:100%;min-height:64px;padding:12px 14px;margin-top:10px;background:#fff;border:2px solid var(--line);border-radius:16px;text-align:left;font:700 15.5px/1.4 PW,sans-serif;color:var(--ink)}
+.tick .c{flex:none;width:28px;height:28px;border-radius:50%;border:2px solid #cdbf9f;display:grid;place-items:center;color:transparent;font:700 15px sans-serif}
+.tick.on{border-color:var(--g);background:var(--tint)}.tick.on .c{background:var(--g);border-color:var(--g);color:#fff}
+.tl{list-style:none;padding:0;margin:14px 0 0;position:relative}
+.tl li{position:relative;padding:0 0 18px 44px;font:400 14.5px/1.65 PW,sans-serif;color:var(--ink)}
+.tl li:last-child{padding-bottom:0}
+.tl li:before{content:"";position:absolute;left:14px;top:30px;bottom:0;width:2px;background:#d6cbb4}
+.tl li:last-child:before{display:none}
+.tl i{position:absolute;left:0;top:0;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--g);color:#fff;font:700 13px sans-serif;font-style:normal}
+.tl b{display:block;font:800 15px PW,sans-serif;color:var(--g)}
+.hint{text-align:center;font:400 13px PW,sans-serif;color:var(--mute);margin-top:10px}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="tg" viewBox="0 0 24 24"><path d="M21 4L3 11l5.5 2L10 19l3-4 4.5 3.5L21 4z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></symbol></defs></svg>
+
+<!-- ============ CHOICE 1 ============ -->
+<div class="opt"><span class="tag">CHOICE 1 · Show exactly what to send</span>
+<div class="screen"><div class="bar"><img src="assets/img/page-02.webp" alt=""><span class="help"><svg width="18" height="18"><use href="#tg"/></svg>እገዛ</span></div>
+<div class="stepcard"><div class="steps"><div class="st done"><i>✓</i>መረጃ</div><span class="ln"></span><div class="st done"><i>✓</i>ክፍያ</div><span class="ln"></span><div class="st on"><i>3</i>ማስረጃ ይላኩ</div></div><div class="lab">ደረጃ 3 / 3</div><h1>የክፍያ ማስረጃዎን ይላኩ</h1></div>
+<div class="card"><p class="sub" style="margin:0 0 4px">የParentWise Telegramን ከፍተው እነዚህን ይላኩልን፦</p>
+<div class="chat"><small>በTelegram የሚልኩት</small><div class="bub"><i>1</i>ስምዎን</div><div class="bub"><i>2</i>ቀደም ብለው ያስገቡትን ስልክ ቁጥር</div><div class="bub ph"><i>3</i>የክፍያ ደረሰኝዎን (Screenshot)</div></div>
+<div class="ref"><span>የትዕዛዝ ቁጥርዎ</span><b>PW-0000</b><button>Copy Order ID</button></div>
+<div style="margin-top:16px"><div class="btn"><svg width="22" height="22"><use href="#tg"/></svg>የParentWise Telegram ይክፈቱ →</div><p class="handle">@ParentWiseEthiopia</p></div>
+<div class="tip">ክፍያዎን ካረጋገጥን በኋላ፣ 5ቱን የPDF መመሪያዎች ወዲያውኑ በTelegram እንልክልዎታለን።</div>
+<a class="back" href="#">← ወደ ክፍያ ገጽ ይመለሱ</a></div></div></div>
+
+<!-- ============ CHOICE 2 ============ -->
+<div class="opt"><span class="tag" style="margin-top:34px">CHOICE 2 · Tick the list, then see what happens next</span>
+<div class="screen"><div class="bar"><img src="assets/img/page-02.webp" alt=""><span class="help"><svg width="18" height="18"><use href="#tg"/></svg>እገዛ</span></div>
+<div class="stepcard"><div class="steps"><div class="st done"><i>✓</i>መረጃ</div><span class="ln"></span><div class="st done"><i>✓</i>ክፍያ</div><span class="ln"></span><div class="st on"><i>3</i>ማስረጃ ይላኩ</div></div><div class="lab">ደረጃ 3 / 3</div><h1>የክፍያ ማስረጃዎን ይላኩ</h1><p>የParentWise Telegramን ከፍተው እነዚህን ይላኩልን፦</p></div>
+<div class="card" style="padding-top:8px">
+<button class="tick on" type="button"><span class="c">✓</span>ስምዎን</button>
+<button class="tick on" type="button"><span class="c">✓</span>ቀደም ብለው ያስገቡትን ስልክ ቁጥር</button>
+<button class="tick" type="button"><span class="c">✓</span>የክፍያ ደረሰኝዎን (Screenshot)</button>
+<p class="hint">ሲልኩ ይንኩ — ምልክት ያድርጉ</p>
+<div style="margin-top:14px"><div class="btn"><svg width="22" height="22"><use href="#tg"/></svg>የParentWise Telegram ይክፈቱ →</div><p class="handle">@ParentWiseEthiopia</p></div></div>
+<div class="card"><h2 style="font-size:17px">ከዚያ በኋላ</h2>
+<ol class="tl"><li><i>1</i><b>ክፍያዎን ካረጋገጥን በኋላ</b></li><li><i>2</i><b>5ቱን የPDF መመሪያዎች</b>ወዲያውኑ በTelegram እንልክልዎታለን።</li></ol></div>
+<a class="back" href="#">← ወደ ክፍያ ገጽ ይመለሱ</a></div></div>
+
+<script>
+document.querySelectorAll('.tick').forEach(function(b){b.addEventListener('click',function(){b.classList.toggle('on')})});
+</script></body></html>

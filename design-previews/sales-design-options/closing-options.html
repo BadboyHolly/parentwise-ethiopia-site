@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="am"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Closing + footer options v2</title>
+<style>
+@font-face{font-family:PW;src:url("assets/fonts/parentwise-font-01.woff2") format("woff2");font-weight:400}
+@font-face{font-family:PW;src:url("assets/fonts/parentwise-font-02.woff2") format("woff2");font-weight:700}
+:root{--g:#1F4D3A;--g2:#2a6049;--iv:#F8F4EC;--m:#7A2E3E;--ink:#202928;--mute:#56645d;--line:#e3d8c6}
+*{box-sizing:border-box;margin:0}
+body{font-family:PW,sans-serif;background:#d9d2c2;color:var(--ink)}
+.opt{max-width:430px;margin:0 auto 22px;background:var(--iv);overflow:hidden;position:relative}
+.tag{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:5;background:var(--ink);color:#fff;font:700 12px/1 sans-serif;padding:7px 11px;border-radius:999px;white-space:nowrap}
+img{display:block;max-width:100%}
+a{-webkit-tap-highlight-color:transparent}
+svg{flex:none}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;min-height:56px;border-radius:16px;background:var(--m);color:#fff;font:700 16.5px/1.2 PW,sans-serif;text-decoration:none;padding:0 18px;text-align:center;box-shadow:0 10px 22px -8px rgba(122,46,62,.55);transition:transform .15s ease,box-shadow .15s ease}
+.btn:active{transform:scale(.98);box-shadow:0 4px 10px -6px rgba(122,46,62,.6)}
+.btn:focus-visible,.fa-tele:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid #e9c46a;outline-offset:3px}
+.btn.light{background:#fff;color:var(--m);box-shadow:0 10px 22px -10px rgba(0,0,0,.45)}
+.price{font:700 36px/1.1 PW,sans-serif;letter-spacing:-.01em}
+.prod{font:600 12.5px/1.4 system-ui,sans-serif;letter-spacing:.02em}
+h2{font-size:25px;line-height:1.4}
+.p{font-size:14.5px;line-height:1.75}
+.trust{display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;line-height:1.5;text-align:center}
+.checks{list-style:none;padding:0;display:grid;gap:9px}
+.checks li{display:flex;align-items:flex-start;gap:10px;font-size:14px;line-height:1.5}
+.checks svg{margin-top:2px}
+.guar{display:flex;align-items:center;gap:12px;border-radius:14px;padding:12px 14px;font-size:13.5px;line-height:1.5}
+.guar b{display:block;font-size:14.5px}
+/* ---- CLOSING A ---- */
+.a-photo{position:relative;height:310px}
+.a-photo img{width:100%;height:100%;object-fit:cover;object-position:center 30%}
+.a-panel{position:relative;margin-top:-28px;background:var(--g);color:#fff;padding:30px 22px 30px;border-radius:28px 28px 0 0}
+.a-panel h2{margin-bottom:10px}.a-panel .p{color:#e6eee9}
+.a-price{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:20px 0 16px;padding:16px 18px;border-radius:18px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22)}
+.a-price .prod{color:#f1e4c8;max-width:52%}
+.a-panel .checks{margin-bottom:20px;color:#eef4f0}
+.a-panel .guar{background:rgba(255,255,255,.08);color:#e6eee9;margin-top:16px}
+/* ---- CLOSING B ---- */
+.b-hero{position:relative;height:410px}
+.b-hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 28%}
+.b-sheet{position:relative;margin-top:-70px;background:var(--iv);border-radius:30px 30px 0 0;padding:14px 22px 30px;text-align:center;box-shadow:0 -14px 30px -18px rgba(0,0,0,.5)}
+.b-sheet:before{content:"";display:block;width:44px;height:5px;border-radius:5px;background:#d6cbb4;margin:0 auto 20px}
+.b-sheet h2{color:var(--g)}.b-sheet .p{color:var(--mute);margin-top:8px}
+.b-price{display:flex;align-items:center;justify-content:center;gap:14px;margin:18px 0;padding:14px 16px;border-radius:18px;background:#fff;border:1px solid var(--line)}
+.b-price .price{color:var(--m);font-size:34px}.b-price .prod{color:var(--g);text-align:left;max-width:48%}
+.b-sheet .checks{text-align:left;margin:0 0 18px;color:var(--ink)}
+.b-sheet .trust{color:var(--mute);margin-top:14px}
+/* ---- CLOSING C ---- */
+.c-wrap{padding:50px 14px 26px}
+.c-card{position:relative;background:#fff;border:1px solid var(--line);border-radius:26px;padding:12px 12px 22px;box-shadow:0 22px 40px -22px rgba(31,77,58,.5)}
+.c-card .ph{position:relative;border-radius:18px;overflow:hidden;height:224px}
+.c-card .ph img{width:100%;height:100%;object-fit:cover;object-position:center 30%}
+.c-badge{position:absolute;right:12px;bottom:12px;background:var(--m);color:#fff;border-radius:14px;padding:9px 14px;font:700 20px/1.1 PW,sans-serif;box-shadow:0 8px 16px -8px rgba(0,0,0,.5)}
+.c-card h2{color:var(--g);margin:20px 8px 8px;text-align:center}
+.c-card .p{color:var(--mute);text-align:center;margin:0 8px}
+.c-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:16px 4px 18px}
+.c-chips span{display:inline-flex;align-items:center;gap:6px;background:#EEF3EF;color:var(--g);border-radius:999px;padding:8px 12px;font-size:13px;line-height:1.2}
+.c-card .btn{margin:0 4px}
+.c-card .trust{color:var(--mute);margin-top:14px;padding:0 6px}
+.c-card .prod{color:var(--mute)}
+/* ---- footers ---- */
+.f{background:var(--g);color:#f4eee0;padding:46px 22px 24px}
+.f .logo{width:172px;border-radius:10px;margin:0 auto}
+.f .tg{font:600 14px/1.6 system-ui,sans-serif;color:#f3e9d6;text-align:center;margin:14px 0 22px}
+.f a{color:#f5ebdc;text-decoration:none}
+.f .cp{font:500 12px/1.5 system-ui,sans-serif;color:#cdd9ce;text-align:center;margin-top:24px}
+.f h4{font:700 11.5px/1 system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#cfdcd3;margin:0 0 6px}
+.fa-tele{display:flex;justify-content:center;align-items:center;gap:10px;min-height:52px;border-radius:14px;background:#F8F4EC;color:var(--g)!important;font:700 15px system-ui,sans-serif;transition:transform .15s}
+.fa-tele:active{transform:scale(.98)}
+/* A */
+.fa-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 20px;margin-bottom:22px}
+.fa-grid a{display:flex;align-items:center;min-height:48px;font:600 13.5px/1.35 system-ui,sans-serif;border-bottom:1px solid rgba(255,255,255,.16)}
+.fa-grid a:hover{color:#fff}
+/* B */
+.fb details{border-radius:14px;background:rgba(255,255,255,.08);margin-bottom:12px}
+.fb summary{list-style:none;min-height:54px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;font:700 14.5px system-ui,sans-serif;cursor:pointer}
+.fb summary::-webkit-details-marker{display:none}
+.fb summary svg{transition:transform .2s}.fb details[open] summary svg{transform:rotate(180deg)}
+.fb details div{padding:0 16px 8px}
+.fb details a{display:flex;align-items:center;min-height:46px;font:500 13.5px system-ui,sans-serif;border-top:1px solid rgba(255,255,255,.14)}
+/* C */
+.fc-help{display:flex;align-items:center;gap:14px;border-radius:16px;background:rgba(255,255,255,.1);padding:14px 16px;margin-bottom:18px}
+.fc-help small{display:block;font:500 12.5px/1.4 system-ui,sans-serif;color:#cfdcd3}
+.fc-help b{font:700 15px/1.3 system-ui,sans-serif}
+.fc-help .go{margin-left:auto;display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:#F8F4EC}
+.fc-list a{display:flex;align-items:center;gap:14px;min-height:54px;font:600 14px system-ui,sans-serif;border-bottom:1px solid rgba(255,255,255,.14)}
+.fc-list a svg:last-child{margin-left:auto;opacity:.7}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="ck" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#F8F4EC"/><path d="M7 12.5l3.2 3.2L17 8.8" fill="none" stroke="#1F4D3A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="ckg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#1F4D3A"/><path d="M7 12.5l3.2 3.2L17 8.8" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="sh" viewBox="0 0 24 24"><path d="M12 2.5l8 3v6c0 5-3.4 8.6-8 10-4.6-1.4-8-5-8-10v-6l8-3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.5 12l2.5 2.5 4.5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="ar" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="tg" viewBox="0 0 24 24"><path d="M21 4L3 11l5.5 2L10 19l3-4 4.5 3.5L21 4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+<symbol id="dc" viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 3v4h4M10 12h5M10 16h5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+<symbol id="ch" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</defs></svg>
+
+<!-- ===== CLOSING A ===== -->
+<section class="opt"><span class="tag">CLOSING A · Photo + green panel</span>
+<div class="a-photo"><img src="assets/img/page-29.webp" alt="Illustrated Ethiopian family"></div>
+<div class="a-panel"><h2>ልጆቻችንን የምናሳድግበት መንገድ ዋጋ አለው።</h2>
+<p class="p">ልጅዎን ለመረዳት፣ በአስቸጋሪ ጊዜ የተሻለ ምላሽ ለመስጠትና ጥሩ ልማዶችን ለማስተማር የሚረዱ ተግባራዊ ዘዴዎችን ይማሩ።</p>
+<div class="a-price"><span class="prod">ParentWise Child Behavior &amp; Discipline System</span><span class="price">1,500 ብር</span></div>
+<ul class="checks"><li><svg width="22" height="22"><use href="#ck"/></svg>አምስቱም የParentWise ክፍሎች ተካትተዋል</li><li><svg width="22" height="22"><use href="#ck"/></svg>በዲጂታል PDF ፋይሎች</li><li><svg width="22" height="22"><use href="#ck"/></svg>የ30 ቀን የልምምድ እቅድ</li></ul>
+<a class="btn light" href="order.html">ParentWiseን በ1,500 ብር ያግኙ <svg width="22" height="22"><use href="#ar"/></svg></a>
+<div class="guar"><svg width="28" height="28"><use href="#sh"/></svg><div><b>የ30 ቀን የተግባር ዋስትና</b>ያለ ምንም ስጋት ለ30 ቀናት በቤትዎ ይሞክሩት።</div></div>
+<p class="trust" style="margin-top:14px;color:#dbe7e0">በቴሌብር ወይም በCBE ባንክ ዝውውር ይክፈሉ</p></div></section>
+
+<!-- ===== CLOSING B ===== -->
+<section class="opt"><span class="tag">CLOSING B · Bottom sheet</span>
+<div class="b-hero"><img src="assets/img/page-29.webp" alt="Illustrated Ethiopian family"></div>
+<div class="b-sheet"><h2>ልጆቻችንን የምናሳድግበት መንገድ ዋጋ አለው።</h2>
+<p class="p">ልጅዎን ለመረዳት፣ በአስቸጋሪ ጊዜ የተሻለ ምላሽ ለመስጠትና ጥሩ ልማዶችን ለማስተማር የሚረዱ ተግባራዊ ዘዴዎችን ይማሩ።</p>
+<div class="b-price"><span class="price">1,500 ብር</span><span class="prod">ParentWise Child Behavior &amp; Discipline System</span></div>
+<ul class="checks"><li><svg width="22" height="22"><use href="#ckg"/></svg>አምስቱም የParentWise ክፍሎች ተካትተዋል</li><li><svg width="22" height="22"><use href="#ckg"/></svg>በዲጂታል PDF ፋይሎች</li><li><svg width="22" height="22"><use href="#ckg"/></svg>የ30 ቀን የልምምድ እቅድ</li></ul>
+<a class="btn" href="order.html">ParentWiseን በ1,500 ብር ያግኙ <svg width="22" height="22"><use href="#ar"/></svg></a>
+<p class="trust"><svg width="18" height="18" style="color:#1F4D3A"><use href="#sh"/></svg>የ30 ቀን የተግባር ዋስትና · በቴሌብር ወይም በCBE ይክፈሉ</p></div></section>
+
+<!-- ===== CLOSING C ===== -->
+<section class="opt"><span class="tag">CLOSING C · Floating card</span>
+<div class="c-wrap"><div class="c-card"><div class="ph"><img src="assets/img/page-29.webp" alt="Illustrated Ethiopian family"><span class="c-badge">1,500 ብር</span></div>
+<h2>ልጆቻችንን የምናሳድግበት መንገድ ዋጋ አለው።</h2>
+<p class="p">ልጅዎን ለመረዳት፣ በአስቸጋሪ ጊዜ የተሻለ ምላሽ ለመስጠትና ጥሩ ልማዶችን ለማስተማር የሚረዱ ተግባራዊ ዘዴዎችን ይማሩ።</p>
+<div class="c-chips"><span><svg width="16" height="16"><use href="#ckg"/></svg>አምስት ክፍሎች</span><span><svg width="16" height="16"><use href="#ckg"/></svg>ዲጂታል PDF</span><span><svg width="16" height="16"><use href="#ckg"/></svg>የ30 ቀን እቅድ</span></div>
+<a class="btn" href="order.html">ParentWiseን በ1,500 ብር ያግኙ <svg width="22" height="22"><use href="#ar"/></svg></a>
+<p class="trust"><span>ParentWise Child Behavior &amp; Discipline System<br>በቴሌብር ወይም በCBE ባንክ ዝውውር ይክፈሉ</span></p></div></div></section>
+
+<!-- ===== FOOTER A ===== -->
+<section class="opt"><span class="tag">FOOTER A · Grid + Telegram</span>
+<footer class="f"><img class="logo" src="assets/img/page-02.webp" alt="ParentWise Ethiopia"><p class="tg">How We Raise Matters.</p>
+<h4>Policies</h4>
+<nav class="fa-grid"><a href="#">Terms &amp; Conditions</a><a href="#">Privacy Policy</a><a href="#">Educational Disclaimer</a><a href="#">30-Day Guarantee &amp; Refund Policy</a><a href="#">Payment &amp; Delivery Policy</a><span></span></nav>
+<a class="fa-tele" href="#"><svg width="22" height="22"><use href="#tg"/></svg>Telegram Support</a><p class="cp">© 2026 ParentWise Ethiopia</p></footer></section>
+
+<!-- ===== FOOTER B ===== -->
+<section class="opt"><span class="tag">FOOTER B · Collapsed policies</span>
+<footer class="f fb"><img class="logo" src="assets/img/page-02.webp" alt="ParentWise Ethiopia"><p class="tg">How We Raise Matters.</p>
+<details><summary>Policies<svg width="22" height="22"><use href="#ch"/></svg></summary><div><a href="#">Terms &amp; Conditions</a><a href="#">Privacy Policy</a><a href="#">Educational Disclaimer</a><a href="#">30-Day Guarantee &amp; Refund Policy</a><a href="#">Payment &amp; Delivery Policy</a></div></details>
+<a class="fa-tele" href="#"><svg width="22" height="22"><use href="#tg"/></svg>Telegram Support</a><p class="cp">© 2026 ParentWise Ethiopia</p></footer></section>
+
+<!-- ===== FOOTER C ===== -->
+<section class="opt"><span class="tag">FOOTER C · Help card + rows</span>
+<footer class="f"><img class="logo" src="assets/img/page-02.webp" alt="ParentWise Ethiopia"><p class="tg">How We Raise Matters.</p>
+<a class="fc-help" href="#"><div><b>Telegram Support</b><small>ድጋፍ በቴሌግራም</small></div><span class="go"><svg width="22" height="22" style="color:#1F4D3A"><use href="#tg"/></svg></span></a>
+<nav class="fc-list"><a href="#"><svg width="20" height="20"><use href="#dc"/></svg>Terms &amp; Conditions<svg width="18" height="18"><use href="#ar"/></svg></a><a href="#"><svg width="20" height="20"><use href="#dc"/></svg>Privacy Policy<svg width="18" height="18"><use href="#ar"/></svg></a><a href="#"><svg width="20" height="20"><use href="#dc"/></svg>Educational Disclaimer<svg width="18" height="18"><use href="#ar"/></svg></a><a href="#"><svg width="20" height="20"><use href="#dc"/></svg>30-Day Guarantee &amp; Refund Policy<svg width="18" height="18"><use href="#ar"/></svg></a><a href="#"><svg width="20" height="20"><use href="#dc"/></svg>Payment &amp; Delivery Policy<svg width="18" height="18"><use href="#ar"/></svg></a></nav>
+<p class="cp">© 2026 ParentWise Ethiopia</p></footer></section>
+</body></html>

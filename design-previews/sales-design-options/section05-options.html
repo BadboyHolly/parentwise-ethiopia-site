@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="am"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Section 05 options</title>
+<style>
+@font-face{font-family:PW;src:url("assets/fonts/parentwise-font-01.woff2") format("woff2");font-weight:400}
+@font-face{font-family:PW;src:url("assets/fonts/parentwise-font-02.woff2") format("woff2");font-weight:700}
+:root{--g:#1F4D3A;--m:#7A2E3E;--cream:#FFF9EF;--ink:#202928;--mute:#56645d;--line:#e8dcc6;--tint:#EEF3EF}
+*{box-sizing:border-box;margin:0}
+body{font-family:PW,sans-serif;background:#ece6d9;color:var(--ink)}
+.opt{max-width:430px;margin:0 auto 26px;background:var(--cream);padding:22px 0 26px;overflow:hidden}
+.tag{display:block;width:max-content;margin:0 auto 10px;background:var(--ink);color:#fff;font:700 12px/1 sans-serif;padding:6px 10px;border-radius:999px}
+h2{font-size:22px;line-height:1.3;color:var(--g);text-align:center;padding:0 16px}
+.intro{font-size:14px;line-height:1.5;color:var(--mute);text-align:center;margin:6px 16px 14px}
+.note{font-size:12.5px;color:var(--mute);text-align:center;margin:10px 16px 0}
+img{display:block}
+button{font-family:inherit}
+/* ---------- A: tabs + phone frame ---------- */
+.a-tabs{display:flex;gap:6px;margin:0 16px 14px;background:#f1eadb;padding:4px;border-radius:999px}
+.a-tabs button{flex:1;min-height:44px;border:0;border-radius:999px;background:none;font:700 13px/1.2 PW,sans-serif;color:var(--mute);cursor:pointer}
+.a-tabs button[aria-selected=true]{background:var(--g);color:#fff;box-shadow:0 4px 10px rgba(31,77,58,.25)}
+.a-phone{position:relative;width:min(78%,300px);margin:0 auto;background:#16201c;border-radius:34px;padding:10px;box-shadow:0 24px 40px -14px rgba(31,77,58,.45)}
+.a-phone:before{content:"";position:absolute;top:15px;left:50%;width:56px;height:6px;margin-left:-28px;border-radius:9px;background:#0b110e;z-index:2}
+.a-screen{border-radius:26px;overflow:hidden;background:#fff;aspect-ratio:1100/1956}
+.a-track{display:flex;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
+.a-track::-webkit-scrollbar{display:none}
+.a-track img{flex:0 0 100%;width:100%;height:100%;object-fit:cover;scroll-snap-align:center}
+.a-info{text-align:center;margin:16px 24px 0}
+.a-info h3{font-size:17px;line-height:1.35;color:var(--g)}
+.a-info p{font-size:13.5px;line-height:1.5;color:var(--mute);margin-top:4px}
+.dots{display:flex;gap:6px;justify-content:center;margin-top:12px}
+.dots i{width:7px;height:7px;border-radius:50%;background:#d6cbb4;transition:all .2s}
+.dots i.on{width:22px;border-radius:9px;background:var(--m)}
+/* ---------- B: both pages visible, spread per product ---------- */
+.b-item{margin:0 16px 14px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:14px 14px 16px;box-shadow:0 8px 22px rgba(31,77,58,.07)}
+.b-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.b-num{flex:none;width:34px;height:34px;border-radius:11px;background:var(--g);color:#fff;font:700 14px/34px sans-serif;text-align:center}
+.b-head small{display:block;font:700 11px/1.2 sans-serif;letter-spacing:.05em;text-transform:uppercase;color:var(--m)}
+.b-head h3{font-size:16px;line-height:1.3;color:var(--g)}
+.b-pages{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.b-pages figure{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--line);aspect-ratio:1100/1250;background:#f4eee2}
+.b-pages img{width:100%;height:100%;object-fit:cover;object-position:top}
+.b-pages figure:after{content:"";position:absolute;inset:auto 0 0;height:36%;background:linear-gradient(transparent,rgba(255,255,255,.95))}
+.b-pages figcaption{position:absolute;left:8px;right:8px;bottom:7px;z-index:1;font:700 12px/1.3 PW,sans-serif;color:var(--g)}
+.b-item p.d{font-size:13.5px;line-height:1.5;color:var(--mute);margin:12px 0 10px}
+.b-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:46px;border:1.5px solid var(--g);border-radius:12px;background:#fff;color:var(--g);font:700 14px PW,sans-serif}
+/* ---------- C: full-page story swipe ---------- */
+.c-track{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:0 36px 6px;scroll-padding:0 36px;scrollbar-width:none}
+.c-track::-webkit-scrollbar{display:none}
+.c-card{flex:0 0 78%;scroll-snap-align:center;position:relative}
+.c-card .pg{border-radius:18px;overflow:hidden;background:#fff;border:1px solid var(--line);box-shadow:0 14px 28px -12px rgba(31,77,58,.4);aspect-ratio:1100/1956}
+.c-card .pg img{width:100%;height:100%;object-fit:cover}
+.c-chip{position:absolute;top:10px;left:10px;display:flex;gap:6px;align-items:center;background:rgba(31,77,58,.94);color:#fff;font:700 12px/1 PW,sans-serif;padding:8px 11px;border-radius:999px}
+.c-chip b{font:700 11px/1 sans-serif;background:rgba(255,255,255,.2);padding:3px 6px;border-radius:999px}
+.c-cap{margin-top:10px;font-size:13.5px;line-height:1.45;color:var(--ink);text-align:center}
+.c-cap strong{display:block;color:var(--g);font-size:15px}
+.c-prog{display:flex;gap:5px;margin:14px 36px 0}
+.c-prog i{flex:1;height:4px;border-radius:4px;background:#ddd2bb}
+.c-prog i.on{background:var(--m)}
+.cta{display:flex;align-items:center;justify-content:center;margin:16px 16px 0;min-height:50px;border-radius:14px;background:var(--m);color:#fff;font:700 15px PW,sans-serif;text-decoration:none;box-shadow:0 10px 20px rgba(122,46,62,.28)}
+</style></head><body>
+
+<!-- ============ A ============ -->
+<section class="opt" id="A"><span class="tag">OPTION A · Phone-frame tabs</span>
+<h2>ParentWise ከውስጥ ምን ይመስላል?</h2><p class="intro">ገጾቹን በስልክዎ ላይ እንደሚያዩት ይመልከቱ።</p>
+<div class="a-tabs" role="tablist">
+<button role="tab" aria-selected="true" data-k="workbook">Workbook</button>
+<button role="tab" aria-selected="false" data-k="quickhelp">Quick Help</button>
+<button role="tab" aria-selected="false" data-k="30day">30-Day</button></div>
+<div class="a-phone"><div class="a-screen"><div class="a-track" id="aTrack">
+<img src="assets/img/preview/workbook-1.webp" alt="የባህሪ መርማሪ"><img src="assets/img/preview/workbook-2.webp" alt="የመረጋጋት ዕቅድ"></div></div></div>
+<div class="dots" id="aDots"><i class="on"></i><i></i></div>
+<div class="a-info"><h3 id="aT">የባህሪ መርማሪና የመረጋጋት ዕቅድ</h3><p id="aD">ተደጋጋሚ ሁኔታን ይመዝግቡ፤ ቁጣ ሲነሳም ምን እንደሚያደርጉ አስቀድመው ያቅዱ።</p></div>
+<p class="note">ከሙሉ ጥቅሉ የተወሰዱ ናሙና ገጾች · ወደ ጎን ያንሸራትቱ</p></section>
+
+<!-- ============ B ============ -->
+<section class="opt" id="B"><span class="tag">OPTION B · Two pages side by side</span>
+<h2>ParentWise ከውስጥ ምን ይመስላል?</h2><p class="intro">ሁለቱንም ገጾች ሳይነኩ ያያሉ።</p>
+<article class="b-item"><div class="b-head"><span class="b-num">1</span><div><small>Action Workbook</small><h3>የባህሪ መርማሪና የመረጋጋት ዕቅድ</h3></div></div>
+<div class="b-pages"><figure><img src="assets/img/preview/workbook-1.webp" alt="" loading="lazy"><figcaption>የባህሪ መርማሪ</figcaption></figure><figure><img src="assets/img/preview/workbook-2.webp" alt="" loading="lazy"><figcaption>የመረጋጋት ዕቅድ</figcaption></figure></div>
+<p class="d">ተደጋጋሚ ሁኔታን ይመዝግቡ፤ ቁጣ ሲነሳም ምን እንደሚያደርጉ አስቀድመው ያቅዱ።</p><span class="b-btn">ገጾቹን በሙሉ ይመልከቱ ⤢</span></article>
+<article class="b-item"><div class="b-head"><span class="b-num">2</span><div><small>Quick Help &amp; Parent Scripts</small><h3>ልጄ «እምቢ» ሲለኝ</h3></div></div>
+<div class="b-pages"><figure><img src="assets/img/preview/quickhelp-1.webp" alt="" loading="lazy"><figcaption>ምን ማድረግ</figcaption></figure><figure><img src="assets/img/preview/quickhelp-2.webp" alt="" loading="lazy"><figcaption>ምን ማለት</figcaption></figure></div>
+<p class="d">ምን ማድረግ፣ ምን ማለትና ምን ማስወገድ እንዳለብዎት ደረጃ በደረጃ።</p><span class="b-btn">ገጾቹን በሙሉ ይመልከቱ ⤢</span></article>
+<article class="b-item"><div class="b-head"><span class="b-num">3</span><div><small>30-Day Practice Program</small><h3>የ30 ቀን ካርታዎ</h3></div></div>
+<div class="b-pages"><figure><img src="assets/img/preview/30day-1.webp" alt="" loading="lazy"><figcaption>የ30 ቀን ካርታ</figcaption></figure><figure><img src="assets/img/preview/30day-2.webp" alt="" loading="lazy"><figcaption>የሳምንት 1 ልምምድ</figcaption></figure></div>
+<p class="d">በሳምንት የተከፋፈለ፣ በቀን 5–10 ደቂቃ የሚወስድ ልምምድ።</p><span class="b-btn">ገጾቹን በሙሉ ይመልከቱ ⤢</span></article></section>
+
+<!-- ============ C ============ -->
+<section class="opt" id="C"><span class="tag">OPTION C · Full-page story swipe</span>
+<h2>ParentWise ከውስጥ ምን ይመስላል?</h2><p class="intro">6 እውነተኛ ገጾች — ያንሸራትቱ።</p>
+<div class="c-track" id="cTrack">
+<div class="c-card"><div class="pg"><img src="assets/img/preview/quickhelp-1.webp" alt="ልጄ እምቢ ሲለኝ"></div><span class="c-chip">Quick Help <b>1/2</b></span><p class="c-cap"><strong>ልጄ «እምቢ» ሲለኝ</strong>ምን ማድረግ — በ4 ደረጃዎች</p></div>
+<div class="c-card"><div class="pg"><img src="assets/img/preview/quickhelp-2.webp" alt="ምን ማለት"></div><span class="c-chip">Quick Help <b>2/2</b></span><p class="c-cap"><strong>ምን ማለትና ምን ማስወገድ</strong>ዝግጁ የንግግር ምሳሌዎች</p></div>
+<div class="c-card"><div class="pg"><img src="assets/img/preview/workbook-1.webp" alt="የባህሪ መርማሪ"></div><span class="c-chip">Workbook <b>1/2</b></span><p class="c-cap"><strong>የባህሪ መርማሪ</strong>ተደጋጋሚ ሁኔታን ይመዝግቡ</p></div>
+<div class="c-card"><div class="pg"><img src="assets/img/preview/workbook-2.webp" alt="የመረጋጋት ዕቅድ"></div><span class="c-chip">Workbook <b>2/2</b></span><p class="c-cap"><strong>የመረጋጋት ዕቅድ</strong>ቁጣ ሲነሳ አስቀድመው ያቅዱ</p></div>
+<div class="c-card"><div class="pg"><img src="assets/img/preview/30day-1.webp" alt="የ30 ቀን ካርታ"></div><span class="c-chip">30-Day <b>1/2</b></span><p class="c-cap"><strong>የ30 ቀን ካርታዎ</strong>3 ደረጃዎች</p></div>
+<div class="c-card"><div class="pg"><img src="assets/img/preview/30day-2.webp" alt="የሳምንት 1 ልምምድ"></div><span class="c-chip">30-Day <b>2/2</b></span><p class="c-cap"><strong>የሳምንት 1 የዕለት ልምምድ</strong>በቀን 5–10 ደቂቃ</p></div></div>
+<div class="c-prog" id="cProg"><i class="on"></i><i></i><i></i><i></i><i></i><i></i></div>
+<a class="cta" href="order.html">ParentWiseን በ1,500 ብር ያግኙ →</a></section>
+
+<script>
+var S={workbook:['የባህሪ መርማሪና የመረጋጋት ዕቅድ','ተደጋጋሚ ሁኔታን ይመዝግቡ፤ ቁጣ ሲነሳም ምን እንደሚያደርጉ አስቀድመው ያቅዱ።'],quickhelp:['ልጄ «እምቢ» ሲለኝ','ምን ማድረግ፣ ምን ማለትና ምን ማስወገድ እንዳለብዎት ደረጃ በደረጃ።'],'30day':['የ30 ቀን ካርታዎ','በሳምንት የተከፋፈለ፣ በቀን 5–10 ደቂቃ የሚወስድ ልምምድ።']};
+var tr=document.getElementById('aTrack'),dots=document.querySelectorAll('#aDots i');
+document.querySelectorAll('.a-tabs button').forEach(function(b){b.onclick=function(){document.querySelectorAll('.a-tabs button').forEach(function(x){x.setAttribute('aria-selected',x===b)});var k=b.dataset.k;tr.innerHTML='<img src="assets/img/preview/'+k+'-1.webp" alt=""><img src="assets/img/preview/'+k+'-2.webp" alt="">';tr.scrollLeft=0;document.getElementById('aT').textContent=S[k][0];document.getElementById('aD').textContent=S[k][1];};});
+tr.onscroll=function(){var i=Math.round(tr.scrollLeft/tr.clientWidth);dots.forEach(function(d,n){d.classList.toggle('on',n===i)});};
+var ct=document.getElementById('cTrack'),cp=document.querySelectorAll('#cProg i');
+ct.onscroll=function(){var w=ct.querySelector('.c-card').offsetWidth+12;var i=Math.round(ct.scrollLeft/w);cp.forEach(function(d,n){d.classList.toggle('on',n===i)});};
+</script></body></html>
