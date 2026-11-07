@@ -1,0 +1,12 @@
+
+# Local scratch (not part of the site)
+__pycache__/
+site-preview/*-options.html
+site-preview/*-options2.html
+site-preview/research-hybrid.html
+site-preview/font-compare.html
+site-preview/phone-nav.html
+site-preview/phone-sizing.html
+.claude/
+docs/copy-review/
+preview-picks/
