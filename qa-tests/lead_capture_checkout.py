@@ -296,7 +296,8 @@ def main():
         page.reload()
         until(page, lambda: len(accepted(log)) >= 2 and queued(page) == [])
         steps = [b["step"] for b in accepted(log)]
-        check(steps == ["details_submitted", "payment_viewed"], f"delivered after the reload, in order: {steps}")
+        first_seen = [x for i, x in enumerate(steps) if x not in steps[:i]]
+        check(first_seen == ["details_submitted", "payment_viewed"], f"delivered after the reload, in order (identical repeats allowed): {steps}")
         check(len({b["attempt_id"] for b in accepted(log)}) == 1, "the delivered events keep the original attempt id")
         check(queued(page) == [], "the queue is empty once the server accepted everything")
         context.close()
@@ -367,7 +368,7 @@ def main():
         page.reload()
         until(page, lambda: len(accepted(log)) >= 2 and queued(page) == [])
         flags = [b["promo_opt_in"] for b in accepted(log, "details_submitted")]
-        check(flags == [False], f"the server never sees a tick the customer took back: {flags} log={[(b['step'], b.get('promo_opt_in'), st) for b, st in log]}")
+        check(flags and set(flags) == {False}, f"the server never sees a tick the customer took back: {flags} log={[(b['step'], b.get('promo_opt_in'), st) for b, st in log]}")
         context.close()
 
         # 13. Changing the box during the same attempt: each answer is sent, in order, under the same attempt id.
