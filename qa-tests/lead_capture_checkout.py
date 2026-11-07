@@ -27,8 +27,7 @@ def check(condition, message):
     if not condition:
         failures.append(message)
         print("FAIL:", message)
-        print("::error::" + message.replace("
-", " ")[:900])
+        print("::error::" + " ".join(str(message).split())[:900])
 
 
 def serve(directory, port):
