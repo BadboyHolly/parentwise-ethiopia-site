@@ -67,6 +67,41 @@ def walk_to_telegram(page):
     page.click("#telegram-handoff", modifiers=[])  # opens a new tab; the click is what is recorded
 
 
+QUEUE = "parentwise-lead-queue-v2"
+
+
+def scripted_api(context, decide):
+    """Fake lead endpoint. decide(body, n) -> HTTP status, or None to drop the connection. Every request is logged as (body, status)."""
+    log = []
+
+    def handle(route):
+        request = route.request
+        if request.method == "OPTIONS":
+            return route.fulfill(status=204, headers=CORS)
+        body = json.loads(request.post_data or "{}")
+        status = decide(body, len(log))
+        log.append((body, status))
+        if status is None:
+            return route.abort()
+        route.fulfill(status=status, headers=CORS, body="")
+
+    context.route(ENDPOINT, handle)
+    return log
+
+
+def queued(page):
+    return page.evaluate(f"JSON.parse(localStorage.getItem('{QUEUE}') || '[]')")
+
+
+def set_promo(page, value):
+    """Change the optional follow-up box the way the customer does (the box may be scrolled out of the details form by then)."""
+    page.evaluate("""(v) => { const c = document.getElementById('lead-promo'); c.checked = v; c.dispatchEvent(new Event('change', {bubbles: true})); }""", value)
+
+
+def accepted(log, step=None):
+    return [b for b, st in log if st is not None and 200 <= st < 300 and (step is None or b["step"] == step)]
+
+
 def main():
     work = Path(tempfile.mkdtemp(prefix="pw-lead-"))
     enabled_dir = work / "enabled"
@@ -78,10 +113,11 @@ def main():
                                   f'<meta name="pw-leads-endpoint" content="{ENDPOINT}">'), encoding="utf-8")
     shipped, enabled = serve(ROOT, 8771), serve(enabled_dir, 8772)
     with sync_playwright() as playwright:
+        chrome = Path("C:/Program Files/Google/Chrome/Application/chrome.exe")
         browser = playwright.chromium.launch(
             headless=True,
             channel="chrome" if shutil.which("google-chrome") else None,
-            executable_path=shutil.which("chromium") if not shutil.which("google-chrome") else None)
+            executable_path=str(chrome) if chrome.exists() else (shutil.which("chromium") if not shutil.which("google-chrome") else None))
 
         # 1. As shipped: dormant. No request, no lead wording.
         context = browser.new_context(viewport={"width": 375, "height": 860})
@@ -229,6 +265,135 @@ def main():
         expect(page.locator("#payment-section")).to_be_visible()
         page.wait_for_timeout(3500)
         check(tries.count("details_submitted") == 2, f"one retry after a 503: {tries}")
+        context.close()
+
+        # 9. A failed submission is not lost: it waits in the browser and is delivered on the next page load.
+        context = browser.new_context(viewport={"width": 375, "height": 860})
+        state = {"down": True}
+        log = scripted_api(context, lambda body, n: 503 if state["down"] else 204)
+        page = context.new_page()
+        page.goto("http://127.0.0.1:8772/order.html")
+        fill_details(page, name="Hanna Bekele", phone="0911223344", promo=True)
+        expect(page.locator("#payment-section")).to_be_visible()
+        page.wait_for_timeout(400)
+        check(accepted(log) == [], "nothing is accepted while the server is down")
+        waiting = queued(page)
+        check([i["body"]["step"] for i in waiting] == ["details_submitted", "payment_viewed"], f"events wait in the browser: {[i['body']['step'] for i in waiting]}")
+        check(waiting[0]["body"]["promo_opt_in"] is True, "the waiting details keep the customer's tick")
+        state["down"] = False
+        page.reload()
+        page.wait_for_timeout(900)
+        steps = [b["step"] for b in accepted(log)]
+        check(steps == ["details_submitted", "payment_viewed"], f"delivered after the reload, in order: {steps}")
+        check(len({b["attempt_id"] for b in accepted(log)}) == 1, "the delivered events keep the original attempt id")
+        check(queued(page) == [], "the queue is empty once the server accepted everything")
+        context.close()
+
+        # 9b. Closing the tab entirely and coming back later (a new tab in the same browser) also delivers it.
+        context = browser.new_context(viewport={"width": 375, "height": 860})
+        state = {"down": True}
+        log = scripted_api(context, lambda body, n: 503 if state["down"] else 204)
+        page = context.new_page()
+        page.goto("http://127.0.0.1:8772/order.html")
+        fill_details(page, name="Sara Tesfaye", phone="0922334455")
+        expect(page.locator("#payment-section")).to_be_visible()
+        page.wait_for_timeout(400)
+        page.close()
+        state["down"] = False
+        page = context.new_page()
+        page.goto("http://127.0.0.1:8772/order.html")
+        page.wait_for_timeout(900)
+        sent = accepted(log, "details_submitted")
+        check(len(sent) == 1 and sent[0]["name"] == "Sara Tesfaye" and sent[0]["phone"] == "0922334455", f"details delivered from a new tab: {sent}")
+        context.close()
+
+        # 10. A dropped connection is retried when the connection comes back (online) and when the tab is shown again (visibility).
+        for label, fire in (("online", "window.dispatchEvent(new Event('online'))"),
+                            ("visibility", "document.dispatchEvent(new Event('visibilitychange'))")):
+            context = browser.new_context(viewport={"width": 375, "height": 860})
+            state = {"down": True}
+            log = scripted_api(context, lambda body, n: None if state["down"] else 204)
+            page = context.new_page()
+            page.goto("http://127.0.0.1:8772/order.html")
+            fill_details(page)
+            expect(page.locator("#payment-section")).to_be_visible()
+            page.wait_for_timeout(300)
+            state["down"] = False
+            page.evaluate(fire)
+            page.wait_for_timeout(500)
+            check([b["step"] for b in accepted(log)] == ["details_submitted", "payment_viewed"], f"{label}: delivered without waiting for the timer: {[b['step'] for b, _ in log]}")
+            context.close()
+
+        # 11. Retries are bounded: a server that stays busy is not hammered, and the events are kept.
+        context = browser.new_context(viewport={"width": 375, "height": 860})
+        log = scripted_api(context, lambda body, n: 503)
+        page = context.new_page()
+        page.goto("http://127.0.0.1:8772/order.html")
+        fill_details(page)
+        expect(page.locator("#payment-section")).to_be_visible()
+        page.wait_for_timeout(7000)
+        attempts = len(log)
+        check(2 <= attempts <= 4, f"bounded backoff: {attempts} sends in 7s while the server is busy")
+        check(len(queued(page)) == 2, "events are kept while the server stays busy")
+        context.close()
+
+        # 12. Ticking then un-ticking the follow-up box while the server is down: only the customer's final answer is ever sent.
+        context = browser.new_context(viewport={"width": 375, "height": 860})
+        state = {"down": True}
+        log = scripted_api(context, lambda body, n: 503 if state["down"] else 204)
+        page = context.new_page()
+        page.goto("http://127.0.0.1:8772/order.html")
+        fill_details(page)
+        expect(page.locator("#payment-section")).to_be_visible()
+        page.wait_for_timeout(400)
+        set_promo(page, True)
+        page.wait_for_timeout(100)
+        set_promo(page, False)
+        waiting = [i for i in queued(page) if i["body"]["step"] == "details_submitted"]
+        check(len(waiting) == 1 and waiting[0]["body"]["promo_opt_in"] is False, f"one waiting details event carrying the final answer: {[i['body']['promo_opt_in'] for i in waiting]}")
+        state["down"] = False
+        page.reload()
+        page.wait_for_timeout(900)
+        flags = [b["promo_opt_in"] for b in accepted(log, "details_submitted")]
+        check(flags == [False], f"the server never sees a tick the customer took back: {flags}")
+        context.close()
+
+        # 13. Changing the box during the same attempt: each answer is sent, in order, under the same attempt id.
+        context = browser.new_context(viewport={"width": 375, "height": 860})
+        log = scripted_api(context, lambda body, n: 204)
+        page = context.new_page()
+        page.goto("http://127.0.0.1:8772/order.html")
+        fill_details(page)
+        expect(page.locator("#payment-section")).to_be_visible()
+        page.wait_for_timeout(300)
+        for value in (True, False, True):
+            set_promo(page, value)
+            page.wait_for_timeout(300)
+        page.click("#paid-action")
+        expect(page.locator("#telegram-section")).to_be_visible()
+        page.wait_for_timeout(300)
+        details_events = accepted(log, "details_submitted")
+        check([b["promo_opt_in"] for b in details_events] == [False, True, False, True], f"answers in order: {[b['promo_opt_in'] for b in details_events]}")
+        check(len({b["attempt_id"] for b in accepted(log)}) == 1, "all answers belong to the same attempt")
+        check(sum(1 for b in accepted(log) if b["step"] == "payment_viewed") == 1, "steps are not repeated by an answer change")
+        # changing the name in the same attempt is sent too; the phone is the attempt's own
+        page.evaluate("""() => { const n = document.getElementById('customer-name'); n.value = 'Hanna B. Bekele'; n.dispatchEvent(new Event('change', {bubbles: true})); }""")
+        page.wait_for_timeout(300)
+        check(accepted(log, "details_submitted")[-1]["name"] == "Hanna B. Bekele", "a changed name is sent for the same attempt")
+        context.close()
+
+        # 14. A final refusal (422) drops only that event: later events are still delivered and nothing retries forever.
+        context = browser.new_context(viewport={"width": 375, "height": 860})
+        log = scripted_api(context, lambda body, n: 422 if body["step"] == "details_submitted" else 204)
+        page = context.new_page()
+        page.goto("http://127.0.0.1:8772/order.html")
+        fill_details(page)
+        expect(page.locator("#payment-section")).to_be_visible()
+        page.click("#paid-action")
+        page.wait_for_timeout(3500)
+        check(sum(1 for b, _ in log if b["step"] == "details_submitted") == 1, "a refused event is not retried")
+        check([b["step"] for b in accepted(log)] == ["payment_viewed", "paid_clicked", "proof_viewed"], f"later events still go out: {[b['step'] for b in accepted(log)]}")
+        check(queued(page) == [], "nothing is left waiting after a final refusal")
         context.close()
         browser.close()
     shipped.shutdown(); enabled.shutdown()

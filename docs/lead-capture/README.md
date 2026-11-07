@@ -71,6 +71,10 @@ different people, same attempt id with another phone, notice never silently remo
 leads never create orders, verified buyer and repeat purchase derivation, follow-up rules and audit, erasure, retention purge.
 Browser (`qa-tests/lead_capture_checkout.py`, CI): dormant by default, exact payloads and order of events, one attempt per phone per tab, reload, edited phone, invalid details send nothing,
 a failing endpoint never blocks checkout, a 409 triggers one resend of details, no horizontal scroll at 375 px.
+Delivery (new): a failed or dropped submission waits in a small browser queue and is sent after a reload, from a new tab, when the connection returns or the tab is shown again;
+events go out one at a time in order; retries are bounded (1.5 s growing to 30 s, six sends in a row per page visit); a final refusal (422 and similar) drops only that event;
+ticking, un-ticking and re-ticking the follow-up box (or changing the name) in the same attempt is sent as an updated answer under the same attempt id, and an update that has not left the browser replaces the older one.
+The queue is removed as soon as the server accepts each event, holds only what the customer typed on this page, and discards anything older than 24 hours.
 
 ## 5. Before real customer data can be stored
 
