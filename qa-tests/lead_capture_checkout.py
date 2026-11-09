@@ -452,11 +452,12 @@ def main():
             before = len(accepted(log, "details_submitted"))
             set_promo(page, value)
             until(page, lambda: len(accepted(log, "details_submitted")) > before and queued(page) == [])
-        stamps = [b.get("answered_at") for b in accepted(log, "details_submitted")]
-        check(len(stamps) == 4 and all(isinstance(s, int) for s in stamps), f"every details event carries answered_at: {stamps}")
-        check(all(b < a for b, a in zip(stamps, stamps[1:])), f"answer times strictly increase: {stamps}")
-        check(all(started - 5000 <= s <= page.evaluate("Date.now()") + 5000 for s in stamps), "answer times are the customer's own clock, not made up")
-        check(all("answered_at" not in b for b, _ in log if b["step"] != "details_submitted"), "step events carry no answer time")
+        events = accepted(log, "details_submitted")
+        counters = [b.get("answer_seq") for b in events]
+        check(len(events) == 4 and counters == [1, 2, 3, 4], f"every details event carries the ticket counter, in order: {counters}")
+        check(all(isinstance(b.get("clock_ms"), int) and len(b.get("clock_sig", "")) == 64 for b in events), "and the server's ticket")
+        check(all("answered_at" not in b for b, _ in log), "no event claims a time of its own")
+        check(all("answer_seq" not in b and "clock_ms" not in b for b, _ in log if b["step"] != "details_submitted"), "step events carry no ticket")
         context.close()
 
         # 16. Two tabs of the same browser share the queue but only one of them sends: no event leaves twice.
@@ -474,7 +475,7 @@ def main():
         page.reload()
         until(page, lambda: len(accepted(log)) >= 2 and queued(page) == [] and queued(second) == [], timeout=10000)
         second.wait_for_timeout(2500)   # long enough for a second tab that wrongly sends the same events too
-        sent = [(b["step"], b["attempt_id"], b.get("answered_at")) for b in accepted(log)]
+        sent = [(b["step"], b["attempt_id"], b.get("answer_seq")) for b in accepted(log)]
         check(len(sent) == 2 and len(set(sent)) == 2, f"each queued event is accepted exactly once across two tabs: {sent}")
         check([s[0] for s in sent] == ["details_submitted", "payment_viewed"], f"and in order: {sent}")
         context.close()
@@ -562,7 +563,8 @@ def main():
             until(page, lambda: len(accepted(log, "details_submitted")) >= 1)
             event = accepted(log, "details_submitted")[0]
             phone_now = page.evaluate("Date.now()")
-            check(abs(event["answered_at"] - int(time.time() * 1000)) < 8000, f"{label}: answered_at is server time, not the phone's: off by {event['answered_at'] - int(time.time() * 1000)} ms")
+            check(abs(event["clock_ms"] - int(time.time() * 1000)) < 8000, f"{label}: the ticket is the server's time, not the phone's: off by {event['clock_ms'] - int(time.time() * 1000)} ms")
+            check("answered_at" not in event, f"{label}: the browser claims no time of its own")
             check(abs(phone_now - int(time.time() * 1000)) > 60000, f"{label}: the phone's own clock really was wrong in this check")
             check(isinstance(event.get("clock_ms"), int) and len(event.get("clock_sig", "")) == 64, f"{label}: the server's stamp travels with the answer")
             context.close()
@@ -576,7 +578,7 @@ def main():
         expect(page.locator("#payment-section")).to_be_visible()
         until(page, lambda: len(accepted(log, "details_submitted")) >= 1, timeout=6000)
         event = accepted(log, "details_submitted")
-        check(len(event) == 1 and "answered_at" in event[0] and "clock_ms" not in event[0] and "clock_sig" not in event[0], f"no stamp is sent when the clock is unreachable: {event}")
+        check(len(event) == 1 and "clock_ms" not in event[0] and "clock_sig" not in event[0] and "answer_seq" not in event[0], f"no ticket is sent when the clock is unreachable: {event}")
         check([b["step"] for b in accepted(log)][:2] == ["details_submitted", "payment_viewed"], "the steps still go out, in order")
         context.close()
 
@@ -685,6 +687,65 @@ def main():
         rival.evaluate("window.dispatchEvent(new Event('online'))")
         rival.wait_for_timeout(1200)
         check(rival.evaluate("window.__calls.length") == 0, "the second tab did not send while the first one's request was still in flight")
+        context.close()
+
+        # 27. A ticket that arrives AFTER the customer acted is never used for that earlier answer; a later answer uses it.
+        context = make_context(browser, viewport={"width": 375, "height": 860})
+        context.add_init_script("""(() => { window.__posts = []; const real = window.fetch.bind(window);
+            window.fetch = (url, options) => { if (String(url).endsWith('/clock')) return new Promise((resolve) => setTimeout(() => resolve(
+                  new Response(JSON.stringify({ now_ms: Date.now(), sig: 'a'.repeat(64) }), { status: 200, headers: { 'content-type': 'application/json' } })), 2500));
+              window.__posts.push(JSON.parse(options.body)); return Promise.resolve(new Response(null, { status: 204 })); }; })();""")
+        page = context.new_page()
+        page.goto("http://127.0.0.1:8772/order.html")
+        fill_details(page, promo=False)                                # acts at about 0.4 s, long before the 2.5 s ticket arrives
+        expect(page.locator("#payment-section")).to_be_visible()
+        until(page, lambda: page.evaluate("window.__posts.filter(p => p.step === 'details_submitted').length") >= 1, timeout=4000)
+        first_event = page.evaluate("window.__posts.filter(p => p.step === 'details_submitted')[0]")
+        check("clock_ms" not in first_event and "clock_sig" not in first_event and "answer_seq" not in first_event,
+              f"an answer given before any ticket arrived carries none: {first_event}")
+        page.wait_for_timeout(2600)                                    # the ticket has arrived by now
+        set_promo(page, True)
+        until(page, lambda: page.evaluate("window.__posts.filter(p => p.step === 'details_submitted').length") >= 2, timeout=5000)
+        later = page.evaluate("window.__posts.filter(p => p.step === 'details_submitted')[1]")
+        check(isinstance(later.get("clock_ms"), int) and later.get("answer_seq") == 1 and later["promo_opt_in"] is True, f"a later answer carries the ticket and counter 1: {later}")
+        context.close()
+
+        # 28. Queued details are discarded after the limit even when nothing ever triggers another send (limit shortened to 3 s).
+        context = make_context(browser, viewport={"width": 375, "height": 860})
+        context.add_init_script("window.__pwLeadMaxAgeMs = 3000;")
+        log = scripted_api(context, lambda body, n: 503)
+        page = context.new_page()
+        page.goto("http://127.0.0.1:8772/order.html")
+        fill_details(page, name="Hanna Bekele", phone="0911223344")
+        expect(page.locator("#payment-section")).to_be_visible()
+        until(page, lambda: len(queued(page)) == 2, timeout=3000)
+        check("Hanna" in page.evaluate("localStorage.getItem('parentwise-lead-queue-v3') || ''"), "the details are queued while the server is busy")
+        until(page, lambda: queued(page) == [], timeout=8000)
+        stored = page.evaluate("localStorage.getItem('parentwise-lead-queue-v3') || ''")
+        check(queued(page) == [] and "Hanna" not in stored and "0911223344" not in stored, f"the queued details expire by themselves: {stored[:100]}")
+        context.close()
+
+        # 29. One tab's refused storage write must not make it lose its events to another tab's successful write.
+        context = make_context(browser, viewport={"width": 375, "height": 860})
+        context.add_init_script("""(() => { window.__failQueue = false; const original = Storage.prototype.setItem;
+            Storage.prototype.setItem = function (key, value) { if (window.__failQueue && String(key).indexOf('queue') >= 0) throw new Error('quota'); return original.call(this, key, value); }; })();""")
+        state = {"down": True}
+        log = scripted_api(context, lambda body, n: 503 if state["down"] else 204)
+        tab_a = context.new_page()
+        tab_b = context.new_page()
+        tab_a.goto("http://127.0.0.1:8772/order.html")
+        tab_b.goto("http://127.0.0.1:8772/order.html")
+        tab_a.evaluate("window.__failQueue = true")                    # tab A can no longer store anything
+        fill_details(tab_a, name="Hanna Bekele", phone="0911223344")
+        fill_details(tab_b, name="Sara Tesfaye", phone="0922334455")   # tab B stores normally, from the same starting queue
+        until(tab_b, lambda: len(queued(tab_b)) >= 2, timeout=5000)
+        state["down"] = False
+        tab_a.evaluate("window.dispatchEvent(new Event('online'))")
+        tab_b.evaluate("window.dispatchEvent(new Event('online'))")
+        until(tab_a, lambda: len({(b["step"], b["attempt_id"]) for b in accepted(log)}) >= 4, timeout=12000)
+        names_sent = {b["name"] for b in accepted(log, "details_submitted")}
+        check(names_sent == {"Hanna Bekele", "Sara Tesfaye"}, f"neither tab's details were lost: {names_sent}")
+        check(len({(b["step"], b["attempt_id"]) for b in accepted(log)}) == 4, "all four events reached the server (a repeat is harmless: the server ignores an identical one)")
         context.close()
         browser.close()
     shipped.shutdown(); enabled.shutdown()

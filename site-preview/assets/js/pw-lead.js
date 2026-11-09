@@ -11,15 +11,17 @@
      accepts it. A reload, a closed tab or a dropped connection therefore does not lose it; it is sent on the next
      page load, when the connection comes back, or when the tab becomes visible again.
    * Every change to the shared queue (adding, removing, expiring) runs inside a Web Lock, so two tabs can never overwrite
-     each other's additions. The queue carries a version number; if the browser refuses a write (storage full or blocked) the
-     newer copy kept in memory is used instead of an older stored one.
+     each other's additions. If the browser refuses a write (storage full or blocked) this tab remembers exactly what it could not
+     store (new events) and what it removed, and merges that with what IS stored, so nothing newer is lost and nothing removed is
+     sent again from here; the events are matched by their own ids, not by a version number.
    * Only ONE tab sends at a time (a second Web Lock, or a lease in localStorage where Web Locks do not exist; the lease is renewed
      for as long as a request is in flight), one event at a time and in order.
-   * Time. The page asks the server for its clock (GET <endpoint>/clock: server time plus the server's signature) and works out every
-     answer time in SERVER time, so a phone whose clock is fast or slow cannot make an answer look newer or older than it was. The
-     stamp travels with the details event; the server applies an answer only if it is newer than the last STOP, withdrawal or erasure it
-     knows of. If the clock cannot be fetched the details are still sent, but without a stamp: the server then treats the answer time as
-     unverified (an un-tick still counts, a tick does not, and nobody erased is recreated).
+   * Order. The page asks the server for a TICKET (GET <endpoint>/clock: a clock reading the server signed) when it opens and every few
+     minutes, and sends the latest ticket it already HAS with each answer, plus a small counter for the answers made on that ticket. The
+     server orders an answer by the ticket's time: it counts only if its ticket is newer than the last STOP, withdrawal or erasure it
+     knows of. The ticket is the one held at the moment the customer acted, never one that arrives later, so any error can only make an
+     answer look older (it is then ignored), never newer. Nothing in the request claims a time. If there is no ticket the details are
+     still sent, without one: the server then ignores a promotional tick (an un-tick still counts) and recreates nobody who was erased.
    * Busy server (429/5xx) or no network: wait and try again with a growing pause (about 1.5s up to 30s, giving up after 6 sends
      in a row per page visit); the queue is kept and sent again at the next trigger. 409 (the server has not seen the details yet):
      the details are sent first, once, then the event. Other 4xx answers are final and the event is dropped.
@@ -60,7 +62,7 @@
     var MAX_AGE = (window.__pwLeadMaxAgeMs | 0) || 24 * 3600 * 1000;
     var LEASE_MS = (window.__pwLeadLeaseMs | 0) || 20000;
     var MAX_QUEUE = 100, PAUSES = [1500, 3000, 6000, 12000, 30000];
-    var memAttempt = null, memQueue = { v: 0, items: [] };
+    var memAttempt = null;
 
     function store(kind) { try { return window[kind]; } catch (e) { return null; } }
     function readJSON(kind, key, fallback) {
@@ -111,6 +113,7 @@
     });
 
     // ---------------------------------------------------------------- the queue: versioned, changed only inside a lock
+    var unsaved = {}, removedHere = {}, queueExpiryTimer = null;   // what this browser refused to store, and what this tab removed
     function parseQueue(raw) {
       try {
         var value = JSON.parse(raw);
@@ -119,14 +122,40 @@
       } catch (e) { /* unreadable */ }
       return null;
     }
-    function readQueue() {
+    function storedQueue() {
       var persisted = null;
-      try { var s = store('localStorage'); persisted = parseQueue(s && s.getItem(QUEUE_KEY)); } catch (e) { persisted = null; }
-      return persisted && persisted.v >= memQueue.v ? persisted : memQueue;   // a refused write leaves the newer copy in memory
+      try { var st = store('localStorage'); persisted = parseQueue(st && st.getItem(QUEUE_KEY)); } catch (e) { persisted = null; }
+      return persisted || { v: 0, items: [] };
+    }
+    function readQueue() {   // what is stored, plus what this tab could not store, minus what this tab removed but could not store
+      var q = storedQueue();
+      var items = q.items.filter(function (x) { return x && !removedHere[x.uid]; });
+      var have = {};
+      items.forEach(function (x) { have[x.uid] = true; });
+      Object.keys(unsaved).forEach(function (id) { if (!have[id]) items.push(unsaved[id]); });
+      return { v: q.v, items: items };
     }
     function writeQueue(q) {
-      memQueue = q;
-      try { var s = store('localStorage'); if (s) s.setItem(QUEUE_KEY, JSON.stringify(q)); } catch (e) { /* the memory copy is the newer one now */ }
+      var stored = false;
+      try { var st = store('localStorage'); if (st) { st.setItem(QUEUE_KEY, JSON.stringify(q)); stored = true; } } catch (e) { stored = false; }
+      if (stored) { unsaved = {}; removedHere = {}; }
+      else {   // refused: remember exactly how this tab's view differs from what IS stored
+        var inStore = storedQueue().items, ids = {}, keep = {};
+        inStore.forEach(function (x) { if (x) ids[x.uid] = true; });
+        q.items.forEach(function (x) { keep[x.uid] = true; });
+        unsaved = {}; q.items.forEach(function (x) { if (!ids[x.uid]) unsaved[x.uid] = x; });
+        removedHere = {}; inStore.forEach(function (x) { if (x && !keep[x.uid]) removedHere[x.uid] = true; });
+      }
+      scheduleQueueExpiry(q.items);
+    }
+    function scheduleQueueExpiry(items) {   // queued details are discarded after MAX_AGE even if nothing ever triggers a send again
+      clearTimeout(queueExpiryTimer);
+      var oldest = null;
+      (items || []).forEach(function (x) { if (x && x.at && (oldest === null || x.at < oldest)) oldest = x.at; });
+      if (oldest === null) return;
+      queueExpiryTimer = setTimeout(function () {
+        mutate(function (list) { return list.filter(function (x) { return x && x.body && Date.now() - x.at < MAX_AGE; }); });
+      }, Math.max(0, oldest + MAX_AGE - Date.now()) + 500);
     }
     function mutate(change) {   // change(items) returns the new items; runs under the queue lock so two tabs cannot overwrite each other
       function run() { var q = readQueue(); var items = change(q.items.slice()); writeQueue({ v: q.v + 1, items: items }); return items; }
@@ -224,7 +253,7 @@
               } else if (status === 409 && item.body.step !== 'details_submitted' && !item.resent) {
                 // The server never saw the details for this attempt: send them first (once), then this event again.
                 var record = readAttempt();
-                var details = record && record.id === item.body.attempt_id && record.details && record.details.answered_at ? record.details : null;
+                var details = record && record.id === item.body.attempt_id && record.details && record.ready ? record.details : null;
                 mutate(function (list) {
                   if (!details) return list.filter(function (x) { return x.uid !== item.uid; });   // the details are no longer kept in this tab: nothing to resend from here
                   list = list.map(function (x) { if (x.uid === item.uid) x.resent = true; return x; });
@@ -259,29 +288,20 @@
     window.addEventListener('pagehide', function () { flush(); });
     document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') trigger(); });
 
-    // ---------------------------------------------------------------- the server's clock
-    var clock = null, clockPending = null;
-    function fetchClock() {
-      if (clockPending) return clockPending;
-      var t0 = performance.now();
-      clockPending = fetch(endpoint + '/clock', { method: 'GET', mode: 'cors', credentials: 'omit', cache: 'no-store' })
+    // ---------------------------------------------------------------- the server's ticket
+    var ticket = null;   // {ms, sig, at}: a clock reading the server signed; its time orders this page's answers against STOPs and erasures
+    function fetchTicket() {
+      return fetch(endpoint + '/clock', { method: 'GET', mode: 'cors', credentials: 'omit', cache: 'no-store' })
         .then(function (response) { return response.ok ? response.json() : Promise.reject(new Error('clock')); })
         .then(function (data) {
-          var t1 = performance.now();
-          if (data && typeof data.now_ms === 'number' && typeof data.sig === 'string') clock = { ms: data.now_ms, sig: data.sig, mid: (t0 + t1) / 2 };
+          if (data && typeof data.now_ms === 'number' && typeof data.sig === 'string') ticket = { ms: data.now_ms, sig: data.sig, at: performance.now() };
         })
-        .then(function () { clockPending = null; }, function () { clockPending = null; });   // an unreachable clock is not an error: the answer is then unverified
-      return clockPending;
+        .then(null, function () { /* no ticket: answers are then sent without one and the server ignores a tick */ });
     }
-    function ensureClock() {
-      var stale = !clock || performance.now() - clock.mid > 30 * 60 * 1000;
-      if (!stale) return Promise.resolve();
-      return Promise.race([fetchClock(), new Promise(function (resolve) { setTimeout(resolve, 1500); })]);   // never hold anything up for long
-    }
-    function clockFields(acted) {   // acted: performance.now() at the moment the customer acted
-      if (!clock) return { answered_at: Date.now() };   // no stamp: the server treats this time as unverified
-      return { answered_at: Math.max(clock.ms, Math.round(clock.ms + (acted - clock.mid))), clock_ms: clock.ms, clock_sig: clock.sig };
-    }
+    function refreshTicket() { if (!ticket || performance.now() - ticket.at > 10 * 60 * 1000) fetchTicket(); }
+    setInterval(refreshTicket, 5 * 60 * 1000);
+    window.addEventListener('online', refreshTicket);
+    document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') refreshTicket(); });
 
     // ---------------------------------------------------------------- what is queued, and when
     var pending = Promise.resolve();   // everything that is queued goes through here, in the order the customer did it
@@ -294,24 +314,23 @@
       return { attempt_id: record.id, step: 'details_submitted', name: name, phone: record.phone, payment_method: method(), order_contact_notice: noticeShown, promo_opt_in: promoOptIn };
     }
     function sameAnswer(a, b) { return !!a && a.name === b.name && a.promo_opt_in === b.promo_opt_in; }
-    function finishAnswer(record, body, acted, pause) {   // adds the server-time answer and queues it
-      return ensureClock().then(function () {
-        var fields = clockFields(acted);
-        var latest = readAttempt();
-        var base = latest && latest.id === record.id ? latest : record;
-        fields.answered_at = Math.max(fields.answered_at, (base.lastAnswer || 0) + 1);   // strictly increasing within the attempt
-        for (var k in fields) body[k] = fields[k];
-        base.lastAnswer = fields.answered_at; base.details = body;
-        writeAttempt(base);
-        return enqueue(body, pause);
-      });
+    function finishAnswer(record, body, held, pause) {   // adds the ticket that was held when the customer acted, and queues the answer
+      var latest = readAttempt();
+      var base = latest && latest.id === record.id ? latest : record;
+      if (held) {
+        base.seq = (base.seq || 0) + 1;   // orders the answers made on one ticket
+        if (base.seq <= 999) { body.clock_ms = held.ms; body.clock_sig = held.sig; body.answer_seq = base.seq; }
+      }
+      base.details = body; base.ready = true;
+      writeAttempt(base);
+      return enqueue(body, pause);
     }
 
     // Details step: called when the payment page opens, i.e. when the customer's details passed validation.
     function details() {
       var name = field('customer-name'), phone = field('customer-mobile');
       if (!name || !phone) return Promise.resolve();
-      var acted = performance.now();
+      var held = ticket;   // the ticket this page holds NOW, before anything else happens
       var key = digits(phone);
       var record = readAttempt();
       if (!record || record.done || record.phoneKey !== key) {
@@ -322,7 +341,7 @@
       record.details = body;
       record.enqueued.details_submitted = true;
       writeAttempt(record);
-      return after(function () { return finishAnswer(record, body, acted, false); });
+      return after(function () { return finishAnswer(record, body, held, false); });
     }
     // The customer changes the follow-up box or the name after the details were queued, in the same attempt: queue the update.
     function answerChanged() {
@@ -332,11 +351,11 @@
       if (name.length < 2 || !/[A-Za-zሀ-፿]/.test(name)) return;
       // The phone stays the one this attempt started with; a different phone becomes a new attempt when the payment page opens.
       if (digits(field('customer-mobile')) !== record.phoneKey) return;
-      var acted = performance.now();
+      var held = ticket;
       var body = detailsBody(record, name);
       if (sameAnswer(record.details, body)) return;
       record.details = body; writeAttempt(record);
-      after(function () { return finishAnswer(record, body, acted, true); });
+      after(function () { return finishAnswer(record, body, held, true); });
     }
     function step(name) {
       var record = readAttempt();
@@ -369,10 +388,11 @@
     // A click on the Telegram button is recorded as a click only. It does not prove a message was sent.
     if (telegram) telegram.addEventListener('click', function () { step('telegram_opened'); }, true);
 
-    fetchClock();            // measure the server's clock early, so it is ready when the customer acts
+    fetchTicket();           // take a ticket early, so one is held before the customer acts
     var oldDone = readJSON('localStorage', DONE_KEY, null);
     if (oldDone && Date.now() - oldDone.at > MAX_AGE) removeKey('localStorage', DONE_KEY);
     scheduleExpiry(readAttempt());   // clears an attempt that is older than a day, and sets its timer
+    scheduleQueueExpiry(readQueue().items);
     flush();                 // anything left from an earlier page load or a failed send
   } catch (e) { /* the lead script must never affect checkout */ }
 })();
