@@ -165,6 +165,13 @@ def main():
         first = seen[0]
         check(first["phone"] == "0911223344" and first["name"] == "Hanna Bekele" and first["order_contact_notice"] is True and first["promo_opt_in"] is False
               and first["payment_method"] == "bank", "details payload")
+        # 2b. Going back and entering the same phone in another format, mid-attempt: same attempt, nothing re-sent.
+        page.click("#change-method")
+        fill_details(page, phone="+251911223344", method="bank")
+        expect(page.locator("#payment-section")).to_be_visible()
+        page.wait_for_timeout(300)
+        check({e["attempt_id"] for e in seen} == {first["attempt_id"]}, "same phone in a new format keeps the same attempt")
+        check(sum(1 for e in seen if e["step"] == "details_submitted") == 1, "details are not re-sent for the same attempt")
         page.click("#paid-action")
         expect(page.locator("#telegram-section")).to_be_visible()
         with context.expect_page() as popup:
@@ -178,20 +185,20 @@ def main():
         check(not any("Telegram" in json.dumps(e) and "sent" in json.dumps(e) for e in seen), "no 'message sent' claim is made")
         attempt = seen[0]["attempt_id"]
 
-        # 3. Reload and go through again with the same phone typed differently: same attempt, no duplicate details.
+        # 3. The checkout was finished (Telegram step accepted): nothing personal is kept in the tab, so coming back is a new attempt.
         page.reload()
         fill_details(page, phone="+251911223344")
         expect(page.locator("#payment-section")).to_be_visible()
         page.wait_for_timeout(300)
-        check({e["attempt_id"] for e in seen} == {attempt}, "same phone in a new format keeps the same attempt in this tab")
-        check(sum(1 for e in seen if e["step"] == "details_submitted") == 1, "details are not re-sent for the same attempt")
+        check(len({e["attempt_id"] for e in seen}) == 2 and seen[-2]["attempt_id"] != attempt, "after a finished checkout the same phone starts a new attempt")
+        check(sum(1 for e in seen if e["step"] == "details_submitted") == 2, "the new attempt sends its own details")
 
         # 4. Editing to a different phone starts a new attempt.
         page.click("#change-method")
         fill_details(page, name="Sara Tesfaye", phone="0922334455")
         expect(page.locator("#payment-section")).to_be_visible()
         page.wait_for_timeout(300)
-        check(len({e["attempt_id"] for e in seen}) == 2, "a different phone is a different attempt")
+        check(len({e["attempt_id"] for e in seen}) == 3, "a different phone is a different attempt")
         check(seen[-2]["step"] == "details_submitted" and seen[-2]["name"] == "Sara Tesfaye", "second person details")
         context.close()
 
