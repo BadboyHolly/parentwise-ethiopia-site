@@ -410,6 +410,117 @@ def main():
         check([b["step"] for b in accepted(log)] == ["payment_viewed", "paid_clicked", "proof_viewed"], f"later events still go out: {[b['step'] for b in accepted(log)]}")
         check(queued(page) == [], "nothing is left waiting after a final refusal")
         context.close()
+
+        # 15. Every details event says when the customer gave that answer, and those times only go up within an attempt.
+        context = browser.new_context(viewport={"width": 375, "height": 860})
+        log = scripted_api(context, lambda body, n: 204)
+        page = context.new_page()
+        page.goto("http://127.0.0.1:8772/order.html")
+        started = page.evaluate("Date.now()")
+        fill_details(page)
+        expect(page.locator("#payment-section")).to_be_visible()
+        until(page, lambda: len(accepted(log)) >= 2 and queued(page) == [])
+        for value in (True, False, True):
+            before = len(accepted(log, "details_submitted"))
+            set_promo(page, value)
+            until(page, lambda: len(accepted(log, "details_submitted")) > before and queued(page) == [])
+        stamps = [b.get("answered_at") for b in accepted(log, "details_submitted")]
+        check(len(stamps) == 4 and all(isinstance(s, int) for s in stamps), f"every details event carries answered_at: {stamps}")
+        check(all(b < a for b, a in zip(stamps, stamps[1:])), f"answer times strictly increase: {stamps}")
+        check(all(started - 5000 <= s <= page.evaluate("Date.now()") + 5000 for s in stamps), "answer times are the customer's own clock, not made up")
+        check(all("answered_at" not in b for b, _ in log if b["step"] != "details_submitted"), "step events carry no answer time")
+        context.close()
+
+        # 16. Two tabs of the same browser share the queue but only one of them sends: no event leaves twice.
+        context = browser.new_context(viewport={"width": 375, "height": 860})
+        state = {"down": True}
+        log = scripted_api(context, lambda body, n: 503 if state["down"] else 204)
+        page = context.new_page()
+        page.goto("http://127.0.0.1:8772/order.html")
+        fill_details(page, name="Hanna Bekele", phone="0911223344", promo=True)
+        expect(page.locator("#payment-section")).to_be_visible()
+        until(page, lambda: len(log) >= 1 and len(queued(page)) == 2)
+        state["down"] = False
+        second = context.new_page()
+        second.goto("http://127.0.0.1:8772/order.html")
+        page.reload()
+        until(page, lambda: len(accepted(log)) >= 2 and queued(page) == [] and queued(second) == [], timeout=10000)
+        second.wait_for_timeout(2500)   # long enough for a second tab that wrongly sends the same events too
+        sent = [(b["step"], b["attempt_id"], b.get("answered_at")) for b in accepted(log)]
+        check(len(sent) == 2 and len(set(sent)) == 2, f"each queued event is accepted exactly once across two tabs: {sent}")
+        check([s[0] for s in sent] == ["details_submitted", "payment_viewed"], f"and in order: {sent}")
+        context.close()
+
+        # 17. Step events never copy personal data, and nothing personal is kept once the last step was accepted.
+        context = browser.new_context(viewport={"width": 375, "height": 860})
+        state = {"down": True}
+        log = scripted_api(context, lambda body, n: 503 if state["down"] else 204)
+        page = context.new_page()
+        page.goto("http://127.0.0.1:8772/order.html")
+        fill_details(page, name="Hanna Bekele", phone="0911223344")
+        expect(page.locator("#payment-section")).to_be_visible()
+        until(page, lambda: len(log) >= 1 and len(queued(page)) == 2)
+        waiting = queued(page)
+        check(set(waiting[1]["body"]) <= {"attempt_id", "step", "payment_method"} and "details" not in waiting[1], f"a step event holds no personal data: {waiting[1]}")
+        check("Hanna" in json.dumps(waiting[0]) and "0911223344" in json.dumps(waiting[0]), "the details event holds them only until accepted")
+        state["down"] = False
+        page.evaluate("window.dispatchEvent(new Event('online'))")   # the connection is back; the same page carries on to the end
+        until(page, lambda: len(accepted(log)) >= 2 and queued(page) == [])
+        stored = page.evaluate("(sessionStorage.getItem('parentwise-lead-attempt-v1') || '') + '|' + (localStorage.getItem('parentwise-lead-queue-v2') || '')")
+        check("Hanna" in stored or "0911223344" in stored, "the attempt record still holds the details while the attempt is in progress")
+        page.click("#paid-action")
+        expect(page.locator("#telegram-section")).to_be_visible()
+        page.click("#telegram-handoff", modifiers=[])
+        until(page, lambda: len(accepted(log, "telegram_opened")) == 1 and queued(page) == [])
+        stored = page.evaluate("(sessionStorage.getItem('parentwise-lead-attempt-v1') || '') + '|' + (localStorage.getItem('parentwise-lead-queue-v2') || '')")
+        check("Hanna" not in stored and "0911223344" not in stored and "911223344" not in stored, f"nothing personal is left after the last step: {stored}")
+        context.close()
+
+        # 18. Old data expires: a queue entry and an attempt record older than a day are cleared without being sent.
+        context = browser.new_context(viewport={"width": 375, "height": 860})
+        state = {"down": True}
+        log = scripted_api(context, lambda body, n: 503 if state["down"] else 204)
+        page = context.new_page()
+        page.goto("http://127.0.0.1:8772/order.html")
+        fill_details(page, name="Sara Tesfaye", phone="0922334455")
+        expect(page.locator("#payment-section")).to_be_visible()
+        until(page, lambda: len(log) >= 1 and len(queued(page)) == 2)
+        state["down"] = False
+        sent_before = len(log)
+        page.evaluate("""() => {
+            const old = Date.now() - 25 * 3600 * 1000;
+            const q = JSON.parse(localStorage.getItem('parentwise-lead-queue-v2')); q.forEach(i => { i.at = old; });
+            localStorage.setItem('parentwise-lead-queue-v2', JSON.stringify(q));
+            const a = JSON.parse(sessionStorage.getItem('parentwise-lead-attempt-v1')); a.at = old;
+            sessionStorage.setItem('parentwise-lead-attempt-v1', JSON.stringify(a));
+        }""")
+        page.reload()
+        until(page, lambda: queued(page) == [])
+        page.wait_for_timeout(1500)
+        stored = page.evaluate("(sessionStorage.getItem('parentwise-lead-attempt-v1') || '') + '|' + (localStorage.getItem('parentwise-lead-queue-v2') || '')")
+        check(len(log) == sent_before and accepted(log) == [], f"expired events are discarded, not sent: {len(log)} vs {sent_before}")
+        check("Sara" not in stored and "0922334455" not in stored and "922334455" not in stored, f"the expired personal data is gone: {stored}")
+        context.close()
+
+        # 19. A full queue is never lost silently: step events go first, details are kept, and the number dropped is recorded.
+        context = browser.new_context(viewport={"width": 375, "height": 860})
+        log = scripted_api(context, lambda body, n: 503)
+        context.add_init_script("""
+            if (!localStorage.getItem('parentwise-lead-queue-v2')) {
+              const items = []; for (let i = 0; i < 100; i++) items.push({uid: 'seed' + i, at: Date.now(), body: {attempt_id: '00000000-0000-4000-8000-' + String(i).padStart(12, '0'), step: 'paid_clicked'}});
+              localStorage.setItem('parentwise-lead-queue-v2', JSON.stringify(items));
+            }""")
+        page = context.new_page()
+        page.goto("http://127.0.0.1:8772/order.html")
+        fill_details(page, name="Abel Mekonnen", phone="0933445566")
+        expect(page.locator("#payment-section")).to_be_visible()
+        until(page, lambda: any(i["body"]["step"] == "details_submitted" for i in queued(page)))
+        items = queued(page)
+        check(len(items) <= 100, f"the queue is capped: {len(items)}")
+        check(any(i["body"]["step"] == "details_submitted" and i["body"]["name"] == "Abel Mekonnen" for i in items), "the new details event is kept")
+        dropped = page.evaluate("JSON.parse(localStorage.getItem('parentwise-lead-dropped-v1') || '0')")
+        check(isinstance(dropped, int) and dropped >= 2, f"the number of dropped events is recorded: {dropped}")
+        context.close()
         browser.close()
     shipped.shutdown(); enabled.shutdown()
     shutil.rmtree(work, ignore_errors=True)

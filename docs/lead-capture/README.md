@@ -89,3 +89,9 @@ The queue is removed as soon as the server accepts each event, holds only what t
 
 Limits to know: phone numbers can be mistyped or belong to someone else (a lead is a claim, not an identity); a customer who clears their browser data or uses another device starts a new attempt,
 but is matched to the same lead by phone; blocked or failed requests mean some leads will be missed (checkout is never blocked on purpose).
+
+## Second review (browser script and checkout events)
+- **Answer times.** Every details event carries `answered_at`, the moment the customer gave that answer (their own clock, strictly increasing within an attempt). The server applies an answer only if it is newer than the last STOP, withdrawal or erasure it knows of, so an event that waited in the queue, or is replayed, cannot undo something that happened later or bring an erased person back. A time more than five minutes ahead of the server is not trusted for a tick (an un-tick is always honoured).
+- **One sender.** The queue is shared by all tabs of the browser, but only one tab sends at a time (Web Lock, with a short localStorage lease where Web Locks are missing), one event at a time and in order.
+- **No personal data copied.** Step events carry no name or phone. The name and phone leave the queue when the server accepts them, the attempt record in the tab is cleared once the Telegram step is accepted and after 24 hours, and queued events older than 24 hours are discarded unsent. Limit: details that were never accepted stay in the customer's own browser until they next open a ParentWise page (a page script cannot run when no page is open).
+- **A full queue is visible.** The queue keeps 100 events; step events are dropped before details events, and the number dropped is kept in `localStorage` (`parentwise-lead-dropped-v1`).
