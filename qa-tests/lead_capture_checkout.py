@@ -12,6 +12,7 @@ import json
 import shutil
 import tempfile
 import threading
+import time
 from pathlib import Path
 
 from playwright.sync_api import expect, sync_playwright
@@ -68,7 +69,27 @@ def walk_to_telegram(page):
     page.click("#telegram-handoff", modifiers=[])  # opens a new tab; the click is what is recorded
 
 
-QUEUE = "parentwise-lead-queue-v2"
+QUEUE = "parentwise-lead-queue-v3"   # {"v": version, "items": [...]}
+CLOCK = ENDPOINT + "/clock"
+
+
+def install_clock(context, ok=True):
+    """The fake server clock the checkout page measures itself against (server time + a signature; the fake endpoint never checks it)."""
+    def handle(route):
+        if route.request.method == "OPTIONS":
+            return route.fulfill(status=204, headers=CORS)
+        if not ok:
+            return route.abort()
+        route.fulfill(status=200, headers={**CORS, "content-type": "application/json"},
+                      body=json.dumps({"now_ms": int(time.time() * 1000), "sig": "a" * 64}))
+
+    context.route(CLOCK, handle)
+
+
+def make_context(browser, clock_ok=True, **options):
+    context = browser.new_context(**options)
+    install_clock(context, clock_ok)
+    return context
 
 
 def scripted_api(context, decide):
@@ -91,7 +112,7 @@ def scripted_api(context, decide):
 
 
 def queued(page):
-    return page.evaluate(f"JSON.parse(localStorage.getItem('{QUEUE}') || '[]')")
+    return page.evaluate(f"JSON.parse(localStorage.getItem('{QUEUE}') || '{{\"items\": []}}').items")
 
 
 def set_promo(page, value):
@@ -132,7 +153,7 @@ def main():
             executable_path=str(chrome) if chrome.exists() else (shutil.which("chromium") if not shutil.which("google-chrome") else None))
 
         # 1. As shipped: dormant. No request, no lead wording.
-        context = browser.new_context(viewport={"width": 375, "height": 860})
+        context = make_context(browser, viewport={"width": 375, "height": 860})
         page = context.new_page()
         requested = []
         page.on("request", lambda r: requested.append(r.url))
@@ -146,7 +167,7 @@ def main():
         context.close()
 
         # 2. Enabled: wording visible at 375px, sequence and payloads.
-        context = browser.new_context(viewport={"width": 375, "height": 860})
+        context = make_context(browser, viewport={"width": 375, "height": 860})
         seen = install_fake_api(context)
         page = context.new_page()
         page.goto("http://127.0.0.1:8772/order.html")
@@ -203,7 +224,7 @@ def main():
         context.close()
 
         # 4b. Ticking the optional promotional box is the only way promo_opt_in becomes true.
-        context = browser.new_context(viewport={"width": 375, "height": 860})
+        context = make_context(browser, viewport={"width": 375, "height": 860})
         seen = install_fake_api(context)
         page = context.new_page()
         page.goto("http://127.0.0.1:8772/order.html")
@@ -214,7 +235,7 @@ def main():
         context.close()
 
         # 5. Invalid details never send anything.
-        context = browser.new_context(viewport={"width": 375, "height": 860})
+        context = make_context(browser, viewport={"width": 375, "height": 860})
         seen = install_fake_api(context)
         page = context.new_page()
         page.goto("http://127.0.0.1:8772/order.html")
@@ -225,7 +246,7 @@ def main():
         context.close()
 
         # 6. A failing endpoint never blocks checkout.
-        context = browser.new_context(viewport={"width": 375, "height": 860})
+        context = make_context(browser, viewport={"width": 375, "height": 860})
         context.route(ENDPOINT, lambda route: route.abort())
         page = context.new_page()
         errors = []
@@ -239,7 +260,7 @@ def main():
         context.close()
 
         # 7. A 409 (server never saw the details) triggers one resend of the details, then the step.
-        context = browser.new_context(viewport={"width": 375, "height": 860})
+        context = make_context(browser, viewport={"width": 375, "height": 860})
         log = []
         state = {"first": True}
 
@@ -264,7 +285,7 @@ def main():
         context.close()
 
         # 8. A busy server (503) or a dropped request is retried once, quietly, and the visitor never notices.
-        context = browser.new_context(viewport={"width": 375, "height": 860})
+        context = make_context(browser, viewport={"width": 375, "height": 860})
         tries = []
 
         def busy_then_ok(route):
@@ -287,7 +308,7 @@ def main():
         context.close()
 
         # 9. A failed submission is not lost: it waits in the browser and is delivered on the next page load.
-        context = browser.new_context(viewport={"width": 375, "height": 860})
+        context = make_context(browser, viewport={"width": 375, "height": 860})
         state = {"down": True}
         log = scripted_api(context, lambda body, n: 503 if state["down"] else 204)
         page = context.new_page()
@@ -310,7 +331,7 @@ def main():
         context.close()
 
         # 9b. Closing the tab entirely and coming back later (a new tab in the same browser) also delivers it.
-        context = browser.new_context(viewport={"width": 375, "height": 860})
+        context = make_context(browser, viewport={"width": 375, "height": 860})
         state = {"down": True}
         log = scripted_api(context, lambda body, n: 503 if state["down"] else 204)
         page = context.new_page()
@@ -330,7 +351,7 @@ def main():
         # 10. A dropped connection is retried when the connection comes back (online) and when the tab is shown again (visibility).
         for label, fire in (("online", "window.dispatchEvent(new Event('online'))"),
                             ("visibility", "document.dispatchEvent(new Event('visibilitychange'))")):
-            context = browser.new_context(viewport={"width": 375, "height": 860})
+            context = make_context(browser, viewport={"width": 375, "height": 860})
             state = {"down": True}
             log = scripted_api(context, lambda body, n: None if state["down"] else 204)
             page = context.new_page()
@@ -345,7 +366,7 @@ def main():
             context.close()
 
         # 11. Retries are bounded: a server that stays busy is not hammered, and the events are kept.
-        context = browser.new_context(viewport={"width": 375, "height": 860})
+        context = make_context(browser, viewport={"width": 375, "height": 860})
         log = scripted_api(context, lambda body, n: 503)
         page = context.new_page()
         page.goto("http://127.0.0.1:8772/order.html")
@@ -358,7 +379,7 @@ def main():
         context.close()
 
         # 12. Ticking then un-ticking the follow-up box while the server is down: only the customer's final answer is ever sent.
-        context = browser.new_context(viewport={"width": 375, "height": 860})
+        context = make_context(browser, viewport={"width": 375, "height": 860})
         state = {"down": True}
         log = scripted_api(context, lambda body, n: 503 if state["down"] else 204)
         page = context.new_page()
@@ -379,7 +400,7 @@ def main():
         context.close()
 
         # 13. Changing the box during the same attempt: each answer is sent, in order, under the same attempt id.
-        context = browser.new_context(viewport={"width": 375, "height": 860})
+        context = make_context(browser, viewport={"width": 375, "height": 860})
         log = scripted_api(context, lambda body, n: 204)
         page = context.new_page()
         page.goto("http://127.0.0.1:8772/order.html")
@@ -404,7 +425,7 @@ def main():
         context.close()
 
         # 14. A final refusal (422) drops only that event: later events are still delivered and nothing retries forever.
-        context = browser.new_context(viewport={"width": 375, "height": 860})
+        context = make_context(browser, viewport={"width": 375, "height": 860})
         log = scripted_api(context, lambda body, n: 422 if body["step"] == "details_submitted" else 204)
         page = context.new_page()
         page.goto("http://127.0.0.1:8772/order.html")
@@ -419,7 +440,7 @@ def main():
         context.close()
 
         # 15. Every details event says when the customer gave that answer, and those times only go up within an attempt.
-        context = browser.new_context(viewport={"width": 375, "height": 860})
+        context = make_context(browser, viewport={"width": 375, "height": 860})
         log = scripted_api(context, lambda body, n: 204)
         page = context.new_page()
         page.goto("http://127.0.0.1:8772/order.html")
@@ -439,7 +460,7 @@ def main():
         context.close()
 
         # 16. Two tabs of the same browser share the queue but only one of them sends: no event leaves twice.
-        context = browser.new_context(viewport={"width": 375, "height": 860})
+        context = make_context(browser, viewport={"width": 375, "height": 860})
         state = {"down": True}
         log = scripted_api(context, lambda body, n: 503 if state["down"] else 204)
         page = context.new_page()
@@ -459,7 +480,7 @@ def main():
         context.close()
 
         # 17. Step events never copy personal data, and nothing personal is kept once the last step was accepted.
-        context = browser.new_context(viewport={"width": 375, "height": 860})
+        context = make_context(browser, viewport={"width": 375, "height": 860})
         state = {"down": True}
         log = scripted_api(context, lambda body, n: 503 if state["down"] else 204)
         page = context.new_page()
@@ -473,18 +494,18 @@ def main():
         state["down"] = False
         page.evaluate("window.dispatchEvent(new Event('online'))")   # the connection is back; the same page carries on to the end
         until(page, lambda: len(accepted(log)) >= 2 and queued(page) == [])
-        stored = page.evaluate("(sessionStorage.getItem('parentwise-lead-attempt-v1') || '') + '|' + (localStorage.getItem('parentwise-lead-queue-v2') || '')")
+        stored = page.evaluate("(sessionStorage.getItem('parentwise-lead-attempt-v1') || '') + '|' + (localStorage.getItem('parentwise-lead-queue-v3') || '')")
         check("Hanna" in stored or "0911223344" in stored, "the attempt record still holds the details while the attempt is in progress")
         page.click("#paid-action")
         expect(page.locator("#telegram-section")).to_be_visible()
         page.click("#telegram-handoff", modifiers=[])
         until(page, lambda: len(accepted(log, "telegram_opened")) == 1 and queued(page) == [])
-        stored = page.evaluate("(sessionStorage.getItem('parentwise-lead-attempt-v1') || '') + '|' + (localStorage.getItem('parentwise-lead-queue-v2') || '')")
+        stored = page.evaluate("(sessionStorage.getItem('parentwise-lead-attempt-v1') || '') + '|' + (localStorage.getItem('parentwise-lead-queue-v3') || '')")
         check("Hanna" not in stored and "0911223344" not in stored and "911223344" not in stored, f"nothing personal is left after the last step: {stored}")
         context.close()
 
         # 18. Old data expires: a queue entry and an attempt record older than a day are cleared without being sent.
-        context = browser.new_context(viewport={"width": 375, "height": 860})
+        context = make_context(browser, viewport={"width": 375, "height": 860})
         state = {"down": True}
         log = scripted_api(context, lambda body, n: 503 if state["down"] else 204)
         page = context.new_page()
@@ -496,26 +517,26 @@ def main():
         sent_before = len(log)
         page.evaluate("""() => {
             const old = Date.now() - 25 * 3600 * 1000;
-            const q = JSON.parse(localStorage.getItem('parentwise-lead-queue-v2')); q.forEach(i => { i.at = old; });
-            localStorage.setItem('parentwise-lead-queue-v2', JSON.stringify(q));
+            const q = JSON.parse(localStorage.getItem('parentwise-lead-queue-v3')); q.items.forEach(i => { i.at = old; });
+            localStorage.setItem('parentwise-lead-queue-v3', JSON.stringify(q));
             const a = JSON.parse(sessionStorage.getItem('parentwise-lead-attempt-v1')); a.at = old;
             sessionStorage.setItem('parentwise-lead-attempt-v1', JSON.stringify(a));
         }""")
         page.reload()
         until(page, lambda: queued(page) == [])
         page.wait_for_timeout(1500)
-        stored = page.evaluate("(sessionStorage.getItem('parentwise-lead-attempt-v1') || '') + '|' + (localStorage.getItem('parentwise-lead-queue-v2') || '')")
+        stored = page.evaluate("(sessionStorage.getItem('parentwise-lead-attempt-v1') || '') + '|' + (localStorage.getItem('parentwise-lead-queue-v3') || '')")
         check(len(log) == sent_before and accepted(log) == [], f"expired events are discarded, not sent: {len(log)} vs {sent_before}")
         check("Sara" not in stored and "0922334455" not in stored and "922334455" not in stored, f"the expired personal data is gone: {stored}")
         context.close()
 
         # 19. A full queue is never lost silently: step events go first, details are kept, and the number dropped is recorded.
-        context = browser.new_context(viewport={"width": 375, "height": 860})
+        context = make_context(browser, viewport={"width": 375, "height": 860})
         log = scripted_api(context, lambda body, n: 503)
         context.add_init_script("""
-            if (!localStorage.getItem('parentwise-lead-queue-v2')) {
+            if (!localStorage.getItem('parentwise-lead-queue-v3')) {
               const items = []; for (let i = 0; i < 100; i++) items.push({uid: 'seed' + i, at: Date.now(), body: {attempt_id: '00000000-0000-4000-8000-' + String(i).padStart(12, '0'), step: 'paid_clicked'}});
-              localStorage.setItem('parentwise-lead-queue-v2', JSON.stringify(items));
+              localStorage.setItem('parentwise-lead-queue-v3', JSON.stringify({v: 1, items}));
             }""")
         page = context.new_page()
         page.goto("http://127.0.0.1:8772/order.html")
@@ -527,6 +548,143 @@ def main():
         check(any(i["body"]["step"] == "details_submitted" and i["body"]["name"] == "Abel Mekonnen" for i in items), "the new details event is kept")
         dropped = page.evaluate("JSON.parse(localStorage.getItem('parentwise-lead-dropped-v1') || '0')")
         check(isinstance(dropped, int) and dropped >= 2, f"the number of dropped events is recorded: {dropped}")
+        context.close()
+
+        # 20. A phone whose clock is wrong changes nothing: answer times come from the server's clock, not the phone's.
+        for label, shift in (("2 minutes fast", 120000), ("10 minutes slow", -600000)):
+            context = make_context(browser, viewport={"width": 375, "height": 860})
+            context.add_init_script("(() => { const real = Date.now.bind(Date); Date.now = () => real() + (%d); })();" % shift)
+            log = scripted_api(context, lambda body, n: 204)
+            page = context.new_page()
+            page.goto("http://127.0.0.1:8772/order.html")
+            fill_details(page, promo=True)
+            expect(page.locator("#payment-section")).to_be_visible()
+            until(page, lambda: len(accepted(log, "details_submitted")) >= 1)
+            event = accepted(log, "details_submitted")[0]
+            phone_now = page.evaluate("Date.now()")
+            check(abs(event["answered_at"] - int(time.time() * 1000)) < 8000, f"{label}: answered_at is server time, not the phone's: off by {event['answered_at'] - int(time.time() * 1000)} ms")
+            check(abs(phone_now - int(time.time() * 1000)) > 60000, f"{label}: the phone's own clock really was wrong in this check")
+            check(isinstance(event.get("clock_ms"), int) and len(event.get("clock_sig", "")) == 64, f"{label}: the server's stamp travels with the answer")
+            context.close()
+
+        # 21. If the server's clock cannot be reached, checkout still works and the details are still sent, but without a stamp.
+        context = make_context(browser, viewport={"width": 375, "height": 860}, clock_ok=False)
+        log = scripted_api(context, lambda body, n: 204)
+        page = context.new_page()
+        page.goto("http://127.0.0.1:8772/order.html")
+        fill_details(page, promo=True)
+        expect(page.locator("#payment-section")).to_be_visible()
+        until(page, lambda: len(accepted(log, "details_submitted")) >= 1, timeout=6000)
+        event = accepted(log, "details_submitted")
+        check(len(event) == 1 and "answered_at" in event[0] and "clock_ms" not in event[0] and "clock_sig" not in event[0], f"no stamp is sent when the clock is unreachable: {event}")
+        check([b["step"] for b in accepted(log)][:2] == ["details_submitted", "payment_viewed"], "the steps still go out, in order")
+        context.close()
+
+        # 22. Two tabs adding to the shared queue at the same time: nothing is lost, and everything is sent exactly once.
+        context = make_context(browser, viewport={"width": 375, "height": 860})
+        state = {"down": True}
+        log = scripted_api(context, lambda body, n: 503 if state["down"] else 204)
+        first = context.new_page()
+        second = context.new_page()
+        first.goto("http://127.0.0.1:8772/order.html")
+        second.goto("http://127.0.0.1:8772/order.html")
+        fill_details(first, name="Hanna Bekele", phone="0911223344")
+        fill_details(second, name="Sara Tesfaye", phone="0922334455")
+        until(first, lambda: len(queued(first)) == 4)
+        items = queued(first)
+        check(sorted((i["body"]["step"], i["body"]["attempt_id"]) for i in items) == sorted(set((i["body"]["step"], i["body"]["attempt_id"]) for i in items)) and len(items) == 4, f"both tabs' events are in the shared queue: {[(i['body']['step']) for i in items]}")
+        check(len({i["body"]["attempt_id"] for i in items}) == 2, "two attempts, none overwritten")
+        state["down"] = False
+        first.evaluate("window.dispatchEvent(new Event('online'))")
+        second.evaluate("window.dispatchEvent(new Event('online'))")
+        until(first, lambda: len(accepted(log)) >= 4 and queued(first) == [], timeout=10000)
+        first.wait_for_timeout(1500)
+        sent = [(b["step"], b["attempt_id"]) for b in accepted(log)]
+        check(len(sent) == 4 and len(set(sent)) == 4, f"each event accepted exactly once: {sent}")
+        context.close()
+
+        # 23. If the browser refuses to store the queue (full or blocked), the newest answer is still the one that is sent.
+        context = make_context(browser, viewport={"width": 375, "height": 860})
+        context.add_init_script("""(() => { window.__failQueue = false; const original = Storage.prototype.setItem;
+            Storage.prototype.setItem = function (key, value) { if (window.__failQueue && String(key).indexOf('queue') >= 0) throw new Error('quota'); return original.call(this, key, value); }; })();""")
+        state = {"down": True}
+        log = scripted_api(context, lambda body, n: 503 if state["down"] else 204)
+        page = context.new_page()
+        page.goto("http://127.0.0.1:8772/order.html")
+        fill_details(page, promo=False)
+        expect(page.locator("#payment-section")).to_be_visible()
+        until(page, lambda: len(queued(page)) == 2)
+        page.evaluate("window.__failQueue = true")                     # from now on every write to the stored queue throws
+        set_promo(page, True)                                          # the customer ticks the box: the newest answer exists only in memory
+        page.wait_for_timeout(1200)
+        check(page.evaluate("JSON.parse(localStorage.getItem('parentwise-lead-queue-v3')).items.filter(i => i.body.step === 'details_submitted')[0].body.promo_opt_in") is False,
+              "the stored copy is the old one (the write was refused)")
+        state["down"] = False
+        page.evaluate("window.dispatchEvent(new Event('online'))")
+        until(page, lambda: any(b["promo_opt_in"] is True for b in accepted(log, "details_submitted")), timeout=8000)
+        answers = [b["promo_opt_in"] for b in accepted(log, "details_submitted")]
+        check(answers and answers[-1] is True, f"the newest answer (ticked) is the one that reaches the server, not the stale stored one: {answers}")
+        context.close()
+
+        # 24. The 24-hour clean-up counts from when each attempt began, not from when the page was opened (shortened to 4 s for the check).
+        context = make_context(browser, viewport={"width": 375, "height": 860})
+        context.add_init_script("window.__pwLeadMaxAgeMs = 4000;")
+        log = scripted_api(context, lambda body, n: 503)
+        page = context.new_page()
+        page.goto("http://127.0.0.1:8772/order.html")
+        page.wait_for_timeout(2500)                                    # the page has been open 2.5 s; the attempt starts now
+        fill_details(page, name="Hanna Bekele", phone="0911223344")
+        expect(page.locator("#payment-section")).to_be_visible()
+        page.wait_for_timeout(2600)                                    # the page is 5.1 s old (past 4 s), the attempt only 2.6 s
+        record = page.evaluate("sessionStorage.getItem('parentwise-lead-attempt-v1') || ''")
+        check("Hanna" in record, f"a timer set at page load must not clear an attempt that is only 2.6 s old: {record[:80]}")
+        until(page, lambda: "Hanna" not in page.evaluate("sessionStorage.getItem('parentwise-lead-attempt-v1') || ''"), timeout=6000)
+        record = page.evaluate("sessionStorage.getItem('parentwise-lead-attempt-v1') || ''")
+        check("Hanna" not in record and "0911223344" not in record, f"it is cleared once the attempt itself is old enough: {record[:80]}")
+        context.close()
+
+        # 25. When ANOTHER tab gets the Telegram step accepted, the tab that owns the record clears its copy too.
+        context = make_context(browser, viewport={"width": 375, "height": 860})
+        state = {"down": True}
+        log = scripted_api(context, lambda body, n: 503 if state["down"] else 204)
+        owner = context.new_page()
+        owner.goto("http://127.0.0.1:8772/order.html")
+        fill_details(owner, name="Hanna Bekele", phone="0911223344")
+        expect(owner.locator("#payment-section")).to_be_visible()
+        owner.click("#paid-action")
+        expect(owner.locator("#telegram-section")).to_be_visible()
+        with context.expect_page() as popup:
+            owner.click("#telegram-handoff")
+        popup.value.close()
+        until(owner, lambda: len(queued(owner)) == 5)
+        check("Hanna" in owner.evaluate("sessionStorage.getItem('parentwise-lead-attempt-v1') || ''"), "the owning tab still holds the details while nothing is accepted")
+        state["down"] = False
+        other = context.new_page()
+        other.goto("http://127.0.0.1:8772/order.html")
+        until(other, lambda: len(accepted(log, "telegram_opened")) >= 1 and queued(other) == [], timeout=12000)
+        until(owner, lambda: "Hanna" not in owner.evaluate("sessionStorage.getItem('parentwise-lead-attempt-v1') || ''"), timeout=6000)
+        record = owner.evaluate("sessionStorage.getItem('parentwise-lead-attempt-v1') || ''")
+        check("Hanna" not in record and "0911223344" not in record, f"the owner's copy is cleared whichever tab delivered the last step: {record[:80]}")
+        context.close()
+
+        # 26. Where Web Locks do not exist, the fallback lease is kept alive through a slow request, so a second tab cannot send meanwhile.
+        context = make_context(browser, viewport={"width": 375, "height": 860})
+        context.add_init_script("""(() => { Object.defineProperty(navigator, 'locks', { value: undefined, configurable: true });
+            window.__pwLeadLeaseMs = 1500; window.__calls = []; window.__delay = 0; const real = window.fetch.bind(window);
+            window.fetch = (url, options) => { if (String(url).endsWith('/clock')) return real(url, options);
+              window.__calls.push(Date.now()); return new Promise((resolve) => setTimeout(() => resolve(new Response(null, { status: 204 })), window.__delay)); }; })();""")
+        slow = context.new_page()
+        slow.goto("http://127.0.0.1:8772/order.html")
+        slow.evaluate("window.__delay = 4500")
+        fill_details(slow)
+        expect(slow.locator("#payment-section")).to_be_visible()
+        until(slow, lambda: slow.evaluate("window.__calls.length") >= 1)
+        rival = context.new_page()
+        rival.goto("http://127.0.0.1:8772/order.html")
+        slow.wait_for_timeout(2600)                                    # well past the 1.5 s lease, while the slow request is still in flight
+        rival.evaluate("window.dispatchEvent(new Event('online'))")
+        rival.wait_for_timeout(1200)
+        check(rival.evaluate("window.__calls.length") == 0, "the second tab did not send while the first one's request was still in flight")
         context.close()
         browser.close()
     shipped.shutdown(); enabled.shutdown()
