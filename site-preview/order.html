@@ -351,6 +351,7 @@ section.screen .sub{font-size:14.5px;line-height:1.6;color:#56645d}
 .kicker{color:#7A2E3E!important;font:700 11.5px/1 ParentWise,"Noto Sans Ethiopic",system-ui,sans-serif!important;letter-spacing:.1em!important;text-transform:uppercase}
 /* Form fields */
 #checkout-form label:not(.method){display:block;font:700 15px/1.4 ParentWise,"Noto Sans Ethiopic",system-ui,sans-serif;color:#1F4D3A;margin:16px 0 6px}
+#checkout-form select{width:100%;min-height:56px;padding:0 16px;font-size:16px;background:#F8F4EC;border:1.5px solid #d6cbb4;border-radius:14px;color:#202928}#checkout-form select:focus{outline:3px solid #e9c46a;outline-offset:2px;background:#fff}
 #checkout-form input[type=text],#checkout-form input[type=tel]{width:100%;min-height:56px;padding:0 16px;font-size:16px;background:#F8F4EC;border:1.5px solid #d6cbb4;border-radius:14px;color:#202928}
 #checkout-form input[type=text]:focus,#checkout-form input[type=tel]:focus{outline:3px solid #e9c46a;outline-offset:2px;background:#fff}
 .fieldnote{font-size:13px!important;color:#56645d!important}
@@ -532,7 +533,8 @@ button,input,select,textarea{font-synthesis:none}</style></head><body>
 <form id="checkout-form" novalidate>
 <label for="customer-name">ሙሉ ስም</label><input id="customer-name" name="name" type="text" placeholder="ሙሉ ስምዎን ያስገቡ" autocomplete="name" maxlength="100" required>
 <label for="customer-mobile">ስልክ ቁጥር</label><input id="customer-mobile" name="phone" type="tel" inputmode="tel" placeholder="09… / 07… / +251…" aria-describedby="phone-format-help" autocomplete="tel" maxlength="13" required>
-<p class="fieldnote" id="phone-format-help">09…፣ 07… ወይም +251… የሚጀምር ስልክ ቁጥር</p><hr>
+<p class="fieldnote" id="phone-format-help">09…፣ 07… ወይም +251… የሚጀምር ስልክ ቁጥር</p>
+<label for="heard-from">ParentWiseን ከየት ሰሙ?</label><select id="heard-from" name="heard" required><option value="">ይምረጡ</option><option value="ad">ማስታወቂያ (Facebook ወይም Instagram)</option><option value="telegram">ቴሌግራም</option><option value="friend">ጓደኛ ወይም ቤተሰብ</option><option value="other">ሌላ</option></select><hr>
 <strong>የክፍያ ዘዴ ይምረጡ</strong>
 <div class="methods" role="radiogroup" aria-label="Choose payment method">
 <label class="method"><input name="payment" type="radio" value="telebirr" checked><img src="assets/telebirr-mark.svg" alt=""><span>Telebirr</span></label>
@@ -591,7 +593,7 @@ button,input,select,textarea{font-synthesis:none}</style></head><body>
     telebirr: {title:'Telebirr',label:'የቴሌብር ቁጥር',logo:'assets/telebirr-mark.svg'},
     bank: {title:'CBE Bank',label:'የCBE ሂሳብ ቁጥር',logo:'assets/cbe-bank-logo.png'}
   };
-  const data={name:'',phone:'',orderRef:'',accessToken:'',number:'',holder:''};
+  const data={name:'',phone:'',heard:'',orderRef:'',accessToken:'',number:'',holder:''};
   const storageKey='parentwise-pending-order-v1';
   const requestKey='parentwise-unsure-order-request-v1';
   const enabled = CHECKOUT_OPEN && /^https:\/\/[a-z0-9.-]+(?::443)?$/i.test(ORDER_API_ORIGIN);
@@ -655,6 +657,7 @@ button,input,select,textarea{font-synthesis:none}</style></head><body>
     'ParentWise Ethiopia',
     'ስም: '+data.name,
     'ስልክ ቁጥር: '+data.phone,
+    'ከየት ሰሙ: '+({ad:'ማስታወቂያ',telegram:'ቴሌግራም',friend:'ጓደኛ ወይም ቤተሰብ',other:'ሌላ'}[data.heard]||'—')+' ['+(data.heard||'-')+']',
     'Payment method: '+(method==='bank'?'CBE':'Telebirr'),
     'Amount: 1,500 ETB'
   ].join('\n');
@@ -710,10 +713,11 @@ button,input,select,textarea{font-synthesis:none}</style></head><body>
     if(!/^(0[97][0-9]{8}|\+251[97][0-9]{8})$/.test(phone)){
       error('እባክዎ በ09፣ በ07 ወይም በ+251 ቅርጸት ትክክለኛ የስልክ ቁጥር ያስገቡ።');$('customer-mobile').focus();return;
     }
+    if(!$('heard-from').value){error('እባክዎ ParentWiseን ከየት እንደሰሙ ይምረጡ።');$('heard-from').focus();return;}
     const requestedMethod=selected();
     if(previewOnly){
       // No network, real recipient, order reference, token, or payment confirmation.
-      data.name=name;data.phone=phone;data.orderRef='';data.accessToken='';data.number='';data.holder='';
+      data.name=name;data.phone=phone;data.heard=$('heard-from').value;data.orderRef='';data.accessToken='';data.number='';data.holder='';
       method=requestedMethod;
       const meta=methods[requestedMethod];
       $('selected-method').textContent=meta.title;
@@ -762,7 +766,7 @@ button,input,select,textarea{font-synthesis:none}</style></head><body>
       const order=result.order;
       const instr=verifiedOrder(order,requestedMethod);
       if(!/^[A-Za-z0-9_-]{43}$/.test(result.access_token||''))throw new Error('Missing recovery token');
-      data.name=name;data.phone=phone;data.accessToken=result.access_token;
+      data.name=name;data.phone=phone;data.heard=$('heard-from').value;data.accessToken=result.access_token;
       save({id:order.order_id,token:result.access_token,name,phone,method:requestedMethod});
       clearAttempt();
       present(order,instr);
